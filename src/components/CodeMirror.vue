@@ -1,51 +1,41 @@
 <template>
   <div class="col-12 h-100 container">
-    codemirror
+    <textarea class="col-12 h-100" id="editor"></textarea>
   </div>
 </template>
 
 <script>
 import { defineComponent, ref } from 'vue';
-
+import CodeMirror from "codemirror/lib/codemirror";
+import "codemirror/lib/codemirror.css";
+import "codemirror/mode/javascript/javascript.js";
 
 export default defineComponent({
   name: 'CodeMirror',
   components: {  },
   setup() {
-    const value = ref('');
+    const value = ref('codemirror');
     const cmOptions = {
-        theme: 'material',
-        tabSize: 2,
-        mode: 'text/javascript',
-        lineNumbers: true,
-        line: true,
-        readOnly: false,
-      };
-    return { value, cmOptions }
+      theme: 'material',
+      tabSize: 2,
+      mode: 'text/javascript',
+      lineNumbers: true,
+      line: true,
+      readOnly: false,
+    };
+    const editor = null
+    return { value, cmOptions, editor }
   },
+  mounted(){
+    this.editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+      lineNumbers: true
+    });
+  }
 });
 </script>
 
 <style>
-  .cm{
-    margin: 0!important;
-    padding: 0!important;
-    position: relative;
+  .CodeMirror {
     height: 100%;
-  }
-  .vue-codemirror{
-    width: 100%;
-    height: calc(100% - 40px);
-    margin-bottom: 0!important;
-    padding-bottom: 0!important;
-  }
-  .CodeMirror-scroll{
-    overflow: auto!important;
-    margin: 0!important;
-    padding: 0!important;
-  }
-  .CodeMirror{
-    height: 100%;
-    z-index: 0;
   }
 </style>
