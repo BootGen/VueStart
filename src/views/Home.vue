@@ -5,14 +5,17 @@
         codemirror
       </div>
       <div class="col-6 h-100">
-        <iframe class="h-100 w-100" src="https://codesharp.hu/" title="CodeSharp"></iframe>
+        <browser-frame></browser-frame>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import BrowserFrame from '../components/BrowserFrame.vue'
+
 export default {
+  components: { BrowserFrame },
   name: 'Home',
 }
 </script>
