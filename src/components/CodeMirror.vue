@@ -6,6 +6,7 @@
 
 <script>
 import { defineComponent, ref } from 'vue';
+import { prettyPrint } from '../utils/PrettyPrint';
 import CodeMirror from 'codemirror/lib/codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/javascript/javascript.js';
@@ -17,17 +18,20 @@ export default defineComponent({
     return { editor }
   },
   mounted(){
-    let func = this.debounce(function() {
-        console.log('change');
-      }, 1000);
+    let func = this.debounce(function(cm) {
+      const oldValue = cm.getValue()
+      const newValue = prettyPrint(cm.getValue());
+      if (oldValue != newValue) {
+        cm.setValue(newValue);
+      }
+    }, 1000);
     this.editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
       mode: "text/javascript",
       lineNumbers: true,
       autoCloseTags: true,
       tabSize: 2,
     }).on('change', cm => {
-      console.log(cm.getValue());
-      func()
+      func(cm);
     });
   },
   methods: {
