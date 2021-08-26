@@ -1,5 +1,9 @@
 <template>
   <div class="col-12 h-100 container">
+    <div class="alert-bottom alert alert-danger d-flex align-items-center" v-if="showErrorMsg">
+      <button type="button" class="btn-close" aria-label="Close" @click="showErrorMsg = false"></button>
+      {{ errorMsg }}
+    </div>
     <textarea class="col-12 h-100" id="editor"></textarea>
   </div>
 </template>
@@ -15,8 +19,9 @@ export default defineComponent({
   name: 'CodeMirror',
   setup() {
     const editor = ref(null);
-    const cmError = ref({});
-    return { editor, cmError }
+    const errorMsg = ref('');
+    const showErrorMsg = ref(false);
+    return { editor, errorMsg, showErrorMsg }
   },
   mounted(){
     let debouncedCheckJson = this.debounce(this.checkJson, 1000);
@@ -65,9 +70,13 @@ export default defineComponent({
     checkJson(cm) {
       const oldValue = cm.getValue();
       const newValue = prettyPrint(cm.getValue());
-        this.unsetHighlight()
-      if(validateJson(newValue).error){
-        this.lineToColor(validateJson(newValue).line, 'red');
+      this.unsetHighlight()
+      this.errorMsg = '';
+      this.showErrorMsg = true;
+      const result = validateJson(newValue);
+      if(result.error){
+        this.errorMsg = result.message;
+        this.lineToColor(result.line, 'red');
       }else if (oldValue != newValue) {
         cm.setValue(newValue);
       }
@@ -79,5 +88,13 @@ export default defineComponent({
 <style>
   .CodeMirror {
     height: 100%;
+  }
+
+  .alert-bottom{
+      position: fixed;
+      bottom: 5px;
+      left:2%;
+      width: 96%;
+      z-index: 9;
   }
 </style>
