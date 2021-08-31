@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - ./ClientApp/dist:/var/www/startvue
+      - ./DefaultSite/dist:/var/www/sites/default
