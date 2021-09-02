@@ -1,6 +1,6 @@
 #!/bin/bash
 nginx
 cd /code/ClientApp
-npm run serve &
+npm run serve --  --mode production &
 cd /code/DefaultSite
-npm run serve -- --port 8090
+npm run serve -- --port 8090  --mode production
