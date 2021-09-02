@@ -14,27 +14,39 @@ import { prettyPrint, validateJson } from '../utils/PrettyPrint';
 import CodeMirror from 'codemirror/lib/codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/javascript/javascript.js';
+import axios from 'axios';
 
 export default defineComponent({
   name: 'CodeMirror',
   setup() {
-    const editor = ref(null);
     const errorMsg = ref('');
     const showErrorMsg = ref(false);
-    return { editor, errorMsg, showErrorMsg }
+    return { errorMsg, showErrorMsg }
   },
-  mounted(){
+  async mounted(){
+    const json = await this.getProjectContentFromServer('example_input');
     let debouncedCheckJson = this.debounce(this.checkJson, 1000);
-    this.editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+    const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
       mode: "text/javascript",
       lineNumbers: true,
-      autoCloseTags: true,
       tabSize: 2,
-    }).on('change', cm => {
+      autoCloseTags: true,
+      value: document.getElementById('editor').innerHtml
+    });
+    editor.on('change', cm => {
       debouncedCheckJson(cm);
     });
+    editor.setValue(json);
+    this.checkJson(editor);
   },
   methods: {
+    getProjectContentFromServer: async function(name) {
+      const data = (await axios.get(`/${name}.json`, {responseType: 'text'})).data;
+      console.log(data);
+      if (typeof data === 'string')
+        return data;
+      return JSON.stringify(data);
+    },
     debounce (func, wait) {
       let timeout;
       return function executedFunction(...args) {
@@ -68,17 +80,19 @@ export default defineComponent({
       }
     },
     checkJson(cm) {
-      const oldValue = cm.getValue();
-      const newValue = prettyPrint(cm.getValue());
+      const json = cm.getValue();
+      const newValue = prettyPrint(json);
       this.unsetHighlight()
       this.errorMsg = '';
-      this.showErrorMsg = true;
-      const result = validateJson(newValue);
+      this.showErrorMsg = false;
+      const result = validateJson(json);
       if(result.error){
+        this.showErrorMsg = true;
         this.errorMsg = result.message;
         this.lineToColor(result.line, 'red');
-      }else if (oldValue != newValue) {
+      }else if (json != newValue) {
         cm.setValue(newValue);
+        localStorage.json = newValue;
       }
     }
   }
