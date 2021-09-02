@@ -3,7 +3,7 @@
     <div class="col-12 d-flex justify-content-start">
       Pets:
     </div>
-    <div class="col-12 mb-2" v-for="item in petList" :key="item.id">
+    <div class="col-12 mb-2" v-for="item in modelValue" :key="item.id">
       <pet-edit v-model="item.value" @close="finishEditing()" v-if="editedPetId === item.id"></pet-edit>
       <pet-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></pet-view>
     </div>
@@ -22,43 +22,26 @@ export default defineComponent({
   props: {
     modelValue: Object
   },
-  setup(props) {
+  setup() {
     const editedPetId = ref(-1)
-    const petList = ref(props.modelValue.map((val, idx) => {
-      return {
-        id: idx,
-        value: val
-      }
-    }))
-    return { editedPetId, petList }
+    return { editedPetId }
   },
-  watch: {
+  /*watch: {
     petList: {
       handler() {
         console.log("pet changed!");
-        //this.$emit('update:modelValue', this.petList.map(i => i.value))
+        this.$emit('update:modelValue', this.petList.map(i => i.value))
       },
       deep: true
-    },
-    modelValue : {
-      handler() {
-        this.petList = this.modelValue.map((val, idx) => {
-          return {
-            id: idx,
-            value: val
-          }
-        });
-      }
     }
-  },
+  },*/
   methods: {
     editItem(item){
       this.editedPetId = item.id;
     },
     deleteItem(item){
       if (confirm(`Are you sure to delete Pet with name ${ item.value.name }?`)){
-        this.petList = this.petList.filter(i => i.id !== item.id);
-        this.$emit('update:modelValue', this.petList.map(i => i.value))
+        this.$emit('update:modelValue', this.modelValue.filter(i => i.id !== item.id))
       }
     },
     finishEditing() {

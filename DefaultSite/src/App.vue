@@ -8,6 +8,21 @@
 import { defineComponent, ref } from 'vue';
 import UserList from './components/UserList.vue';
 
+function mapUsers(users) {
+  return users.map((val, idx) => {
+        const v = { ... val }
+        v.pets = val.pets.map((val, idx) => {
+              return {
+                id: idx,
+                value: val
+              }});
+        return {
+          id: idx,
+          value: v
+        }
+    })
+}
+
 export default defineComponent({
   name: 'App',
   components: { UserList },
@@ -28,30 +43,24 @@ export default defineComponent({
         ]
       }
     ]
-    const userList = ref(users.map((val, idx) => {
-      return {
-        id: idx,
-        value: val
-      }
-    }))
+    const userList = ref(mapUsers(users))
     return { userList }
   },
   mounted(){
     window.addEventListener('storage', () => {
       const users = JSON.parse(JSON.parse(localStorage.getItem('json'))).users;
-      const newUserList = users.map((val, idx) => {
-        return {
-          id: idx,
-          value: val
-        }
-      })
+      const newUserList = mapUsers(users);
       this.setUserList(newUserList);
     });
   },
   watch: {
     userList: {
       handler() {
-        localStorage.setItem('json', JSON.stringify({users: this.userList.map(item => item.value)}));
+        localStorage.setItem('json', JSON.stringify({users: this.userList.map(item => {
+           let val = { ...item.value }
+           val.pets = val.pets.map(i => i.value)
+           return val
+        })}));
       },
       deep: true
     },  
