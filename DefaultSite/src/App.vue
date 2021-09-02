@@ -1,8 +1,6 @@
 <template>
   <div class="container-fluid">
-    <div class="d-flex flex-wrap" v-for="item in userList" :key="item.id">
-      <user-list v-model="userList"></user-list>
-    </div>
+    <user-list v-model="userList"></user-list>
   </div>
 </template>
 
@@ -30,31 +28,43 @@ export default defineComponent({
         ]
       }
     ]
-    const json = '{"users": [{"userName": "Jon","email": "jon@arbuckle.com","pets": [{	"name": "Garfield",	"species": "cat"	},	{	"name": "Odie","species": "dog"	}	]}	]}';
     const userList = ref(users.map((val, idx) => {
       return {
         id: idx,
         value: val
       }
     }))
-    return { userList, json }
+    return { userList }
   },
   mounted(){
     window.addEventListener('storage', () => {
-      this.json = localStorage.getItem('json');
-      console.log('defaultSite json:', this.json);
+      const users = JSON.parse(JSON.parse(localStorage.getItem('json'))).users;
+      const newUserList = users.map((val, idx) => {
+        return {
+          id: idx,
+          value: val
+        }
+      })
+      this.setUserList(newUserList);
     });
   },
   watch: {
     userList: {
-      handler(val) {
-        console.log('newList', this.userList);
-        console.log('data:', val);
+      handler() {
         localStorage.setItem('json', JSON.stringify({users: this.userList.map(item => item.value)}));
-        console.log('defaultSite:', localStorage);
       },
       deep: true
     },  
+  },
+  methods: {
+    setUserList(list) {
+      if(JSON.stringify(list) != JSON.stringify(this.userList)){
+        console.log('list', JSON.stringify(list));
+        console.log('this.userList', JSON.stringify(this.userList));
+        this.userList = [...list];
+        console.log('new this.userList', JSON.stringify(this.userList));
+      }
+    }
   }
 });
 </script>

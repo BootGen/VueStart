@@ -36,9 +36,19 @@ export default defineComponent({
     petList: {
       handler() {
         console.log("pet changed!");
-        this.$emit('update:modelValue', this.petList.map(i => i.value))
+        //this.$emit('update:modelValue', this.petList.map(i => i.value))
       },
       deep: true
+    },
+    modelValue : {
+      handler() {
+        this.petList = this.modelValue.map((val, idx) => {
+          return {
+            id: idx,
+            value: val
+          }
+        });
+      }
     }
   },
   methods: {

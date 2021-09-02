@@ -52,6 +52,11 @@ export default defineComponent({
   props: {
     modelValue: Object
   },
+  watch: {
+    modelValue() {
+      console.log("user view model changed")
+    }
+  },
   methods: {
     onUpdate(pets) {
       const newValue = { ...this.modelValue }

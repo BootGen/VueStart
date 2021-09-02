@@ -1,6 +1,6 @@
 <template>
   <div class="col-xxl-3 col-md-6 col-sm-12">
-    <div class="m-2" v-for="item in userList" :key="item.id">
+    <div class="m-2" v-for="item in modelValue" :key="item.id">
       <user-edit v-model="item.value" @close="finishEditing()" v-if="editedUserId === item.id"></user-edit>
       <user-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></user-view>
     </div>
@@ -19,10 +19,9 @@ export default defineComponent({
   props: {
     modelValue: Object
   },
-  setup(props) {
+  setup() {
     const editedUserId = ref(-1)
-    const userList = ref(props.modelValue)
-    return { editedUserId, userList }
+    return { editedUserId }
   },
   methods: {
     editItem(item){
