@@ -25,6 +25,7 @@ export default defineComponent({
   },
   async mounted(){
     const json = await this.getProjectContentFromServer('example_input');
+    localStorage.setItem('json', json);
     let debouncedCheckJson = this.debounce(this.checkJson, 1000);
     const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
       mode: "text/javascript",
@@ -36,13 +37,15 @@ export default defineComponent({
     editor.on('change', cm => {
       debouncedCheckJson(cm);
     });
+    window.addEventListener('storage', () => {
+      editor.setValue(prettyPrint(localStorage.getItem('json').toString()));
+    });
     editor.setValue(json);
     this.checkJson(editor);
   },
   methods: {
     getProjectContentFromServer: async function(name) {
       const data = (await axios.get(`/${name}.json`, {responseType: 'text'})).data;
-      console.log(data);
       if (typeof data === 'string')
         return data;
       return JSON.stringify(data);
@@ -92,7 +95,9 @@ export default defineComponent({
         this.lineToColor(result.line, 'red');
       }else if (json != newValue) {
         cm.setValue(newValue);
-        localStorage.json = newValue;
+        localStorage.setItem('json', JSON.stringify(newValue));
+      }else{
+        localStorage.setItem('json', JSON.stringify(newValue));
       }
     }
   }

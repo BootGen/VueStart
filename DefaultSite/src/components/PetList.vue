@@ -32,6 +32,15 @@ export default defineComponent({
     }))
     return { editedPetId, petList }
   },
+  watch: {
+    petList: {
+      handler() {
+        console.log("pet changed!");
+        this.$emit('update:modelValue', this.petList.map(i => i.value))
+      },
+      deep: true
+    }
+  },
   methods: {
     editItem(item){
       this.editedPetId = item.id;
