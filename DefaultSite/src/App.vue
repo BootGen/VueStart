@@ -8,12 +8,12 @@
 import { defineComponent, ref } from 'vue';
 import UserList from './components/UserList.vue';
 
-function mapData(data) {
+function toDataModel(data) {
   return data.map((val, idx) => {
     const v = { ... val }
     for (const property in v) {
       if(Array.isArray(v[property])){
-        v[property] = mapData(v[property]);
+        v[property] = toDataModel(v[property]);
       }
     }
     return {
@@ -21,6 +21,19 @@ function mapData(data) {
       value: v
     }
   })
+}
+function toSimpleArray(data) {
+  let arr =  data.map(val => {
+    return { ...val.value }
+  })
+  arr.forEach(item => {
+    for (const property in item) {
+      if(Array.isArray(item[property])){
+        item[property] = toSimpleArray(item[property]);
+      }
+    }
+  })
+  return arr;
 }
 
 export default defineComponent({
@@ -43,24 +56,21 @@ export default defineComponent({
         ]
       }
     ]
-    const userList = ref(mapData(users))
+    const userList = ref(toDataModel(users))
     return { userList }
   },
   mounted(){
     window.addEventListener('storage', () => {
       const users = JSON.parse(JSON.parse(localStorage.getItem('json'))).users;
-      const newUserList = mapData(users);
+      const newUserList = toDataModel(users);
       this.setUserList(newUserList);
     });
   },
   watch: {
     userList: {
       handler() {
-        localStorage.setItem('json', JSON.stringify({users: this.userList.map(item => {
-           let val = { ...item.value }
-           val.pets = val.pets.map(i => i.value)
-           return val
-        })}));
+        //setLocalStorage(this.userList, 'users');
+        localStorage.setItem('json', JSON.stringify({users: toSimpleArray(this.userList)}));
       },
       deep: true
     },  
