@@ -69,7 +69,7 @@ export default defineComponent({
   watch: {
     userList: {
       handler() {
-        saveToLocalStorage({users: toSimpleArray(this.userList)});
+        this.saveToLocalStorage({users: toSimpleArray(this.userList)});
       },
       deep: true
     },  

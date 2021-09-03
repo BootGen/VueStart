@@ -85,6 +85,7 @@ export default defineComponent({
     },
     checkJson(cm) {
       const json = cm.getValue();
+      const cursorPosition = cm.getCursor();
       const newValue = prettyPrint(json);
       this.unsetHighlight();
       this.errorMsg = '';
@@ -96,6 +97,7 @@ export default defineComponent({
         this.lineToColor(result.line, 'red');
       }else if (json != newValue) {
         cm.setValue(newValue);
+        cm.setCursor(cursorPosition);
       }
     },
     saveToLocalStorage(newValue) {
