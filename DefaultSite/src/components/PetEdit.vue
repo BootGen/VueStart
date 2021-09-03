@@ -64,10 +64,11 @@ export default defineComponent({
   methods: {
     save() {
       this.$emit('update:modelValue', this.editedPet)
-      this.$emit('close')
+      this.$emit('saved')
     },
     cancel() {
-      this.$emit('close')
+      this.editedPet = { ...this.modelValue };
+      this.$emit('canceled')
     }
   }
 });
