@@ -25,7 +25,6 @@ export default defineComponent({
   },
   async mounted(){
     const json = await this.getProjectContentFromServer('example_input');
-    localStorage.setItem('json', json);
     let debouncedCheckJson = this.debounce(this.checkJson, 1000);
     const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
       mode: "text/javascript",
@@ -35,7 +34,9 @@ export default defineComponent({
       value: document.getElementById('editor').innerHtml
     });
     editor.on('change', cm => {
+      this.saveToLocalStorage(cm.getValue());
       debouncedCheckJson(cm);
+
     });
     window.addEventListener('storage', () => {
       editor.setValue(prettyPrint(localStorage.getItem('json').toString()));
@@ -85,7 +86,7 @@ export default defineComponent({
     checkJson(cm) {
       const json = cm.getValue();
       const newValue = prettyPrint(json);
-      this.unsetHighlight()
+      this.unsetHighlight();
       this.errorMsg = '';
       this.showErrorMsg = false;
       const result = validateJson(json);
@@ -95,9 +96,18 @@ export default defineComponent({
         this.lineToColor(result.line, 'red');
       }else if (json != newValue) {
         cm.setValue(newValue);
-        localStorage.setItem('json', JSON.stringify(newValue));
-      }else{
-        localStorage.setItem('json', JSON.stringify(newValue));
+      }
+    },
+    saveToLocalStorage(newValue) {
+      try {
+        let obj = JSON.parse(newValue);
+        let minimized = JSON.stringify(obj);
+        let oldValue = localStorage.getItem('json');
+        if (minimized != oldValue) {
+          localStorage.setItem('json', minimized);
+        }
+      } catch (e) {
+        console.log(e)
       }
     }
   }

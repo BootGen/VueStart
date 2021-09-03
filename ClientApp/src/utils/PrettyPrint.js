@@ -16,20 +16,12 @@ function getLine(idx, str) {
 }
 
 export function validateJson(text) {
-  let json = text.replace(/\*(\*(?!\/)|[^*])*\*/g, '');
-  json = json.split('\n').filter(line => !line.trim().startsWith('//')).join('\n');
   try {
-    JSON.parse(json);
+    JSON.parse(text);
     return {error: false, line: -1, message: ''};
   } catch (err) {
     const idx = err.message.match(/\d+/g)[0]-1;
-    const lines = text.split('\n');
     let errorLine = getLine(idx, json);
-    for(let i = 0; i < errorLine; i++){
-      if(lines[i].includes('//')){
-        errorLine++;
-      }
-    }
     return {error: true, line: errorLine, message: err.message};
   }
 }

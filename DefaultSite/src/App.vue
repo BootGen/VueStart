@@ -61,7 +61,7 @@ export default defineComponent({
   },
   mounted(){
     window.addEventListener('storage', () => {
-      const users = JSON.parse(JSON.parse(localStorage.getItem('json'))).users;
+      const users = JSON.parse(localStorage.getItem('json')).users;
       const newUserList = toDataModel(users);
       this.setUserList(newUserList);
     });
@@ -69,8 +69,7 @@ export default defineComponent({
   watch: {
     userList: {
       handler() {
-        //setLocalStorage(this.userList, 'users');
-        localStorage.setItem('json', JSON.stringify({users: toSimpleArray(this.userList)}));
+        saveToLocalStorage({users: toSimpleArray(this.userList)});
       },
       deep: true
     },  
@@ -79,6 +78,18 @@ export default defineComponent({
     setUserList(list) {
       if(JSON.stringify(list) != JSON.stringify(this.userList)){
         this.userList = [...list];
+      }
+    },
+    saveToLocalStorage(newValue) {
+      try {
+        let obj = JSON.parse(newValue);
+        let minimized = JSON.stringify(obj);
+        let oldValue = localStorage.getItem('json');
+        if (minimized != oldValue) {
+          localStorage.setItem('json', minimized);
+        }
+      } catch (e) {
+        console.log(e)
       }
     }
   }
