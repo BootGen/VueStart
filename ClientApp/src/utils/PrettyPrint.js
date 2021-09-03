@@ -86,6 +86,7 @@ function replaceToString(strings, lines){
 export function prettyPrint(json) {
   json = json.replaceAll('\r','');
   json = json.replaceAll('\'','"');
+  json = json.replaceAll('""','"&zwnj;"');
   const keys = json.match(/"([^"]*)":/g);
   json = json.replace(/"([^"]*)":/g, 'key');
   const strings = json.match(/"[^"]*"/g);
@@ -103,5 +104,7 @@ export function prettyPrint(json) {
       lines.splice(idx, 1);
     } 
   })
-  return lines.join('\n');
+  lines = lines.join('\n');
+  lines = lines.replaceAll('"&zwnj;"','""');
+  return lines;
 }
