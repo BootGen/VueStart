@@ -7,6 +7,8 @@
       <div class="col-6 h-100">
         <browser-frame></browser-frame>
       </div>
+      <!-- type can be: default, loading, error -->
+      <vueuen type="default"></vueuen>
     </div>
   </div>
 </template>
@@ -14,9 +16,10 @@
 <script>
 import BrowserFrame from '../components/BrowserFrame.vue'
 import CodeMirror from '../components/CodeMirror.vue'
+import Vueuen from '../components/Vueuen.vue'
 
 export default {
-  components: { BrowserFrame, CodeMirror },
+  components: { BrowserFrame, CodeMirror, Vueuen },
   name: 'Home',
 }
 </script>
