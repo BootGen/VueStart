@@ -21,14 +21,12 @@ export function validateJson(text) {
     return {error: false, line: -1, message: ''};
   } catch (err) {
     const idx = err.message.match(/\d+/g)[0]-1;
-    let errorLine = getLine(idx, json);
+    let errorLine = getLine(idx, text);
     return {error: true, line: errorLine, message: err.message};
   }
 }
 export function formatJson(json){
   json = json.replaceAll(/\s/g,'');
-  json = json.replaceAll('//','\n//\n');
-  json = json.replaceAll('/**/','\n/**/\n');
   json = json.replaceAll('{','{\n');
   json = json.replaceAll('}','\n}');
   json = json.replaceAll('[','[\n');
@@ -65,10 +63,10 @@ function replaceToKey(strings, lines){
   return lines;
 }
 function replaceToString(strings, lines){
-  strings.forEach(comment => {
+  strings.forEach(string => {
     for(let i = 0; i < lines.length; i++){
       if(lines[i].includes('""')){
-        lines[i] = lines[i].replace('""', comment);
+        lines[i] = lines[i].replace('""', string);
         break;
       }
     }
