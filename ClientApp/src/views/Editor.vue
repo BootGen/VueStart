@@ -5,10 +5,10 @@
         <code-mirror></code-mirror>
       </div>
       <div class="col-6 h-100">
-        <browser-frame></browser-frame>
+      <browser-frame></browser-frame>
       </div>
       <!-- type can be: default, loading, error -->
-      <vueuen type="default"></vueuen>
+      <vueuen class="vueuen" type="default"></vueuen>
     </div>
   </div>
 </template>
@@ -20,6 +20,15 @@ import Vueuen from '../components/Vueuen.vue'
 
 export default {
   components: { BrowserFrame, CodeMirror, Vueuen },
-  name: 'Home',
+  name: 'Editor',
 }
 </script>
+
+
+<style>
+  .vueuen img{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+  }
+</style>

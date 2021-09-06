@@ -16,11 +16,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style>
-  img{
-    position: absolute;
-    bottom: 0;
-    right: 0;
-  }
-</style>
