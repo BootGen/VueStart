@@ -1,9 +1,6 @@
 <template>
   <div class="col-12 h-100 container">
-    <div class="alert-bottom alert alert-danger d-flex align-items-center" v-if="showErrorMsg">
-      <button type="button" class="btn-close" aria-label="Close" @click="showErrorMsg = false"></button>
-      {{ errorMsg }}
-    </div>
+    <vueuen-alert v-if="showErrorMsg" :errorMsg="errorMsg" @close="showErrorMsg = false"></vueuen-alert>
     <textarea class="col-12 h-100" id="editor"></textarea>
   </div>
 </template>
@@ -15,9 +12,11 @@ import CodeMirror from 'codemirror/lib/codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/javascript/javascript.js';
 import axios from 'axios';
+import VueuenAlert from '../components/VueuenAlert.vue'
 
 export default defineComponent({
   name: 'CodeMirror',
+  components: { VueuenAlert },
   setup() {
     const errorMsg = ref('');
     const showErrorMsg = ref(false);

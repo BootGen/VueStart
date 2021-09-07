@@ -24,11 +24,11 @@ export default {
 }
 </script>
 
-
 <style>
   .vueuen img{
     position: absolute;
     bottom: 0;
-    right: 0;
+    right: 50%;
+    z-index: 9;
   }
 </style>
