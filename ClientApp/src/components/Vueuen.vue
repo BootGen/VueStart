@@ -16,3 +16,9 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+  .container {
+    display: contents;
+  }
+</style>

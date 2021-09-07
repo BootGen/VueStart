@@ -36,9 +36,6 @@ export default defineComponent({
     right: 50%;
     z-index: 99;
   }
-  .vueuen-error {
-    display: contents;
-  }
 
 .fade-enter-active, .fade-leave-active {
   transition: opacity .5s ease;
