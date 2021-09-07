@@ -11,7 +11,8 @@
     "axios": "^0.21.1",
     "codemirror": "^5.62.3",
     "core-js": "^3.6.5",
-    "vue": "^3.0.0"
+    "vue": "^3.0.0",
+    "vue-router": "^4.0.0-0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
