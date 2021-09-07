@@ -1,5 +1,5 @@
 <template>
-  <div class="col-12 h-100 container">
+  <div class="col-12 h-100 container p-0">
     <vueuen-alert v-if="showErrorMsg" :errorMsg="errorMsg" @close="showErrorMsg = false"></vueuen-alert>
     <textarea class="col-12 h-100" id="editor"></textarea>
   </div>
