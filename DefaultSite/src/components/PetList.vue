@@ -13,6 +13,19 @@
     <div class="col-12 mb-2">
       <pet-edit v-model="newItem" @canceled="cancelAdd" @saved="saveNewItem()" v-if="newItem != null"></pet-edit>
     </div>
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <li class="page-item">
+          <button type="button" class="page-link" v-if="page != 0" @click="page--"> Previous </button>
+        </li>
+        <li v-for="(page, idx) in Math.ceil(modelValue.length/5)" :key="idx" class="page-item" @click="selectedPage = idx">
+          <a class="page-link">{{ idx+1 }}</a>
+        </li>
+        <li class="page-item">
+          <button type="button" class="page-link" v-if="Math.ceil(modelValue.length/5)" @click="page++"> Next </button>
+        </li>
+      </ul>
+    </nav>
   </div>
 </template>
 
@@ -31,7 +44,8 @@ export default defineComponent({
   setup() {
     const editedPetId = ref(-1);
     const newItem = ref(null);
-    return { editedPetId, newItem };
+    const selectedPage = 0;
+    return { editedPetId, newItem, selectedPage };
   },
   methods: {
     editItem(item){
