@@ -82,7 +82,7 @@ export default defineComponent({
     },
     saveToLocalStorage(newValue) {
       try {
-        let obj = JSON.parse(newValue);
+        let obj = JSON.parse(JSON.stringify(newValue));
         let minimized = JSON.stringify(obj);
         let oldValue = localStorage.getItem('json');
         if (minimized != oldValue) {
