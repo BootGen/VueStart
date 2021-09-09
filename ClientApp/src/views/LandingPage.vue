@@ -1,7 +1,7 @@
 <template>
   <div class="container h-100">
     <transition name="fade">
-      <div class="row justify-content-center align-items-center" :class="{ 'shrink' : showNav, 'toShrink': ! showNav }">
+      <div class="row justify-content-center align-items-center anim" :class="{ 'toShrink': ! showNav, 'toGrow' : showNav, }">
         <div class="col-6">
           <h1>Start Vue!</h1>
           <div>
@@ -32,9 +32,7 @@ export default defineComponent({
   },
   methods: {
     clickBtn() {
-      console.log(this.showNav)
       this.showNav = !this.showNav;
-      console.log(this.showNav)
     }
   }
 });
@@ -45,24 +43,13 @@ export default defineComponent({
   .btn {
     font-size: 1.5em;
   }
-  .toShrink {
+  .anim {
+    transition: height 1s ease-in-out;
+  }
+  .anim.toShrink {
     height: 100%;
   }
-  .toGrow {
+  .anim.toGrow {
     height: 45%;
   }
-  .shrink {
-    animation-name: shrink;
-    animation-duration: 1s;
-    animation-timing-function: ease-in-out;
-    animation-direction: alternate;
-  }
-  @keyframes shrink {
-  from {
-    height: 100%;
-    }
-  to {
-    height: 45%;
-    }
-}
 </style>
