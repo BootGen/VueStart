@@ -32,10 +32,10 @@ export default {
 <style scoped>
 /* The browser window */
 .container {
-  border: 3px solid #f1f1f1;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
-  padding: 0
+  background-color: #f1f1f1;
+  padding: 10px;
 }
 
 /* Container for columns and the top "toolbar" */

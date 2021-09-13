@@ -17,4 +17,8 @@ export default {
   color: #2c3e50;
   height: 100%!important;
 }
+
+.custom-card {
+  border-bottom-left-radius: 20px;
+}
 </style>

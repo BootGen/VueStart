@@ -118,6 +118,8 @@ export default defineComponent({
 <style>
   .CodeMirror {
     height: 100%;
+    background-color: #f1f1f1;
+    padding: 10px;
   }
 
   .alert-bottom{
