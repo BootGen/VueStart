@@ -13,19 +13,6 @@
     <div class="col-12 mb-2">
       <pet-edit v-model="newItem" @canceled="cancelAdd" @saved="saveNewItem()" v-if="newItem != null"></pet-edit>
     </div>
-    <nav aria-label="Page navigation example">
-      <ul class="pagination">
-        <li class="page-item">
-          <button type="button" class="page-link" v-if="page != 0" @click="page--"> Previous </button>
-        </li>
-        <li v-for="(page, idx) in Math.ceil(modelValue.length/5)" :key="idx" class="page-item" @click="selectedPage = idx">
-          <a class="page-link">{{ idx+1 }}</a>
-        </li>
-        <li class="page-item">
-          <button type="button" class="page-link" v-if="Math.ceil(modelValue.length/5)" @click="page++"> Next </button>
-        </li>
-      </ul>
-    </nav>
   </div>
 </template>
 
@@ -41,39 +28,44 @@ export default defineComponent({
   props: {
     modelValue: Object
   },
-  setup() {
+  setup(props, context) {
     const editedPetId = ref(-1);
     const newItem = ref(null);
-    const selectedPage = 0;
-    return { editedPetId, newItem, selectedPage };
-  },
-  methods: {
-    editItem(item){
-      this.editedPetId = item.id;
-    },
-    deleteItem(item){
-      if (confirm(`Are you sure to delete Pet with name ${ item.value.name }?`)){
-        this.$emit('update:modelValue', this.modelValue.filter(i => i.id !== item.id));
+
+
+    const editItem = function(item) {
+      editedPetId.value = item.id;
+    };
+
+    const deleteItem = function(item){
+      if (confirm(`Are you sure to delete this pet?`)){
+        context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id));
       }
-    },
-    finishEditing() {
-      this.editedPetId = -1;
-    },
-    addNewItem() {
-      this.newItem = {
+    };
+
+    const finishEditing = function() {
+      editedPetId.value = -1;
+    };
+
+    const addNewItem = function() {
+      newItem.value = {
         name: '',
         species: ''
       };
-    },
-    saveNewItem() {
-        const items = [...this.modelValue];
-        items.push({id: items[items.length-1].id + 1, value: this.newItem});
-        this.$emit('update:modelValue', items);
-        this.newItem = null;
-    },
-    cancelAdd() {
-        this.newItem = null;
+    };
+
+    const saveNewItem = function() {
+        const items = [...props.modelValue];
+        items.push({id: items[items.length-1].id + 1, value: newItem.value});
+        context.emit('update:modelValue', items);
+        newItem.value = null;
+    };
+
+    const cancelAdd = function() {
+        newItem.value = null;
     }
+
+    return { editedPetId, newItem, editItem, deleteItem, finishEditing, addNewItem, saveNewItem, cancelAdd };
   }
 });
 </script>

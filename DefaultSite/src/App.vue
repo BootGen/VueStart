@@ -57,13 +57,20 @@ export default defineComponent({
       }
     ]
     const userList = ref(toDataModel(users))
-    return { userList }
+
+    const saveToLocalStorage = function(newValue) {
+        let minimized = JSON.stringify(newValue);
+        let oldValue = localStorage.getItem('json');
+        if (minimized != oldValue) {
+          localStorage.setItem('json', minimized);
+        }
+    }
+    return { userList, saveToLocalStorage }
   },
   mounted(){
     window.addEventListener('storage', () => {
       const users = JSON.parse(localStorage.getItem('json')).users;
-      const newUserList = toDataModel(users);
-      this.setUserList(newUserList);
+      this.userList = toDataModel(users);
     });
   },
   watch: {
@@ -73,25 +80,6 @@ export default defineComponent({
       },
       deep: true
     },  
-  },
-  methods: {
-    setUserList(list) {
-      if(JSON.stringify(list) != JSON.stringify(this.userList)){
-        this.userList = [...list];
-      }
-    },
-    saveToLocalStorage(newValue) {
-      try {
-        let obj = JSON.parse(JSON.stringify(newValue));
-        let minimized = JSON.stringify(obj);
-        let oldValue = localStorage.getItem('json');
-        if (minimized != oldValue) {
-          localStorage.setItem('json', minimized);
-        }
-      } catch (e) {
-        console.log(e)
-      }
-    }
   }
 });
 </script>

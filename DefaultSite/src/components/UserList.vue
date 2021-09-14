@@ -1,7 +1,7 @@
 <template>
   <div class="col-xxl-3 col-md-6 col-sm-12">
     <div class="m-2" v-for="item in modelValue" :key="item.id">
-      <user-edit v-model="item.value" @close="finishEditing()" v-if="editedUserId === item.id"></user-edit>
+      <user-edit v-model="item.value" @canceled="finishEditing()" @saved="finishEditing()" v-if="editedUserId === item.id"></user-edit>
       <user-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></user-view>
     </div>
   </div>
@@ -19,23 +19,24 @@ export default defineComponent({
   props: {
     modelValue: Object
   },
-  setup() {
-    const editedUserId = ref(-1)
-    return { editedUserId }
-  },
-  methods: {
-    editItem(item){
-      this.editedUserId = item.id;
-    },
-    deleteItem(item){
-      if (confirm(`Are you sure to delete User with name ${ item.value.userName }?`)){
-        this.userList = this.userList.filter(i => i.id !== item.id);
-        this.$emit('update:modelValue', this.userList.map(i => i.value))
+  setup(props, context) {
+    const editedUserId = ref(-1);
+    const editItem = function(item){
+      editedUserId.value = item.id;
+    };
+    
+    const deleteItem = function(item){
+      if (confirm(`Are you sure to delete this user?`)) {
+        console.log(props.modelValue)
+        context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id))
       }
-    },
-    finishEditing() {
-      this.editedUserId = -1;
-    }
+    };
+    
+    const finishEditing = function() {
+      editedUserId.value = -1;
+    };
+
+    return { editedUserId, editItem, deleteItem, finishEditing }
   }
 });
 </script>

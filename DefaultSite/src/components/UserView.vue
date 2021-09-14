@@ -52,12 +52,13 @@ export default defineComponent({
   props: {
     modelValue: Object
   },
-  methods: {
-    onUpdate(pets) {
-      const newValue = { ...this.modelValue }
+  setup(props, context) {
+    const onUpdate = function(pets) {
+      const newValue = { ...props.modelValue }
       newValue.pets = pets
-      this.$emit('update:modelValue', newValue)
+      context.emit('update:modelValue', newValue)
     }
+    return { onUpdate }
   }
 });
 </script>

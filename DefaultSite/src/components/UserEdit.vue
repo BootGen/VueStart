@@ -44,7 +44,7 @@
             </div>
           </li>
           <li class="list-group-item">
-            <pet-list v-model="pets"></pet-list>
+            <pet-list :modelValue="modelValue.pets" @update:modelValue="onUpdate"></pet-list>
           </li>
         </ul>
       </div>
@@ -62,19 +62,20 @@ export default defineComponent({
   props: {
     modelValue: Object
   },
-  setup(props) {
-    const editedUser = { ...props.modelValue }
-    const pets = ref(props.modelValue.pets)
-    return { editedUser, pets }
-  },
-  methods: {
-    save() {
-      this.$emit('update:modelValue', this.editedUser)
-      this.$emit('close')
-    },
-    cancel() {
-      this.$emit('close')
-    }
+  setup(props, context) {
+    const editedUser = ref({ ...props.modelValue });
+
+    const save = function() {
+      context.emit('update:modelValue', editedUser.value)
+      context.emit('saved')
+    };
+    
+    const cancel = function() {
+      editedUser.value = { ...props.modelValue };
+      context.emit('canceled')
+    };
+    
+    return { editedUser, save, cancel }
   }
 });
 </script>

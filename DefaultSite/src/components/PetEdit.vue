@@ -50,26 +50,27 @@
 </template>
 
 <script>
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 
 export default defineComponent({
   name: 'PetView',
   props: {
     modelValue: Object
   },
-  setup(props) {
-    const editedPet = { ...props.modelValue }
-    return { editedPet }
-  },
-  methods: {
-    save() {
-      this.$emit('update:modelValue', this.editedPet)
-      this.$emit('saved')
-    },
-    cancel() {
-      this.editedPet = { ...this.modelValue };
-      this.$emit('canceled')
-    }
+  setup(props, context) {
+    const editedPet = ref({ ...props.modelValue });
+
+    const save = function() {
+      context.emit('update:modelValue', editedPet.value)
+      context.emit('saved')
+    };
+    
+    const cancel = function() {
+      editedPet.value = { ...props.modelValue };
+      context.emit('canceled')
+    };
+    
+    return { editedPet, save, cancel }
   }
 });
 </script>
