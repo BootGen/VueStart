@@ -37,6 +37,7 @@ export default defineComponent({
   props: {
     modelValue: Object,
   },
+  emits: ['update:modelValue', 'canceled', 'saved'],
   setup(props, context) {
     const editedItem = ref({ ...props.modelValue });
 

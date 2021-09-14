@@ -36,6 +36,7 @@ export default defineComponent({
   name: "UserView",
   props: {
     modelValue: Object,
-  }
+  },
+  emits: ['edit',  'delete']
 });
 </script>

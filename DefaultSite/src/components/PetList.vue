@@ -7,11 +7,19 @@
       </button>
     </div>
     <div class="col-12 mb-2" v-for="item in modelValue" :key="item.id">
-      <pet-edit v-model="item.value" @canceled="finishEditing()" @saved="finishEditing()" v-if="editedPetId === item.id"></pet-edit>
-      <pet-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></pet-view>
+        <div class="card">
+          <ul class="list-group list-group-flush">
+            <pet-edit v-model="item.value" @canceled="finishEditing()" @saved="finishEditing()" v-if="editedItemId === item.id"></pet-edit>
+            <pet-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></pet-view>
+          </ul>
+        </div>
     </div>
-    <div class="col-12 mb-2">
-      <pet-edit v-model="newItem" @canceled="cancelAdd" @saved="saveNewItem()" v-if="newItem != null"></pet-edit>
+    <div class="col-12 mb-2" v-if="newItem != null">
+        <div class="card">
+          <ul class="list-group list-group-flush">
+            <pet-edit v-model="newItem" @canceled="cancelAdd" @saved="saveNewItem()"></pet-edit>
+          </ul>
+        </div>
     </div>
   </div>
 </template>
@@ -28,13 +36,13 @@ export default defineComponent({
   props: {
     modelValue: Object
   },
+  emits: ['update:modelValue'],
   setup(props, context) {
-    const editedPetId = ref(-1);
+    const editedItemId = ref(-1);
     const newItem = ref(null);
 
-
     const editItem = function(item) {
-      editedPetId.value = item.id;
+      editedItemId.value = item.id;
     };
 
     const deleteItem = function(item){
@@ -44,7 +52,7 @@ export default defineComponent({
     };
 
     const finishEditing = function() {
-      editedPetId.value = -1;
+      editedItemId.value = -1;
     };
 
     const addNewItem = function() {
@@ -56,7 +64,8 @@ export default defineComponent({
 
     const saveNewItem = function() {
         const items = [...props.modelValue];
-        items.push({id: items[items.length-1].id + 1, value: newItem.value});
+        const lastId = items.length == 0 ? 0 : items[items.length-1].id;
+        items.push({id: lastId + 1, value: newItem.value});
         context.emit('update:modelValue', items);
         newItem.value = null;
     };
@@ -65,7 +74,7 @@ export default defineComponent({
         newItem.value = null;
     };
 
-    return { editedPetId, newItem, editItem, deleteItem, finishEditing, addNewItem, saveNewItem, cancelAdd };
+    return { editedItemId, newItem, editItem, deleteItem, finishEditing, addNewItem, saveNewItem, cancelAdd };
   }
 });
 </script>

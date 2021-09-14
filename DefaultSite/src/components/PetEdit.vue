@@ -1,36 +1,32 @@
 <template>
-  <div class="card">
-    <ul class="list-group list-group-flush">
-      <li class="list-group-item">
-        <button type="button" class="btn btn-default btn-sm" @click="save">
-          <span class="bi bi-save" aria-hidden="true"></span> Save
-        </button>
-        <button type="button" class="btn btn-default btn-sm" @click="cancel">
-          <span class="bi bi-backspace" aria-hidden="true"></span> Cancel
-        </button>
-      </li>
-      <li class="list-group-item">
-        <div class="row d-flex align-items-center">
-          <div class="col-4 d-flex justify-content-start text-break text-start">
-            name:
-          </div>
-          <div class="col-8 d-flex justify-content-start">
-            <input v-model="editedItem.name" type="text" class="form-control" />
-          </div>
-        </div>
-      </li>
-      <li class="list-group-item">
-        <div class="row d-flex align-items-center">
-          <div class="col-4 d-flex justify-content-start text-break text-start">
-            species:
-          </div>
-          <div class="col-8 d-flex justify-content-start">
-            <input v-model="editedItem.species" type="text" class="form-control" />
-          </div>
-        </div>
-      </li>
-    </ul>
-  </div>
+  <li class="list-group-item">
+    <button type="button" class="btn btn-default btn-sm" @click="save">
+      <span class="bi bi-save" aria-hidden="true"></span> Save
+    </button>
+    <button type="button" class="btn btn-default btn-sm" @click="cancel">
+      <span class="bi bi-backspace" aria-hidden="true"></span> Cancel
+    </button>
+  </li>
+  <li class="list-group-item">
+    <div class="row d-flex align-items-center">
+      <div class="col-4 d-flex justify-content-start text-break text-start">
+        name:
+      </div>
+      <div class="col-8 d-flex justify-content-start">
+        <input v-model="editedItem.name" type="text" class="form-control" />
+      </div>
+    </div>
+  </li>
+  <li class="list-group-item">
+    <div class="row d-flex align-items-center">
+      <div class="col-4 d-flex justify-content-start text-break text-start">
+        species:
+      </div>
+      <div class="col-8 d-flex justify-content-start">
+        <input v-model="editedItem.species" type="text" class="form-control" />
+      </div>
+    </div>
+  </li>
 </template>
 
 <script>
@@ -41,6 +37,7 @@ export default defineComponent({
   props: {
     modelValue: Object,
   },
+  emits: ['update:modelValue', 'canceled', 'saved'],
   setup(props, context) {
     const editedItem = ref({ ...props.modelValue });
 
