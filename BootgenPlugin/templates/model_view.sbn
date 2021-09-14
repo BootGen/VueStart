@@ -1,0 +1,38 @@
+<template>
+  <div class="card">
+    <div class="row">
+      <div class="col-md-6">
+        <button type="button" class="btn btn-default btn-sm"  @click="$emit('edit')">
+          <span class="bi bi-pencil" aria-hidden="true"></span> Edit
+        </button>
+      </div>
+      <div class="col-md-6">
+        <button type="button" class="btn btn-default btn-sm"  @click="$emit('delete')">
+          <span class="bi bi-trash" aria-hidden="true"></span> Delete
+        </button>
+      </div>
+    </div>
+    <ul class="list-group list-group-flush">
+    {{~ for property in class.common_properties ~}}
+      <li class="list-group-item">
+      {{ property.name }}:
+      {{~ if (get_type property) == "Date" ~}}
+      {{'{{'}} $filters.dateFormat({{ camel_case class.name }}.{{ camel_case property.name }}) {{'}}'}}
+      {{~ else ~}}
+      {{'{{'}} {{ camel_case class.name }}.{{ camel_case property.name }} {{'}}'}}
+      {{~ end ~}}
+      </li>
+    {{~ end ~}}
+    </ul>
+  </div>
+</template>
+
+<script>
+import { defineComponent } from 'vue';
+
+export default defineComponent({
+  props: {
+    {{ camel_case class.name }}: Object
+  }
+});
+</script>

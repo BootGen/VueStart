@@ -1,0 +1,43 @@
+<template>
+  <div class="container-fluid"> 
+    <div class="row">
+      <div
+        class="col-md-2"
+        v-for="item in store.state.{{ camel_case class.name.plural }}.{{ camel_case class.name.plural }}"
+        :key="item.id"
+      >
+        <{{ camel_case class.name }}-edit :{{ camel_case class.name }}="item" @close="finishEditing()" v-if="edited{{ class.name }}Id === item.id"></{{ camel_case class.name }}-edit>
+        <{{ camel_case class.name }}-view :{{ camel_case class.name }}="item" @delete="delete{{ class.name }}(item)" @edit="edit{{ class.name }}(item)" v-else></{{ camel_case class.name }}-view>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { defineComponent, ref } from 'vue';
+import { useStore } from 'vuex';
+import {{ class.name }}View from '../components/{{ class.name }}View.vue';
+import {{ class.name }}Edit from '../components/{{ class.name }}Edit.vue';
+
+export default defineComponent({
+  components: { {{ class.name }}View, {{ class.name }}Edit },
+  setup: function () {
+    const store = useStore();
+    store.dispatch('get{{ class.name.plural }}');
+    const edited{{ class.name }}Id = ref(-1)
+    return { store, edited{{ class.name }}Id }
+  },
+  methods: {
+    edit{{ class.name }}({{ camel_case class.name }}){
+      this.edited{{ class.name }}Id = {{ camel_case class.name }}.id;
+    },
+    delete{{ class.name }}({{ camel_case class.name }}){
+      if (confirm(`Are you sure to delete {{ class.name }} with id ${ {{ camel_case class.name }}.id }?`))
+        this.store.dispatch("delete{{ class.name }}", {{ camel_case class.name }})
+    },
+    finishEditing() {
+      this.edited{{ class.name }}Id = -1;
+    }
+  }
+});
+</script>

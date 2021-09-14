@@ -1,0 +1,62 @@
+<template>
+  <div class="card">
+    <div class="row">
+      <div class="col-md-6">
+        <button type="button" class="btn btn-default btn-sm"  @click="save">
+          <span class="bi bi-save" aria-hidden="true"></span> Save
+        </button>
+      </div>
+      <div class="col-md-6">
+        <button type="button" class="btn btn-default btn-sm"  @click="cancel">
+          <span class="bi bi-backspace" aria-hidden="true"></span> Cancel
+        </button>
+      </div>
+    </div>
+    <ul class="list-group list-group-flush">
+    {{~ for property in class.common_properties ~}}
+    {{~ if !property.is_parent_reference && property.name != "Id" && property.name != "Created" && property.name != "Updated" ~}}
+      <li class="list-group-item">
+        {{ property.name }}:
+        <input
+          v-model="edited{{ class.name }}.{{camel_case property.name}}"
+          {{~ if (get_type property) == "Date" ~}}
+          type="datetime-local"
+          {{~ else if (get_type property) == "number" ~}}
+          type="number"
+          {{~ else ~}}
+          type="text"
+          {{~ end ~}}
+          class="form-control"
+          id="{{camel_case property.name}}"
+        />
+      </li>
+    {{~ end ~}}
+    {{~ end ~}}
+    </ul>
+  </div>
+</template>
+
+<script>
+import { defineComponent } from "vue";
+import { useStore } from "vuex";
+
+export default defineComponent({
+  props: {
+    {{ camel_case class.name }}: Object
+  },
+  setup(props) {
+    const edited{{ class.name }} = { ...props.{{ camel_case class.name }} }
+    const store = useStore()
+    return { edited{{ class.name }}, store }
+  },
+  methods: {
+    save() {
+      this.store.dispatch("update{{ class.name }}", this.edited{{ class.name }});
+      this.$emit('close')
+    },
+    cancel() {
+      this.$emit('close')
+    }
+  }
+});
+</script>
