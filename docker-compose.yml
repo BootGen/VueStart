@@ -7,3 +7,8 @@ services:
       - "8080:80"
     volumes:
       - .:/code
+  install:
+    build: .
+    command: /code/install.sh
+    volumes:
+      - .:/code
