@@ -63,7 +63,7 @@ export default defineComponent({
 
     const cancelAdd = function() {
         newItem.value = null;
-    }
+    };
 
     return { editedPetId, newItem, editItem, deleteItem, finishEditing, addNewItem, saveNewItem, cancelAdd };
   }
