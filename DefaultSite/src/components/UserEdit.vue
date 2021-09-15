@@ -30,25 +30,24 @@
 </template>
 
 <script>
-import { defineComponent, ref } from "vue";
+import { defineComponent, reactive } from 'vue';
 
 export default defineComponent({
-  name: "UserView",
+  name: 'UserEdit',
   props: {
     modelValue: Object,
   },
   emits: ['update:modelValue', 'canceled', 'saved'],
   setup(props, context) {
-    const editedItem = ref({ ...props.modelValue });
+    const editedItem = reactive({ ...props.modelValue });
 
     const save = function () {
-      context.emit("update:modelValue", editedItem.value);
-      context.emit("saved");
+      context.emit('update:modelValue', editedItem);
+      context.emit('saved');
     };
 
     const cancel = function () {
-      editedItem.value = { ...props.modelValue };
-      context.emit("canceled");
+      context.emit('canceled');
     };
 
     return { editedItem, save, cancel };

@@ -24,6 +24,7 @@ export default defineComponent({
   },
   async mounted(){
     const json = await this.getProjectContentFromServer('example_input');
+    this.saveToLocalStorage(json);
     let debouncedCheckJson = this.debounce(this.checkJson, 1000);
     const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
       mode: "text/javascript",

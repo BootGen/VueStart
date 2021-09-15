@@ -46,7 +46,7 @@ export default defineComponent({
     };
 
     const deleteItem = function(item){
-      if (confirm(`Are you sure to delete this pet?`)){
+      if (confirm('Are you sure to delete this pet?')){
         context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id));
       }
     };

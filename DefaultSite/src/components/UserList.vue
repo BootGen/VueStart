@@ -34,7 +34,7 @@
 import { defineComponent, ref } from 'vue';
 import UserView from '../components/UserView.vue';
 import UserEdit from '../components/UserEdit.vue';
-import PetList from "../components/PetList.vue";
+import PetList from '../components/PetList.vue';
 
 export default defineComponent({
   components: { UserView, UserEdit, PetList },
@@ -52,7 +52,7 @@ export default defineComponent({
     };
     
     const deleteItem = function(item){
-      if (confirm(`Are you sure to delete this user?`)) {
+      if (confirm('Are you sure to delete this user?')) {
         console.log(props.modelValue)
         context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id))
       }

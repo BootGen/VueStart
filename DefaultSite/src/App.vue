@@ -40,23 +40,7 @@ export default defineComponent({
   name: 'App',
   components: { UserList },
   setup: function () {
-    const users = [
-      {
-        userName: 'Jon',
-        email: 'jon@arbuckle.com',
-        pets: [
-          {
-            name: 'Garfield',
-            species: 'cat',
-          },
-          {
-            name: 'Odie',
-            species: 'dog',
-          }
-        ]
-      }
-    ]
-    const userList = ref(toDataModel(users))
+    const userList = ref([]);
 
     const saveToLocalStorage = function(newValue) {
         let minimized = JSON.stringify(newValue);
@@ -65,13 +49,19 @@ export default defineComponent({
           localStorage.setItem('json', minimized);
         }
     }
+    const loadFromLocalStorage = function() {
+      let json = localStorage.getItem('json');
+      if (json) {
+        const users = JSON.parse(json).users;
+        if (users) {
+          userList.value = toDataModel(users);
+        }
+      }
+    }
+    loadFromLocalStorage();
+
+    window.addEventListener('storage', loadFromLocalStorage);
     return { userList, saveToLocalStorage }
-  },
-  mounted(){
-    window.addEventListener('storage', () => {
-      const users = JSON.parse(localStorage.getItem('json')).users;
-      this.userList = toDataModel(users);
-    });
   },
   watch: {
     userList: {
