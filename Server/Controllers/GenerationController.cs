@@ -46,7 +46,7 @@ namespace StartVue.Controllers
                 Templates = Load("../BootgenPlugin/templates")
             };
             project.GenerateFiles("Dummy", "http://localhost:5000");
-            return Ok(project);
+            return Ok();
         }
 
         private static VirtualDisk Load(string path)
