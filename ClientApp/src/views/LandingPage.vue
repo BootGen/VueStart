@@ -25,6 +25,9 @@
     <div class="position-absolute start-50 browser custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <browser-frame></browser-frame>
     </div>
+    <div class="d-flex position-absolute footer" :class="{ 'landing': !showNav, 'content' : showNav, }">
+      <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
+    </div>
   </div>
 </template>
 
@@ -59,7 +62,7 @@ export default defineComponent({
     padding: 5vmin;
   }
   .jumbotron.landing {
-    height: 100vh;
+    height: calc( 100vh - 2.5rem );
     background-color: white;
     transition-delay: 300ms;
     border-bottom-left-radius: 0;
@@ -104,7 +107,7 @@ export default defineComponent({
   }
   .codemirror.content{
     opacity: 1;
-    height: 80vh;
+    height: calc( 80vh - 2.5rem );
     top: 15vh;
     visibility: visible;
   }
@@ -123,12 +126,32 @@ export default defineComponent({
   }
   .browser.content{
     opacity: 1;
-    height: 80vh;
+    height: calc( 80vh - 2.5rem );
     transition-delay: 300ms;
     top: 15vh;
     visibility: visible;
   }
   .browser.landing{
+    opacity: 0;
+    height: 0vh;
+    top: 95vh;
+    visibility: hidden;
+  }
+  .footer{
+    right: 0;
+    margin: 2%;
+    transition: all 1s ease-in-out;
+    overflow: hidden;
+    vertical-align: bottom;
+  }
+  .footer.content{
+    opacity: 1;
+    height: 2.5rem;
+    transition-delay: 500ms;
+    top: calc( 100vh - 5rem );
+    visibility: visible;
+  }
+  .footer.landing{
     opacity: 0;
     height: 0vh;
     top: 95vh;
