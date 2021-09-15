@@ -5,6 +5,7 @@ services:
     command: /code/start.sh
     ports:
       - "8080:80"
+      - "8081:81"
     volumes:
       - .:/code
   install:
