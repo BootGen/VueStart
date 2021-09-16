@@ -6,30 +6,28 @@
         <span class="bi bi-plus" aria-hidden="true"></span> Add
       </button>
     </div>
-    <div class="col-xxl-3 col-md-6 col-sm-12">
-      <div class="m-2" v-for="item in modelValue" :key="item.id">
+    <div class="col-12 mb-2" v-for="item in modelValue" :key="item.id">
+      <div class="card">
+        <ul class="list-group list-group-flush">
+          <{{ kebab_case class.name }}-edit v-model="item.value" @canceled="finishEditing()" @saved="finishEditing()" v-if="editedItemId === item.id"></{{ kebab_case class.name }}-edit>
+          <{{ kebab_case class.name }}-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></{{ kebab_case class.name }}-view>
+          {{~ for property in class.properties
+              if property.is_collection && property.class
+              ~}}
+          <li class="list-group-item">
+            <{{ kebab_case property.class.name }}-list v-model="item.value.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
+          </li>
+          {{~ end
+              end ~}}
+        </ul>
+      </div>
+    </div>
+    <div class="col-12 mb-2" v-if="newItem != null">
         <div class="card">
           <ul class="list-group list-group-flush">
-            <{{ kebab_case class.name }}-edit v-model="item.value" @canceled="finishEditing()" @saved="finishEditing()" v-if="editedItemId === item.id"></{{ kebab_case class.name }}-edit>
-            <{{ kebab_case class.name }}-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></{{ kebab_case class.name }}-view>
-            {{~ for property in class.properties
-                if property.is_collection && property.class
-                ~}}
-            <li class="list-group-item">
-              <{{ kebab_case property.class.name }}-list v-model="item.value.{{ camel_case property.class.name }}"></{{ kebab_case property.class.name }}-list>
-            </li>
-            {{~ end
-                end ~}}
+            <{{ kebab_case class.name }}-edit v-model="newItem" @canceled="cancelAdd" @saved="saveNewItem()"></{{ kebab_case class.name }}-edit>
           </ul>
         </div>
-      </div>
-      <div class="col-12 mb-2" v-if="newItem != null">
-          <div class="card">
-            <ul class="list-group list-group-flush">
-              <{{ kebab_case class.name }}-edit v-model="newItem" @canceled="cancelAdd" @saved="saveNewItem()"></{{ kebab_case class.name }}-edit>
-            </ul>
-          </div>
-      </div>
     </div>
   </div>
 </template>
@@ -47,7 +45,7 @@ import {{ property.class.name }}List from './{{ property.class.name }}List.vue';
 end ~}}
 
 export default defineComponent({
-  components: { {{ class.name }}View, {{ class.name }}Edit, PetList },
+  components: { {{ class.name }}View, {{ class.name }}Edit{{ for property in class.properties }}{{ if property.is_collection && property.class }}, {{ property.class.name }}List{{ end }}{{ end }} },
   name: '{{ class.name }}List',
   props: {
     modelValue: Object
@@ -57,24 +55,24 @@ export default defineComponent({
     const editedItemId = ref(-1);
     const newItem = ref(null);
 
-    function editItem(item){
+    function editItem(item) {
       editedItemId.value = item.id;
     }
-    function deleteItem(item){
+    function deleteItem(item) {
       if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
-        console.log(props.modelValue)
-        context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id))
+        context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id));
       }
     }
     function finishEditing() {
       editedItemId.value = -1;
     }
-
     function addNewItem() {
       newItem.value = {
-        {{~ for property in class.properties ~}}
+        {{~ for property in class.properties
+            if !property.is_key && !property.is_parent_reference ~}}
         {{ camel_case property.name }}: {{ if property.is_collection }}[]{{else}}''{{end}}{{if !for.last}},{{end}}
-        {{~ end ~}}
+        {{~ end
+            end ~}}
       };
     }
     function saveNewItem() {
@@ -84,7 +82,7 @@ export default defineComponent({
         context.emit('update:modelValue', items);
         newItem.value = null;
     }
-    const cancelAdd = function() {
+    function cancelAdd() {
         newItem.value = null;
     }
 

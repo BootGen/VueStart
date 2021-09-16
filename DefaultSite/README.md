@@ -1,4 +1,4 @@
-# start-vue-skelleton
+# data-editor
 
 ## Project setup
 ```

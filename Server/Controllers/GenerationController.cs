@@ -25,11 +25,11 @@ namespace StartVue.Controllers
             var seedStore = new SeedDataStore(collection);
             seedStore.Load(jObject);
 
-            const string targetFolder = "../Generated";
+            const string targetFolder = "../DefaultSite/src";
             var disk = new Disk(targetFolder);
             
             foreach( var file in Load("../BootgenPlugin/files").Files) {
-                var dir = Path.Combine(targetFolder, file.Path);
+                var dir = Path.Combine("../DefaultSite", file.Path);
                 if (!Directory.Exists(dir))
                     Directory.CreateDirectory(dir);
                 System.IO.File.WriteAllText(Path.Combine(dir, file.Name), file.Content);
@@ -37,6 +37,8 @@ namespace StartVue.Controllers
             var project = new ClientProject
             {
                 Config = new ClientConfig {
+                    ComponentsFolder = "components",
+                    ViewsFolder = "components",
                     ComponentExtension = "vue",
                     Extension = "js"
                 },

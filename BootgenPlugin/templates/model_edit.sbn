@@ -7,7 +7,8 @@
       <span class="bi bi-backspace" aria-hidden="true"></span> Cancel
     </button>
   </li>
-  {{~ for property in class.common_properties ~}}
+  {{~ for property in class.common_properties
+      if !property.is_key ~}}
   <li class="list-group-item">
     <div class="row d-flex align-items-center">
       <div class="col-4 d-flex justify-content-start text-break text-start">
@@ -18,7 +19,8 @@
       </div>
     </div>
   </li>
-  {{~ end ~}}
+  {{~ end
+      end ~}}
 </template>
 
 <script>
