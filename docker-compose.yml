@@ -8,6 +8,13 @@ services:
       - "8081:81"
     volumes:
       - .:/code
+  vue:
+    build: .
+    command: /code/startvue.sh
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/code
   install:
     build: .
     command: /code/install.sh
