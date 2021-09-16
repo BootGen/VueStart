@@ -1,16 +1,20 @@
 <template>
   <div class="container-fluid">
-  {{~ for resource in resources ~}}
-    <{{ kebab_case resource.name }}-list v-model="{{ camel_case resource.name }}List"></{{ kebab_case resource.name }}-list>
-  {{~ end ~}}
+  {{~ for class in classes
+      if class.is_root ~}}
+    <{{ kebab_case class.name }}-list v-model="{{ camel_case class.name }}List"></{{ kebab_case class.name }}-list>
+  {{~ end
+      end ~}}
   </div>
 </template>
 
 <script>
 import { defineComponent, ref } from 'vue';
-{{~ for resource in resources ~}}
-import {{ resource.name }}List from './components/{{ resource.name }}List.vue';
-{{~ end ~}}
+{{~ for class in classes
+    if class.is_root ~}}
+import {{ class.name }}List from './components/{{ class.name }}List.vue';
+{{~ end
+    end ~}}
 
 function toDataModel(data) {
   return data.map((val, idx) => {
@@ -42,11 +46,13 @@ function toSimpleArray(data) {
 
 export default defineComponent({
   name: 'App',
-  components: { {{ for resource in resources }}{{ resource.name }}List{{ if !for.last }},{{ end }}{{ end }} },
+  components: { {{ for class in classes }}{{ if class.is_root }}{{ class.name }}List{{ if !for.last }},{{ end }}{{ end }}{{ end }} },
   setup: function () {
-    {{~ for resource in resources ~}}
-    const {{ camel_case resource.name }}List = ref([]);
-    {{~ end ~}}
+    {{~ for class in classes
+        if class.is_root ~}}
+    const {{ camel_case class.name }}List = ref([]);
+    {{~ end
+        end ~}}
 
     const saveToLocalStorage = function(newValue) {
         let minimized = JSON.stringify(newValue);
@@ -58,33 +64,39 @@ export default defineComponent({
     const loadFromLocalStorage = function() {
       let json = localStorage.getItem('json');
       if (json) {
-        {{~ for resource in resources ~}}
-        const {{ camel_case resource.name.plural }} = JSON.parse(json).{{ camel_case resource.name.plural }};
-        if ({{ camel_case resource.name.plural }}) {
-          {{ camel_case resource.name }}List.value = toDataModel({{ camel_case resource.name.plural }});
+        {{~ for class in classes
+            if class.is_root ~}}
+        const {{ camel_case class.name.plural }} = JSON.parse(json).{{ camel_case class.name.plural }};
+        if ({{ camel_case class.name.plural }}) {
+          {{ camel_case class.name }}List.value = toDataModel({{ camel_case class.name.plural }});
         }
-        {{~ end ~}}
+        {{~ end
+            end ~}}
       }
     }
     loadFromLocalStorage();
 
     window.addEventListener('storage', loadFromLocalStorage);
     return {
-      {{~ for resource in resources ~}}
-      {{ camel_case resource.name }}List,
-      {{~ end ~}}
+      {{~ for class in classes
+            if class.is_root ~}}
+      {{ camel_case class.name }}List,
+      {{~ end
+          end ~}}
       saveToLocalStorage
     }
   },
   watch: {
-    {{~ for resource in resources ~}}
-    {{ camel_case resource.name }}List: {
+    {{~ for class in classes
+        if class.is_root ~}}
+    {{ camel_case class.name }}List: {
       handler() {
-        this.saveToLocalStorage({ {{ camel_case resource.name.plural }}: toSimpleArray(this.{{ camel_case resource.name }}List) });
+        this.saveToLocalStorage({ {{ camel_case class.name.plural }}: toSimpleArray(this.{{ camel_case class.name }}List) });
       },
       deep: true
     },
-    {{~ end ~}}
+    {{~ end
+        end ~}}
   }
 });
 </script>
