@@ -32,9 +32,9 @@
 
 <script>
 import { defineComponent, ref } from 'vue';
-import UserView from '../components/UserView.vue';
-import UserEdit from '../components/UserEdit.vue';
-import PetList from '../components/PetList.vue';
+import UserView from './UserView.vue';
+import UserEdit from './UserEdit.vue';
+import PetList from './PetList.vue';
 
 export default defineComponent({
   components: { UserView, UserEdit, PetList },

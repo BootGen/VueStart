@@ -27,8 +27,8 @@
 
 <script>
 import { defineComponent, ref } from 'vue';
-import PetView from '../components/PetView.vue';
-import PetEdit from '../components/PetEdit.vue';
+import PetView from './PetView.vue';
+import PetEdit from './PetEdit.vue';
 
 export default defineComponent({
   components: { PetView, PetEdit },

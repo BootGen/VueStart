@@ -1,43 +1,94 @@
 <template>
-  <div class="container-fluid"> 
-    <div class="row">
-      <div
-        class="col-md-2"
-        v-for="item in store.state.{{ camel_case class.name.plural }}.{{ camel_case class.name.plural }}"
-        :key="item.id"
-      >
-        <{{ camel_case class.name }}-edit :{{ camel_case class.name }}="item" @close="finishEditing()" v-if="edited{{ class.name }}Id === item.id"></{{ camel_case class.name }}-edit>
-        <{{ camel_case class.name }}-view :{{ camel_case class.name }}="item" @delete="delete{{ class.name }}(item)" @edit="edit{{ class.name }}(item)" v-else></{{ camel_case class.name }}-view>
+  <div class="row">
+    <div class="col-12 d-flex justify-content-between">
+      {{ class.name.plural }}:
+      <button type="button" class="btn btn-default btn-sm" @click="addNewItem()">
+        <span class="bi bi-plus" aria-hidden="true"></span> Add
+      </button>
+    </div>
+    <div class="col-xxl-3 col-md-6 col-sm-12">
+      <div class="m-2" v-for="item in modelValue" :key="item.id">
+        <div class="card">
+          <ul class="list-group list-group-flush">
+            <{{ kebab_case class.name }}-edit v-model="item.value" @canceled="finishEditing()" @saved="finishEditing()" v-if="editedItemId === item.id"></{{ kebab_case class.name }}-edit>
+            <{{ kebab_case class.name }}-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></{{ kebab_case class.name }}-view>
+            {{~ for property in class.properties
+                if property.is_collection && property.class
+                ~}}
+            <li class="list-group-item">
+              <{{ kebab_case property.class.name }}-list v-model="item.value.{{ camel_case property.class.name }}"></{{ kebab_case property.class.name }}-list>
+            </li>
+            {{~ end
+                end ~}}
+          </ul>
+        </div>
+      </div>
+      <div class="col-12 mb-2" v-if="newItem != null">
+          <div class="card">
+            <ul class="list-group list-group-flush">
+              <{{ kebab_case class.name }}-edit v-model="newItem" @canceled="cancelAdd" @saved="saveNewItem()"></{{ kebab_case class.name }}-edit>
+            </ul>
+          </div>
       </div>
     </div>
   </div>
 </template>
 
+
 <script>
 import { defineComponent, ref } from 'vue';
-import { useStore } from 'vuex';
-import {{ class.name }}View from '../components/{{ class.name }}View.vue';
-import {{ class.name }}Edit from '../components/{{ class.name }}Edit.vue';
+import {{ class.name }}View from './{{ class.name }}View.vue';
+import {{ class.name }}Edit from './{{ class.name }}Edit.vue';
+{{~ for property in class.properties
+if property.is_collection && property.class
+ ~}}
+import {{ property.class.name }}List from './{{ property.class.name }}List.vue';
+{{~ end
+end ~}}
 
 export default defineComponent({
-  components: { {{ class.name }}View, {{ class.name }}Edit },
-  setup: function () {
-    const store = useStore();
-    store.dispatch('get{{ class.name.plural }}');
-    const edited{{ class.name }}Id = ref(-1)
-    return { store, edited{{ class.name }}Id }
+  components: { {{ class.name }}View, {{ class.name }}Edit, PetList },
+  name: '{{ class.name }}List',
+  props: {
+    modelValue: Object
   },
-  methods: {
-    edit{{ class.name }}({{ camel_case class.name }}){
-      this.edited{{ class.name }}Id = {{ camel_case class.name }}.id;
-    },
-    delete{{ class.name }}({{ camel_case class.name }}){
-      if (confirm(`Are you sure to delete {{ class.name }} with id ${ {{ camel_case class.name }}.id }?`))
-        this.store.dispatch("delete{{ class.name }}", {{ camel_case class.name }})
-    },
-    finishEditing() {
-      this.edited{{ class.name }}Id = -1;
+  emits: ['update:modelValue'],
+  setup(props, context) {
+    const editedItemId = ref(-1);
+    const newItem = ref(null);
+
+    function editItem(item){
+      editedItemId.value = item.id;
     }
+    function deleteItem(item){
+      if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
+        console.log(props.modelValue)
+        context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id))
+      }
+    }
+    function finishEditing() {
+      editedItemId.value = -1;
+    }
+
+    function addNewItem() {
+      newItem.value = {
+        {{~ for property in class.properties ~}}
+        {{ camel_case property.name }}: {{ if property.is_collection }}[]{{else}}''{{end}}{{if !for.last}},{{end}}
+        {{~ end ~}}
+      };
+    }
+    function saveNewItem() {
+        const items = [...props.modelValue];
+        const lastId = items.length == 0 ? 0 : items[items.length-1].id;
+        items.push({id: lastId + 1, value: newItem.value});
+        context.emit('update:modelValue', items);
+        newItem.value = null;
+    }
+    const cancelAdd = function() {
+        newItem.value = null;
+    }
+
+    return { editedItemId, newItem, editItem, deleteItem, finishEditing, addNewItem, saveNewItem, cancelAdd };
   }
 });
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div class="container-fluid">
   {{~ for resource in resources ~}}
-    <{{ camel_case resource.name }}-list v-model="{{ camel_case resource.name }}List"></{{ camel_case resource.name }}-list>
+    <{{ kebab_case resource.name }}-list v-model="{{ camel_case resource.name }}List"></{{ kebab_case resource.name }}-list>
   {{~ end ~}}
   </div>
 </template>
@@ -42,7 +42,7 @@ function toSimpleArray(data) {
 
 export default defineComponent({
   name: 'App',
-  components: { UserList },
+  components: { {{ for resource in resources }}{{ resource.name }}List{{ if !for.last }},{{ end }}{{ end }} },
   setup: function () {
     {{~ for resource in resources ~}}
     const {{ camel_case resource.name }}List = ref([]);
@@ -80,7 +80,7 @@ export default defineComponent({
     {{~ for resource in resources ~}}
     {{ camel_case resource.name }}List: {
       handler() {
-        this.saveToLocalStorage({{{ camel_case resource.name.plural }}: toSimpleArray(this.{{ camel_case resource.name }}List)});
+        this.saveToLocalStorage({ {{ camel_case resource.name.plural }}: toSimpleArray(this.{{ camel_case resource.name }}List) });
       },
       deep: true
     },
