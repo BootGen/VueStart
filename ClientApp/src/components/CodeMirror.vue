@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, onMounted } from 'vue';
 import { prettyPrint, validateJson } from '../utils/PrettyPrint';
 import CodeMirror from 'codemirror/lib/codemirror';
 import 'codemirror/lib/codemirror.css';
@@ -18,40 +18,38 @@ export default defineComponent({
   name: 'CodeMirror',
   components: { VueuenAlert },
   setup() {
-    const errorMsg = ref('');
-    const showErrorMsg = ref(false);
-    return { errorMsg, showErrorMsg }
-  },
-  async mounted(){
-    const json = await this.getProjectContentFromServer('example_input');
-    this.saveToLocalStorage(json);
-    let debouncedCheckJson = this.debounce(this.checkJson, 1000);
-    const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
-      mode: "text/javascript",
-      lineNumbers: true,
-      tabSize: 2,
-      autoCloseTags: true,
-      value: document.getElementById('editor').innerHtml
-    });
-    editor.on('change', cm => {
-      this.saveToLocalStorage(cm.getValue());
-      debouncedCheckJson(cm);
+    let errorMsg = ref('');
+    let showErrorMsg = ref(false);
 
-    });
-    window.addEventListener('storage', () => {
-      editor.setValue(prettyPrint(localStorage.getItem('json').toString()));
-    });
-    editor.setValue(json);
-    this.checkJson(editor);
-  },
-  methods: {
-    getProjectContentFromServer: async function(name) {
+    onMounted(async () => {
+      const json = await getProjectContentFromServer('example_input');
+      saveToLocalStorage(json);
+      let debouncedCheckJson = debounce(checkJson, 1000);
+      const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+        mode: "text/javascript",
+        lineNumbers: true,
+        tabSize: 2,
+        autoCloseTags: true,
+        value: document.getElementById('editor').innerHtml
+      });
+      editor.on('change', cm => {
+        saveToLocalStorage(cm.getValue());
+        debouncedCheckJson(cm);
+      });
+      window.addEventListener('storage', () => {
+        editor.setValue(prettyPrint(localStorage.getItem('json').toString()));
+      });
+      editor.setValue(json);
+      checkJson(editor);
+    })
+
+    async function getProjectContentFromServer (name) {
       const data = (await axios.get(`/${name}.json`, {responseType: 'text'})).data;
       if (typeof data === 'string')
         return data;
       return JSON.stringify(data);
-    },
-    debounce (func, wait) {
+    }
+    function debounce (func, wait) {
       let timeout;
       return function executedFunction(...args) {
         const later = () => {
@@ -61,8 +59,8 @@ export default defineComponent({
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
       };
-    },
-    lineToColor(line, color){
+    }
+    function lineToColor (line, color){
       const list = document.getElementsByClassName('CodeMirror-linenumber');
         for (let i = 0; i < list.length; i++) {
           const lineNumberElement = list[i];
@@ -76,31 +74,31 @@ export default defineComponent({
             }
           }
         }
-    },
-    unsetHighlight: function (){
+    }
+    function unsetHighlight (){
       const e  = document.getElementsByClassName('CodeMirror-line');
       for(let i = 0; i < e.length; i++){
         e[i].setAttribute('style', 'background-color: unset;');
       }
-    },
-    checkJson(cm) {
+    }
+    function checkJson (cm) {
       const json = cm.getValue();
       const cursorPosition = cm.getCursor();
       const newValue = prettyPrint(json);
-      this.unsetHighlight();
-      this.errorMsg = '';
-      this.showErrorMsg = false;
+      unsetHighlight();
+      errorMsg = '';
+      showErrorMsg = false;
       const result = validateJson(json);
       if(result.error){
-        this.showErrorMsg = true;
-        this.errorMsg = result.message;
-        this.lineToColor(result.line, 'red');
+        showErrorMsg = true;
+        errorMsg = result.message;
+        lineToColor(result.line, 'red');
       }else if (json != newValue) {
         cm.setValue(newValue);
         cm.setCursor(cursorPosition);
       }
-    },
-    saveToLocalStorage(newValue) {
+    }
+    function saveToLocalStorage (newValue) {
       try {
         let obj = JSON.parse(newValue);
         let minimized = JSON.stringify(obj);
@@ -112,6 +110,8 @@ export default defineComponent({
         console.log(e)
       }
     }
+
+    return { errorMsg, showErrorMsg }
   }
 });
 </script>

@@ -19,13 +19,13 @@ import Vueuen from '../components/Vueuen.vue'
 export default defineComponent({
   name: 'CodeMirror',
   components: { Vueuen },
-  setup() {
-    const show = ref(true);
-    return { show };
-  },
   props: {
     errorMsg: String
   },
+  setup() {
+    const show = ref(true);
+    return { show };
+  }
 });
 </script>
 
