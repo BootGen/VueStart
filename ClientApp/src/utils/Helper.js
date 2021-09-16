@@ -18,3 +18,7 @@ export function getJsonLength (json){
     json = json.replace(/[\n\t\r]/g, '');
     return json.length;
 }
+
+export function getJsonLineNumber(text){
+    return text.split('\n').length;
+}

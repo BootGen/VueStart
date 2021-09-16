@@ -6,13 +6,14 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue';
-import { prettyPrint, validateJson } from '../utils/PrettyPrint';
+import axios from 'axios';
 import CodeMirror from 'codemirror/lib/codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/javascript/javascript.js';
-import axios from 'axios';
-import VueuenAlert from '../components/VueuenAlert.vue'
+import { defineComponent, onMounted, ref } from 'vue';
+import VueuenAlert from '../components/VueuenAlert.vue';
+import { getJsonLineNumber } from '../utils/Helper';
+import { prettyPrint, validateJson } from '../utils/PrettyPrint';
 
 export default defineComponent({
   name: 'CodeMirror',
@@ -20,6 +21,7 @@ export default defineComponent({
   setup() {
     const errorMsg = ref('');
     const showErrorMsg = ref(false);
+    const cmEditor = ref(null);
 
     onMounted(async () => {
       const json = await getProjectContentFromServer('example_input');
@@ -41,6 +43,7 @@ export default defineComponent({
       });
       editor.setValue(json);
       checkJson(editor);
+      cmEditor.value = editor;
     })
 
     const getProjectContentFromServer = async function(name) {
@@ -61,24 +64,11 @@ export default defineComponent({
       };
     }
     const lineToColor = function(line, color) {
-      const list = document.getElementsByClassName('CodeMirror-linenumber');
-        for (let i = 0; i < list.length; i++) {
-          const lineNumberElement = list[i];
-          const textVal = lineNumberElement.textContent;
-          if (textVal) {
-            const lineNum = parseInt(textVal, 10);
-            if (line + 1 === lineNum) {
-              const lineElement = lineNumberElement.parentElement?.parentElement?.querySelector('.CodeMirror-line');
-              if (lineElement)
-                lineElement.setAttribute('style', `background-color:${color};`);
-            }
-          }
-        }
+      cmEditor.value.markText({line: line, ch: 0}, {line: line+1, ch: 0}, {css: `background-color:${color};`});
     }
     const unsetHighlight = function() {
-      const e  = document.getElementsByClassName('CodeMirror-line');
-      for(let i = 0; i < e.length; i++){
-        e[i].setAttribute('style', 'background-color: unset;');
+      if(cmEditor.value){
+        cmEditor.value.markText({line: 0, ch: 0}, {line: getJsonLineNumber(cmEditor.value.getValue()), ch: 0}, {css: `background-color:unset;`});
       }
     }
     const checkJson = function(cm) {
