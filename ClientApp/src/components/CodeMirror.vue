@@ -18,8 +18,8 @@ export default defineComponent({
   name: 'CodeMirror',
   components: { VueuenAlert },
   setup() {
-    let errorMsg = ref('');
-    let showErrorMsg = ref(false);
+    const errorMsg = ref('');
+    const showErrorMsg = ref(false);
 
     onMounted(async () => {
       const json = await getProjectContentFromServer('example_input');
@@ -43,7 +43,7 @@ export default defineComponent({
       checkJson(editor);
     })
 
-    async function getProjectContentFromServer (name) {
+    const getProjectContentFromServer = async function(name) {
       const data = (await axios.get(`/${name}.json`, {responseType: 'text'})).data;
       if (typeof data === 'string')
         return data;
@@ -60,7 +60,7 @@ export default defineComponent({
         timeout = setTimeout(later, wait);
       };
     }
-    function lineToColor (line, color){
+    const lineToColor = function(line, color) {
       const list = document.getElementsByClassName('CodeMirror-linenumber');
         for (let i = 0; i < list.length; i++) {
           const lineNumberElement = list[i];
@@ -75,30 +75,30 @@ export default defineComponent({
           }
         }
     }
-    function unsetHighlight (){
+    const unsetHighlight = function() {
       const e  = document.getElementsByClassName('CodeMirror-line');
       for(let i = 0; i < e.length; i++){
         e[i].setAttribute('style', 'background-color: unset;');
       }
     }
-    function checkJson (cm) {
+    const checkJson = function(cm) {
       const json = cm.getValue();
       const cursorPosition = cm.getCursor();
       const newValue = prettyPrint(json);
       unsetHighlight();
-      errorMsg = '';
-      showErrorMsg = false;
+      errorMsg.value = '';
+      showErrorMsg.value = false;
       const result = validateJson(json);
       if(result.error){
-        showErrorMsg = true;
-        errorMsg = result.message;
+        showErrorMsg.value = true;
+        errorMsg.value = result.message;
         lineToColor(result.line, 'red');
       }else if (json != newValue) {
         cm.setValue(newValue);
         cm.setCursor(cursorPosition);
       }
     }
-    function saveToLocalStorage (newValue) {
+    const saveToLocalStorage = function(newValue) {
       try {
         let obj = JSON.parse(newValue);
         let minimized = JSON.stringify(obj);
@@ -110,7 +110,6 @@ export default defineComponent({
         console.log(e)
       }
     }
-
     return { errorMsg, showErrorMsg }
   }
 });
