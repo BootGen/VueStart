@@ -41,14 +41,13 @@ export default defineComponent({
   setup(props, context) {
     const editedItem = reactive({ ...props.modelValue });
 
-    const save = function () {
+    function save() {
       context.emit('update:modelValue', editedItem);
       context.emit('saved');
-    };
-
-    const cancel = function () {
+    }
+    function cancel() {
       context.emit('canceled');
-    };
+    }
 
     return { editedItem, save, cancel };
   },

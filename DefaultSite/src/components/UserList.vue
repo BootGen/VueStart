@@ -47,40 +47,36 @@ export default defineComponent({
     const editedItemId = ref(-1);
     const newItem = ref(null);
 
-    const editItem = function(item){
+    function editItem(item){
       editedItemId.value = item.id;
-    };
-    
-    const deleteItem = function(item){
+    }
+    function deleteItem(item){
       if (confirm('Are you sure to delete this user?')) {
         console.log(props.modelValue)
         context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id))
       }
-    };
-    
-    const finishEditing = function() {
+    }
+    function finishEditing() {
       editedItemId.value = -1;
-    };
+    }
 
-    const addNewItem = function() {
+    function addNewItem() {
       newItem.value = {
         userName: '',
         email: '',
         pets: []
       };
-    };
-
-    const saveNewItem = function() {
+    }
+    function saveNewItem() {
         const items = [...props.modelValue];
         const lastId = items.length == 0 ? 0 : items[items.length-1].id;
         items.push({id: lastId + 1, value: newItem.value});
         context.emit('update:modelValue', items);
         newItem.value = null;
-    };
-
+    }
     const cancelAdd = function() {
         newItem.value = null;
-    };
+    }
 
     return { editedItemId, newItem, editItem, deleteItem, finishEditing, addNewItem, saveNewItem, cancelAdd };
   }
