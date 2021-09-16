@@ -1,30 +1,94 @@
 <template>
-  <div id="nav"  v-if="store.state.auth.user">
-    <router-link to="/profile">Profile</router-link>
-    | <router-link to="/edit-profile">Edit Profile</router-link>
-    | <router-link to="/change-password">Change Password</router-link>
-    {{~ for class in classes ~}}
-    | <router-link to="/{{ camel_case class.name.plural }}">{{ class.name.plural }}</router-link>
-    {{~ end ~}}
-    | <router-link to="/logout">Logut</router-link>
+  <div class="container-fluid">
+  {{~ for resource in resources ~}}
+    <{{ camel_case resource.name }}-list v-model="{{ camel_case resource.name }}List"></{{ camel_case resource.name }}-list>
+  {{~ end ~}}
   </div>
-  <div id="nav"  v-else>
-    <router-link to="/">Login</router-link> |
-    <router-link to="/sign-up">Sign Up</router-link>
-  </div>
-  <router-view/>
 </template>
 
 <script>
-import { useStore } from 'vuex';
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
+{{~ for resource in resources ~}}
+import {{ resource.name }}List from './components/{{ resource.name }}List.vue';
+{{~ end ~}}
+
+function toDataModel(data) {
+  return data.map((val, idx) => {
+    const v = { ... val }
+    for (const property in v) {
+      if(Array.isArray(v[property])){
+        v[property] = toDataModel(v[property]);
+      }
+    }
+    return {
+      id: idx,
+      value: v
+    }
+  })
+}
+function toSimpleArray(data) {
+  let arr =  data.map(val => {
+    return { ...val.value }
+  })
+  arr.forEach(item => {
+    for (const property in item) {
+      if(Array.isArray(item[property])){
+        item[property] = toSimpleArray(item[property]);
+      }
+    }
+  })
+  return arr;
+}
+
 export default defineComponent({
-    setup() {
-        const store = useStore();
-        return { store }
+  name: 'App',
+  components: { UserList },
+  setup: function () {
+    {{~ for resource in resources ~}}
+    const {{ camel_case resource.name }}List = ref([]);
+    {{~ end ~}}
+
+    const saveToLocalStorage = function(newValue) {
+        let minimized = JSON.stringify(newValue);
+        let oldValue = localStorage.getItem('json');
+        if (minimized != oldValue) {
+          localStorage.setItem('json', minimized);
+        }
+    }
+    const loadFromLocalStorage = function() {
+      let json = localStorage.getItem('json');
+      if (json) {
+        {{~ for resource in resources ~}}
+        const {{ camel_case resource.name.plural }} = JSON.parse(json).{{ camel_case resource.name.plural }};
+        if ({{ camel_case resource.name.plural }}) {
+          {{ camel_case resource.name }}List.value = toDataModel({{ camel_case resource.name.plural }});
+        }
+        {{~ end ~}}
+      }
+    }
+    loadFromLocalStorage();
+
+    window.addEventListener('storage', loadFromLocalStorage);
+    return {
+      {{~ for resource in resources ~}}
+      {{ camel_case resource.name }}List,
+      {{~ end ~}}
+      saveToLocalStorage
+    }
+  },
+  watch: {
+    {{~ for resource in resources ~}}
+    {{ camel_case resource.name }}List: {
+      handler() {
+        this.saveToLocalStorage({{{ camel_case resource.name.plural }}: toSimpleArray(this.{{ camel_case resource.name }}List)});
+      },
+      deep: true
     },
-})
+    {{~ end ~}}
+  }
+});
 </script>
+
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -32,18 +96,5 @@ export default defineComponent({
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-}
-
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
 }
 </style>
