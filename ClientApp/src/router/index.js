@@ -1,18 +1,11 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import Editor from '../views/Editor.vue'
-import LandingPage from '../views/LandingPage.vue'
-
+import { createRouter, createWebHistory } from 'vue-router';
+import LandingPage from '../views/LandingPage.vue';
 
   const routes = [
   {
     path: '/',
     name: 'Landing Page',
     component: LandingPage
-  },
-  {
-    path: '/editor',
-    name: 'Editor',
-    component: Editor
   }
 ]
 
@@ -22,7 +15,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  document.title = `StartVue - ${to.name}`;
+  document.title = `StartVue`;
   next();
 });
 

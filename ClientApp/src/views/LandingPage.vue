@@ -7,7 +7,7 @@
           <p class="lead text-justify">
             Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
           </p>
-          <button class="btn btn-outline-primary rounded-pill" @click="clickBtn()">Go!</button>
+          <button class="btn btn-outline-primary rounded-pill" @click="showNav = !showNav">Go!</button>
         </div>
         <div class="slogen-text" :class="{ 'landing': !showNav, 'content' : showNav }">
           <p class="lead text-justify">
@@ -43,11 +43,6 @@ export default defineComponent({
   setup() {
     const showNav = ref(false);
     return { showNav }
-  },
-  methods: {
-    clickBtn() {
-      this.showNav = !this.showNav;
-    }
   }
 });
 
