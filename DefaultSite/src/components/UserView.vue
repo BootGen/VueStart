@@ -12,7 +12,7 @@
       <div class="col-4 d-flex justify-content-start text-break text-start">
         UserName:
       </div>
-      <div class="col-8 d-flex justify-content-start text-break text-start">
+      <div class="col-8 d-flex justify-content-start text-break">
         {{ modelValue.userName }}
       </div>
     </div>
@@ -22,7 +22,7 @@
       <div class="col-4 d-flex justify-content-start text-break text-start">
         Email:
       </div>
-      <div class="col-8 d-flex justify-content-start text-break text-start">
+      <div class="col-8 d-flex justify-content-start text-break">
         {{ modelValue.email }}
       </div>
     </div>

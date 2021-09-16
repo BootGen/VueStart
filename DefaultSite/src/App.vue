@@ -10,7 +10,7 @@ import UserList from './components/UserList.vue';
 
 export default defineComponent({
   name: 'App',
-  components: { UserList },
+  components: { UserList, },
   setup: function () {
     const userList = ref([]);
     
@@ -60,11 +60,13 @@ export default defineComponent({
     loadFromLocalStorage();
 
     watchEffect(() => {
-      saveToLocalStorage({users: toSimpleArray(userList.value)});
+      saveToLocalStorage({
+        users: toSimpleArray(userList.value)
+      });
     })
 
     window.addEventListener('storage', loadFromLocalStorage);
-    return { userList }
+    return { userList,  }
   },
 });
 </script>

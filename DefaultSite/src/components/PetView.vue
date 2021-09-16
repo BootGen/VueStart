@@ -10,7 +10,7 @@
   <li class="list-group-item">
     <div class="row">
       <div class="col-4 d-flex justify-content-start text-break text-start">
-        name:
+        Name:
       </div>
       <div class="col-8 d-flex justify-content-start text-break">
         {{ modelValue.name }}
@@ -20,9 +20,9 @@
   <li class="list-group-item">
     <div class="row">
       <div class="col-4 d-flex justify-content-start text-break text-start">
-        species:
+        Species:
       </div>
-      <div class="col-8 d-flex justify-content-start text-break text-start">
+      <div class="col-8 d-flex justify-content-start text-break">
         {{ modelValue.species }}
       </div>
     </div>

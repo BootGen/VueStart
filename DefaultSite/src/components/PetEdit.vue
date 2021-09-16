@@ -10,7 +10,7 @@
   <li class="list-group-item">
     <div class="row d-flex align-items-center">
       <div class="col-4 d-flex justify-content-start text-break text-start">
-        name:
+        Name:
       </div>
       <div class="col-8 d-flex justify-content-start">
         <input v-model="editedItem.name" type="text" class="form-control" />
@@ -20,7 +20,7 @@
   <li class="list-group-item">
     <div class="row d-flex align-items-center">
       <div class="col-4 d-flex justify-content-start text-break text-start">
-        species:
+        Species:
       </div>
       <div class="col-8 d-flex justify-content-start">
         <input v-model="editedItem.species" type="text" class="form-control" />

@@ -6,25 +6,23 @@
         <span class="bi bi-plus" aria-hidden="true"></span> Add
       </button>
     </div>
-    <div class="col-xxl-3 col-md-6 col-sm-12">
-      <div class="m-2" v-for="item in modelValue" :key="item.id">
+    <div class="col-12 mb-2" v-for="item in modelValue" :key="item.id">
+      <div class="card">
+        <ul class="list-group list-group-flush">
+          <user-edit v-model="item.value" @canceled="finishEditing()" @saved="finishEditing()" v-if="editedItemId === item.id"></user-edit>
+          <user-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></user-view>
+          <li class="list-group-item">
+            <pet-list v-model="item.value.pets"></pet-list>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-12 mb-2" v-if="newItem != null">
         <div class="card">
           <ul class="list-group list-group-flush">
-            <user-edit v-model="item.value" @canceled="finishEditing()" @saved="finishEditing()" v-if="editedItemId === item.id"></user-edit>
-            <user-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></user-view>
-            <li class="list-group-item">
-              <pet-list v-model="item.value.pets"></pet-list>
-            </li>
+            <user-edit v-model="newItem" @canceled="cancelAdd" @saved="saveNewItem()"></user-edit>
           </ul>
         </div>
-      </div>
-      <div class="col-12 mb-2" v-if="newItem != null">
-          <div class="card">
-            <ul class="list-group list-group-flush">
-              <user-edit v-model="newItem" @canceled="cancelAdd" @saved="saveNewItem()"></user-edit>
-            </ul>
-          </div>
-      </div>
     </div>
   </div>
 </template>
@@ -47,19 +45,17 @@ export default defineComponent({
     const editedItemId = ref(-1);
     const newItem = ref(null);
 
-    function editItem(item){
+    function editItem(item) {
       editedItemId.value = item.id;
     }
-    function deleteItem(item){
+    function deleteItem(item) {
       if (confirm('Are you sure to delete this user?')) {
-        console.log(props.modelValue)
-        context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id))
+        context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id));
       }
     }
     function finishEditing() {
       editedItemId.value = -1;
     }
-
     function addNewItem() {
       newItem.value = {
         userName: '',
@@ -74,7 +70,7 @@ export default defineComponent({
         context.emit('update:modelValue', items);
         newItem.value = null;
     }
-    const cancelAdd = function() {
+    function cancelAdd() {
         newItem.value = null;
     }
 

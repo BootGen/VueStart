@@ -7,12 +7,12 @@
       </button>
     </div>
     <div class="col-12 mb-2" v-for="item in modelValue" :key="item.id">
-        <div class="card">
-          <ul class="list-group list-group-flush">
-            <pet-edit v-model="item.value" @canceled="finishEditing()" @saved="finishEditing()" v-if="editedItemId === item.id"></pet-edit>
-            <pet-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></pet-view>
-          </ul>
-        </div>
+      <div class="card">
+        <ul class="list-group list-group-flush">
+          <pet-edit v-model="item.value" @canceled="finishEditing()" @saved="finishEditing()" v-if="editedItemId === item.id"></pet-edit>
+          <pet-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></pet-view>
+        </ul>
+      </div>
     </div>
     <div class="col-12 mb-2" v-if="newItem != null">
         <div class="card">
@@ -45,7 +45,7 @@ export default defineComponent({
       editedItemId.value = item.id;
     }
     function deleteItem(item) {
-      if (confirm('Are you sure to delete this pet?')){
+      if (confirm('Are you sure to delete this pet?')) {
         context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id));
       }
     }
@@ -55,7 +55,7 @@ export default defineComponent({
     function addNewItem() {
       newItem.value = {
         name: '',
-        species: ''
+        species: '',
       };
     }
     function saveNewItem() {

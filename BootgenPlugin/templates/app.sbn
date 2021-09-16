@@ -9,40 +9,12 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, watchEffect } from 'vue';
 {{~ for class in classes
     if class.is_root ~}}
 import {{ class.name }}List from './components/{{ class.name }}List.vue';
 {{~ end
     end ~}}
-
-function toDataModel(data) {
-  return data.map((val, idx) => {
-    const v = { ... val }
-    for (const property in v) {
-      if(Array.isArray(v[property])){
-        v[property] = toDataModel(v[property]);
-      }
-    }
-    return {
-      id: idx,
-      value: v
-    }
-  })
-}
-function toSimpleArray(data) {
-  let arr =  data.map(val => {
-    return { ...val.value }
-  })
-  arr.forEach(item => {
-    for (const property in item) {
-      if(Array.isArray(item[property])){
-        item[property] = toSimpleArray(item[property]);
-      }
-    }
-  })
-  return arr;
-}
 
 export default defineComponent({
   name: 'App',
@@ -53,51 +25,65 @@ export default defineComponent({
     const {{ camel_case class.name }}List = ref([]);
     {{~ end
         end ~}}
-
-    const saveToLocalStorage = function(newValue) {
+    
+    function toDataModel(data) {
+      return data.map((val, idx) => {
+        const v = { ... val }
+        for (const property in v) {
+          if(Array.isArray(v[property])){
+            v[property] = toDataModel(v[property]);
+          }
+        }
+        return {
+          id: idx,
+          value: v
+        }
+      })
+    }
+    function toSimpleArray(data) {
+      let arr =  data.map(val => {
+        return { ...val.value }
+      })
+      arr.forEach(item => {
+        for (const property in item) {
+          if(Array.isArray(item[property])){
+            item[property] = toSimpleArray(item[property]);
+          }
+        }
+      })
+      return arr;
+    }
+    function saveToLocalStorage(newValue) {
         let minimized = JSON.stringify(newValue);
         let oldValue = localStorage.getItem('json');
         if (minimized != oldValue) {
           localStorage.setItem('json', minimized);
         }
     }
-    const loadFromLocalStorage = function() {
+    function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
       if (json) {
-        {{~ for class in classes
-            if class.is_root ~}}
-        const {{ camel_case class.name.plural }} = JSON.parse(json).{{ camel_case class.name.plural }};
-        if ({{ camel_case class.name.plural }}) {
-          {{ camel_case class.name }}List.value = toDataModel({{ camel_case class.name.plural }});
+        const users = JSON.parse(json).users;
+        if (users) {
+          userList.value = toDataModel(users);
         }
-        {{~ end
-            end ~}}
       }
     }
     loadFromLocalStorage();
 
-    window.addEventListener('storage', loadFromLocalStorage);
-    return {
-      {{~ for class in classes
+    watchEffect(() => {
+      saveToLocalStorage({
+        {{~ for class in classes
             if class.is_root ~}}
-      {{ camel_case class.name }}List,
-      {{~ end
-          end ~}}
-      saveToLocalStorage
-    }
+        {{ camel_case class.name.plural }}: toSimpleArray({{ camel_case class.name }}List.value)
+        {{~ end
+            end ~}}
+      });
+    })
+
+    window.addEventListener('storage', loadFromLocalStorage);
+    return { {{ for class in classes }}{{ if class.is_root }}{{ camel_case class.name }}List{{ if !for.last }}, {{ end }}{{end}}{{end}} }
   },
-  watch: {
-    {{~ for class in classes
-        if class.is_root ~}}
-    {{ camel_case class.name }}List: {
-      handler() {
-        this.saveToLocalStorage({ {{ camel_case class.name.plural }}: toSimpleArray(this.{{ camel_case class.name }}List) });
-      },
-      deep: true
-    },
-    {{~ end
-        end ~}}
-  }
 });
 </script>
 
