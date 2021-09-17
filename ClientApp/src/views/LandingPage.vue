@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="position-absolute end-50 codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
-      <code-mirror></code-mirror>
+      <code-mirror v-model="json"></code-mirror>
     </div>
     <div class="position-absolute start-50 browser custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <browser-frame></browser-frame>
@@ -32,7 +32,8 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue';
+import axios from 'axios';
+import { defineComponent, ref, watchEffect } from 'vue';
 import Vueuen from '../components/Vueuen.vue';
 import CodeMirror from '../components/CodeMirror.vue';
 import BrowserFrame from '../components/BrowserFrame.vue'
@@ -41,8 +42,37 @@ export default defineComponent({
   name: 'LandingPage',
   components: { Vueuen, CodeMirror, BrowserFrame },
   setup() {
+    function saveToLocalStorage(newValue) {
+      try {
+        let obj = JSON.parse(newValue);
+        let minimized = JSON.stringify(obj);
+        let oldValue = localStorage.getItem('json');
+        if (minimized != oldValue) {
+          localStorage.setItem('json', minimized);
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    async function getProjectContentFromServer(name) {
+      const data = (await axios.get(`/${name}.json`, {responseType: 'text'})).data;
+      if (typeof data === 'string')
+        return data;
+      return JSON.stringify(data);
+    }
+    const json = ref("");
+    getProjectContentFromServer('example_input').then( (content) => {
+      console.log(content);
+      json.value = content;
+      watchEffect(() => {
+        saveToLocalStorage(json.value);
+      })
+    })
+    window.addEventListener('storage', () => {
+      json.value = localStorage.getItem('json').toString();
+    });
     const showNav = ref(false);
-    return { showNav }
+    return { showNav, json }
   }
 });
 

@@ -6,11 +6,10 @@
 </template>
 
 <script>
-import axios from 'axios';
 import CodeMirror from 'codemirror/lib/codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/javascript/javascript.js';
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted, ref, watchEffect } from 'vue';
 import VueuenAlert from '../components/VueuenAlert.vue';
 import { getJsonLineNumber } from '../utils/Helper';
 import { prettyPrint, validateJson } from '../utils/PrettyPrint';
@@ -18,14 +17,16 @@ import { prettyPrint, validateJson } from '../utils/PrettyPrint';
 export default defineComponent({
   name: 'CodeMirror',
   components: { VueuenAlert },
-  setup() {
+  props: {
+    modelValue: String,
+  },
+  emits: ['update:modelValue'],
+  setup(props, context) {
     const errorMsg = ref('');
     const showErrorMsg = ref(false);
     const cmEditor = ref(null);
 
     onMounted(async () => {
-      const json = await getProjectContentFromServer('example_input');
-      saveToLocalStorage(json);
       let debouncedCheckJson = debounce(checkJson, 1000);
       const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
         mode: "text/javascript",
@@ -35,23 +36,19 @@ export default defineComponent({
         value: document.getElementById('editor').innerHtml
       });
       editor.on('change', cm => {
-        saveToLocalStorage(cm.getValue());
+        context.emit('update:modelValue', cm.getValue())
         debouncedCheckJson(cm);
       });
-      window.addEventListener('storage', () => {
-        editor.setValue(prettyPrint(localStorage.getItem('json').toString()));
-      });
-      editor.setValue(json);
-      checkJson(editor);
+      watchEffect(() => {
+        const json = editor.getValue();
+        if (json != props.modelValue) {
+          editor.setValue(props.modelValue);
+          checkJson(editor);
+        }
+      })
       cmEditor.value = editor;
     })
 
-    const getProjectContentFromServer = async function(name) {
-      const data = (await axios.get(`/${name}.json`, {responseType: 'text'})).data;
-      if (typeof data === 'string')
-        return data;
-      return JSON.stringify(data);
-    }
     function debounce (func, wait) {
       let timeout;
       return function executedFunction(...args) {
@@ -63,15 +60,17 @@ export default defineComponent({
         timeout = setTimeout(later, wait);
       };
     }
-    const lineToColor = function(line, color) {
-      cmEditor.value.markText({line: line, ch: 0}, {line: line+1, ch: 0}, {css: `background-color:${color};`});
+    function lineToColor(line, color) {
+      if(cmEditor.value){
+        cmEditor.value.markText({line: line, ch: 0}, {line: line+1, ch: 0}, {css: `background-color:${color};`});
+      }
     }
-    const unsetHighlight = function() {
+    function unsetHighlight() {
       if(cmEditor.value){
         cmEditor.value.markText({line: 0, ch: 0}, {line: getJsonLineNumber(cmEditor.value.getValue()), ch: 0}, {css: `background-color:unset;`});
       }
     }
-    const checkJson = function(cm) {
+    function checkJson(cm) {
       const json = cm.getValue();
       const cursorPosition = cm.getCursor();
       const newValue = prettyPrint(json);
@@ -86,18 +85,6 @@ export default defineComponent({
       }else if (json != newValue) {
         cm.setValue(newValue);
         cm.setCursor(cursorPosition);
-      }
-    }
-    const saveToLocalStorage = function(newValue) {
-      try {
-        let obj = JSON.parse(newValue);
-        let minimized = JSON.stringify(obj);
-        let oldValue = localStorage.getItem('json');
-        if (minimized != oldValue) {
-          localStorage.setItem('json', minimized);
-        }
-      } catch (e) {
-        console.log(e)
       }
     }
     return { errorMsg, showErrorMsg }
