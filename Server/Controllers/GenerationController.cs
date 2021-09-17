@@ -47,6 +47,7 @@ namespace StartVue.Controllers
                 SeedStore = seedStore,
                 Templates = Load("../BootgenPlugin/templates")
             };
+            Directory.Delete("../DefaultSite/src/components", true);
             project.GenerateFiles("Dummy", "http://localhost:5000");
             return Ok();
         }

@@ -18,15 +18,20 @@
       </div>
     </div>
     <div class="col-12 content">
-      <iframe class="h-100 w-100" src="http://localhost:8080/sites/default/" title="CodeSharp"></iframe>
+      <iframe class="h-100 w-100" :src="modelValue" title="CodeSharp"></iframe>
     </div>
   </div>
 </template>
 
 <script>
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
   name: 'BrowserFrame',
-}
+  props: {
+    modelValue: String,
+  }
+});
 </script>
 
 <style scoped>

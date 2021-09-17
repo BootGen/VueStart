@@ -23,7 +23,10 @@
       <code-mirror v-model="json"></code-mirror>
     </div>
     <div class="position-absolute start-50 browser custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
-      <browser-frame></browser-frame>
+      <browser-frame v-model="appUrl"></browser-frame>
+    </div>
+    <div>
+      <button v-on:click="generate" >Generate</button>
     </div>
     <div class="d-flex position-absolute footer" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
@@ -72,7 +75,16 @@ export default defineComponent({
       json.value = localStorage.getItem('json').toString();
     });
     const showNav = ref(false);
-    return { showNav, json }
+    const url = "http://localhost:8080/sites/default/"
+    const appUrl = ref(url);
+    async function generate() {
+      await axios.post('http://localhost:8081/generate', JSON.parse(json.value))
+      if (appUrl.value === url)
+        appUrl.value = url + " ";
+      else
+        appUrl.value = url;
+    }
+    return { showNav, json, appUrl, generate }
   }
 });
 

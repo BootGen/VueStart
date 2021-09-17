@@ -27,6 +27,17 @@ namespace StartVue
         public void ConfigureServices(IServiceCollection services)
         {
 
+
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(
+                                builder =>
+                                {
+                                    builder.WithOrigins("http://localhost:8080")
+                                    .AllowAnyHeader()
+                                    .AllowAnyMethod();
+                                });
+            });
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -49,6 +60,7 @@ namespace StartVue
             app.UseRouting();
 
             //app.UseAuthorization();
+            app.UseCors();
 
             app.UseEndpoints(endpoints =>
             {
