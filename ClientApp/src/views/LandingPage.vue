@@ -3,11 +3,13 @@
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showNav, 'content' : showNav }">
       <div>
         <h1>Start Vue!</h1>
-        <div class="jumbo-text" :class="{ 'landing': !showNav, 'content' : showNav }">
-          <p class="lead text-justify">
-            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-          </p>
-          <button class="btn btn-outline-primary rounded-pill" @click="showNav = !showNav">Go!</button>
+        <div class="d-flex align-items-center jumbo-text" :class="{ 'landing': !showNav, 'content' : showNav }">
+          <div>
+            <p class="lead text-justify">
+              Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+            </p>
+            <button class="btn btn-outline-primary rounded-pill m-1" @click="showNav = !showNav">Go!</button>
+          </div>
         </div>
         <div class="slogen-text" :class="{ 'landing': !showNav, 'content' : showNav }">
           <p class="lead text-justify">
@@ -22,9 +24,6 @@
     </div>
     <div class="position-absolute start-50 browser custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <browser-frame v-model="appUrl"></browser-frame>
-    </div>
-    <div>
-      <button v-on:click="generate" >Generate</button>
     </div>
     <div class="d-flex position-absolute footer" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
@@ -114,10 +113,12 @@ export default defineComponent({
   .jumbo-text.content{
     opacity: 0;
     height: 0rem;
+    width: 80vw;
   }
   .jumbo-text.landing{
     opacity: 1;
-    height: 10rem;
+    height: 18rem;
+    width: 60vw;
   }
   .slogen-text{
     transition: all 1s ease-in-out;
@@ -134,15 +135,15 @@ export default defineComponent({
     visibility: hidden;
   }
   .codemirror{
-    width: 46%;
-    margin: 2%;
+    width: 47%;
+    margin: 1%;
     transition: all 1s ease-in-out;
     transition-delay: 150ms;
     overflow: hidden;
   }
   .codemirror.content{
     opacity: 1;
-    height: calc( 80vh - 2.5rem );
+    height: calc( 80vh - 1rem );
     top: 15vh;
     visibility: visible;
   }
@@ -153,15 +154,15 @@ export default defineComponent({
     visibility: hidden;
   }
   .browser{
-    width: 46%;
-    margin: 2%;
+    width: 47%;
+    margin: 1%;
     transition: all 1s ease-in-out;
     overflow: hidden;
     vertical-align: bottom;
   }
   .browser.content{
     opacity: 1;
-    height: calc( 80vh - 2.5rem );
+    height: calc( 80vh - 1rem );
     transition-delay: 300ms;
     top: 15vh;
     visibility: visible;
