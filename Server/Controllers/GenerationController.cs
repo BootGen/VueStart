@@ -25,30 +25,13 @@ namespace StartVue.Controllers
             var seedStore = new SeedDataStore(collection);
             seedStore.Load(jObject);
 
-            const string targetFolder = "../DefaultSite/src";
+            const string targetFolder = "/var/www/sites/default";
             var disk = new Disk(targetFolder);
-            
-            foreach( var file in Load("../BootgenPlugin/files").Files) {
-                var dir = Path.Combine("../DefaultSite", file.Path);
-                if (!Directory.Exists(dir))
-                    Directory.CreateDirectory(dir);
-                System.IO.File.WriteAllText(Path.Combine(dir, file.Name), file.Content);
-            }
-            var project = new ClientProject
-            {
-                Config = new ClientConfig {
-                    ComponentsFolder = "components",
-                    ViewsFolder = "components",
-                    ComponentExtension = "vue",
-                    Extension = "js"
-                },
-                Disk = disk,
-                ResourceCollection = collection,
-                SeedStore = seedStore,
-                Templates = Load("../BootgenPlugin/templates")
-            };
-            Directory.Delete("../DefaultSite/src/components", true);
-            project.GenerateFiles("Dummy", "http://localhost:5000");
+            var generator = new TypeScriptGenerator(disk);
+            generator.Templates = Load("../templates");
+            generator.Render("", "app.js", "app.sbn", new Dictionary<string, object> {
+                {"classes", DataModel.CommonClasses}
+            });
             return Ok();
         }
 
