@@ -1,7 +1,7 @@
 <template>
   <div class="h-100">
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showNav, 'content' : showNav }">
-      <div class="col-8">
+      <div>
         <h1>Start Vue!</h1>
         <div class="jumbo-text" :class="{ 'landing': !showNav, 'content' : showNav }">
           <p class="lead text-justify">
@@ -15,9 +15,7 @@
           </p>
         </div>
       </div>
-      <div class="col-4">
-        <vueuen type="default"></vueuen>
-      </div>
+      <vueuen :type="$store.state.vueuenType"></vueuen>
     </div>
     <div class="position-absolute end-50 codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <code-mirror v-model="json"></code-mirror>

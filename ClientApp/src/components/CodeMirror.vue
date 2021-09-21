@@ -13,6 +13,7 @@ import { defineComponent, onMounted, ref, watchEffect } from 'vue';
 import VueuenAlert from '../components/VueuenAlert.vue';
 import { getJsonLineNumber } from '../utils/Helper';
 import { prettyPrint, validateJson } from '../utils/PrettyPrint';
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'CodeMirror',
@@ -25,6 +26,7 @@ export default defineComponent({
     const errorMsg = ref('');
     const showErrorMsg = ref(false);
     const cmEditor = ref(null);
+    const store = useStore();
 
     onMounted(async () => {
       let debouncedCheckJson = debounce(checkJson, 1000);
@@ -75,6 +77,7 @@ export default defineComponent({
       const cursorPosition = cm.getCursor();
       const newValue = prettyPrint(json);
       unsetHighlight();
+      store.commit('setType', 'default')
       errorMsg.value = '';
       showErrorMsg.value = false;
       const result = validateJson(json);
@@ -82,6 +85,7 @@ export default defineComponent({
         showErrorMsg.value = true;
         errorMsg.value = result.message;
         lineToColor(result.line, 'red');
+        store.commit('setType', 'error')
       }else if (json != newValue) {
         cm.setValue(newValue);
         cm.setCursor(cursorPosition);
