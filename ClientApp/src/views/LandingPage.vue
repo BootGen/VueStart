@@ -49,7 +49,6 @@ export default defineComponent({
   components: { Vueuen, CodeMirror, BrowserFrame },
   setup() {
     const json = ref("");
-    const jsonSchema = ref(getSchema(JSON.parse(localStorage.getItem('json'))));
 
     function saveToLocalStorage(newValue) {
       try {
@@ -70,17 +69,15 @@ export default defineComponent({
       return JSON.stringify(data);
     }
     getProjectContentFromServer('example_input').then( (content) => {
-      console.log(content);
       json.value = content;
+      const jsonSchema = ref(getSchema(JSON.parse(json.value)));
       watchEffect(() => {
         saveToLocalStorage(json.value);
 
-        const newSchema = getSchema(JSON.parse(localStorage.getItem('json')));
+        const newSchema = getSchema(JSON.parse(json.value));
         if(JSON.stringify(newSchema) != JSON.stringify(jsonSchema.value)) {
-          console.log('change')
+          generate()
           jsonSchema.value = newSchema
-        }else {
-          console.log('still')
         }
       })
     })
@@ -97,7 +94,7 @@ export default defineComponent({
       else
         appUrl.value = url;
     }
-    return { showNav, json, appUrl, generate }
+    return { showNav, json, appUrl}
   }
 });
 
