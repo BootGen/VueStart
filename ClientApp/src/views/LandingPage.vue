@@ -39,6 +39,7 @@
 <script>
 import axios from 'axios';
 import { defineComponent, ref, watchEffect } from 'vue';
+import { getSchema } from '../utils/Schema';
 import Vueuen from '../components/Vueuen.vue';
 import CodeMirror from '../components/CodeMirror.vue';
 import BrowserFrame from '../components/BrowserFrame.vue'
@@ -47,6 +48,9 @@ export default defineComponent({
   name: 'LandingPage',
   components: { Vueuen, CodeMirror, BrowserFrame },
   setup() {
+    const json = ref("");
+    const jsonSchema = ref(getSchema(JSON.parse(localStorage.getItem('json'))));
+
     function saveToLocalStorage(newValue) {
       try {
         let obj = JSON.parse(newValue);
@@ -65,12 +69,19 @@ export default defineComponent({
         return data;
       return JSON.stringify(data);
     }
-    const json = ref("");
     getProjectContentFromServer('example_input').then( (content) => {
       console.log(content);
       json.value = content;
       watchEffect(() => {
         saveToLocalStorage(json.value);
+
+        const newSchema = getSchema(JSON.parse(localStorage.getItem('json')));
+        if(JSON.stringify(newSchema) != JSON.stringify(jsonSchema.value)) {
+          console.log('change')
+          jsonSchema.value = newSchema
+        }else {
+          console.log('still')
+        }
       })
     })
     window.addEventListener('storage', () => {
