@@ -1,11 +1,17 @@
 const ref = Vue.ref;
 const reactive = Vue.reactive;
 const watchEffect = Vue.watchEffect;
-
+{{~ for class in classes
+  if class.is_root
+    root = class
+    break
+  end 
+end ~}}
 const  app = Vue.createApp({
+  template: '<{{ kebab_case root.name }}-list v-model="{{ camel_case root.name }}List"></{{ kebab_case root.name }}-list>',
   name: 'App',
   setup: function () {
-    const userList = ref([]);
+    const {{ camel_case root.name }}List = ref([]);
     function toDataModel(data) {
       return data.map((val, idx) => {
         const v = { ... val }
@@ -43,9 +49,9 @@ const  app = Vue.createApp({
     function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
       if (json) {
-        const users = JSON.parse(json).users;
-        if (users) {
-          userList.value = toDataModel(users);
+        const {{ camel_case root.name.plural }} = JSON.parse(json).{{ camel_case root.name.plural }};
+        if ({{ camel_case root.name.plural }}) {
+          {{ camel_case root.name }}List.value = toDataModel({{ camel_case root.name.plural }});
         }
       }
     }
@@ -53,12 +59,12 @@ const  app = Vue.createApp({
 
     watchEffect(() => {
       saveToLocalStorage({
-        users: toSimpleArray(userList.value)
+        {{ camel_case root.name.plural }}: toSimpleArray({{ camel_case root.name }}List.value)
       });
     })
 
     window.addEventListener('storage', loadFromLocalStorage);
-    return { userList,  }
+    return { {{ camel_case root.name }}List  }
   },
 });
 
@@ -88,7 +94,7 @@ app.component('{{ kebab_case class.name }}-view', {
   {{~ end
       end ~}}
   `,
-  name: '{{ class.name }View',
+  name: '{{ class.name }}View',
   props: {
     modelValue: Object,
   },
@@ -216,6 +222,6 @@ app.component('{{ kebab_case class.name }}-list', {
     return { editedItemId, newItem, editItem, deleteItem, finishEditing, addNewItem, saveNewItem, cancelAdd };
   }
 });
-{{~ for class in classes ~}}
+{{~ end ~}}
 
 app.mount('#app');

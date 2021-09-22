@@ -30,7 +30,7 @@ namespace StartVue.Controllers
             var generator = new TypeScriptGenerator(disk);
             generator.Templates = Load("../templates");
             generator.Render("", "app.js", "app.sbn", new Dictionary<string, object> {
-                {"classes", DataModel.CommonClasses}
+                {"classes", dataModel.CommonClasses}
             });
             return Ok();
         }
