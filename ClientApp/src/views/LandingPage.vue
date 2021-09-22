@@ -19,6 +19,11 @@
       </div>
       <vueuen :type="$store.state.vueuenType"></vueuen>
     </div>
+    <div class="d-flex menu justify-content-between" :class="{ 'landing': !showNav, 'content' : showNav, }">
+      <span></span>
+      <span></span>
+      <button type="button" class="btn btn-outline-primary rounded-pill m-1 btn-sm"><span class="bi bi-download" aria-hidden="true"></span></button>
+    </div>
     <div class="position-absolute end-50 codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <code-mirror v-model="json"></code-mirror>
     </div>
@@ -134,6 +139,22 @@ export default defineComponent({
     height: 0;
     visibility: hidden;
   }
+  .menu{
+    transition: all 1s ease-in-out;
+    transition-delay: 150ms;
+    margin: 1%;
+    overflow: hidden;
+  }
+  .menu.content{
+    opacity: 1;
+    height: 4vh;
+    visibility: visible;
+  }
+  .menu.landing{
+    opacity: 0;
+    height: 0vh;
+    visibility: hidden;
+  }
   .codemirror{
     width: 47%;
     margin: 1%;
@@ -143,14 +164,14 @@ export default defineComponent({
   }
   .codemirror.content{
     opacity: 1;
-    height: calc( 80vh - 1rem );
-    top: 15vh;
+    height: calc( 75vh - 1rem );
+    top: 20vh;
     visibility: visible;
   }
   .codemirror.landing{
     opacity: 0;
     height: 0vh;
-    top: 95vh;
+    top: 90vh;
     visibility: hidden;
   }
   .browser{
@@ -162,20 +183,20 @@ export default defineComponent({
   }
   .browser.content{
     opacity: 1;
-    height: calc( 80vh - 1rem );
+    height: calc( 75vh - 1rem );
     transition-delay: 300ms;
-    top: 15vh;
+    top: 20vh;
     visibility: visible;
   }
   .browser.landing{
     opacity: 0;
     height: 0vh;
-    top: 95vh;
+    top: 90vh;
     visibility: hidden;
   }
   .footer{
     right: 0;
-    margin: 2%;
+    margin: 1%;
     transition: all 1s ease-in-out;
     overflow: hidden;
     vertical-align: bottom;
@@ -184,13 +205,13 @@ export default defineComponent({
     opacity: 1;
     height: 2.5rem;
     transition-delay: 500ms;
-    top: calc( 100vh - 5rem );
+    top: calc( 100vh - 4rem );
     visibility: visible;
   }
   .footer.landing{
     opacity: 0;
     height: 0vh;
-    top: 95vh;
+    top: 90vh;
     visibility: hidden;
   }
 </style>
