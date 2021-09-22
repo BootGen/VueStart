@@ -1,7 +1,7 @@
 <template>
   <div class="col-12 h-100 container p-0">
-    <vueuen-alert v-if="showErrorMsg" :errorMsg="errorMsg" @close="showErrorMsg = false"></vueuen-alert>
     <textarea class="col-12 h-100" id="editor"></textarea>
+    <vueuen-alert class="aler-msg" :class="{ 'show': showErrorMsg, 'hide': !showErrorMsg }" :errorMsg="errorMsg" @close="showErrorMsg = false"></vueuen-alert>
   </div>
 </template>
 
@@ -78,7 +78,6 @@ export default defineComponent({
       const newValue = prettyPrint(json);
       unsetHighlight();
       store.commit('setType', 'default')
-      errorMsg.value = '';
       showErrorMsg.value = false;
       const result = validateJson(json);
       if(result.error){
@@ -102,12 +101,16 @@ export default defineComponent({
     background-color: #f1f1f1;
     padding: 10px;
   }
-
-  .alert-bottom{
-      position: fixed;
-      bottom: 5px;
-      left:2%;
-      width: 96%;
-      z-index: 9;
+  .aler-msg{
+    margin-left: 20px;
+    transition: all 0.5s;
+  }
+  .aler-msg.show{
+    opacity: 1;
+    visibility: visible;
+  }
+  .aler-msg.hide{
+    opacity: 0;
+    visibility: hidden;
   }
 </style>
