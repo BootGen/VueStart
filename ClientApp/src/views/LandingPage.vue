@@ -50,6 +50,7 @@ export default defineComponent({
   components: { Vueuen, CodeMirror, BrowserFrame },
   setup() {
     const json = ref("");
+      const jsonSchema = ref('');
 
     function saveToLocalStorage(newValue) {
       try {
@@ -57,7 +58,7 @@ export default defineComponent({
         let minimized = JSON.stringify(obj);
         let oldValue = localStorage.getItem('json');
         if (minimized != oldValue) {
-          localStorage.setItem('json', minimized);
+            localStorage.setItem('json', minimized);
         }
       } catch (e) {
         console.log(e)
@@ -71,14 +72,15 @@ export default defineComponent({
     }
     getProjectContentFromServer('example_input').then( (content) => {
       json.value = content;
-      const jsonSchema = ref(getSchema(JSON.parse(json.value)));
+      jsonSchema.value = ref(getSchema(JSON.parse(json.value)));
       let debouncedGenerate = debounce(generate, 1000);
       watchEffect(() => {
-        saveToLocalStorage(json.value);
         const newSchema = getSchema(JSON.parse(json.value));
         if(JSON.stringify(newSchema) != JSON.stringify(jsonSchema.value)) {
           jsonSchema.value = newSchema
           debouncedGenerate()
+        } else {
+          saveToLocalStorage(json.value);
         }
       })
     })
@@ -90,6 +92,7 @@ export default defineComponent({
     const appUrl = ref(url);
     async function generate() {
       await axios.post('http://localhost:8081/generate', JSON.parse(json.value))
+      saveToLocalStorage(json.value);
       if (appUrl.value === url)
         appUrl.value = url + " ";
       else
