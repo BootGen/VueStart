@@ -18,18 +18,45 @@
       </div>
     </div>
     <div class="col-12 content">
-      <iframe class="h-100 w-100" :src="modelValue" title="CodeSharp"></iframe>
+      <iframe id="frameA" class="h-100 w-100" :class="{hidden: !frameA}" :src="urlA" title="CodeSharp"></iframe>
+      <iframe id="frameB" class="h-100 w-100" :class="{hidden: frameA}" :src="urlB" title="CodeSharp"></iframe>
     </div>
   </div>
 </template>
 
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent, watchEffect, ref, onMounted } from 'vue';
 
 export default defineComponent({
   name: 'BrowserFrame',
   props: {
     modelValue: String,
+  },
+  setup(props) {
+    const frameA = ref(true);
+    const urlA = ref(props.modelValue);
+    const urlB = ref("");
+    onMounted(function(){
+      watchEffect(function(){
+        if (frameA.value) {
+          urlB.value = props.modelValue
+          const onLoad = function() {
+              document.getElementById('frameB').onload = undefined;
+              frameA.value = false;
+          }
+          document.getElementById('frameB').onload = onLoad;
+        } else {
+          urlA.value = props.modelValue
+          const onLoad = function() {
+              document.getElementById('frameA').onload = undefined;
+              frameA.value = true;
+          }
+          document.getElementById('frameA').onload = onLoad;
+        }
+      })
+    })
+
+    return {frameA, urlA, urlB}
   }
 });
 </script>
@@ -114,4 +141,9 @@ input[type=text] {
   padding: 0!important;
   height: calc(100% - 50px);
 }
+
+.hidden {
+  display: none;
+}
+
 </style>

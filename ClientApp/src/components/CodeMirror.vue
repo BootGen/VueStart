@@ -11,7 +11,7 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/javascript/javascript.js';
 import { defineComponent, onMounted, ref, watchEffect } from 'vue';
 import VueuenAlert from '../components/VueuenAlert.vue';
-import { getJsonLineNumber } from '../utils/Helper';
+import { getJsonLineNumber, debounce } from '../utils/Helper';
 import { prettyPrint, validateJson } from '../utils/PrettyPrint';
 import { useStore } from 'vuex'
 
@@ -51,17 +51,6 @@ export default defineComponent({
       cmEditor.value = editor;
     })
 
-    function debounce (func, wait) {
-      let timeout;
-      return function executedFunction(...args) {
-        const later = () => {
-          clearTimeout(timeout);
-          func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-      };
-    }
     function lineToColor(line, color) {
       if(cmEditor.value){
         cmEditor.value.markText({line: line, ch: 0}, {line: line+1, ch: 0}, {css: `background-color:${color};`});

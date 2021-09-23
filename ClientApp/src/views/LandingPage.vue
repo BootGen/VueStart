@@ -40,6 +40,7 @@
 import axios from 'axios';
 import { defineComponent, ref, watchEffect } from 'vue';
 import { getSchema } from '../utils/Schema';
+import { debounce } from '../utils/Helper';
 import Vueuen from '../components/Vueuen.vue';
 import CodeMirror from '../components/CodeMirror.vue';
 import BrowserFrame from '../components/BrowserFrame.vue'
@@ -71,13 +72,13 @@ export default defineComponent({
     getProjectContentFromServer('example_input').then( (content) => {
       json.value = content;
       const jsonSchema = ref(getSchema(JSON.parse(json.value)));
+      let debouncedGenerate = debounce(generate, 1000);
       watchEffect(() => {
         saveToLocalStorage(json.value);
-
         const newSchema = getSchema(JSON.parse(json.value));
         if(JSON.stringify(newSchema) != JSON.stringify(jsonSchema.value)) {
-          generate()
           jsonSchema.value = newSchema
+          debouncedGenerate()
         }
       })
     })
