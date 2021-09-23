@@ -39,6 +39,7 @@ namespace StartVue
                                 });
             });
             services.AddControllers();
+            services.AddMemoryCache();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "StartVue", Version = "v1" });

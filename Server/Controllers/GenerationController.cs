@@ -8,6 +8,8 @@ using BootGen;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Text.Json;
+using Microsoft.Extensions.Caching.Memory;
+using System.Text;
 
 namespace StartVue.Controllers
 {
@@ -15,6 +17,11 @@ namespace StartVue.Controllers
     [Route("generate")]
     public class GenerationController : ControllerBase
     {
+        private readonly IMemoryCache memoryCache;
+        public GenerationController(IMemoryCache memoryCache)
+        {
+            this.memoryCache = memoryCache;
+        }
         [HttpPost]
         public IActionResult Generate([FromBody] JsonElement json)
         {
@@ -25,14 +32,21 @@ namespace StartVue.Controllers
             var seedStore = new SeedDataStore(collection);
             seedStore.Load(jObject);
 
-            const string targetFolder = "/var/www/sites/default";
-            var disk = new Disk(targetFolder);
-            var generator = new TypeScriptGenerator(disk);
+            var id = Guid.NewGuid().ToString();
+            var generator = new TypeScriptGenerator(null);
             generator.Templates = Load("../templates");
-            generator.Render("", "app.js", "app.sbn", new Dictionary<string, object> {
+            string appjs = generator.Render("app.sbn", new Dictionary<string, object> {
                 {"classes", dataModel.CommonClasses}
             });
-            return Ok();
+            string indexhtml = generator.Render("index.sbn", new Dictionary<string, object> {
+                {"base_url", $"http://localhost:8080/files/{id}/"}
+            });
+
+
+            memoryCache.Set($"{id}/app.js", appjs, TimeSpan.FromMinutes(1));
+            memoryCache.Set($"{id}/index.html", indexhtml, TimeSpan.FromMinutes(1));
+
+            return Ok(new { Id = id });
         }
 
         private static VirtualDisk Load(string path)

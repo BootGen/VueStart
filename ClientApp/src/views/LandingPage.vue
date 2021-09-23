@@ -88,15 +88,11 @@ export default defineComponent({
       json.value = localStorage.getItem('json').toString();
     });
     const showNav = ref(false);
-    const url = "http://localhost:8080/sites/default/"
-    const appUrl = ref(url);
+    const appUrl = ref("http://localhost:8080/sites/default/");
     async function generate() {
-      await axios.post('http://localhost:8081/generate', JSON.parse(json.value))
+      const resp = await axios.post('http://localhost:8080/generate', JSON.parse(json.value))
       saveToLocalStorage(json.value);
-      if (appUrl.value === url)
-        appUrl.value = url + " ";
-      else
-        appUrl.value = url;
+      appUrl.value = `http://localhost:8080/files/${resp.data.id}/index.html`;
     }
     return { showNav, json, appUrl}
   }
