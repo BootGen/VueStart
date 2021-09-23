@@ -26,20 +26,15 @@ namespace StartVue.Controllers
         [HttpGet]
         [Route("{id}/{filename}")]
         public IActionResult ServeFile([FromRoute] string id, [FromRoute] string filename) {
-            Console.WriteLine(id);
-            Console.WriteLine(filename);
             if (string.IsNullOrWhiteSpace(filename))
                 filename = "index.html";
-            Console.WriteLine(filename);
             string key = $"{id}/{filename}";
-            Console.WriteLine(key);
             string content;
             if (!memoryCache.TryGetValue(key, out content))
                 return NotFound();
-            //memoryCache.Remove(key);
+            memoryCache.Remove(key);
 
             string contentType;
-            Console.WriteLine(content.Substring(0, 20).Replace("\n", @"\n"));
 
             switch (filename.Split('.').LastOrDefault())
             {
@@ -53,7 +48,6 @@ namespace StartVue.Controllers
                     contentType = "text/plain";
                 break;
             }
-            Console.WriteLine(contentType);
             var cd = new System.Net.Mime.ContentDisposition
             {
                     FileName = filename,

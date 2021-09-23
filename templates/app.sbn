@@ -14,7 +14,7 @@ const  app = Vue.createApp({
     const {{ camel_case root.name }}List = ref([]);
     function toDataModel(data) {
       return data.map((val, idx) => {
-        const v = { ... val }
+        const v = { ... val };
         for (const property in v) {
           if(Array.isArray(v[property])){
             v[property] = toDataModel(v[property]);
@@ -29,14 +29,14 @@ const  app = Vue.createApp({
     function toSimpleArray(data) {
       let arr =  data.map(val => {
         return { ...val.value }
-      })
+      });
       arr.forEach(item => {
         for (const property in item) {
           if(Array.isArray(item[property])){
             item[property] = toSimpleArray(item[property]);
           }
         }
-      })
+      });
       return arr;
     }
     function saveToLocalStorage(newValue) {
@@ -61,7 +61,7 @@ const  app = Vue.createApp({
       saveToLocalStorage({
         {{ camel_case root.name.plural }}: toSimpleArray({{ camel_case root.name }}List.value)
       });
-    })
+    });
 
     window.addEventListener('storage', loadFromLocalStorage);
     return { {{ camel_case root.name }}List  }
@@ -142,7 +142,7 @@ app.component('{{ kebab_case class.name }}-edit', {
       context.emit('canceled');
     }
 
-    return { editedItem, save, cancel };
+    return { editedItem, save, cancel }
   },
 });
 

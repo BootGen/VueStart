@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { defineComponent, watchEffect, ref, onMounted } from 'vue';
+import { defineComponent, watch, ref, onMounted } from 'vue';
 
 export default defineComponent({
   name: 'BrowserFrame',
@@ -37,7 +37,7 @@ export default defineComponent({
     const urlA = ref(props.modelValue);
     const urlB = ref("");
     onMounted(function(){
-      watchEffect(function(){
+      watch(props, function(){
         if (frameA.value) {
           urlB.value = props.modelValue
           const onLoad = function() {

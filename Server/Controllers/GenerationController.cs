@@ -43,10 +43,23 @@ namespace StartVue.Controllers
             });
 
 
-            memoryCache.Set($"{id}/app.js", appjs, TimeSpan.FromMinutes(1));
-            memoryCache.Set($"{id}/index.html", indexhtml, TimeSpan.FromMinutes(1));
+            memoryCache.Set($"{id}/app.js", Minify(appjs), TimeSpan.FromMinutes(1));
+            memoryCache.Set($"{id}/index.html", Minify(indexhtml), TimeSpan.FromMinutes(1));
 
             return Ok(new { Id = id });
+        }
+
+        private string Minify(string value) {
+            value = value.Replace("\n", " ");
+            value = value.Replace("\r", " ");
+            value = value.Replace("\t", " ");
+            int length;
+            do {
+                length = value.Length;
+                value = value.Replace("  ", " ");
+            } while(value.Length != length);
+
+            return value;
         }
 
         private static VirtualDisk Load(string path)
