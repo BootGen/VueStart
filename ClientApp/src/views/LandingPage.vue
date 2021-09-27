@@ -90,7 +90,7 @@ export default defineComponent({
     const showNav = ref(false);
     const appUrl = ref("http://localhost:8080/sites/default/");
     async function generate() {
-      const resp = await axios.post('http://localhost:8080/generate', JSON.parse(json.value))
+      const resp = await axios.post('http://localhost:8080/generate/editor', JSON.parse(json.value))
       saveToLocalStorage(json.value);
       appUrl.value = `http://localhost:8080/files/${resp.data.id}/index.html`;
     }

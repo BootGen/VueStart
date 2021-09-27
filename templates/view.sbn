@@ -39,13 +39,6 @@ const  app = Vue.createApp({
       });
       return arr;
     }
-    function saveToLocalStorage(newValue) {
-        let minimized = JSON.stringify(newValue);
-        let oldValue = localStorage.getItem('json');
-        if (minimized != oldValue) {
-          localStorage.setItem('json', minimized);
-        }
-    }
     function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
       if (json) {
@@ -57,12 +50,6 @@ const  app = Vue.createApp({
     }
     loadFromLocalStorage();
 
-    watchEffect(() => {
-      saveToLocalStorage({
-        {{ camel_case root.name.plural }}: toSimpleArray({{ camel_case root.name }}List.value)
-      });
-    });
-
     window.addEventListener('storage', loadFromLocalStorage);
     return { {{ camel_case root.name }}List  }
   },
@@ -71,14 +58,6 @@ const  app = Vue.createApp({
 {{~ for class in classes ~}}
 app.component('{{ kebab_case class.name }}-view', {
   template: `
-  <li class="list-group-item">
-    <button type="button" class="btn btn-default btn-sm" @click="$emit('edit')">
-      <span class="bi bi-pencil" aria-hidden="true"></span> Edit
-    </button>
-    <button type="button" class="btn btn-default btn-sm" @click="$emit('delete')">
-      <span class="bi bi-trash" aria-hidden="true"></span> Delete
-    </button>
-  </li>
   {{~ for property in class.common_properties
   if !property.is_key ~}}
   <li class="list-group-item">
@@ -97,53 +76,7 @@ app.component('{{ kebab_case class.name }}-view', {
   name: '{{ class.name }}View',
   props: {
     modelValue: Object,
-  },
-  emits: ['edit',  'delete']
-});
-
-app.component('{{ kebab_case class.name }}-edit', {
-  template: `
-  <li class="list-group-item">
-    <button type="button" class="btn btn-default btn-sm" @click="save">
-      <span class="bi bi-save" aria-hidden="true"></span> Save
-    </button>
-    <button type="button" class="btn btn-default btn-sm" @click="cancel">
-      <span class="bi bi-backspace" aria-hidden="true"></span> Cancel
-    </button>
-  </li>
-  {{~ for property in class.common_properties
-      if !property.is_key ~}}
-  <li class="list-group-item">
-    <div class="row d-flex align-items-center">
-      <div class="col-4 d-flex justify-content-start text-break text-start">
-      {{ property.name }}:
-      </div>
-      <div class="col-8 d-flex justify-content-start">
-        <input v-model="editedItem.{{ camel_case property.name }}" type="text" class="form-control" />
-      </div>
-    </div>
-  </li>
-  {{~ end
-      end ~}}
-  `,
-  name: '{{ class.name }}Edit',
-  props: {
-    modelValue: Object,
-  },
-  emits: ['update:modelValue', 'canceled', 'saved'],
-  setup(props, context) {
-    const editedItem = reactive({ ...props.modelValue });
-
-    function save() {
-      context.emit('update:modelValue', editedItem);
-      context.emit('saved');
-    }
-    function cancel() {
-      context.emit('canceled');
-    }
-
-    return { editedItem, save, cancel }
-  },
+  }
 });
 
 app.component('{{ kebab_case class.name }}-list', {
@@ -151,15 +84,11 @@ app.component('{{ kebab_case class.name }}-list', {
   <div class="row">
     <div class="col-12 d-flex justify-content-between">
       {{ class.name.plural }}:
-      <button type="button" class="btn btn-default btn-sm" @click="addNewItem()">
-        <span class="bi bi-plus" aria-hidden="true"></span> Add
-      </button>
     </div>
     <div class="col-12 mb-2" v-for="item in modelValue" :key="item.id">
       <div class="card">
         <ul class="list-group list-group-flush">
-          <{{ kebab_case class.name }}-edit v-model="item.value" @canceled="finishEditing()" @saved="finishEditing()" v-if="editedItemId === item.id"></{{ kebab_case class.name }}-edit>
-          <{{ kebab_case class.name }}-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></{{ kebab_case class.name }}-view>
+          <{{ kebab_case class.name }}-view v-model="item.value"></{{ kebab_case class.name }}-view>
           {{~ for property in class.properties
               if property.is_collection && property.class
               ~}}
@@ -171,55 +100,10 @@ app.component('{{ kebab_case class.name }}-list', {
         </ul>
       </div>
     </div>
-    <div class="col-12 mb-2" v-if="newItem != null">
-      <div class="card">
-        <ul class="list-group list-group-flush">
-          <{{ kebab_case class.name }}-edit v-model="newItem" @canceled="cancelAdd" @saved="saveNewItem()"></{{ kebab_case class.name }}-edit>
-        </ul>
-      </div>
-    </div>
   </div>`,
   name: '{{ class.name }}List',
   props: {
     modelValue: Object
-  },
-  emits: ['update:modelValue'],
-  setup(props, context) {
-    const editedItemId = ref(-1);
-    const newItem = ref(null);
-
-    function editItem(item) {
-      editedItemId.value = item.id;
-    }
-    function deleteItem(item) {
-      if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
-        context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id));
-      }
-    }
-    function finishEditing() {
-      editedItemId.value = -1;
-    }
-    function addNewItem() {
-      newItem.value = {
-        {{~ for property in class.properties
-            if !property.is_key && !property.is_parent_reference ~}}
-        {{ camel_case property.name }}: {{ if property.is_collection }}[]{{else}}''{{end}}{{if !for.last}},{{end}}
-        {{~ end
-            end ~}}
-      };
-    }
-    function saveNewItem() {
-        const items = [...props.modelValue];
-        const lastId = items.length == 0 ? 0 : items[items.length-1].id;
-        items.push({id: lastId + 1, value: newItem.value});
-        context.emit('update:modelValue', items);
-        newItem.value = null;
-    }
-    function cancelAdd() {
-        newItem.value = null;
-    }
-
-    return { editedItemId, newItem, editItem, deleteItem, finishEditing, addNewItem, saveNewItem, cancelAdd };
   }
 });
 {{~ end ~}}
