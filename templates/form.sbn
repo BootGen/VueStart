@@ -69,46 +69,12 @@ const  app = Vue.createApp({
 });
 
 {{~ for class in classes ~}}
-app.component('{{ kebab_case class.name }}-view', {
-  template: `
-  <li class="list-group-item">
-    <button type="button" class="btn btn-default btn-sm" @click="$emit('edit')">
-      <span class="bi bi-pencil" aria-hidden="true"></span> Edit
-    </button>
-    <button type="button" class="btn btn-default btn-sm" @click="$emit('delete')">
-      <span class="bi bi-trash" aria-hidden="true"></span> Delete
-    </button>
-  </li>
-  {{~ for property in class.common_properties
-  if !property.is_key ~}}
-  <li class="list-group-item">
-    <div class="row">
-      <div class="col-4 d-flex justify-content-start text-break text-start">
-        {{ property.name }}:
-      </div>
-      <div class="col-8 d-flex justify-content-start text-break">
-        {{'{{'}} modelValue.{{ camel_case property.name }} {{'}}'}}
-      </div>
-    </div>
-  </li>
-  {{~ end
-      end ~}}
-  `,
-  name: '{{ class.name }}View',
-  props: {
-    modelValue: Object,
-  },
-  emits: ['edit',  'delete']
-});
 
 app.component('{{ kebab_case class.name }}-edit', {
   template: `
   <li class="list-group-item">
-    <button type="button" class="btn btn-default btn-sm" @click="save">
-      <span class="bi bi-save" aria-hidden="true"></span> Save
-    </button>
-    <button type="button" class="btn btn-default btn-sm" @click="cancel">
-      <span class="bi bi-backspace" aria-hidden="true"></span> Cancel
+    <button type="button" class="btn btn-default btn-sm" @click="$emit('delete')">
+      <span class="bi bi-trash" aria-hidden="true"></span> Delete
     </button>
   </li>
   {{~ for property in class.common_properties
@@ -119,7 +85,7 @@ app.component('{{ kebab_case class.name }}-edit', {
       {{ property.name }}:
       </div>
       <div class="col-8 d-flex justify-content-start">
-        <input v-model="editedItem.{{ camel_case property.name }}" type="text" class="form-control" />
+        <input v-model="modelValue.{{ camel_case property.name }}" type="text" class="form-control" />
       </div>
     </div>
   </li>
@@ -130,20 +96,7 @@ app.component('{{ kebab_case class.name }}-edit', {
   props: {
     modelValue: Object,
   },
-  emits: ['update:modelValue', 'canceled', 'saved'],
-  setup(props, context) {
-    const editedItem = reactive({ ...props.modelValue });
-
-    function save() {
-      context.emit('update:modelValue', editedItem);
-      context.emit('saved');
-    }
-    function cancel() {
-      context.emit('canceled');
-    }
-
-    return { editedItem, save, cancel }
-  },
+  emits: ['update:modelValue', 'delete'],
 });
 
 app.component('{{ kebab_case class.name }}-list', {
@@ -158,8 +111,7 @@ app.component('{{ kebab_case class.name }}-list', {
     <div class="col-12 mb-2" v-for="item in modelValue" :key="item.id">
       <div class="card">
         <ul class="list-group list-group-flush">
-          <{{ kebab_case class.name }}-edit v-model="item.value" @canceled="finishEditing()" @saved="finishEditing()" v-if="editedItemId === item.id"></{{ kebab_case class.name }}-edit>
-          <{{ kebab_case class.name }}-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></{{ kebab_case class.name }}-view>
+          <{{ kebab_case class.name }}-edit v-model="item.value" @delete="deleteItem(item)"></{{ kebab_case class.name }}-edit>
           {{~ for property in class.properties
               if property.is_collection && property.class
               ~}}
@@ -185,19 +137,12 @@ app.component('{{ kebab_case class.name }}-list', {
   },
   emits: ['update:modelValue'],
   setup(props, context) {
-    const editedItemId = ref(-1);
     const newItem = ref(null);
 
-    function editItem(item) {
-      editedItemId.value = item.id;
-    }
     function deleteItem(item) {
       if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
         context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id));
       }
-    }
-    function finishEditing() {
-      editedItemId.value = -1;
     }
     function addNewItem() {
       newItem.value = {
@@ -219,7 +164,7 @@ app.component('{{ kebab_case class.name }}-list', {
         newItem.value = null;
     }
 
-    return { editedItemId, newItem, editItem, deleteItem, finishEditing, addNewItem, saveNewItem, cancelAdd };
+    return { newItem, deleteItem, addNewItem, saveNewItem, cancelAdd };
   }
 });
 {{~ end ~}}
