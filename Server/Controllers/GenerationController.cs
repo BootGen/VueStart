@@ -22,9 +22,29 @@ namespace StartVue.Controllers
         {
             this.memoryCache = memoryCache;
         }
+
         [HttpPost]
-        public IActionResult Generate([FromBody] JsonElement json)
+        [Route("editor")]
+        public IActionResult GenerateEditor([FromBody] JsonElement json)
         {
+            return Ok(new { Id = Generate(json, "editor.sbn") });
+        }
+        
+        [HttpPost]
+        [Route("view")]
+        public IActionResult GenerateView([FromBody] JsonElement json)
+        {
+            return Ok(new { Id = Generate(json, "view.sbn") });
+        }
+
+        [HttpPost]
+        [Route("form")]
+        public IActionResult GenerateForm([FromBody] JsonElement json)
+        {
+            return Ok(new { Id = Generate(json, "form.sbn") });
+        }
+
+        private string Generate(JsonElement json, string templateFileName) {
             var dataModel = new DataModel();
             var jObject = JObject.Parse(json.ToString(), new JsonLoadSettings { CommentHandling = CommentHandling.Ignore, DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
             dataModel.Load(jObject);
@@ -35,7 +55,7 @@ namespace StartVue.Controllers
             var id = Guid.NewGuid().ToString();
             var generator = new TypeScriptGenerator(null);
             generator.Templates = Load("../templates");
-            string appjs = generator.Render("app.sbn", new Dictionary<string, object> {
+            string appjs = generator.Render(templateFileName, new Dictionary<string, object> {
                 {"classes", dataModel.CommonClasses}
             });
             string indexhtml = generator.Render("index.sbn", new Dictionary<string, object> {
@@ -45,8 +65,7 @@ namespace StartVue.Controllers
 
             memoryCache.Set($"{id}/app.js", Minify(appjs), TimeSpan.FromMinutes(1));
             memoryCache.Set($"{id}/index.html", Minify(indexhtml), TimeSpan.FromMinutes(1));
-
-            return Ok(new { Id = id });
+            return id;
         }
 
         private string Minify(string value) {
