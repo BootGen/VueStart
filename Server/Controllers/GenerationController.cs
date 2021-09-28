@@ -10,6 +10,7 @@ using System.IO;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text;
+using System.IO.Compression;
 
 namespace StartVue.Controllers
 {
@@ -44,7 +45,55 @@ namespace StartVue.Controllers
             return Ok(new { Id = Generate(json, "form.sbn") });
         }
 
-        private string Generate(JsonElement json, string templateFileName) {
+        [HttpPost]
+        [Route("editor/download")]
+        public IActionResult DownloadEditor([FromBody] JsonElement json)
+        {
+            var memoryStream = CreateZipStream(json, "editor.sbn");
+            return File(memoryStream, "application/zip", "editor.zip");
+        }
+
+        [HttpPost]
+        [Route("view/download")]
+        public IActionResult DownloadView([FromBody] JsonElement json)
+        {
+            var memoryStream = CreateZipStream(json, "view.sbn");
+            return File(memoryStream, "application/zip", "view.zip");
+        }
+
+        [HttpPost]
+        [Route("form/download")]
+        public IActionResult DownloadForm([FromBody] JsonElement json)
+        {
+            var memoryStream = CreateZipStream(json, "form.sbn");
+            return File(memoryStream, "application/zip", "form.zip");
+        }
+
+        private MemoryStream CreateZipStream(JsonElement json, string templateFileName)
+        {
+            var memoryStream = new MemoryStream();
+            Generate(json, templateFileName, out string appjs, out string indexhtml);
+            using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+            {
+                AddEntry(archive, appjs, "app.js");
+                AddEntry(archive, indexhtml, "index.html");
+            }
+            memoryStream.Position = 0;
+            return memoryStream;
+        }
+
+        private static void AddEntry(ZipArchive archive, string content, string fileName)
+        {
+            var entry = archive.CreateEntry(fileName);
+
+            using (var entryStream = entry.Open())
+            using (var streamWriter = new StreamWriter(entryStream))
+            {
+                streamWriter.Write(content);
+            }
+        }
+
+        private string Generate(JsonElement json, string templateFileName, out string appjs, out string indexhtml) {
             var dataModel = new DataModel();
             var jObject = JObject.Parse(json.ToString(), new JsonLoadSettings { CommentHandling = CommentHandling.Ignore, DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
             dataModel.Load(jObject);
@@ -55,14 +104,17 @@ namespace StartVue.Controllers
             var id = Guid.NewGuid().ToString();
             var generator = new TypeScriptGenerator(null);
             generator.Templates = Load("../templates");
-            string appjs = generator.Render(templateFileName, new Dictionary<string, object> {
+            appjs = generator.Render(templateFileName, new Dictionary<string, object> {
                 {"classes", dataModel.CommonClasses}
             });
-            string indexhtml = generator.Render("index.sbn", new Dictionary<string, object> {
+            indexhtml = generator.Render("index.sbn", new Dictionary<string, object> {
                 {"base_url", $"http://localhost:8080/files/{id}/"}
             });
+            return id;
+        }
 
-
+        private string Generate(JsonElement json, string templateFileName) {
+            string id = Generate(json, templateFileName, out string appjs, out string indexhtml);
             memoryCache.Set($"{id}/app.js", Minify(appjs), TimeSpan.FromMinutes(1));
             memoryCache.Set($"{id}/index.html", Minify(indexhtml), TimeSpan.FromMinutes(1));
             return id;
