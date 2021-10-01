@@ -8,7 +8,7 @@
             <p class="lead text-justify">
               Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
             </p>
-            <button class="btn btn-outline-primary rounded-pill m-1" @click="showNav = !showNav">Go!</button>
+            <button class="btn btn-outline-primary rounded-pill m-1 btn-lg" @click="showNav = !showNav">Go!</button>
           </div>
         </div>
         <div class="slogen-text" :class="{ 'landing': !showNav, 'content' : showNav }">
@@ -21,7 +21,11 @@
     </div>
     <div class="d-flex menu justify-content-between" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <span></span>
-      <span></span>
+      <div>
+        <button type="button" class="btn rounded-pill m-1" :class="{ 'btn-outline-primary': generateType != generateTypes.View, 'btn-primary' : generateType == generateTypes.View }" @click="changeGeneratedMode(generateTypes.View)">View</button>
+        <button type="button" class="btn rounded-pill m-1" :class="{ 'btn-outline-primary': generateType != generateTypes.Form, 'btn-primary' : generateType == generateTypes.Form }" @click="changeGeneratedMode(generateTypes.Form)">Form</button>
+        <button type="button" class="btn rounded-pill m-1" :class="{ 'btn-outline-primary': generateType != generateTypes.Editor, 'btn-primary' : generateType == generateTypes.Editor }" @click="changeGeneratedMode(generateTypes.Editor)">Editor</button>
+      </div>
       <button type="button" class="btn btn-outline-primary rounded-pill m-1 btn-sm" @click="download"><span class="bi bi-download" aria-hidden="true"></span></button>
     </div>
     <div class="position-absolute end-50 codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
@@ -50,7 +54,13 @@ export default defineComponent({
   components: { Vueuen, CodeMirror, BrowserFrame },
   setup() {
     const json = ref("");
-      const jsonSchema = ref('');
+    const jsonSchema = ref('');
+    const generateTypes = {
+      View: "view",
+      Form: "form",
+      Editor: "editor",
+    }
+    const generateType = ref(generateTypes.Editor);
 
     function saveToLocalStorage(newValue) {
       try {
@@ -90,32 +100,32 @@ export default defineComponent({
     const showNav = ref(false);
     const appUrl = ref("http://localhost:8080/sites/default/");
     async function generate() {
-      const resp = await axios.post('http://localhost:8080/generate/editor', JSON.parse(json.value))
+      const resp = await axios.post(`http://localhost:8080/generate/${generateType.value}`, JSON.parse(json.value));
       saveToLocalStorage(json.value);
       appUrl.value = `http://localhost:8080/files/${resp.data.id}/index.html`;
     }
-
+    function changeGeneratedMode(type) {
+      generateType.value = type
+      generate()
+    }
     async function download() {
-      const response = await axios.post('http://localhost:8080/generate/editor/download', JSON.parse(json.value), {responseType: 'blob'});
+      const response = await axios.post(`http://localhost:8080/generate/${generateType.value}/download`, JSON.parse(json.value), {responseType: 'blob'});
       const fileURL = window.URL.createObjectURL(new Blob([response.data]));
       const fileLink = document.createElement('a');
       fileLink.href = fileURL;
       fileLink.target = '_blank';
-      fileLink.setAttribute('download', 'editor.zip');
+      fileLink.setAttribute('download', `${generateType.value}.zip`);
       document.body.appendChild(fileLink);
       fileLink.click();
     }
 
-    return { showNav, json, appUrl, download}
+    return { showNav, json, appUrl, download, generateType, generateTypes, changeGeneratedMode}
   }
 });
 
 </script>
 
 <style scoped>
-  .btn {
-    font-size: 1.5em;
-  }
   .jumbotron {
     transition: all 1s ease-in-out;
     padding: 5vmin;

@@ -28,28 +28,28 @@ namespace StartVue.Controllers
         [Route("editor")]
         public IActionResult GenerateEditor([FromBody] JsonElement json)
         {
-            return Ok(new { Id = Generate(json, "editor.sbn") });
+            return Ok(new { Id = Generate(json, "Data Editor", "editor.sbn") });
         }
         
         [HttpPost]
         [Route("view")]
         public IActionResult GenerateView([FromBody] JsonElement json)
         {
-            return Ok(new { Id = Generate(json, "view.sbn") });
+            return Ok(new { Id = Generate(json, "Data View", "view.sbn") });
         }
 
         [HttpPost]
         [Route("form")]
         public IActionResult GenerateForm([FromBody] JsonElement json)
         {
-            return Ok(new { Id = Generate(json, "form.sbn") });
+            return Ok(new { Id = Generate(json, "Data Form", "form.sbn") });
         }
 
         [HttpPost]
         [Route("editor/download")]
         public IActionResult DownloadEditor([FromBody] JsonElement json)
         {
-            var memoryStream = CreateZipStream(json, "editor.sbn");
+            var memoryStream = CreateZipStream(json, "Data Editor", "editor.sbn");
             return File(memoryStream, "application/zip", "editor.zip");
         }
 
@@ -57,7 +57,7 @@ namespace StartVue.Controllers
         [Route("view/download")]
         public IActionResult DownloadView([FromBody] JsonElement json)
         {
-            var memoryStream = CreateZipStream(json, "view.sbn");
+            var memoryStream = CreateZipStream(json, "Data View", "view.sbn");
             return File(memoryStream, "application/zip", "view.zip");
         }
 
@@ -65,14 +65,14 @@ namespace StartVue.Controllers
         [Route("form/download")]
         public IActionResult DownloadForm([FromBody] JsonElement json)
         {
-            var memoryStream = CreateZipStream(json, "form.sbn");
+            var memoryStream = CreateZipStream(json, "Data Form", "form.sbn");
             return File(memoryStream, "application/zip", "form.zip");
         }
 
-        private MemoryStream CreateZipStream(JsonElement json, string templateFileName)
+        private MemoryStream CreateZipStream(JsonElement json, string title, string templateFileName)
         {
             var memoryStream = new MemoryStream();
-            Generate(json, templateFileName, out string appjs, out string indexhtml);
+            Generate(json, title, templateFileName, out string appjs, out string indexhtml);
             using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
             {
                 AddEntry(archive, appjs, "app.js");
@@ -93,7 +93,7 @@ namespace StartVue.Controllers
             }
         }
 
-        private string Generate(JsonElement json, string templateFileName, out string appjs, out string indexhtml) {
+        private string Generate(JsonElement json, string title, string templateFileName, out string appjs, out string indexhtml) {
             var dataModel = new DataModel();
             var jObject = JObject.Parse(json.ToString(), new JsonLoadSettings { CommentHandling = CommentHandling.Ignore, DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
             dataModel.Load(jObject);
@@ -108,13 +108,14 @@ namespace StartVue.Controllers
                 {"classes", dataModel.CommonClasses}
             });
             indexhtml = generator.Render("index.sbn", new Dictionary<string, object> {
-                {"base_url", $"http://localhost:8080/files/{id}/"}
+                {"base_url", $"http://localhost:8080/files/{id}/"},
+                {"title", $"{title}"}
             });
             return id;
         }
 
-        private string Generate(JsonElement json, string templateFileName) {
-            string id = Generate(json, templateFileName, out string appjs, out string indexhtml);
+        private string Generate(JsonElement json, string title, string templateFileName) {
+            string id = Generate(json, title, templateFileName, out string appjs, out string indexhtml);
             memoryCache.Set($"{id}/app.js", Minify(appjs), TimeSpan.FromMinutes(1));
             memoryCache.Set($"{id}/index.html", Minify(indexhtml), TimeSpan.FromMinutes(1));
             return id;
