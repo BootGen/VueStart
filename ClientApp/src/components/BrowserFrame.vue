@@ -137,7 +137,6 @@ input[type=text] {
 
 /* Page content */
 .content {
-  height: clac(100% - 50px);
   padding: 0!important;
   height: calc(100% - 50px);
 }

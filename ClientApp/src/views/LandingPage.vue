@@ -26,7 +26,9 @@
         <button type="button" class="btn rounded-pill m-1" :class="{ 'btn-outline-primary': generateType != generateTypes.Form, 'btn-primary' : generateType == generateTypes.Form }" @click="changeGeneratedMode(generateTypes.Form)">Form</button>
         <button type="button" class="btn rounded-pill m-1" :class="{ 'btn-outline-primary': generateType != generateTypes.Editor, 'btn-primary' : generateType == generateTypes.Editor }" @click="changeGeneratedMode(generateTypes.Editor)">Editor</button>
       </div>
-      <button type="button" class="btn btn-outline-primary rounded-pill m-1 btn-sm" @click="download"><span class="bi bi-download" aria-hidden="true"></span></button>
+      <div>
+        <button type="button" class="btn btn-outline-primary rounded-pill m-1" @click="download"><span class="bi bi-download" aria-hidden="true"></span></button>
+      </div>
     </div>
     <div class="position-absolute end-50 codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <code-mirror v-model="json"></code-mirror>
@@ -201,7 +203,7 @@ export default defineComponent({
   .codemirror.landing{
     opacity: 0;
     height: 0vh;
-    top: 90vh;
+    top: 98vh;
     visibility: hidden;
   }
   .browser{
@@ -221,7 +223,7 @@ export default defineComponent({
   .browser.landing{
     opacity: 0;
     height: 0vh;
-    top: 90vh;
+    top: 98vh;
     visibility: hidden;
   }
   .footer{
@@ -241,7 +243,7 @@ export default defineComponent({
   .footer.landing{
     opacity: 0;
     height: 0vh;
-    top: 90vh;
+    top: 98vh;
     visibility: hidden;
   }
 </style>
