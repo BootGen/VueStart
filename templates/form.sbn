@@ -101,7 +101,7 @@ app.component('{{ kebab_case class.name }}-edit', {
 
 app.component('{{ kebab_case class.name }}-list', {
   template: `
-  <div class="row">
+  <div class="m-2">
     <div class="col-12 d-flex justify-content-between">
       {{ class.name.plural }}:
       <button type="button" class="btn btn-default btn-sm" @click="addNewItem()">

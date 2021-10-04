@@ -1,15 +1,15 @@
 <template>
   <div class="col-12 h-100 container">
-    <div class="row">
-      <div class="column left">
+    <div class="d-flex justify-content-around menu">
+      <div>
         <span class="dot" style="background:#ED594A;"></span>
         <span class="dot" style="background:#FDD800;"></span>
         <span class="dot" style="background:#5AC05A;"></span>
       </div>
-      <div class="column middle">
+      <div class="middle">
         <input type="text" value="https://yourownwebsite.com">
       </div>
-      <div class="column right">
+      <div>
         <div style="float:right">
           <span class="bar"></span>
           <span class="bar"></span>
@@ -70,38 +70,12 @@ export default defineComponent({
   padding: 10px;
 }
 
-/* Container for columns and the top "toolbar" */
-.row {
-  padding: 10px;
-  margin: 0;
-  height: 50px;
-  background: #f1f1f1;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-}
-
-/* Create three unequal columns that floats next to each other */
-.column {
-  float: left;
-}
-
-.left {
-  width: 15%;
-}
-
-.right {
-  width: 10%;
+.menu {
+  height: 30px;
 }
 
 .middle {
   width: 75%;
-}
-
-/* Clear floats after the columns */
-.row:after {
-  content: "";
-  display: table;
-  clear: both;
 }
 
 /* Three dots */
@@ -138,7 +112,7 @@ input[type=text] {
 /* Page content */
 .content {
   padding: 0!important;
-  height: calc(100% - 50px);
+  height: calc(100% - 30px);
 }
 
 .hidden {
