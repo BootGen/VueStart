@@ -17,10 +17,9 @@
           </p>
         </div>
       </div>
-      <vueuen :type="$store.state.vueuenType"></vueuen>
+      <vueuen class="vueuen" :type="$store.state.vueuenType"></vueuen>
     </div>
     <div class="d-flex menu justify-content-between" :class="{ 'landing': !showNav, 'content' : showNav, }">
-      <span></span>
       <div>
         <button type="button" class="btn rounded-pill m-1" :class="{ 'btn-outline-primary': generateType != generateTypes.View, 'btn-primary' : generateType == generateTypes.View }" @click="changeGeneratedMode(generateTypes.View)">View</button>
         <button type="button" class="btn rounded-pill m-1" :class="{ 'btn-outline-primary': generateType != generateTypes.Form, 'btn-primary' : generateType == generateTypes.Form }" @click="changeGeneratedMode(generateTypes.Form)">Form</button>
@@ -30,13 +29,13 @@
         <button type="button" class="btn btn-outline-primary rounded-pill m-1" @click="download"><span class="bi bi-download" aria-hidden="true"></span></button>
       </div>
     </div>
-    <div class="position-absolute end-50 codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
+    <div class="codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <code-mirror v-model="json"></code-mirror>
     </div>
-    <div class="position-absolute start-50 browser custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
+    <div class="browser custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <browser-frame v-model="appUrl"></browser-frame>
     </div>
-    <div class="d-flex position-absolute footer" :class="{ 'landing': !showNav, 'content' : showNav, }">
+    <div class="d-flex footer" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
     </div>
   </div>
@@ -154,7 +153,7 @@ export default defineComponent({
   }
   .jumbo-text.landing{
     opacity: 1;
-    height: 18rem;
+    height: 16rem;
     width: 60vw;
   }
   .slogen-text{
@@ -179,7 +178,7 @@ export default defineComponent({
   }
   .menu.content{
     opacity: 1;
-    height: 4vh;
+    height: 3em;
     visibility: visible;
   }
   .menu.landing{
@@ -188,6 +187,7 @@ export default defineComponent({
     visibility: hidden;
   }
   .codemirror{
+    position: absolute;
     width: 47%;
     margin: 1%;
     transition: all 1s ease-in-out;
@@ -207,8 +207,10 @@ export default defineComponent({
     visibility: hidden;
   }
   .browser{
+    position: absolute;
     width: 47%;
     margin: 1%;
+    margin-left: 51%;
     transition: all 1s ease-in-out;
     overflow: hidden;
     vertical-align: bottom;
@@ -227,6 +229,7 @@ export default defineComponent({
     visibility: hidden;
   }
   .footer{
+    position: absolute;
     right: 0;
     margin: 1%;
     transition: all 1s ease-in-out;
@@ -245,5 +248,52 @@ export default defineComponent({
     height: 0vh;
     top: 98vh;
     visibility: hidden;
+  }
+
+  @media (max-width: 992px) {
+    .jumbotron{
+      justify-content: unset!important;
+    }
+    .vueuen {
+      display: none;
+    }
+    .jumbo-text.landing{
+      width: 100%;
+      height: 16rem;
+    }
+    .codemirror{
+      position: unset;
+      width: 98%;
+      margin: 1%;
+    }
+
+    .browser{
+      position: unset;
+      width: 98%;
+      margin: 1%;
+    }
+
+    .footer{
+      font-size: 0.8rem;  
+      position: unset;
+      justify-content: flex-end;
+    }
+    .footer.content{
+      height: unset;
+      padding-top: 5px;
+    }
+  }
+  @media (max-width: 768px) {
+    .jumbo-text.landing{
+      height: 16rem;
+    }
+  }
+  @media (max-width: 576px) {
+    .jumbotron.content {
+      height: 26vh;
+    }
+    .jumbo-text.landing{
+      height: 26rem;
+    }
   }
 </style>

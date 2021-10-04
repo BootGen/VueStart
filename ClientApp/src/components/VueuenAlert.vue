@@ -30,4 +30,9 @@ export default defineComponent({
     justify-content: center!important;
     z-index: 9;
   }
+  @media (max-width: 992px) {
+    .error-alert-container {
+      position: fixed;
+    }    
+  }
 </style>

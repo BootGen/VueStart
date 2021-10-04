@@ -1,5 +1,5 @@
 <template>
-  <div class="col-12 h-100 container">
+  <div class="col-12 h-100 browser-container">
     <div class="d-flex justify-content-around menu">
       <div>
         <span class="dot" style="background:#ED594A;"></span>
@@ -63,7 +63,7 @@ export default defineComponent({
 
 <style scoped>
 /* The browser window */
-.container {
+.browser-container {
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
   background-color: #f1f1f1;

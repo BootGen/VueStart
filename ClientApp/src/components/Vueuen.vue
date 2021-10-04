@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div>
     <img v-if="type == 'default'" alt="Vueuen default" :src="require('../assets/vueuen.webp')">
     <img v-if="type == 'loading'" alt="Vueuen loading" :src="require('../assets/vueuen_loading.webp')">
     <img v-if="type == 'error'" alt="Vueuen error" :src="require('../assets/vueuen_error.webp')">
@@ -16,9 +16,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style scoped>
-  .container {
-    display: contents;
-  }
-</style>

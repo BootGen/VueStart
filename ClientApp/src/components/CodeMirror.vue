@@ -1,5 +1,5 @@
 <template>
-  <div class="col-12 h-100 container p-0">
+  <div class="col-12 h-100 p-0">
     <textarea class="col-12 h-100" id="editor"></textarea>
     <vueuen-alert class="aler-msg" :class="{ 'show': showErrorMsg, 'hide': !showErrorMsg }" :errorMsg="errorMsg" @close="showErrorMsg = false"></vueuen-alert>
   </div>
@@ -101,5 +101,12 @@ export default defineComponent({
   .aler-msg.hide{
     opacity: 0;
     visibility: hidden;
+  }
+  @media (max-width: 992px) {
+    .aler-msg {
+      margin-left: unset;
+      justify-content: center;
+    }
+    
   }
 </style>
