@@ -19,20 +19,20 @@
       </div>
       <vueuen class="vueuen" :type="$store.state.vueuenType"></vueuen>
     </div>
-    <div class="d-flex menu justify-content-between" :class="{ 'landing': !showNav, 'content' : showNav, }">
-      <div>
-        <button type="button" class="btn rounded-pill m-1" :class="{ 'btn-outline-primary': generateType != generateTypes.View, 'btn-primary' : generateType == generateTypes.View }" @click="changeGeneratedMode(generateTypes.View)">View</button>
-        <button type="button" class="btn rounded-pill m-1" :class="{ 'btn-outline-primary': generateType != generateTypes.Form, 'btn-primary' : generateType == generateTypes.Form }" @click="changeGeneratedMode(generateTypes.Form)">Form</button>
-        <button type="button" class="btn rounded-pill m-1" :class="{ 'btn-outline-primary': generateType != generateTypes.Editor, 'btn-primary' : generateType == generateTypes.Editor }" @click="changeGeneratedMode(generateTypes.Editor)">Editor</button>
-      </div>
-      <div>
-        <button type="button" class="btn btn-outline-primary rounded-pill m-1" @click="download"><span class="bi bi-download" aria-hidden="true"></span></button>
-      </div>
-    </div>
     <div class="codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <code-mirror v-model="json"></code-mirror>
     </div>
     <div class="browser custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
+      <div class="d-flex menu justify-content-between">
+        <div>
+          <button type="button" class="btn rounded-pill m-1" :class="{ 'btn-outline-primary': generateType != generateTypes.View, 'btn-primary' : generateType == generateTypes.View }" @click="changeGeneratedMode(generateTypes.View)">View</button>
+          <button type="button" class="btn rounded-pill m-1" :class="{ 'btn-outline-primary': generateType != generateTypes.Form, 'btn-primary' : generateType == generateTypes.Form }" @click="changeGeneratedMode(generateTypes.Form)">Form</button>
+          <button type="button" class="btn rounded-pill m-1" :class="{ 'btn-outline-primary': generateType != generateTypes.Editor, 'btn-primary' : generateType == generateTypes.Editor }" @click="changeGeneratedMode(generateTypes.Editor)">Editor</button>
+        </div>
+        <div>
+          <button type="button" class="btn btn-outline-primary rounded-pill m-1" @click="download"><span class="bi bi-download" aria-hidden="true"></span></button>
+        </div>
+      </div>
       <browser-frame v-model="appUrl"></browser-frame>
     </div>
     <div class="d-flex footer" :class="{ 'landing': !showNav, 'content' : showNav, }">
@@ -171,20 +171,7 @@ export default defineComponent({
     visibility: hidden;
   }
   .menu{
-    transition: all 1s ease-in-out;
-    transition-delay: 150ms;
-    margin: 1%;
-    overflow: hidden;
-  }
-  .menu.content{
-    opacity: 1;
-    height: 3em;
-    visibility: visible;
-  }
-  .menu.landing{
-    opacity: 0;
-    height: 0vh;
-    visibility: hidden;
+    height: 3rem;
   }
   .codemirror{
     position: absolute;
@@ -217,9 +204,9 @@ export default defineComponent({
   }
   .browser.content{
     opacity: 1;
-    height: calc( 75vh - 1rem );
+    height: calc( 75vh - 1rem + 3rem );
     transition-delay: 300ms;
-    top: 20vh;
+    top: calc( 20vh - 3rem );
     visibility: visible;
   }
   .browser.landing{
@@ -271,6 +258,13 @@ export default defineComponent({
       position: unset;
       width: 98%;
       margin: 1%;
+    }
+
+    .browser.content{
+      transition-delay: 600ms;
+    }
+    .footer.content{
+      transition-delay: 700ms;
     }
 
     .footer{
