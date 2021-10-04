@@ -127,6 +127,19 @@ export default defineComponent({
 </script>
 
 <style scoped>
+  .btn {
+    color: #61C7FD;
+    border-color: #61C7FD;
+  }
+  .btn:hover {
+    color: #ffffff;
+    background-color: #61C7FD;
+  }
+  .btn-primary {
+    color: #ffffff;
+    background-color: #61C7FD;
+  }
+
   .jumbotron {
     transition: all 1s ease-in-out;
     padding: 5vmin;
@@ -139,8 +152,7 @@ export default defineComponent({
   }
   .jumbotron.content {
     height: 15vh;
-    background-color: #f1f1f1;
-    border-bottom-left-radius: 20px;
+    background-color: rgba(163, 196, 220, 0.2);
   }
   .jumbo-text{
     transition: all 1s ease-in-out;
@@ -184,7 +196,7 @@ export default defineComponent({
   .codemirror.content{
     opacity: 1;
     height: calc( 75vh - 1rem );
-    top: 20vh;
+    top: calc( 20vh - 1.5rem );
     visibility: visible;
   }
   .codemirror.landing{
@@ -194,10 +206,14 @@ export default defineComponent({
     visibility: hidden;
   }
   .browser{
+    z-index: 9;
+    border-radius: 5px;
+    background-color: rgb(38, 83, 136);
+    padding: 5px;
     position: absolute;
-    width: 47%;
+    width: 54%;
     margin: 1%;
-    margin-left: 51%;
+    margin-left: 45%;
     transition: all 1s ease-in-out;
     overflow: hidden;
     vertical-align: bottom;
@@ -222,6 +238,9 @@ export default defineComponent({
     transition: all 1s ease-in-out;
     overflow: hidden;
     vertical-align: bottom;
+  }
+  .footer a {
+    color: #61C7FD;
   }
   .footer.content{
     opacity: 1;

@@ -64,9 +64,7 @@ export default defineComponent({
 <style scoped>
 /* The browser window */
 .browser-container {
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  background-color: #f1f1f1;
+  border-radius: 5px;
   padding: 10px;
   height: calc( 100% - 3rem);
 }

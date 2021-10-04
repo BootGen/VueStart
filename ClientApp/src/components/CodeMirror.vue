@@ -72,7 +72,7 @@ export default defineComponent({
       if(result.error){
         showErrorMsg.value = true;
         errorMsg.value = result.message;
-        lineToColor(result.line, 'red');
+        lineToColor(result.line, 'rgba(255, 0, 0, 0.4)');
         store.commit('setType', 'error')
       }else if (json != newValue) {
         cm.setValue(newValue);
@@ -87,9 +87,17 @@ export default defineComponent({
 <style>
   .CodeMirror {
     height: 100%;
-    background-color: #f1f1f1;
+    background-color: rgb(9, 26, 55);
+    color: white;
     padding: 10px;
   }
+  .CodeMirror-gutters {
+    background-color: unset;
+  }
+  .cm-string {
+    color: #61C7FD!important;
+  }
+
   .aler-msg{
     margin-left: 20px;
     transition: all 0.5s;
