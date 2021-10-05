@@ -269,17 +269,17 @@ export default defineComponent({
     }
     .codemirror{
       position: unset;
-      width: 98%;
-      margin: 1%;
+      width: 92%;
+      margin: 4%;
     }
 
     .browser{
-      position: unset;
       width: 98%;
       margin: 1%;
     }
 
     .browser.content{
+      top: 85vh;
       transition-delay: 600ms;
     }
     .footer.content{
@@ -287,12 +287,11 @@ export default defineComponent({
     }
 
     .footer{
-      font-size: 0.8rem;  
-      position: unset;
-      justify-content: flex-end;
+      font-size: 0.8rem;
     }
     .footer.content{
-      height: unset;
+      height: 2rem;
+      top: calc( 85vh + 1rem + 75vh - 1rem + 3rem );
       padding-top: 5px;
     }
   }
