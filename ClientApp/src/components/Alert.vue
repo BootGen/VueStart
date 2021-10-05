@@ -12,7 +12,7 @@
 <script>
 import { defineComponent, ref } from 'vue';
 export default defineComponent({
-  name: 'CodeMirror',
+  name: 'Alert',
   props: {
     errorMsg: String
   },

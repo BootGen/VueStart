@@ -1,7 +1,7 @@
 <template>
   <div class="col-12 h-100 p-0">
     <textarea class="col-12 h-100" id="editor"></textarea>
-    <vueuen-alert class="aler-msg" :class="{ 'show': showErrorMsg, 'hide': !showErrorMsg }" :errorMsg="errorMsg" @close="showErrorMsg = false"></vueuen-alert>
+    <alert class="aler-msg" :class="{ 'show': showErrorMsg, 'hide': !showErrorMsg }" :errorMsg="errorMsg" @close="showErrorMsg = false"></alert>
   </div>
 </template>
 
@@ -10,14 +10,14 @@ import CodeMirror from 'codemirror/lib/codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/javascript/javascript.js';
 import { defineComponent, onMounted, ref, watchEffect } from 'vue';
-import VueuenAlert from '../components/VueuenAlert.vue';
+import Alert from './Alert.vue';
 import { getJsonLineNumber, debounce } from '../utils/Helper';
 import { prettyPrint, validateJson } from '../utils/PrettyPrint';
 import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'CodeMirror',
-  components: { VueuenAlert },
+  components: { Alert },
   props: {
     modelValue: String,
   },

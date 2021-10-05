@@ -6,12 +6,12 @@ import { createApp } from 'vue'
 const store = createStore({
     state () {
       return {
-        vueuenType: 'default'
+        vuecoonType: 'default'
       }
     },
     mutations: {
       setType (state, type) {
-        state.vueuenType = type
+        state.vuecoonType = type
       }
     }
 })

@@ -17,7 +17,7 @@
           </p>
         </div>
       </div>
-      <vueuen class="vueuen" :type="$store.state.vueuenType"></vueuen>
+      <img class="vuecoon" alt="Vuecoon" :src="require(`../assets/vuecoon_${$store.state.vuecoonType}.webp`)">
     </div>
     <div class="codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <code-mirror v-model="json"></code-mirror>
@@ -46,13 +46,12 @@ import axios from 'axios';
 import { defineComponent, ref, watchEffect } from 'vue';
 import { getSchema } from '../utils/Schema';
 import { debounce } from '../utils/Helper';
-import Vueuen from '../components/Vueuen.vue';
 import CodeMirror from '../components/CodeMirror.vue';
 import BrowserFrame from '../components/BrowserFrame.vue'
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { Vueuen, CodeMirror, BrowserFrame },
+  components: { CodeMirror, BrowserFrame },
   setup() {
     const json = ref("");
     const jsonSchema = ref('');
@@ -260,7 +259,7 @@ export default defineComponent({
     .jumbotron{
       justify-content: unset!important;
     }
-    .vueuen {
+    .vuecoon {
       display: none;
     }
     .jumbo-text.landing{
