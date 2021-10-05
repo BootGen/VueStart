@@ -19,6 +19,8 @@
       </div>
       <img class="vuecoon" alt="Vuecoon" :src="require(`../assets/vuecoon_${$store.state.vuecoonType}.webp`)">
     </div>
+    <img class="vue_logo" alt="vue" :src="require(`../assets/vue_logo.svg`)" :class="{ 'landing': !showNav, 'content' : showNav, }">
+
     <div class="codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <code-mirror v-model="json"></code-mirror>
     </div>
@@ -181,6 +183,18 @@ export default defineComponent({
     height: 0;
     visibility: hidden;
   }
+  .vue_logo {
+    position: absolute;
+    transition: all 1s ease-in-out;
+    width: 120px;
+    left: calc( 50% - 60px );
+  }
+  .vue_logo.content{
+    top: 10.5%;
+  }
+  .vue_logo.landing{
+    top: 60%;
+  }
   .menu{
     height: 3rem;
   }
@@ -194,8 +208,8 @@ export default defineComponent({
   }
   .codemirror.content{
     opacity: 1;
-    height: calc( 75vh - 1rem );
-    top: calc( 20vh - 1.5rem );
+    height: calc( 72vh - 1rem );
+    top: calc( 23vh - 1.5rem );
     visibility: visible;
   }
   .codemirror.landing{
@@ -219,9 +233,9 @@ export default defineComponent({
   }
   .browser.content{
     opacity: 1;
-    height: calc( 75vh - 1rem + 3rem );
+    height: calc( 72vh - 1rem + 3rem );
     transition-delay: 300ms;
-    top: calc( 20vh - 3rem );
+    top: calc( 23vh - 3rem );
     visibility: visible;
   }
   .browser.landing{
@@ -237,6 +251,9 @@ export default defineComponent({
     transition: all 1s ease-in-out;
     overflow: hidden;
     vertical-align: bottom;
+  }
+  .footer p {
+    margin: auto;
   }
   .footer a {
     color: #61C7FD;
@@ -270,6 +287,7 @@ export default defineComponent({
       position: unset;
       width: 92%;
       margin: 4%;
+      margin-top: 7%;
     }
 
     .browser{
@@ -278,7 +296,7 @@ export default defineComponent({
     }
 
     .browser.content{
-      top: 85vh;
+      top: 89vh;
       transition-delay: 600ms;
     }
     .footer.content{
@@ -300,6 +318,12 @@ export default defineComponent({
     }
   }
   @media (max-width: 576px) {
+    .vue_logo.landing{
+      top: 65%;
+    }
+    .vue_logo.content{
+      top: 19%;
+    }
     .jumbotron.content {
       height: 26vh;
     }
