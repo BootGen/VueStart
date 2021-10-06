@@ -87,12 +87,16 @@ export default defineComponent({
       jsonSchema.value = ref(getSchema(JSON.parse(json.value)));
       let debouncedGenerate = debounce(generate, 1000);
       watchEffect(() => {
-        const newSchema = getSchema(JSON.parse(json.value));
-        if(JSON.stringify(newSchema) != JSON.stringify(jsonSchema.value)) {
-          jsonSchema.value = newSchema
-          debouncedGenerate()
-        } else {
-          saveToLocalStorage(json.value);
+        try {
+          const newSchema = getSchema(JSON.parse(json.value));
+          if(JSON.stringify(newSchema) != JSON.stringify(jsonSchema.value)) {
+            jsonSchema.value = newSchema
+            debouncedGenerate()
+          } else {
+            saveToLocalStorage(json.value);
+          }
+        } catch {
+
         }
       })
     })

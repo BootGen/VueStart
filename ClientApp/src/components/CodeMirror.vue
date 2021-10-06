@@ -1,5 +1,6 @@
 <template>
   <div class="col-12 h-100 p-0">
+    <button @click="underline(4, 9)">underline</button>
     <div class="col-12 h-100" id="editor"></div>
     <alert class="aler-msg" :class="{ 'show': showErrorMsg, 'hide': !showErrorMsg }" :errorMsg="errorMsg" @close="showErrorMsg = false"></alert>
   </div>
@@ -10,7 +11,7 @@ import { EditorState, basicSetup } from "@codemirror/basic-setup"
 import { EditorView, keymap, Decoration /*, Range*/ } from "@codemirror/view"
 import { indentWithTab } from "@codemirror/commands"
 import { json } from "@codemirror/lang-json"
-import {/*StateField,*/ StateEffect} from "@codemirror/state"
+import {StateField, StateEffect} from "@codemirror/state"
 
 
 import { defineComponent, onMounted, ref } from 'vue';
@@ -28,20 +29,51 @@ export default defineComponent({
   emits: ['update:modelValue'],
   setup(props, context) {
     const errorMsg = ref('');
+    const editor = ref('');
     const showErrorMsg = ref(false);
     const store = useStore();
 
+    const underlineMark = Decoration.mark({class: "cm-underline"})
+    const addUnderline = StateEffect.define();
+
+    const underlineField = StateField.define({
+      create() {
+        return Decoration.none
+      },
+      update(underlines, tr) {
+        underlines = underlines.map(tr.changes)
+        for (let e of tr.effects) if (e.is(addUnderline)) {
+          underlines = underlines.update({
+            add: [underlineMark.range(e.value.from, e.value.to)]
+          })
+        }
+        return underlines
+      },
+      provide: f => EditorView.decorations.from(f)
+    })
+
+    const underlineTheme = EditorView.baseTheme({
+      ".cm-underline": { textDecoration: "underline 3px red" }
+    })
+
+    function underline(from, to) {
+      if (!editor.value.state.field(underlineField, false))
+        editor.value.dispatch({effects: [StateEffect.appendConfig.of([underlineField,
+                                                      underlineTheme])]})
+      editor.value.dispatch({effects: [addUnderline.of({from: from, to: to})]})
+      return true
+    }
     onMounted(async () => {
       let debouncedCheckJson = debounce(checkJson, 1000);
 
-      const editor = new EditorView({
+      editor.value = new EditorView({
         state: EditorState.create({
           extensions: [
             basicSetup,
             EditorView.updateListener.of((cm) => {
               if (cm.docChanged) {
                 context.emit('update:modelValue', cm.state.doc.toString());
-                debouncedCheckJson(editor);
+                debouncedCheckJson(editor.value);
               }
             }),
             keymap.of([indentWithTab]),
@@ -50,16 +82,8 @@ export default defineComponent({
         }),
         parent: document.getElementById('editor')
       })
-      editor.dispatch({
+      editor.value.dispatch({
         changes: {from: 0, insert: prettyPrint(localStorage.getItem('json'))}
-      })
-
-      const addMarks = StateEffect.define()
-      const strikeMark = Decoration.mark({
-        attributes: {style: "color: yellow"}
-      })
-      editor.dispatch({
-        effects: addMarks.of([strikeMark.range(1, 4)])
       })
     })
 
@@ -95,7 +119,7 @@ export default defineComponent({
         console.log("setChange")
       }
     }
-    return { errorMsg, showErrorMsg }
+    return { errorMsg, showErrorMsg, underline, editor }
   }
 });
 </script>
