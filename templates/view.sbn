@@ -8,16 +8,34 @@ const watchEffect = Vue.watchEffect;
   end 
 end ~}}
 const  app = Vue.createApp({
-  template: '<{{ kebab_case root.name }}-list v-model="{{ camel_case root.name }}List"></{{ kebab_case root.name }}-list>',
+  template: `
+    {{~ for property in root.properties
+      if property.is_collection && property.class
+      ~}}
+    <li class="list-group-item">
+    <{{ kebab_case property.class.name }}-list v-model="{{ camel_case root.name }}.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
+    </li>
+    {{~ end
+      end ~}}
+  `,
   name: 'App',
   setup: function () {
-    const {{ camel_case root.name }}List = ref([]);
+    const {{ camel_case root.name }} = ref([]);
     function toDataModel(data) {
+        const v = { ... data };
+        for (const property in v) {
+          if(Array.isArray(v[property])){
+            v[property] = toDataArray(v[property]);
+          }
+        }
+        return v
+    }
+    function toDataArray(data) {
       return data.map((val, idx) => {
         const v = { ... val };
         for (const property in v) {
           if(Array.isArray(v[property])){
-            v[property] = toDataModel(v[property]);
+            v[property] = toDataArray(v[property]);
           }
         }
         return {
@@ -26,32 +44,19 @@ const  app = Vue.createApp({
         }
       })
     }
-    function toSimpleArray(data) {
-      let arr =  data.map(val => {
-        return { ...val.value }
-      });
-      arr.forEach(item => {
-        for (const property in item) {
-          if(Array.isArray(item[property])){
-            item[property] = toSimpleArray(item[property]);
-          }
-        }
-      });
-      return arr;
-    }
     function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
       if (json) {
-        const {{ camel_case root.name.plural }} = JSON.parse(json).{{ camel_case root.name.plural }};
-        if ({{ camel_case root.name.plural }}) {
-          {{ camel_case root.name }}List.value = toDataModel({{ camel_case root.name.plural }});
+        const val = JSON.parse(json);
+        if (val) {
+          {{ camel_case root.name }}.value = toDataModel(val);
         }
       }
     }
     loadFromLocalStorage();
 
     window.addEventListener('storage', loadFromLocalStorage);
-    return { {{ camel_case root.name }}List  }
+    return { {{ camel_case root.name }}  }
   },
 });
 

@@ -21,21 +21,21 @@ const  app = Vue.createApp({
   name: 'App',
   setup: function () {
     const {{ camel_case root.name }} = ref(null);
-    function toDataModelObject(data) {
+    function toDataModel(data) {
         const v = { ... data };
         for (const property in v) {
           if(Array.isArray(v[property])){
-            v[property] = toDataModel(v[property]);
+            v[property] = toDataArray(v[property]);
           }
         }
         return v
     }
-    function toDataModel(data) {
+    function toDataArray(data) {
       return data.map((val, idx) => {
         const v = { ... val };
         for (const property in v) {
           if(Array.isArray(v[property])){
-            v[property] = toDataModel(v[property]);
+            v[property] = toDataArray(v[property]);
           }
         }
         return {
@@ -78,7 +78,7 @@ const  app = Vue.createApp({
       if (json) {
         const val = JSON.parse(json);
         if (val) {
-          {{ camel_case root.name }}.value = toDataModelObject(val);
+          {{ camel_case root.name }}.value = toDataModel(val);
         }
       }
     }
