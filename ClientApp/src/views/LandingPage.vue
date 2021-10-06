@@ -25,17 +25,14 @@
       <code-mirror v-model="json"></code-mirror>
     </div>
     <div class="browser custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
-      <div class="d-flex menu justify-content-between">
-        <div>
-          <button type="button" class="btn rounded-pill m-1" :class="{ 'btn-outline-primary': generateType != generateTypes.View, 'btn-primary' : generateType == generateTypes.View }" @click="changeGeneratedMode(generateTypes.View)">View</button>
-          <button type="button" class="btn rounded-pill m-1" :class="{ 'btn-outline-primary': generateType != generateTypes.Form, 'btn-primary' : generateType == generateTypes.Form }" @click="changeGeneratedMode(generateTypes.Form)">Form</button>
-          <button type="button" class="btn rounded-pill m-1" :class="{ 'btn-outline-primary': generateType != generateTypes.Editor, 'btn-primary' : generateType == generateTypes.Editor }" @click="changeGeneratedMode(generateTypes.Editor)">Editor</button>
-        </div>
-        <div>
-          <button type="button" class="btn btn-outline-primary rounded-pill m-1" @click="download"><span class="bi bi-download" aria-hidden="true"></span></button>
-        </div>
+      <browser-frame v-model="appUrl">
+      <div class="d-flex menu justify-content-between h-auto">
+        <button type="button" class="btn btn-site" :class="{ 'btn-outline-primary': generateType != generateTypes.Editor, 'btn-primary' : generateType == generateTypes.Editor }" @click="changeGeneratedMode(generateTypes.Editor)">Editor</button>
+        <button type="button" class="btn btn-site" :class="{ 'btn-outline-primary': generateType != generateTypes.View, 'btn-primary' : generateType == generateTypes.View }" @click="changeGeneratedMode(generateTypes.View)">View</button>
+        <button type="button" class="btn btn-site" :class="{ 'btn-outline-primary': generateType != generateTypes.Form, 'btn-primary' : generateType == generateTypes.Form }" @click="changeGeneratedMode(generateTypes.Form)">Form</button>
+        <button type="button" class="btn btn-site btn-outline-primary w-25" @click="download"><span class="bi bi-download" aria-hidden="true"></span></button>
       </div>
-      <browser-frame v-model="appUrl"></browser-frame>
+      </browser-frame>
     </div>
     <div class="d-flex footer" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
@@ -132,6 +129,11 @@ export default defineComponent({
 </script>
 
 <style scoped>
+  .btn-site {
+    width: 100%;
+    border-radius: unset;
+    padding: unset;
+  }
   .btn {
     color: #61C7FD;
     border-color: #61C7FD;

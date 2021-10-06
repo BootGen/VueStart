@@ -17,6 +17,7 @@
         </div>
       </div>
     </div>
+    <slot></slot>
     <div class="col-12 content">
       <iframe id="frameA" class="h-100 w-100" :class="{hidden: !frameA}" :src="urlA" title="CodeSharp"></iframe>
       <iframe id="frameB" class="h-100 w-100" :class="{hidden: frameA}" :src="urlB" title="CodeSharp"></iframe>
@@ -111,7 +112,7 @@ input[type=text] {
 /* Page content */
 .content {
   padding: 0!important;
-  height: calc(100% - 30px);
+  height: calc(100% - 5px);
 }
 
 .hidden {
