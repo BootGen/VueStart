@@ -96,7 +96,7 @@ namespace StartVue.Controllers
         private string Generate(JsonElement json, string title, string templateFileName, out string appjs, out string indexhtml) {
             var dataModel = new DataModel();
             var jObject = JObject.Parse(json.ToString(), new JsonLoadSettings { CommentHandling = CommentHandling.Ignore, DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
-            dataModel.Load(jObject);
+            dataModel.LoadRootObject("App", jObject);
             var collection = new ResourceCollection(dataModel);
             var seedStore = new SeedDataStore(collection);
             seedStore.Load(jObject);

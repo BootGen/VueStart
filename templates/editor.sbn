@@ -8,10 +8,28 @@ const watchEffect = Vue.watchEffect;
   end 
 end ~}}
 const  app = Vue.createApp({
-  template: '<{{ kebab_case root.name }}-list v-model="{{ camel_case root.name }}List"></{{ kebab_case root.name }}-list>',
+  template: `
+  {{~ for property in root.properties
+  if property.is_collection && property.class
+  ~}}
+    <li class="list-group-item">
+    <{{ kebab_case property.class.name }}-list v-model="{{ camel_case root.name }}.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
+    </li>
+{{~ end
+  end ~}}
+  `,
   name: 'App',
   setup: function () {
-    const {{ camel_case root.name }}List = ref([]);
+    const {{ camel_case root.name }} = ref(null);
+    function toDataModelObject(data) {
+        const v = { ... data };
+        for (const property in v) {
+          if(Array.isArray(v[property])){
+            v[property] = toDataModel(v[property]);
+          }
+        }
+        return v
+    }
     function toDataModel(data) {
       return data.map((val, idx) => {
         const v = { ... val };
@@ -25,6 +43,15 @@ const  app = Vue.createApp({
           value: v
         }
       })
+    }
+    function toSimpleObject(data) {
+      let obj =  { ...data };
+      for (const property in obj) {
+        if(Array.isArray(obj[property])){
+          obj[property] = toSimpleArray(obj[property]);
+        }
+      }
+      return obj;
     }
     function toSimpleArray(data) {
       let arr =  data.map(val => {
@@ -49,22 +76,20 @@ const  app = Vue.createApp({
     function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
       if (json) {
-        const {{ camel_case root.name.plural }} = JSON.parse(json).{{ camel_case root.name.plural }};
-        if ({{ camel_case root.name.plural }}) {
-          {{ camel_case root.name }}List.value = toDataModel({{ camel_case root.name.plural }});
+        const val = JSON.parse(json);
+        if (val) {
+          {{ camel_case root.name }}.value = toDataModelObject(val);
         }
       }
     }
     loadFromLocalStorage();
 
     watchEffect(() => {
-      saveToLocalStorage({
-        {{ camel_case root.name.plural }}: toSimpleArray({{ camel_case root.name }}List.value)
-      });
+      saveToLocalStorage(toSimpleObject({{ camel_case root.name }}.value));
     });
 
     window.addEventListener('storage', loadFromLocalStorage);
-    return { {{ camel_case root.name }}List  }
+    return { {{ camel_case root.name }}  }
   },
 });
 
