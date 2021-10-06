@@ -8,6 +8,10 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@codemirror/basic-setup": "^0.19.0",
+    "@codemirror/lang-javascript": "^0.19.2",
+    "@codemirror/lang-json": "^0.19.1",
+    "@codemirror/next": "^0.16.0",
     "axios": "^0.21.1",
     "codemirror": "^5.62.3",
     "core-js": "^3.6.5",

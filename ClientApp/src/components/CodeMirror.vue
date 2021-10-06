@@ -1,17 +1,21 @@
 <template>
   <div class="col-12 h-100 p-0">
-    <textarea class="col-12 h-100" id="editor"></textarea>
+    <div class="col-12 h-100" id="editor"></div>
     <alert class="aler-msg" :class="{ 'show': showErrorMsg, 'hide': !showErrorMsg }" :errorMsg="errorMsg" @close="showErrorMsg = false"></alert>
   </div>
 </template>
 
 <script>
-import CodeMirror from 'codemirror/lib/codemirror';
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/mode/javascript/javascript.js';
-import { defineComponent, onMounted, ref, watchEffect } from 'vue';
+import { EditorState, basicSetup } from "@codemirror/basic-setup"
+import { EditorView, keymap, Decoration /*, Range*/ } from "@codemirror/view"
+import { indentWithTab } from "@codemirror/commands"
+import { json } from "@codemirror/lang-json"
+import {/*StateField,*/ StateEffect} from "@codemirror/state"
+
+
+import { defineComponent, onMounted, ref } from 'vue';
 import Alert from './Alert.vue';
-import { getJsonLineNumber, debounce } from '../utils/Helper';
+import { /*getJsonLineNumber,*/ debounce } from '../utils/Helper';
 import { prettyPrint, validateJson } from '../utils/PrettyPrint';
 import { useStore } from 'vuex'
 
@@ -25,58 +29,70 @@ export default defineComponent({
   setup(props, context) {
     const errorMsg = ref('');
     const showErrorMsg = ref(false);
-    const cmEditor = ref(null);
     const store = useStore();
 
     onMounted(async () => {
       let debouncedCheckJson = debounce(checkJson, 1000);
-      const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
-        mode: "text/javascript",
-        lineNumbers: true,
-        tabSize: 2,
-        autoCloseTags: true,
-        value: document.getElementById('editor').innerHtml
-      });
-      editor.on('change', cm => {
-        context.emit('update:modelValue', cm.getValue())
-        debouncedCheckJson(cm);
-      });
-      watchEffect(() => {
-        const json = editor.getValue();
-        if (json != props.modelValue) {
-          editor.setValue(props.modelValue);
-          checkJson(editor);
-        }
+
+      const editor = new EditorView({
+        state: EditorState.create({
+          extensions: [
+            basicSetup,
+            EditorView.updateListener.of((cm) => {
+              if (cm.docChanged) {
+                context.emit('update:modelValue', cm.state.doc.toString());
+                debouncedCheckJson(editor);
+              }
+            }),
+            keymap.of([indentWithTab]),
+            json()
+          ]
+        }),
+        parent: document.getElementById('editor')
       })
-      cmEditor.value = editor;
+      editor.dispatch({
+        changes: {from: 0, insert: prettyPrint(localStorage.getItem('json'))}
+      })
+
+      const addMarks = StateEffect.define()
+      const strikeMark = Decoration.mark({
+        attributes: {style: "color: yellow"}
+      })
+      editor.dispatch({
+        effects: addMarks.of([strikeMark.range(1, 4)])
+      })
     })
 
     function lineToColor(line, color) {
-      if(cmEditor.value){
+      console.log(line, color)
+      /*if(cmEditor.value){
         cmEditor.value.markText({line: line, ch: 0}, {line: line+1, ch: 0}, {css: `background-color:${color};`});
-      }
+      }*/
     }
     function unsetHighlight() {
-      if(cmEditor.value){
+      /*if(cmEditor.value){
         cmEditor.value.markText({line: 0, ch: 0}, {line: getJsonLineNumber(cmEditor.value.getValue()), ch: 0}, {css: `background-color:unset;`});
-      }
+      }*/
     }
     function checkJson(cm) {
-      const json = cm.getValue();
-      const cursorPosition = cm.getCursor();
+      const json = cm.state.doc.toString();
+      const cursorPosition = cm.state.selection.main.head;
       const newValue = prettyPrint(json);
       unsetHighlight();
       store.commit('setType', 'default')
       showErrorMsg.value = false;
       const result = validateJson(json);
+      console.log(result)
       if(result.error){
         showErrorMsg.value = true;
         errorMsg.value = result.message;
         lineToColor(result.line, 'rgba(255, 0, 0, 0.4)');
         store.commit('setType', 'error')
+        console.log('setError', store.state.vuecoonType)
       }else if (json != newValue) {
-        cm.setValue(newValue);
-        cm.setCursor(cursorPosition);
+        cm.dispatch({ changes: {from: 0, to: cm.state.doc.length, insert: newValue} })
+        cm.dispatch({ selection: {anchor: cursorPosition} })
+        console.log("setChange")
       }
     }
     return { errorMsg, showErrorMsg }
@@ -85,6 +101,11 @@ export default defineComponent({
 </script>
 
 <style>
+  .cm-editor {
+    height: 100%;
+  }
+
+
   .CodeMirror {
     height: 100%;
     background-color: rgb(9, 26, 55);
