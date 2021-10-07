@@ -69,6 +69,35 @@ export default defineComponent({
         state: EditorState.create({
           extensions: [
             basicSetup,
+            EditorView.theme({
+              "&": {
+                color: "#61c7fd",
+                backgroundColor: "#27203c"
+              },
+              ".ͼd": {
+                color: "rgba(255, 255, 255, 0.9)"
+              },
+              ".cm-content": {
+                caretColor: "#61c7fd"
+              },
+              "&.cm-focused .cm-cursor": {
+                borderLeftColor: "#61c7fd"
+              },
+              "&.cm-focused .cm-selectionBackground, ::selection": {
+                backgroundColor: "rgba(97, 199, 253, 0.2)"
+              },
+              ".cm-selectionMatch": {
+                backgroundColor: "rgba(97, 199, 253, 0.1)"
+              },
+              ".cm-activeLine, .cm-activeLineGutter": {
+                backgroundColor: "rgba(97, 199, 253, 0.1)"
+              },
+              ".cm-gutters": {
+                backgroundColor: "#27203c",
+                color: "#ddd",
+                border: "none"
+              }
+            }, {dark: true}),
             EditorView.updateListener.of((cm) => {
               if (cm.docChanged) {
                 context.emit('update:modelValue', cm.state.doc.toString());
