@@ -58,8 +58,7 @@ export default defineComponent({
 
     function underline(from, to) {
       if (!editor.value.state.field(underlineField, false))
-        editor.value.dispatch({effects: [StateEffect.appendConfig.of([underlineField,
-                                                      underlineTheme])]})
+        editor.value.dispatch({effects: [StateEffect.appendConfig.of([underlineField, underlineTheme])]})
       editor.value.dispatch({effects: [addUnderline.of({from: from, to: to})]})
       return true
     }
@@ -86,37 +85,21 @@ export default defineComponent({
         changes: {from: 0, insert: prettyPrint(localStorage.getItem('json'))}
       })
     })
-
-    function lineToColor(line, color) {
-      console.log(line, color)
-      /*if(cmEditor.value){
-        cmEditor.value.markText({line: line, ch: 0}, {line: line+1, ch: 0}, {css: `background-color:${color};`});
-      }*/
-    }
-    function unsetHighlight() {
-      /*if(cmEditor.value){
-        cmEditor.value.markText({line: 0, ch: 0}, {line: getJsonLineNumber(cmEditor.value.getValue()), ch: 0}, {css: `background-color:unset;`});
-      }*/
-    }
     function checkJson(cm) {
       const json = cm.state.doc.toString();
       const cursorPosition = cm.state.selection.main.head;
       const newValue = prettyPrint(json);
-      unsetHighlight();
       store.commit('setType', 'default')
       showErrorMsg.value = false;
       const result = validateJson(json);
-      console.log(result)
       if(result.error){
         showErrorMsg.value = true;
         errorMsg.value = result.message;
-        lineToColor(result.line, 'rgba(255, 0, 0, 0.4)');
+        underline(result.from, result.to);
         store.commit('setType', 'error')
-        console.log('setError', store.state.vuecoonType)
       }else if (json != newValue) {
         cm.dispatch({ changes: {from: 0, to: cm.state.doc.length, insert: newValue} })
         cm.dispatch({ selection: {anchor: cursorPosition} })
-        console.log("setChange")
       }
     }
     return { errorMsg, showErrorMsg, underline, editor }

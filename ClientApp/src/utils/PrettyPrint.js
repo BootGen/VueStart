@@ -1,18 +1,47 @@
 import { toCamelCase } from './Helper';
 
-function getLine(idx, str) {
-  if(navigator.userAgent.indexOf('Firefox') != -1){
-    return idx;
+function getFrom(str, position, line){
+  if(!line){
+    return position;
+  } else {
+    let charCount = 0;
+    const strArray = str.split('\n');
+    for(let i = 0; i < line-1; i++){
+      charCount += strArray[i].length+1;
+    }
+    return parseInt(charCount) + parseInt(position) - 1;
   }
-  let charCount = 0;
-  const strArray = str.split('\n');
-  for(let i = 0; i < strArray.length; i++){
-    charCount += strArray[i].length+1;
-    if(charCount >= idx){
-      return i;
+}
+
+function getErrorPosition(str, err) {
+  console.log(str)
+  let userAgent = navigator.userAgent;
+  let from = -1;
+  let to = -1;
+  
+  if(userAgent.match(/chrome|chromium|crios/i)){
+    from = getFrom(str, err.message.match(/\d+/g)[0]);
+  }else if(userAgent.match(/firefox|fxios/i)){
+    from = getFrom(str, err.message.match(/\d+/g)[1], err.message.match(/\d+/g)[0]);
+  }else if(userAgent.match(/opr\//i)){
+    from = getFrom(str, err.message.match(/\d+/g)[0]);
+  } else if(userAgent.match(/edg/i)){
+    from = getFrom(str, err.message.match(/\d+/g)[0]);
+  }else{
+    console.log("No browser detection");
+  }
+  if (from > 0) {
+    let charCount = 0;
+    const strArray = str.split('\n');
+    for(let i = 0; i < strArray.length; i++){
+      charCount += strArray[i].length+1;
+      if(charCount >= from){
+        to = charCount-1;
+        break;
+      }
     }
   }
-  return -1;
+  return { from, to };
 }
 
 export function validateJson(text) {
@@ -20,9 +49,8 @@ export function validateJson(text) {
     JSON.parse(text);
     return {error: false, line: -1, message: ''};
   } catch (err) {
-    const idx = err.message.match(/\d+/g)[0]-1;
-    let errorLine = getLine(idx, text);
-    return {error: true, line: errorLine, message: err.message};
+    const positions = getErrorPosition(text, err);
+    return {error: true, from: positions.from, to: positions.to, message: err.message};
   }
 }
 export function formatJson(json){
