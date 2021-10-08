@@ -23,43 +23,14 @@
 
     <div class="codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <code-mirror v-model="json"></code-mirror>
-    </div>
-    
-    <button type="button" class="btn-site inactive w-25" @click="download"><span class="bi bi-download" aria-hidden="true"></span></button>
-    
+    </div>    
+    <button type="button" @click="download"><span class="bi bi-download" aria-hidden="true"></span></button>
     <div class="browser custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <browser-frame v-model="appUrl" :borderRadius="generateType == generateTypes.Editor">
         <div class="d-flex w-100 justify-content-between h-auto">
-          <button type="button" class="btn-site" :class="{ 'inactive': generateType != generateTypes.Editor, 'active border-top-both' : generateType == generateTypes.Editor, 'border-bottom-right' : generateType == generateTypes.View }" @click="changeGeneratedMode(generateTypes.Editor)">
-            <div class="d-flex">
-              <span class="bi bi-pencil" aria-hidden="true"></span>
-              <span class="px-2">Editor</span>
-            </div>
-            <div class="d-flex align-items-center">
-              <span class="bi bi-x px-2" aria-hidden="true"></span>
-              <div class="vr" v-if="generateType != generateTypes.Editor && generateType != generateTypes.View"></div>
-            </div>
-          </button>
-          <button type="button" class="btn-site" :class="{ 'inactive': generateType != generateTypes.View, 'active border-top-both' : generateType == generateTypes.View, 'border-bottom-right' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.Editor }" @click="changeGeneratedMode(generateTypes.View)">
-            <div class="d-flex">
-              <span class="bi bi-eye" aria-hidden="true"></span>
-              <span class="px-2">View</span>
-            </div>
-            <div class="d-flex align-items-center">
-              <span class="bi bi-x px-2" aria-hidden="true"></span>
-              <div class="vr" v-if="generateType != generateTypes.View && generateType != generateTypes.Form"></div>
-            </div>
-          </button>
-          <button type="button" class="btn-site" :class="{ 'inactive': generateType != generateTypes.Form, 'active border-top-both' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.View }" @click="changeGeneratedMode(generateTypes.Form)">
-            <div class="d-flex">
-              <span class="bi bi-file-earmark-code" aria-hidden="true"></span>
-              <span class="px-2">Form</span>
-            </div>
-            <div class="d-flex align-items-center">
-              <span class="bi bi-x px-2" aria-hidden="true"></span>
-              <div class="vr" v-if="generateType != generateTypes.Form"></div>
-            </div>
-          </button>
+          <tab title="Editor" icon="pencil" :showVr="generateType != generateTypes.Editor && generateType != generateTypes.View" @select="changeGeneratedMode(generateTypes.Editor)" :class="{ 'inactive': generateType != generateTypes.Editor, 'active' : generateType == generateTypes.Editor, 'border-bottom-right' : generateType == generateTypes.View }"></tab>
+          <tab title="View" icon="eye" :showVr="generateType != generateTypes.View && generateType != generateTypes.Form" @select="changeGeneratedMode(generateTypes.View)" :class="{ 'inactive': generateType != generateTypes.View, 'active' : generateType == generateTypes.View, 'border-bottom-right' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.Editor }"></tab>
+          <tab title="Form" icon="file-earmark-code" :showVr="generateType != generateTypes.Form" @select="changeGeneratedMode(generateTypes.Form)" :class="{ 'inactive': generateType != generateTypes.Form, 'active' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.View }"></tab>
           <button type="button" class="btn-site inactive plus" :class="{ 'border-bottom-left' : generateType == generateTypes.Form }" @click="download"><span class="bi bi-plus" aria-hidden="true"></span></button>
         </div>
       </browser-frame>
@@ -77,10 +48,11 @@ import { getSchema } from '../utils/Schema';
 import { debounce } from '../utils/Helper';
 import CodeMirror from '../components/CodeMirror.vue';
 import BrowserFrame from '../components/BrowserFrame.vue'
+import Tab from '../components/Tab.vue'
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { CodeMirror, BrowserFrame },
+  components: { CodeMirror, BrowserFrame, Tab },
   setup() {
     const json = ref("");
     const jsonSchema = ref('');
@@ -159,44 +131,6 @@ export default defineComponent({
 </script>
 
 <style>
-  .vr {
-    height: 20px;
-    width: 1px;
-    background-color: #61C7FD;
-  }
-  .btn-site {
-    width: 100%;
-    padding: unset;
-    border: unset;
-    display: flex;
-    justify-content: space-between;
-    padding: 5px;
-    padding-left: 15px;
-    align-items: center;
-  }
-  .btn-site.active {
-    background-color: #fff;
-    color: #61C7FD!important;
-  }
-  .btn-site.inactive {
-    background-color: #265388;
-    color: #61C7FD!important;
-    color: #fff!important;
-  }
-  .btn-site.plus {
-    width: max-content;
-    padding: 5px 20px 5px 10px;
-  }
-  .border-top-both {
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-  }
-  .border-bottom-left {
-    border-bottom-left-radius: 10px;
-  }
-  .border-bottom-right {
-    border-bottom-right-radius: 10px;
-  }
   .btn {
     color: #61C7FD;
     border-color: #61C7FD;
