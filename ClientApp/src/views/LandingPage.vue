@@ -8,7 +8,7 @@
             <p class="lead text-justify">
               Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
             </p>
-            <button class="btn btn-outline-primary rounded-pill m-1 btn-lg" @click="showNav = !showNav">Go!</button>
+            <button class="btn outline-btn rounded-pill m-1 btn-lg" @click="showNav = !showNav">Go!</button>
           </div>
         </div>
         <div class="slogen-text" :class="{ 'landing': !showNav, 'content' : showNav }">
@@ -23,9 +23,9 @@
 
     <div class="codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <code-mirror v-model="json"></code-mirror>
-    </div>    
-    <button type="button" @click="download"><span class="bi bi-download" aria-hidden="true"></span></button>
+    </div>
     <div class="browser custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
+      <button type="button" class="btn fill-btn download-btn rounded-pill btn-lg" @click="download"><span class="bi bi-download" aria-hidden="true"></span></button>
       <browser-frame v-model="appUrl" :borderRadius="generateType == generateTypes.Editor">
         <div class="d-flex w-100 justify-content-between h-auto">
           <tab title="Editor" icon="pencil" :showVr="generateType != generateTypes.Editor && generateType != generateTypes.View" @select="changeGeneratedMode(generateTypes.Editor)" :class="{ 'inactive': generateType != generateTypes.Editor, 'active' : generateType == generateTypes.Editor, 'border-bottom-right' : generateType == generateTypes.View }"></tab>
@@ -131,17 +131,28 @@ export default defineComponent({
 </script>
 
 <style>
-  .btn {
+  .outline-btn {
     color: #61C7FD;
     border-color: #61C7FD;
   }
-  .btn:hover {
+  .outline-btn:hover {
     color: #ffffff;
     background-color: #61C7FD;
   }
-  .btn-primary {
+  .fill-btn {
     color: #ffffff;
     background-color: #61C7FD;
+  }
+  .fill-btn:hover {
+    color: #61C7FD;
+    border-color: #61C7FD;
+    background-color: #ffffff;
+  }
+  .download-btn {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 9;
   }
 
   .jumbotron {
