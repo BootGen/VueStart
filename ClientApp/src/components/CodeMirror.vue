@@ -98,10 +98,13 @@ export default defineComponent({
                 border: "none"
               }
             }, {dark: true}),
-            EditorView.updateListener.of((cm) => {
-              if (cm.docChanged) {
-                context.emit('update:modelValue', cm.state.doc.toString());
-                debouncedCheckJson(editor.value);
+            EditorView.updateListener.of(() => {
+              if (editor.value.docChanged) {
+                const value = editor.value.state.doc.toString();
+                if (props.modelValue != value) {
+                  context.emit('update:modelValue', value);
+                  debouncedCheckJson();
+                }
               }
             }),
             keymap.of([indentWithTab]),
@@ -120,9 +123,9 @@ export default defineComponent({
       watchEffect(setEditorValue);
       setEditorValue();
     })
-    function checkJson(cm) {
-      const json = cm.state.doc.toString();
-      const cursorPosition = cm.state.selection.main.head;
+    function checkJson() {
+      const json = editor.value.state.doc.toString();
+      const cursorPosition = editor.value.state.selection.main.head;
       const newValue = prettyPrint(json);
       store.commit('setType', 'default')
       showErrorMsg.value = false;
@@ -133,8 +136,8 @@ export default defineComponent({
         underline(result.from, result.to);
         store.commit('setType', 'error')
       }else if (json != newValue) {
-        cm.dispatch({ changes: {from: 0, to: cm.state.doc.length, insert: newValue} })
-        cm.dispatch({ selection: {anchor: cursorPosition} })
+        editor.value.dispatch({ changes: {from: 0, to: editor.value.state.doc.length, insert: newValue} })
+        editor.value.dispatch({ selection: {anchor: cursorPosition} })
       }
     }
     return { errorMsg, showErrorMsg, underline, editor }
