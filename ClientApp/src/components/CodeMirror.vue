@@ -98,8 +98,8 @@ export default defineComponent({
                 border: "none"
               }
             }, {dark: true}),
-            EditorView.updateListener.of(() => {
-              if (editor.value.docChanged) {
+            EditorView.updateListener.of((cm) => {
+              if (cm.docChanged) {
                 const value = editor.value.state.doc.toString();
                 if (props.modelValue != value) {
                   context.emit('update:modelValue', value);
