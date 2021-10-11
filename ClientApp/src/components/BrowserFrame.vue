@@ -45,6 +45,8 @@ export default defineComponent({
     onMounted(function(){
       watch(props, function(){
         if (frameA.value) {
+          if (urlA.value === props.modelValue)
+            return;
           urlB.value = props.modelValue
           const onLoad = function() {
               document.getElementById('frameB').onload = undefined;
@@ -52,6 +54,8 @@ export default defineComponent({
           }
           document.getElementById('frameB').onload = onLoad;
         } else {
+          if (urlB.value === props.modelValue)
+            return;
           urlA.value = props.modelValue
           const onLoad = function() {
               document.getElementById('frameA').onload = undefined;
