@@ -14,7 +14,7 @@ import { json } from "@codemirror/lang-json"
 import {StateField, StateEffect} from "@codemirror/state"
 
 
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted, ref, watchEffect } from 'vue';
 import Alert from './Alert.vue';
 import { /*getJsonLineNumber,*/ debounce } from '../utils/Helper';
 import { prettyPrint, validateJson } from '../utils/PrettyPrint';
@@ -110,9 +110,15 @@ export default defineComponent({
         }),
         parent: document.getElementById('editor')
       })
-      editor.value.dispatch({
-        changes: {from: 0, insert: prettyPrint(localStorage.getItem('json'))}
-      })
+      function setEditorValue() {
+        if (props.modelValue != editor.value.state.doc.toString()) {
+          editor.value.dispatch({
+            changes: {from: 0, to: editor.value.state.doc.length, insert: prettyPrint(props.modelValue)}
+          })
+        }
+      }
+      watchEffect(setEditorValue);
+      setEditorValue();
     })
     function checkJson(cm) {
       const json = cm.state.doc.toString();
