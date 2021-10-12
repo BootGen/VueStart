@@ -1,6 +1,5 @@
 <template>
   <div class="col-12 h-100 p-0">
-    <button @click="underline(4, 9)">underline</button>
     <div class="col-12 h-100" id="editor"></div>
     <alert class="aler-msg" :class="{ 'show': showErrorMsg, 'hide': !showErrorMsg }" :errorMsg="errorMsg" @close="showErrorMsg = false"></alert>
   </div>
@@ -29,23 +28,31 @@ export default defineComponent({
   emits: ['update:modelValue'],
   setup(props, context) {
     const errorMsg = ref('');
-    const editor = ref('');
+    let editor = null;
     const showErrorMsg = ref(false);
     const store = useStore();
 
     const underlineMark = Decoration.mark({class: "cm-underline"})
     const addUnderline = StateEffect.define();
 
+    let emptyField = null;
+    let underlineChanged = false;
     const underlineField = StateField.define({
       create() {
         return Decoration.none
       },
       update(underlines, tr) {
-        underlines = underlines.map(tr.changes)
-        for (let e of tr.effects) if (e.is(addUnderline)) {
-          underlines = underlines.update({
-            add: [underlineMark.range(e.value.from, e.value.to)]
-          })
+        if (!emptyField)
+          emptyField = underlines;
+        if (underlineChanged) {
+          underlineChanged = false;
+          underlines = emptyField.map(tr.changes);
+          for (let e of tr.effects)
+            if (e.is(addUnderline)) {
+              underlines = underlines.update({
+                add: [underlineMark.range(e.value.from, e.value.to)]
+              })
+            }
         }
         return underlines
       },
@@ -55,17 +62,11 @@ export default defineComponent({
     const underlineTheme = EditorView.baseTheme({
       ".cm-underline": { textDecoration: "underline 3px red" }
     })
-
-    function underline(from, to) {
-      if (!editor.value.state.field(underlineField, false))
-        editor.value.dispatch({effects: [StateEffect.appendConfig.of([underlineField, underlineTheme])]})
-      editor.value.dispatch({effects: [addUnderline.of({from: from, to: to})]})
-      return true
-    }
+    
     onMounted(async () => {
       let debouncedCheckJson = debounce(checkJson, 1000);
 
-      editor.value = new EditorView({
+      editor = new EditorView({
         state: EditorState.create({
           extensions: [
             basicSetup,
@@ -100,7 +101,7 @@ export default defineComponent({
             }, {dark: true}),
             EditorView.updateListener.of((cm) => {
               if (cm.docChanged) {
-                const value = editor.value.state.doc.toString();
+                const value = editor.state.doc.toString();
                 if (props.modelValue != value) {
                   context.emit('update:modelValue', value);
                   debouncedCheckJson();
@@ -114,33 +115,35 @@ export default defineComponent({
         parent: document.getElementById('editor')
       })
       function setEditorValue() {
-        if (props.modelValue != editor.value.state.doc.toString()) {
-          editor.value.dispatch({
-            changes: {from: 0, to: editor.value.state.doc.length, insert: prettyPrint(props.modelValue)}
+        if (props.modelValue != editor.state.doc.toString()) {
+          editor.dispatch({
+            changes: {from: 0, to: editor.state.doc.length, insert: prettyPrint(props.modelValue)}
           })
         }
       }
       watchEffect(setEditorValue);
+      editor.dispatch({effects: [StateEffect.appendConfig.of([underlineField, underlineTheme])]});
       setEditorValue();
     })
     function checkJson() {
-      const json = editor.value.state.doc.toString();
-      const cursorPosition = editor.value.state.selection.main.head;
+      const json = editor.state.doc.toString();
+      const cursorPosition = editor.state.selection.main.head;
       const newValue = prettyPrint(json);
       store.commit('setType', 'default')
       showErrorMsg.value = false;
       const result = validateJson(json);
+      underlineChanged = true;
       if(result.error){
         showErrorMsg.value = true;
         errorMsg.value = result.message;
-        underline(result.from, result.to);
-        store.commit('setType', 'error')
-      }else if (json != newValue) {
-        editor.value.dispatch({ changes: {from: 0, to: editor.value.state.doc.length, insert: newValue} })
-        editor.value.dispatch({ selection: {anchor: cursorPosition} })
+        if (result.from > 0 && result.to > 0)
+          editor.dispatch({effects: [addUnderline.of({ from: result.from, to: result.to })]});
+      } else if (json != newValue) {
+        editor.dispatch({ changes: {from: 0, to: editor.state.doc.length, insert: newValue} })
       }
+      editor.dispatch({ selection: {anchor: cursorPosition} })
     }
-    return { errorMsg, showErrorMsg, underline, editor }
+    return { errorMsg, showErrorMsg }
   }
 });
 </script>

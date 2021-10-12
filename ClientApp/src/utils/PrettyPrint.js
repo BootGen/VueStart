@@ -2,7 +2,7 @@ import { toCamelCase } from './Helper';
 
 function getFrom(str, position, line){
   if(!line){
-    return position;
+    return parseInt(position);
   } else {
     let charCount = 0;
     const strArray = str.split('\n');
@@ -14,7 +14,6 @@ function getFrom(str, position, line){
 }
 
 function getErrorPosition(str, err) {
-  console.log(str)
   let userAgent = navigator.userAgent;
   let from = -1;
   let to = -1;
