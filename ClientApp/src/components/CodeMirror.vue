@@ -170,6 +170,7 @@ export default defineComponent({
   .aler-msg{
     margin-left: 20px;
     transition: all 0.5s;
+    margin-right: unset;
   }
   .aler-msg.show{
     opacity: 1;

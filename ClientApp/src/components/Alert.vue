@@ -33,6 +33,7 @@ export default defineComponent({
   @media (max-width: 992px) {
     .error-alert-container {
       position: fixed;
+      z-index: 99;
     }    
   }
 </style>
