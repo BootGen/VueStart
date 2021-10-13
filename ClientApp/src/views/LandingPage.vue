@@ -203,6 +203,7 @@ export default defineComponent({
     transition: all 1s ease-in-out;
     width: 120px;
     left: calc( 50% - 60px );
+    z-index: 9;
   }
   .vue_logo.content{
     top: 10.5%;
@@ -307,7 +308,7 @@ export default defineComponent({
     }
 
     .browser.content{
-      top: 89vh;
+      top: 97vh;
       transition-delay: 600ms;
     }
     .footer.content{
@@ -330,10 +331,12 @@ export default defineComponent({
   }
   @media (max-width: 576px) {
     .vue_logo.landing{
-      top: 65%;
+      top: 80%;
     }
     .vue_logo.content{
       top: 19%;
+      width: 90px;
+      left: calc( 50% - 45px );
     }
     .jumbotron.content {
       height: 26vh;
