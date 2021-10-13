@@ -19,7 +19,7 @@
       </div>
       <img class="vuecoon" alt="Vuecoon" :src="require(`../assets/vuecoon_${$store.state.vuecoonType}.webp`)">
     </div>
-    <img class="vue_logo" alt="vue" :src="require(`../assets/vue_logo.svg`)" :class="{ 'landing': !showNav, 'content' : showNav, }">
+    <img class="vue_logo" alt="vue" :src="require(`../assets/vue_logo.webp`)" :class="{ 'landing': !showNav, 'content' : showNav, }">
 
     <div class="codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <code-mirror v-model="json"></code-mirror>
