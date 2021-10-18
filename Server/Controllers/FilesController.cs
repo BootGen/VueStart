@@ -11,7 +11,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 
-namespace StartVue.Controllers
+namespace VueStart.Controllers
 {
     [ApiController]
     [Route("files")]

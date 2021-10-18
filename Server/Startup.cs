@@ -12,9 +12,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
-using StartVue.Services;
+using Microsoft.Data.Sqlite;
+using VueStart.Services;
 
-namespace StartVue
+namespace VueStart
 {
     public class Startup
     {
@@ -44,9 +45,11 @@ namespace StartVue
             services.AddMemoryCache();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "StartVue", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "VueStart", Version = "v1" });
             });
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite("Filename=:memory:"));
+            var connection = new SqliteConnection("DataSource=:memory:");
+            connection.Open();
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connection));
             services.AddScoped<StatisticsService>();
             
         }
@@ -58,7 +61,7 @@ namespace StartVue
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "StartVue v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "VueStart v1"));
             }
 
             //app.UseHttpsRedirection();

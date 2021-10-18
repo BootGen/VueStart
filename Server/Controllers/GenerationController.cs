@@ -11,9 +11,9 @@ using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 using System.IO.Compression;
-using StartVue.Services;
+using VueStart.Services;
 
-namespace StartVue.Controllers
+namespace VueStart.Controllers
 {
     [ApiController]
     [Route("generate")]

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace StartVue
+namespace VueStart
 {
     public class ApplicationDbContext : DbContext
     {

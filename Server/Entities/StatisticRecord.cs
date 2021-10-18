@@ -1,5 +1,5 @@
 
-namespace StartVue
+namespace VueStart
 {
     public class StatisticRecord
     {

@@ -2,7 +2,7 @@
   <div class="h-100">
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showNav, 'content' : showNav }">
       <div>
-        <h1>Start Vue!</h1>
+        <h1>Vue Start!</h1>
         <div class="d-flex align-items-center jumbo-text" :class="{ 'landing': !showNav, 'content' : showNav }">
           <div>
             <p class="lead text-justify">

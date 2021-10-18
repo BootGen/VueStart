@@ -15,7 +15,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  document.title = `StartVue`;
+  document.title = `VueStart`;
   next();
 });
 

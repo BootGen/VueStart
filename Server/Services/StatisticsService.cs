@@ -1,6 +1,6 @@
 using System.Linq;
 
-namespace StartVue.Services
+namespace VueStart.Services
 {
     public enum ActionType {
         Generate,

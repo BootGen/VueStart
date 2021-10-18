@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "StartVue": {
+    "VueStart": {
       "commandName": "Project",
       "dotnetRunMessages": "true",
       "launchBrowser": true,
