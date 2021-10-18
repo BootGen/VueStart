@@ -20,6 +20,7 @@ namespace StartVue.Services
         public StatisticsService(ApplicationDbContext dbContext)
         {
             this.dbContext = dbContext;
+            dbContext.Database.EnsureCreated();
         }
 
         private static int StringHash(string text)

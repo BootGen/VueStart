@@ -11,6 +11,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 using System.IO.Compression;
+using StartVue.Services;
 
 namespace StartVue.Controllers
 {
@@ -19,15 +20,19 @@ namespace StartVue.Controllers
     public class GenerationController : ControllerBase
     {
         private readonly IMemoryCache memoryCache;
-        public GenerationController(IMemoryCache memoryCache)
+        private readonly StatisticsService statisticsService;
+
+        public GenerationController(IMemoryCache memoryCache, StatisticsService statisticsService)
         {
             this.memoryCache = memoryCache;
+            this.statisticsService = statisticsService;
         }
 
         [HttpPost]
         [Route("editor")]
         public IActionResult GenerateEditor([FromBody] JsonElement json)
         {
+            statisticsService.onEvent(json.ToString(), ActionType.Generate, ArtifactType.Editor);
             return Ok(new { Id = Generate(json, "Data Editor", "editor.sbn") });
         }
         
@@ -35,6 +40,7 @@ namespace StartVue.Controllers
         [Route("view")]
         public IActionResult GenerateView([FromBody] JsonElement json)
         {
+            statisticsService.onEvent(json.ToString(), ActionType.Generate, ArtifactType.View);
             return Ok(new { Id = Generate(json, "Data View", "view.sbn") });
         }
 
@@ -42,6 +48,7 @@ namespace StartVue.Controllers
         [Route("form")]
         public IActionResult GenerateForm([FromBody] JsonElement json)
         {
+            statisticsService.onEvent(json.ToString(), ActionType.Generate, ArtifactType.Form);
             return Ok(new { Id = Generate(json, "Data Form", "form.sbn") });
         }
 
@@ -49,6 +56,7 @@ namespace StartVue.Controllers
         [Route("editor/download")]
         public IActionResult DownloadEditor([FromBody] JsonElement json)
         {
+            statisticsService.onEvent(json.ToString(), ActionType.Download, ArtifactType.Editor);
             var memoryStream = CreateZipStream(json, "Data Editor", "editor.sbn");
             return File(memoryStream, "application/zip", "editor.zip");
         }
@@ -57,6 +65,7 @@ namespace StartVue.Controllers
         [Route("view/download")]
         public IActionResult DownloadView([FromBody] JsonElement json)
         {
+            statisticsService.onEvent(json.ToString(), ActionType.Download, ArtifactType.View);
             var memoryStream = CreateZipStream(json, "Data View", "view.sbn");
             return File(memoryStream, "application/zip", "view.zip");
         }
@@ -65,6 +74,7 @@ namespace StartVue.Controllers
         [Route("form/download")]
         public IActionResult DownloadForm([FromBody] JsonElement json)
         {
+            statisticsService.onEvent(json.ToString(), ActionType.Download, ArtifactType.Form);
             var memoryStream = CreateZipStream(json, "Data Form", "form.sbn");
             return File(memoryStream, "application/zip", "form.zip");
         }

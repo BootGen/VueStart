@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Microsoft.EntityFrameworkCore;
+using StartVue.Services;
 
 namespace StartVue
 {
@@ -44,6 +46,9 @@ namespace StartVue
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "StartVue", Version = "v1" });
             });
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite("Filename=:memory:"));
+            services.AddScoped<StatisticsService>();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
