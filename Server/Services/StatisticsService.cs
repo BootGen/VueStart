@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 
 namespace VueStart.Services
@@ -38,6 +39,7 @@ namespace VueStart.Services
 
         private void UpdateRecord(StatisticRecord record, ActionType actionType, ArtifactType artifactType)
         {
+            record.LastUse = DateTime.Now;
             switch (actionType)
             {
                 case ActionType.Download:
@@ -77,7 +79,8 @@ namespace VueStart.Services
             if (record == null) {
                 record = new StatisticRecord {
                     Data = data,
-                    Hash = hash
+                    Hash = hash,
+                    FirstUse = DateTime.Now
                 };
                 UpdateRecord(record, actionType, artifactType);
                 dbContext.StatisticRecords.Add(record);

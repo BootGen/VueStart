@@ -1,4 +1,6 @@
 
+using System;
+
 namespace VueStart
 {
     public class StatisticRecord
@@ -12,5 +14,7 @@ namespace VueStart
         public int FormDownloadedCount { get; set; }
         public int EditorGeneratedCount { get; set; }
         public int EditorDownloadedCount { get; set; }
+        public DateTime FirstUse { get; set; }
+        public DateTime LastUse { get; set; }
     }
 }
