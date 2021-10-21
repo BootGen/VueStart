@@ -14,6 +14,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
 using VueStart.Services;
+using VueStart.Middlewares;
 
 namespace VueStart
 {
@@ -75,6 +76,8 @@ namespace VueStart
             {
                 endpoints.MapControllers();
             });
+
+            app.UseMiddleware<VisitorMiddleware>();
         }
     }
 }

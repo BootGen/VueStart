@@ -1,10 +1,10 @@
 using System;
 
-namespace StartVue
+namespace VueStart
 {
     public class Visit {
         public int Id { get; set; }
-        public int VisitorId { get; set; }
-        public DateTime Time { get; set; }
+        public DateTime Date { get; set; }
+        public int Count { get; set; }
     }
 }

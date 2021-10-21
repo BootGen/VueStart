@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace StartVue
+namespace VueStart
 {
     public class Visitor {
 

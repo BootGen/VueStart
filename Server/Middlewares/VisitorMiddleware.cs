@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace StartVue.Middlewares
+namespace VueStart.Middlewares
 {
     public class VisitorMiddleware
     {
@@ -26,9 +26,17 @@ namespace StartVue.Middlewares
                     };
                     dbContext.Visitors.Add(visitor);
                 }
-                visitor.Visits.Add(new Visit {
-                    Time = DateTime.Now
-                });
+                var now = DateTime.Now;
+                var date = new DateTime(now.Year, now.Month, now.Day);
+                var visit = visitor.Visits.FirstOrDefault(v => v.Date == date);
+                if (visit != null) {
+                    visit.Count += 1;
+                } else {
+                    visitor.Visits.Add(new Visit {
+                        Date = date,
+                        Count = 1
+                    });
+                }
                 dbContext.SaveChanges();
             }
             await _next(context);
