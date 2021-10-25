@@ -5,7 +5,7 @@
         <div class="d-flex align-items-center px-1">
           <span class="dot" style="background:#ED594A;"></span>
           <span class="dot" style="background:#FDD800;"></span>
-          <span class="dot" style="background:#5AC05A;"></span>
+          <span class="dot" style="background:#5AFF5A;"></span>
         </div>
       </button>
       <slot></slot>
@@ -105,13 +105,14 @@ export default defineComponent({
 /* Style the input field */
 input[type=text] {
   width: 100%;
-  border-radius: 3px;
+  border-radius: 15px;
   border: none;
-  background-color: rgba(97, 199, 253, 0.3);
+  background-color: rgba(66, 185, 131, 1);
   margin-top: -8px;
   height: 25px;
-  color: #666;
+  color: #fff;
   padding: 5px;
+  padding-left: 15px;
 }
 
 /* Three bars (hamburger menu) */

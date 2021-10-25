@@ -133,20 +133,20 @@ export default defineComponent({
 
 <style>
   .outline-btn {
-    color: #61C7FD;
-    border-color: #61C7FD;
+    color: #42b983;
+    border-color: #42b983;
   }
   .outline-btn:hover {
     color: #ffffff;
-    background-color: #61C7FD;
+    background-color: #42b983;
   }
   .fill-btn {
     color: #ffffff;
-    background-color: #61C7FD;
+    background-color: #42b983;
   }
   .fill-btn:hover {
-    color: #61C7FD;
-    border-color: #61C7FD;
+    color: #42b983;
+    border-color: #42b983;
     background-color: #ffffff;
   }
   .download-btn {
@@ -168,7 +168,7 @@ export default defineComponent({
   }
   .jumbotron.content {
     height: 15vh;
-    background-color: rgba(163, 196, 220, 0.2);
+    background-color: rgba(66, 185, 131, 0.2);
   }
   .jumbo-text{
     transition: all 1s ease-in-out;
@@ -234,7 +234,7 @@ export default defineComponent({
   .browser{
     z-index: 9;
     border-radius: 5px;
-    background-color: rgb(38, 83, 136);
+    background-color: #42b983;
     position: absolute;
     width: 54%;
     margin: 1%;
@@ -268,7 +268,7 @@ export default defineComponent({
     margin: auto;
   }
   .footer a {
-    color: #61C7FD;
+    color: #42b983;
   }
   .footer.content{
     opacity: 1;

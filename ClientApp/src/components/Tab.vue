@@ -30,7 +30,7 @@ export default defineComponent({
   .vr {
     height: 20px;
     width: 1px;
-    background-color: #61C7FD;
+    background-color: #42b983;
   }
   .btn-site {
     width: 100%;
@@ -44,13 +44,12 @@ export default defineComponent({
   }
   .btn-site.active {
     background-color: #fff;
-    color: #61C7FD!important;
+    color: #42b983!important;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
   }
   .btn-site.inactive {
-    background-color: #265388;
-    color: #61C7FD!important;
+    background-color: #42b983;
     color: #fff!important;
   }
   .btn-site.plus {

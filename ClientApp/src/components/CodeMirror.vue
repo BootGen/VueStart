@@ -72,17 +72,17 @@ export default defineComponent({
             basicSetup,
             EditorView.theme({
               "&": {
-                color: "#61c7fd",
-                backgroundColor: "#27203c"
+                color: "#42b983",
+                backgroundColor: "#34495E"
               },
               ".ͼd": {
                 color: "rgba(255, 255, 255, 0.9)"
               },
               ".cm-content": {
-                caretColor: "#61c7fd"
+                caretColor: "#42b983"
               },
               "&.cm-focused .cm-cursor": {
-                borderLeftColor: "#61c7fd"
+                borderLeftColor: "#42b983"
               },
               "&.cm-focused .cm-selectionBackground, ::selection": {
                 backgroundColor: "rgba(97, 199, 253, 0.2)"
@@ -94,7 +94,7 @@ export default defineComponent({
                 backgroundColor: "rgba(97, 199, 253, 0.1)"
               },
               ".cm-gutters": {
-                backgroundColor: "#27203c",
+                backgroundColor: "#34495E",
                 color: "#ddd",
                 border: "none"
               }
@@ -156,7 +156,7 @@ export default defineComponent({
 
   .CodeMirror {
     height: 100%;
-    background-color: rgb(9, 26, 55);
+    background-color: #34495E;
     color: white;
     padding: 10px;
   }
@@ -164,7 +164,7 @@ export default defineComponent({
     background-color: unset;
   }
   .cm-string {
-    color: #61C7FD!important;
+    color: #42b983!important;
   }
 
   .aler-msg{
