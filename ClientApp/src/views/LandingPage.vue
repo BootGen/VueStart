@@ -25,7 +25,6 @@
       <code-mirror v-model="json"></code-mirror>
     </div>
     <div class="browser custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
-      <button type="button" class="btn fill-btn download-btn rounded-pill btn-lg" @click="download"><span class="bi bi-download" aria-hidden="true"></span></button>
       <browser-frame v-model="appUrl" :borderRadius="generateType == generateTypes.Editor">
         <div class="d-flex w-100 justify-content-between h-auto">
           <tab title="Editor" icon="pencil" :showVr="generateType != generateTypes.Editor && generateType != generateTypes.View" @select="changeGeneratedMode(generateTypes.Editor)" :class="{ 'inactive': generateType != generateTypes.Editor, 'active' : generateType == generateTypes.Editor, 'border-bottom-right' : generateType == generateTypes.View }"></tab>
@@ -34,6 +33,7 @@
           <button type="button" class="btn-site inactive plus" :class="{ 'border-bottom-left' : generateType == generateTypes.Form }" @click="download"><span class="bi bi-plus" aria-hidden="true"></span></button>
         </div>
       </browser-frame>
+      <button type="button" class="btn fill-btn download-btn rounded-pill btn-lg" @click="download"><span>Download Application </span><span class="bi bi-download" aria-hidden="true"></span></button>
     </div>
     <div class="d-flex footer" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
@@ -154,6 +154,11 @@ export default defineComponent({
     bottom: 2rem;
     right: 2rem;
     z-index: 9;
+    box-shadow: 0 0 0 0 rgba(66, 185, 131, 0.7);
+    -webkit-animation: pulse 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
+    -moz-animation: pulse 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
+    -ms-animation: pulse 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
+    animation: pulse 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
   }
 
   .jumbotron {
@@ -283,6 +288,12 @@ export default defineComponent({
     top: 98vh;
     visibility: hidden;
   }
+  .download-btn:hover {
+    -webkit-animation: none;
+    -moz-animation: none;
+    -ms-animation: none;
+    animation: none;
+  }
 
   @media (max-width: 992px) {
     .jumbotron{
@@ -343,6 +354,27 @@ export default defineComponent({
     }
     .jumbo-text.landing{
       height: 26rem;
+    }
+  }
+
+  @-webkit-keyframes pulse {
+    to {
+      box-shadow: 0 0 0 15px rgba(66, 185, 131, 0);
+    }
+  }
+  @-moz-keyframes pulse {
+    to {
+      box-shadow: 0 0 0 15px rgba(66, 185, 131, 0);
+    }
+  }
+  @-ms-keyframes pulse {
+    to {
+      box-shadow: 0 0 0 15px rgba(66, 185, 131, 0);
+    }
+  }
+  @keyframes pulse {
+    to {
+      box-shadow: 0 0 0 15px rgba(66, 185, 131, 0);
     }
   }
 </style>
