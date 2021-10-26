@@ -375,9 +375,6 @@ export default defineComponent({
       width: 90px;
       left: calc( 50% - 45px );
     }
-    .jumbotron.content {
-      height: 26vh;
-    }
     .jumbo-text.landing{
       height: 26rem;
     }
