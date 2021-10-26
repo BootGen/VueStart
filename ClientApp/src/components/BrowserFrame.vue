@@ -72,7 +72,9 @@ export default defineComponent({
 
 <style scoped>
 .browser-nav {
+  position: relative;
   margin-bottom: 5px;
+  z-index: 99;
 }
 .browser-container{
   height: calc( 100% - 3rem);
@@ -82,9 +84,10 @@ export default defineComponent({
   position: absolute;
   width: 100%;
   top: 20px;
-  z-index: -1;
+  z-index: 9;
   padding: 5px;
   padding-top: 25px;
+  border-bottom: solid 1px #eee;
 }
 .icon {
   color: #42b983;
@@ -108,10 +111,10 @@ input[type=text] {
   width: 100%;
   border-radius: 15px;
   border: none;
-  background-color: rgba(66, 185, 131, 1);
+  background-color: #eee;
   margin-top: -8px;
   height: 25px;
-  color: #fff;
+  color: #42b983;
   padding: 5px;
   padding-left: 15px;
 }
@@ -128,7 +131,6 @@ input[type=text] {
 /* Page content */
 .content {
   border-radius: 5px;
-  padding: 10px;
   height: calc( 100% - 1rem);
   margin-top: 25px;
 }
