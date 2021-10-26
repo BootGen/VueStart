@@ -1,8 +1,9 @@
 <template>
   <div class="h-100">
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showNav, 'content' : showNav }">
-      <div>
-        <div class="d-flex">
+      <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`../assets/vuecoon_${$store.state.vuecoonType}.webp`)" :class="{ 'landing': !showNav, 'content' : showNav, }">
+      <div class="jumbo-text-full" :class="{ 'landing': !showNav, 'content' : showNav }">
+        <div class="d-flex align-items-center">
           <img class="vue_logo" alt="vue" :src="require(`../assets/vue_logo.webp`)">
           <h1 class="title">ue Start!</h1>
         </div>
@@ -20,7 +21,6 @@
           </p>
         </div>
       </div>
-      <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`../assets/vuecoon_${$store.state.vuecoonType}.webp`)">
     </div>
 
     <div class="codemirror custom-card shadow-lg" :class="{ 'landing': !showNav, 'content' : showNav, }">
@@ -161,10 +161,20 @@ export default defineComponent({
     -ms-animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
     animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
   }
-
+  .vuecoon {
+    transition: all 1s ease-in-out;
+  }
+  .vuecoon.landing {
+    max-width: 300px;
+    margin: 1%;
+  }
+  .vuecoon.content {
+    max-width: 170px;
+  }
   .jumbotron {
     transition: all 1s ease-in-out;
-    padding: 5vmin;
+    margin-left: 1%;
+    margin-right: 1%;
   }
   .jumbotron.landing {
     height: calc( 100vh - 2.5rem );
@@ -181,12 +191,28 @@ export default defineComponent({
   .jumbo-text.content{
     opacity: 0;
     height: 0rem;
-    width: 80vw;
   }
   .jumbo-text.landing{
     opacity: 1;
-    height: 16rem;
-    width: 60vw;
+    height: 19rem;
+  }
+  .jumbo-text-full{
+    transition: all 1s ease-in-out;
+    overflow: hidden;
+  }
+  .jumbo-text-full.content{
+    width: 80vw;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 170px;
+  }
+  .jumbo-text-full.content p{
+    text-align: center;
+  }
+  .jumbo-text-full.landing{
+    width: 35vw;
   }
   .slogen-text{
     transition: all 1s ease-in-out;
@@ -288,22 +314,28 @@ export default defineComponent({
     animation: none;
   }
 
-  @media (max-width: 992px) {
-    .jumbotron{
-      justify-content: unset!important;
+  @media (max-width: 1200px) {
+    .jumbo-text.landing{
+      height: 23rem;
     }
-    .vuecoon {
-      display: none;
+  }
+  @media (max-width: 992px) {
+    .vuecoon.landing {
+      max-width: 250px;
     }
     .jumbo-text.landing{
-      width: 100%;
-      height: 16rem;
+      height: 21rem;
     }
+    
+    .jumbo-text-full.landing{
+      width: 50vw;
+    }
+
     .codemirror{
       position: unset;
       width: 92%;
-      margin: 4%;
-      margin-top: 7%;
+      margin-left: 4%;
+      margin-right: 4%;
     }
 
     .browser{
@@ -312,7 +344,7 @@ export default defineComponent({
     }
 
     .browser.content{
-      top: 97vh;
+      top: calc(15vh + 78vh - 1vh);
       transition-delay: 600ms;
     }
     .footer.content{
@@ -324,13 +356,14 @@ export default defineComponent({
     }
     .footer.content{
       height: 2rem;
-      top: calc( 85vh + 1rem + 75vh - 1rem + 3rem );
+      top: calc(15vh + 78vh - 1vh + 82vh);
       padding-top: 5px;
     }
   }
   @media (max-width: 768px) {
+
     .jumbo-text.landing{
-      height: 16rem;
+      height: 29rem;
     }
   }
   @media (max-width: 576px) {
@@ -347,6 +380,15 @@ export default defineComponent({
     }
     .jumbo-text.landing{
       height: 26rem;
+    }
+    .jumbo-text-full.landing{
+      width: 100vw;
+    }
+    .jumbo-text-full.content{
+      margin: unset;
+    }
+    .vuecoon {
+      display: none;
     }
   }
 
