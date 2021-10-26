@@ -2,13 +2,16 @@
   <div class="h-100">
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showNav, 'content' : showNav }">
       <div>
-        <h1>Vue Start!</h1>
+        <div class="d-flex">
+          <img class="vue_logo" alt="vue" :src="require(`../assets/vue_logo.webp`)">
+          <h1 class="title">ue Start!</h1>
+        </div>
         <div class="d-flex align-items-center jumbo-text" :class="{ 'landing': !showNav, 'content' : showNav }">
           <div>
             <p class="lead text-justify">
               Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
             </p>
-            <button class="btn outline-btn rounded-pill m-1 btn-lg" @click="showNav = !showNav">Go!</button>
+            <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showNav = !showNav">Start!</button>
           </div>
         </div>
         <div class="slogen-text" :class="{ 'landing': !showNav, 'content' : showNav }">
@@ -17,14 +20,13 @@
           </p>
         </div>
       </div>
-      <img class="vuecoon" alt="Vuecoon" :src="require(`../assets/vuecoon_${$store.state.vuecoonType}.webp`)">
+      <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`../assets/vuecoon_${$store.state.vuecoonType}.webp`)">
     </div>
-    <img class="vue_logo" alt="vue" :src="require(`../assets/vue_logo.webp`)" :class="{ 'landing': !showNav, 'content' : showNav, }">
 
-    <div class="codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
+    <div class="codemirror custom-card shadow-lg" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <code-mirror v-model="json"></code-mirror>
     </div>
-    <div class="browser custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
+    <div class="browser custom-card shadow-lg" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <browser-frame v-model="appUrl" :borderRadius="generateType == generateTypes.Editor">
         <div class="d-flex w-100 justify-content-between h-auto">
           <tab title="Editor" icon="pencil" :showVr="generateType != generateTypes.Editor && generateType != generateTypes.View" @select="changeGeneratedMode(generateTypes.Editor)" :class="{ 'inactive': generateType != generateTypes.Editor, 'active' : generateType == generateTypes.Editor, 'border-bottom-right' : generateType == generateTypes.View }"></tab>
@@ -136,22 +138,14 @@ export default defineComponent({
 </script>
 
 <style>
-  .outline-btn {
-    color: #42b983;
-    border-color: #42b983;
-  }
-  .outline-btn:hover {
-    color: #ffffff;
-    background-color: #42b983;
-  }
   .fill-btn {
     color: #ffffff;
     background-color: #42b983;
   }
   .fill-btn:hover {
-    color: #42b983;
-    border-color: #42b983;
-    background-color: #ffffff;
+    color: #ffffff;
+    border-color: #17a062;
+    background-color: #17a062;
   }
   #download-btn {
     position: absolute;
@@ -174,13 +168,11 @@ export default defineComponent({
   }
   .jumbotron.landing {
     height: calc( 100vh - 2.5rem );
-    background-color: white;
     transition-delay: 300ms;
     border-bottom-left-radius: 0;
   }
   .jumbotron.content {
     height: 15vh;
-    background-color: rgba(66, 185, 131, 0.2);
   }
   .jumbo-text{
     transition: all 1s ease-in-out;
@@ -211,17 +203,11 @@ export default defineComponent({
     visibility: hidden;
   }
   .vue_logo {
-    position: absolute;
-    transition: all 1s ease-in-out;
-    width: 120px;
-    left: calc( 50% - 60px );
-    z-index: 9;
+    width: 3rem;
+    height: 3rem;
   }
-  .vue_logo.content{
-    top: 10.5%;
-  }
-  .vue_logo.landing{
-    top: 60%;
+  .title {
+    margin-left: -5px;
   }
   .codemirror{
     position: absolute;
@@ -233,8 +219,8 @@ export default defineComponent({
   }
   .codemirror.content{
     opacity: 1;
-    height: calc( 72vh - 1rem );
-    top: calc( 23vh - 1.5rem );
+    height: 78vh;
+    top: 15vh;
     visibility: visible;
   }
   .codemirror.landing{
@@ -257,9 +243,9 @@ export default defineComponent({
   }
   .browser.content{
     opacity: 1;
-    height: calc( 72vh - 1rem + 3rem );
+    height: 82vh;
     transition-delay: 300ms;
-    top: calc( 23vh - 3rem );
+    top: 13vh;
     visibility: visible;
   }
   .browser.landing{
