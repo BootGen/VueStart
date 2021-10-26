@@ -30,7 +30,7 @@ export default defineComponent({
   .vr {
     height: 20px;
     width: 1px;
-    background-color: #42b983;
+    background-color: #eee;
   }
   .btn-site {
     width: 100%;

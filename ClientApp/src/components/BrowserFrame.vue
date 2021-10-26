@@ -2,7 +2,7 @@
   <div class="col-12 browser-container">
     <div class="d-flex browser-nav py-1">
       <button type="button" class="btn-site inactive w-auto" :class="{ 'border-bottom-right' : borderRadius }">
-        <div class="d-flex align-items-center px-1">
+        <div class="d-flex align-items-center px-1 ">
           <span class="dot" style="background:#ED594A;"></span>
           <span class="dot" style="background:#FDD800;"></span>
           <span class="dot" style="background:#5AFF5A;"></span>
@@ -11,16 +11,15 @@
       <slot></slot>
     </div>
     <div class="d-flex justify-content-around align-items-center menu">
+      <div class="d-flex">
+        <span class="bi bi-arrow-left px-2 icon" aria-hidden="true"></span>
+        <span class="bi bi-arrow-right px-2 icon" aria-hidden="true"></span>
+        <span class="bi bi-arrow-clockwise px-2 icon" aria-hidden="true"></span>
+      </div>
       <div class="middle">
         <input type="text" value="https://yourownwebsite.com">
       </div>
-      <div>
-        <div style="float:right">
-          <span class="bar"></span>
-          <span class="bar"></span>
-          <span class="bar"></span>
-        </div>
-      </div>
+      <span class="bi bi-three-dots-vertical px-2 icon" aria-hidden="true"></span>
     </div>
     <div class="col-12 content">
       <iframe id="frameA" class="h-100 w-100" :class="{hidden: !frameA}" :src="urlA" title="CodeSharp"></iframe>
@@ -87,9 +86,11 @@ export default defineComponent({
   padding: 5px;
   padding-top: 25px;
 }
-
+.icon {
+  color: #42b983;
+}
 .middle {
-  width: 75%;
+  width: 100%;
 }
 
 /* Three dots */
