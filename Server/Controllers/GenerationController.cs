@@ -118,7 +118,7 @@ namespace VueStart.Controllers
                 {"classes", dataModel.CommonClasses}
             });
             indexhtml = generator.Render("index.sbn", new Dictionary<string, object> {
-                {"base_url", $"http://localhost:8080/files/{id}/"},
+                {"base_url", $"http://localhost:5000/files/{id}/"},
                 {"title", $"{title}"}
             });
             return id;

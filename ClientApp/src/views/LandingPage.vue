@@ -54,6 +54,8 @@ import CodeMirror from '../components/CodeMirror.vue';
 import BrowserFrame from '../components/BrowserFrame.vue'
 import Tab from '../components/Tab.vue'
 
+axios.baseUrl = 'http://localhost:5000/';
+
 export default defineComponent({
   name: 'LandingPage',
   components: { CodeMirror, BrowserFrame, Tab },
@@ -112,18 +114,18 @@ export default defineComponent({
       json.value = localStorage.getItem('json').toString();
     });
     const showNav = ref(false);
-    const appUrl = ref("http://localhost:8080/sites/default/");
+    const appUrl = ref("");
     async function generate() {
-      const resp = await axios.post(`http://localhost:8080/generate/${generateType.value}`, JSON.parse(json.value));
+      const resp = await axios.post(`generate/${generateType.value}`, JSON.parse(json.value));
       saveToLocalStorage(json.value);
-      appUrl.value = `http://localhost:8080/files/${resp.data.id}/index.html`;
+      appUrl.value = `files/${resp.data.id}/index.html`;
     }
     function changeGeneratedMode(type) {
       generateType.value = type
       generate()
     }
     async function download() {
-      const response = await axios.post(`http://localhost:8080/generate/${generateType.value}/download`, JSON.parse(json.value), {responseType: 'blob'});
+      const response = await axios.post(`generate/${generateType.value}/download`, JSON.parse(json.value), {responseType: 'blob'});
       const fileURL = window.URL.createObjectURL(new Blob([response.data]));
       const fileLink = document.createElement('a');
       fileLink.href = fileURL;

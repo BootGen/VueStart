@@ -30,18 +30,6 @@ namespace VueStart
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
-
-            services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(
-                                builder =>
-                                {
-                                    builder.WithOrigins("http://localhost:8080")
-                                    .AllowAnyHeader()
-                                    .AllowAnyMethod();
-                                });
-            });
             services.AddControllers();
             services.AddMemoryCache();
             services.AddSwaggerGen(c =>
@@ -78,6 +66,15 @@ namespace VueStart
             });
 
             app.UseMiddleware<VisitorMiddleware>();
+
+
+            if (env.IsDevelopment())
+            {
+                app.UseSpa(spa =>
+                {
+                    spa.UseProxyToSpaDevelopmentServer($"http://localhost:8080");
+                });
+            }
         }
     }
 }
