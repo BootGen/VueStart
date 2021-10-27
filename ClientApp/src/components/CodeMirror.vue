@@ -129,11 +129,12 @@ export default defineComponent({
       const json = editor.state.doc.toString();
       const cursorPosition = editor.state.selection.main.head;
       const newValue = prettyPrint(json);
-      store.commit('setType', 'default')
+      store.commit('setType', 'default');
       showErrorMsg.value = false;
       const result = validateJson(json);
       underlineChanged = true;
       if(result.error){
+        store.commit('setType', 'error');
         showErrorMsg.value = true;
         errorMsg.value = result.message;
         if (result.from > 0 && result.to > 0)
