@@ -1,5 +1,5 @@
 <template>
-  <div class="h-100">
+  <div class="col-12">
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showNav, 'content' : showNav }">
       <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`../assets/vuecoon_${$store.state.vuecoonType}.webp`)" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <div class="jumbo-text-full" :class="{ 'landing': !showNav, 'content' : showNav }">
@@ -23,21 +23,23 @@
       </div>
     </div>
 
-    <div class="codemirror custom-card shadow-lg" :class="{ 'landing': !showNav, 'content' : showNav, }">
+    <div class="codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <code-mirror v-model="json"></code-mirror>
     </div>
-    <div class="browser custom-card shadow-lg" :class="{ 'landing': !showNav, 'content' : showNav, }">
-      <browser-frame v-model="appUrl" :borderRadius="generateType == generateTypes.Editor">
-        <div class="d-flex w-100 justify-content-between h-auto">
-          <tab title="Editor" icon="pencil" :showVr="generateType != generateTypes.Editor && generateType != generateTypes.View" @select="changeGeneratedMode(generateTypes.Editor)" :class="{ 'inactive': generateType != generateTypes.Editor, 'active' : generateType == generateTypes.Editor, 'border-bottom-right' : generateType == generateTypes.View }"></tab>
-          <tab title="View" icon="eye" :showVr="generateType != generateTypes.View && generateType != generateTypes.Form" @select="changeGeneratedMode(generateTypes.View)" :class="{ 'inactive': generateType != generateTypes.View, 'active' : generateType == generateTypes.View, 'border-bottom-right' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.Editor }"></tab>
-          <tab title="Form" icon="file-earmark-code" :showVr="generateType != generateTypes.Form" @select="changeGeneratedMode(generateTypes.Form)" :class="{ 'inactive': generateType != generateTypes.Form, 'active' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.View }"></tab>
-          <button type="button" class="btn-site inactive plus" :class="{ 'border-bottom-left' : generateType == generateTypes.Form }"><span class="bi bi-plus" aria-hidden="true"></span></button>
-        </div>
-      </browser-frame>
+    <div class="browser-container" :class="{ 'landing': !showNav, 'content' : showNav, }">
+      <div class="browser custom-card shadow">
+        <browser-frame v-model="appUrl" :borderRadius="generateType == generateTypes.Editor">
+          <div class="d-flex w-100 justify-content-between h-auto">
+            <tab title="Editor" icon="pencil" :showVr="generateType != generateTypes.Editor && generateType != generateTypes.View" @select="changeGeneratedMode(generateTypes.Editor)" :class="{ 'inactive': generateType != generateTypes.Editor, 'active' : generateType == generateTypes.Editor, 'border-bottom-right' : generateType == generateTypes.View }"></tab>
+            <tab title="View" icon="eye" :showVr="generateType != generateTypes.View && generateType != generateTypes.Form" @select="changeGeneratedMode(generateTypes.View)" :class="{ 'inactive': generateType != generateTypes.View, 'active' : generateType == generateTypes.View, 'border-bottom-right' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.Editor }"></tab>
+            <tab title="Form" icon="file-earmark-code" :showVr="generateType != generateTypes.Form" @select="changeGeneratedMode(generateTypes.Form)" :class="{ 'inactive': generateType != generateTypes.Form, 'active' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.View }"></tab>
+            <button type="button" class="btn-site inactive plus" :class="{ 'border-bottom-left' : generateType == generateTypes.Form }"><span class="bi bi-plus" aria-hidden="true"></span></button>
+          </div>
+        </browser-frame>
+      </div>
       <button type="button" id="download-btn" class="btn fill-btn rounded-pill btn-lg" @click="download"><span>Download Application </span><span class="bi bi-download" aria-hidden="true"></span></button>
     </div>
-    <div class="d-flex footer" :class="{ 'landing': !showNav, 'content' : showNav, }">
+    <div class="footer" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
     </div>
   </div>
@@ -149,7 +151,7 @@ export default defineComponent({
   }
   #download-btn {
     position: absolute;
-    bottom: 2rem;
+    bottom: 0.5rem;
     right: 2rem;
   }
 
@@ -246,7 +248,7 @@ export default defineComponent({
   .codemirror.content{
     opacity: 1;
     height: 78vh;
-    top: 15vh;
+    top: 14vh;
     visibility: visible;
   }
   .codemirror.landing{
@@ -259,6 +261,21 @@ export default defineComponent({
     z-index: 9;
     border-radius: 5px;
     background-color: #42b983;
+    transition: all 1s ease-in-out;
+    overflow: hidden;
+    vertical-align: bottom;
+    width: 100%;
+    height: 82vh;
+  }
+  .browser.landing{
+    height: 0vh;
+    top: 98vh;
+    visibility: hidden;
+  }
+  .shadow {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
+  }
+  .browser-container{
     position: absolute;
     width: 54%;
     margin: 1%;
@@ -266,15 +283,17 @@ export default defineComponent({
     transition: all 1s ease-in-out;
     overflow: hidden;
     vertical-align: bottom;
+    background-color: transparent;
+    box-shadow: 0rem -1.5rem 2rem rgb(0 0 0 / 10%);
   }
-  .browser.content{
+  .browser-container.content{
     opacity: 1;
-    height: 82vh;
+    height: calc(82vh + 2rem);
     transition-delay: 300ms;
-    top: 13vh;
+    top: 12vh;
     visibility: visible;
   }
-  .browser.landing{
+  .browser-container.landing{
     opacity: 0;
     height: 0vh;
     top: 98vh;
@@ -284,6 +303,7 @@ export default defineComponent({
     position: absolute;
     right: 0;
     margin: 1%;
+    padding-top: 1rem;
     transition: all 1s ease-in-out;
     overflow: hidden;
     vertical-align: bottom;
@@ -338,12 +358,12 @@ export default defineComponent({
       margin-right: 4%;
     }
 
-    .browser{
+    .browser-container{
       width: 98%;
       margin: 1%;
     }
 
-    .browser.content{
+    .browser-container.content{
       top: calc(15vh + 78vh - 1vh);
       transition-delay: 600ms;
     }
@@ -356,7 +376,7 @@ export default defineComponent({
     }
     .footer.content{
       height: 2rem;
-      top: calc(15vh + 78vh - 1vh + 82vh);
+      top: calc(15vh + 78vh - 1vh + 82vh + 1.5rem);
       padding-top: 5px;
     }
   }

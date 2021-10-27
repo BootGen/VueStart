@@ -1,5 +1,5 @@
 <template>
-  <div class="col-12 browser-container">
+  <div class="col-12 browser-frame">
     <div class="d-flex browser-nav py-1">
       <button type="button" class="btn-site inactive w-auto" :class="{ 'border-bottom-right' : borderRadius }">
         <div class="d-flex align-items-center px-1 ">
@@ -76,7 +76,7 @@ export default defineComponent({
   margin-bottom: 5px;
   z-index: 99;
 }
-.browser-container{
+.browser-frame{
   height: calc( 100% - 3rem);
 }
 .menu {    
