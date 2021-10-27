@@ -155,6 +155,7 @@ export default defineComponent({
     position: absolute;
     bottom: 0.5rem;
     right: 2rem;
+    font-size: 1rem!important;
   }
 
   .pulse-download-btn {
@@ -173,7 +174,7 @@ export default defineComponent({
     margin: 1%;
   }
   .vuecoon.content {
-    max-width: 170px;
+    max-width: 15vh;
   }
   .jumbotron {
     transition: all 1s ease-in-out;
@@ -210,7 +211,7 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-right: 170px;
+    margin-right: 15vh;
   }
   .jumbo-text-full.content p{
     text-align: center;
@@ -320,7 +321,7 @@ export default defineComponent({
     opacity: 1;
     height: 2.5rem;
     transition-delay: 500ms;
-    top: calc( 100vh - 4rem );
+    top: calc(15vh + 80vh);
     visibility: visible;
   }
   .footer.landing{
@@ -342,9 +343,6 @@ export default defineComponent({
     }
   }
   @media (max-width: 992px) {
-    .vuecoon.landing {
-      max-width: 250px;
-    }
     .jumbo-text.landing{
       height: 21rem;
     }
@@ -389,6 +387,9 @@ export default defineComponent({
     }
   }
   @media (max-width: 576px) {
+    .jumbotron.content {
+      height: 27vh;
+    }
     .vue_logo.landing{
       top: 80%;
     }
