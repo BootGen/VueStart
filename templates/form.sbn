@@ -106,11 +106,9 @@ app.component('{{ kebab_case class.name }}-edit', {
       if !property.is_key ~}}
   <li class="list-group-item">
     <div class="row d-flex align-items-center">
-      <div class="col-4 d-flex justify-content-start text-break text-start">
-      {{ property.name }}:
-      </div>
-      <div class="col-8 d-flex justify-content-start">
-        <input v-model="modelValue.{{ camel_case property.name }}" type="text" class="form-control" />
+      <div class="col-12 d-flex justify-content-start form-floating">
+        <input type="text" class="form-control" v-model="modelValue.{{ camel_case property.name }}" placeholder="{{ property.name }}">
+        <label for="floatingInput">{{ property.name }}</label>
       </div>
     </div>
   </li>
