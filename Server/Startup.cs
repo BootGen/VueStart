@@ -10,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
 using VueStart.Services;
@@ -32,10 +31,6 @@ namespace VueStart
         {
             services.AddControllers();
             services.AddMemoryCache();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "VueStart", Version = "v1" });
-            });
             var connection = new SqliteConnection("DataSource=:memory:");
             connection.Open();
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connection));
@@ -49,8 +44,6 @@ namespace VueStart
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "VueStart v1"));
             }
 
             //app.UseHttpsRedirection();
