@@ -128,7 +128,7 @@ app.component('{{ kebab_case class.name }}-list', {
       </button>
     </div>
     <div class="col-12 mb-2" v-for="item in modelValue" :key="item.id">
-      <div class="card">
+      <div class="card shadow">
         <{{ kebab_case class.name }}-edit v-model="item.value" @delete="deleteItem(item)"></{{ kebab_case class.name }}-edit>
       </div>
       {{~ for property in class.properties

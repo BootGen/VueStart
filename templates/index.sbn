@@ -19,6 +19,11 @@
       body {
         background-color: #eee;
       }
+      .card {
+        background-color: unset;
+        border: unset;
+        border-radius: 0.5rem;
+      }
       </style>
   </head>
   <body>

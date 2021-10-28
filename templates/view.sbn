@@ -89,7 +89,7 @@ app.component('{{ kebab_case class.name }}-list', {
       {{ class.name.plural }}:
     </div>
     <div class="col-12 mb-2" v-for="item in modelValue" :key="item.id">
-      <div class="card">
+      <div class="card shadow">
         <{{ kebab_case class.name }}-view v-model="item.value"></{{ kebab_case class.name }}-view>
       </div>
         {{~ for property in class.properties
