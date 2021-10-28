@@ -25,13 +25,13 @@
         border-radius: 0.5rem;
       }
       .btn {
-        color: #ffffff;
-        background-color: #42b983;
+        color: #42b983;
+        background-color: transparent;
+        border: solid 1px #42b983;
       }
       .btn:hover {
-        color: #ffffff;
-        border-color: #17a062;
-        background-color: #17a062;
+        color: #42b983;
+        background-color: rgba(200, 200, 200, 0.3);
       }
       </style>
   </head>
