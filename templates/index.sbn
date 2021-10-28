@@ -24,6 +24,15 @@
         border: unset;
         border-radius: 0.5rem;
       }
+      .btn {
+        color: #ffffff;
+        background-color: #42b983;
+      }
+      .btn:hover {
+        color: #ffffff;
+        border-color: #17a062;
+        background-color: #17a062;
+      }
       </style>
   </head>
   <body>

@@ -96,7 +96,7 @@ const  app = Vue.createApp({
 app.component('{{ kebab_case class.name }}-edit', {
   template: `
   <li class="list-group-item">
-    <button type="button" class="btn btn-default btn-sm btn-danger" @click="$emit('delete')">
+    <button type="button" class="btn btn-sm rounded-pill" @click="$emit('delete')">
       <span class="bi bi-trash" aria-hidden="true"></span> Delete
     </button>
   </li>
@@ -123,7 +123,7 @@ app.component('{{ kebab_case class.name }}-list', {
   <div class="m-2">
     <div class="col-12 d-flex justify-content-between">
       {{ class.name.plural }}:
-      <button type="button" class="btn btn-default btn-sm btn-primary mb-1" @click="addNewItem()">
+      <button type="button" class="btn btn-sm rounded-pill mb-1" @click="addNewItem()">
         <span class="bi bi-plus" aria-hidden="true"></span> Add
       </button>
     </div>
