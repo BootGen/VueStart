@@ -12,9 +12,7 @@ const  app = Vue.createApp({
     {{~ for property in root.properties
       if property.is_collection && property.class
       ~}}
-    <li class="list-group-item">
     <{{ kebab_case property.class.name }}-list v-model="{{ camel_case root.name }}.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
-    </li>
     {{~ end
       end ~}}
   `,
@@ -92,18 +90,16 @@ app.component('{{ kebab_case class.name }}-list', {
     </div>
     <div class="col-12 mb-2" v-for="item in modelValue" :key="item.id">
       <div class="card">
-        <ul class="list-group list-group-flush">
-          <{{ kebab_case class.name }}-view v-model="item.value"></{{ kebab_case class.name }}-view>
-          {{~ for property in class.properties
-              if property.is_collection && property.class
-              ~}}
-          <li class="list-group-item">
-          <{{ kebab_case property.class.name }}-list v-model="item.value.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
-          </li>
-          {{~ end
-              end ~}}
-        </ul>
+        <{{ kebab_case class.name }}-view v-model="item.value"></{{ kebab_case class.name }}-view>
       </div>
+        {{~ for property in class.properties
+            if property.is_collection && property.class
+            ~}}
+        <div class="card ms-3 mt-2">
+        <{{ kebab_case property.class.name }}-list v-model="item.value.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
+        </div>
+        {{~ end
+            end ~}}
     </div>
   </div>`,
   name: '{{ class.name }}List',
