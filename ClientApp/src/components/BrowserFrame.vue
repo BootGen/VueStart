@@ -132,7 +132,7 @@ input[type=text] {
 .content {
   border-radius: 5px;
   height: calc( 100% - 1rem);
-  margin-top: 25px;
+  margin-top: 30px;
 }
 
 .hidden {
