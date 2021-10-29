@@ -104,6 +104,7 @@ export default defineComponent({
                 const value = editor.state.doc.toString();
                 if (props.modelValue != value) {
                   context.emit('update:modelValue', value);
+                  indent();
                   debouncedCheckJson();
                 }
               }
@@ -126,23 +127,51 @@ export default defineComponent({
       setEditorValue();
     })
     function checkJson() {
-      const json = editor.state.doc.toString();
-      const cursorPosition = editor.state.selection.main.head;
-      const newValue = prettyPrint(json);
-      store.commit('setType', 'default');
-      showErrorMsg.value = false;
-      const result = validateJson(json);
+      const result = validateJson(editor.state.doc.toString());
       underlineChanged = true;
       if(result.error){
         store.commit('setType', 'error');
         showErrorMsg.value = true;
         errorMsg.value = result.message;
-        if (result.from > 0 && result.to > 0)
+        if (result.from > 0 && result.to > 0 && result.to > result.from)
           editor.dispatch({effects: [addUnderline.of({ from: result.from, to: result.to })]});
-      } else if (json != newValue) {
-        editor.dispatch({ changes: {from: 0, to: editor.state.doc.length, insert: newValue} })
+      } else {
+        store.commit('setType', 'default');
+        showErrorMsg.value = false;
       }
-      editor.dispatch({ selection: {anchor: cursorPosition} })
+    }
+    function indent() {
+        const cursorPosition = editor.state.selection.main.head;
+        if (cursorPosition === 0)
+          return;
+        const json = editor.state.doc.toString();
+        if (validateJson(json).error) {
+          return
+        }
+        const lastChar=json[cursorPosition-1]
+        let cursorCodePosition = 0;
+        for (let i = 0; i < cursorPosition; ++i) {
+          if (' \t\n\r\v'.indexOf(json[i]) === -1) {
+              cursorCodePosition += 1;
+          }
+        }
+        if (' \t\n\r\v'.indexOf(lastChar) === -1) {
+          const newValue = prettyPrint(json);
+          if (json != newValue) {
+            editor.dispatch({ changes: {from: 0, to: editor.state.doc.length, insert: newValue} })
+            let newCursorPosition = 0;
+            for (let i = 0; i < newValue.length; ++i) {
+              newCursorPosition += 1;
+              if (' \t\n\r\v'.indexOf(newValue[i]) === -1) {
+                  cursorCodePosition -= 1;
+                  if (cursorCodePosition === 0)
+                    break
+              }
+            }
+            underlineChanged = true;
+            editor.dispatch({ selection: {anchor: newCursorPosition} })
+          }
+        }
     }
     return { errorMsg, showErrorMsg }
   }
