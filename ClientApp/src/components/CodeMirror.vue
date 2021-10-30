@@ -7,7 +7,7 @@
 
 <script>
 import { EditorState, basicSetup } from "@codemirror/basic-setup"
-import { EditorView, keymap, Decoration /*, Range*/ } from "@codemirror/view"
+import { EditorView, keymap, Decoration } from "@codemirror/view"
 import { indentWithTab } from "@codemirror/commands"
 import { json } from "@codemirror/lang-json"
 import {StateField, StateEffect} from "@codemirror/state"
@@ -15,7 +15,7 @@ import {StateField, StateEffect} from "@codemirror/state"
 
 import { defineComponent, onMounted, ref, watchEffect } from 'vue';
 import Alert from './Alert.vue';
-import { /*getJsonLineNumber,*/ debounce } from '../utils/Helper';
+import { debounce } from '../utils/Helper';
 import { prettyPrint, validateJson } from '../utils/PrettyPrint';
 import { useStore } from 'vuex'
 
@@ -34,7 +34,6 @@ export default defineComponent({
 
     const underlineMark = Decoration.mark({class: "cm-underline"})
     const addUnderline = StateEffect.define();
-
     let emptyField = null;
     let underlineChanged = false;
     const underlineField = StateField.define({
@@ -64,7 +63,7 @@ export default defineComponent({
     })
     
     onMounted(async () => {
-      let debouncedCheckJson = debounce(checkJson, 1000);
+      let debouncedShowErrorState = debounce(showErrorState, 1000);
 
       editor = new EditorView({
         state: EditorState.create({
@@ -77,6 +76,9 @@ export default defineComponent({
               },
               ".ͼd": {
                 color: "rgba(255, 255, 255, 0.9)"
+              },
+              ".ͼc": {
+                  color: "#8cd6b5"
               },
               ".cm-content": {
                 caretColor: "#42b983"
@@ -101,12 +103,15 @@ export default defineComponent({
             }, {dark: true}),
             EditorView.updateListener.of((cm) => {
               if (cm.docChanged) {
-                const value = editor.state.doc.toString();
-                if (props.modelValue != value) {
-                  context.emit('update:modelValue', value);
-                  indent();
-                  debouncedCheckJson();
-                }
+                  let validationResult = validateJson(editor.state.doc.toString());
+                  if (!validationResult.error) {
+                    indent();
+                  }
+                  debouncedShowErrorState(validationResult);
+                  const value = editor.state.doc.toString();
+                  if (props.modelValue != value) {
+                    context.emit('update:modelValue', value);
+                  }
               }
             }),
             keymap.of([indentWithTab]),
@@ -126,15 +131,14 @@ export default defineComponent({
       editor.dispatch({effects: [StateEffect.appendConfig.of([underlineField, underlineTheme])]});
       setEditorValue();
     })
-    function checkJson() {
-      const result = validateJson(editor.state.doc.toString());
+    function showErrorState(validationResult) {
       underlineChanged = true;
-      if(result.error){
+      if(validationResult.error){
         store.commit('setType', 'error');
         showErrorMsg.value = true;
-        errorMsg.value = result.message;
-        if (result.from > 0 && result.to > 0 && result.to > result.from)
-          editor.dispatch({effects: [addUnderline.of({ from: result.from, to: result.to })]});
+        errorMsg.value = validationResult.message;
+        if (validationResult.from > 0 && validationResult.to > 0 && validationResult.to > validationResult.from)
+          editor.dispatch({effects: [addUnderline.of({ from: validationResult.from, to: validationResult.to })]});
       } else {
         store.commit('setType', 'default');
         showErrorMsg.value = false;
