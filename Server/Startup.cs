@@ -53,12 +53,12 @@ namespace VueStart
             //app.UseAuthorization();
             app.UseCors();
 
+
+            app.UseMiddleware<VisitorMiddleware>();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-
-            app.UseMiddleware<VisitorMiddleware>();
 
 
             if (env.IsDevelopment())

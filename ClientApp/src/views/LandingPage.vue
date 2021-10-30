@@ -86,7 +86,7 @@ export default defineComponent({
       }
     }
     async function getProjectContentFromServer(name) {
-      const data = (await axios.get(`/${name}.json`, {responseType: 'text'})).data;
+      const data = (await axios.get(`/${name}.json`, {responseType: 'text', ...config})).data;
       if (typeof data === 'string')
         return data;
       return JSON.stringify(data);
@@ -113,10 +113,26 @@ export default defineComponent({
     window.addEventListener('storage', () => {
       json.value = localStorage.getItem('json').toString();
     });
+
+
+    let idtoken = localStorage.getItem('idtoken');
+    if (!idtoken) {
+      idtoken = ''
+      while (idtoken.length < 16)
+        idtoken += Math.random().toString(36).substring(2);
+      idtoken = idtoken.substring(0, 16);
+      localStorage.setItem('idtoken', idtoken)
+    }
+
+    let config = {
+      headers: {
+        'idtoken': idtoken
+      }
+    }
     const showNav = ref(false);
     const appUrl = ref("");
     async function generate() {
-      const resp = await axios.post(`generate/${generateType.value}`, JSON.parse(json.value));
+      const resp = await axios.post(`generate/${generateType.value}`, JSON.parse(json.value), config);
       saveToLocalStorage(json.value);
       appUrl.value = `files/${resp.data.id}/index.html`;
     }
@@ -125,7 +141,7 @@ export default defineComponent({
       generate()
     }
     async function download() {
-      const response = await axios.post(`generate/${generateType.value}/download`, JSON.parse(json.value), {responseType: 'blob'});
+      const response = await axios.post(`generate/${generateType.value}/download`, JSON.parse(json.value), {responseType: 'blob', ...config});
       const fileURL = window.URL.createObjectURL(new Blob([response.data]));
       const fileLink = document.createElement('a');
       fileLink.href = fileURL;
