@@ -7,7 +7,9 @@ namespace VueStart
 
         public int Id { get; set; }
         public string Token { get; set; }
-        public string CountryCode { get; set; }
+        public string Country { get; set; }
+        public string Region { get; set; }
+        public string City { get; set; }
         public string UserAgent { get; set; }
         public string OSFamily { get; set; }
         public string OSMajor { get; set; }

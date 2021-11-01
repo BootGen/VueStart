@@ -1,8 +1,11 @@
 
 using System;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using UAParser;
 
@@ -16,19 +19,23 @@ namespace VueStart.Middlewares
         {
             _next = next;
         }
-        public async Task InvokeAsync(HttpContext context, ApplicationDbContext dbContext)
+        public async Task InvokeAsync(HttpContext context, ApplicationDbContext dbContext, IConfiguration config)
         {
             string token = context.Request.Headers["idtoken"].FirstOrDefault();
+            Task<WebResponse> geoLocationTask = null;
+            Visitor visitor = null;
             if (!string.IsNullOrEmpty(token)) {
                 dbContext.Database.EnsureCreated();
-                var visitor = dbContext.Visitors.FirstOrDefault(v => v.Token == token);
+                visitor = dbContext.Visitors.FirstOrDefault(v => v.Token == token);
                 if (visitor == null) {
+                    var ipInfotoken = config.GetValue<string>("IpInfoToken");
+                    if (context.Connection.RemoteIpAddress != null && !string.IsNullOrWhiteSpace(ipInfotoken)) 
+                        geoLocationTask = WebRequest.Create($"https://ipinfo.io/{context.Connection.RemoteIpAddress?.ToString()}?token={ipInfotoken}").GetResponseAsync();
                     var uaString = context.Request.Headers["User-Agent"].FirstOrDefault();
                     var uaParser = Parser.GetDefault();
                     ClientInfo c = uaParser.Parse(uaString);
                     visitor = new Visitor {
                         Token = token,
-                        CountryCode = "@",
                         UserAgent = uaString,
                         OSFamily = c.OS.Family,
                         OSMajor = c.OS.Major,
@@ -57,6 +64,21 @@ namespace VueStart.Middlewares
                 dbContext.SaveChanges();
             }
             await _next(context);
+            if (geoLocationTask != null && visitor != null) {
+                using (var response = await geoLocationTask) {
+                    using (var reader = new StreamReader(response.GetResponseStream())) {
+                        var jsonString = reader.ReadToEnd();
+                        var jObject = JObject.Parse(jsonString);
+                        visitor.Country = jObject.GetValue("country")?.ToString();
+                        visitor.Region = jObject.GetValue("region")?.ToString();
+                        visitor.City = jObject.GetValue("city")?.ToString();
+                        dbContext.Update(visitor);
+                        dbContext.SaveChanges();
+                    }
+                }
+            }
         }
+
+       
     }
 }
