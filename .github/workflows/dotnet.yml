@@ -24,13 +24,13 @@ jobs:
       run: dotnet restore
       working-directory: ./Server
     - name: Build Server
-      run: dotnet publish -c Release
+      run: dotnet publish -c Release -r linux-x64
       working-directory: ./Server
     - name: Archive built server application
       uses: actions/upload-artifact@v2
       with:
         name: server
-        path: Server/bin/Release/net5.0/publish
+        path: Server/bin/Release/net5.0/linux-x64/publish
     - name: Install dependencies (npm)
       run: npm ci
       working-directory: ./ClientApp

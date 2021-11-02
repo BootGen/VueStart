@@ -16,4 +16,9 @@
     <PackageReference Include="UAParser" Version="3.1.47" />
   </ItemGroup>
 
+  <ItemGroup> 
+    <Content Include="templates\**"> 
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory> 
+    </Content> 
+  </ItemGroup>
 </Project>

@@ -113,7 +113,7 @@ namespace VueStart.Controllers
 
             var id = Guid.NewGuid().ToString();
             var generator = new TypeScriptGenerator(null);
-            generator.Templates = Load("../templates");
+            generator.Templates = Load("templates");
             appjs = generator.Render(templateFileName, new Dictionary<string, object> {
                 {"classes", dataModel.CommonClasses}
             });
