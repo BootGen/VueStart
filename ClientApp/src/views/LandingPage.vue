@@ -54,8 +54,6 @@ import CodeMirror from '../components/CodeMirror.vue';
 import BrowserFrame from '../components/BrowserFrame.vue'
 import Tab from '../components/Tab.vue'
 
-axios.baseUrl = 'http://localhost:5000/';
-
 export default defineComponent({
   name: 'LandingPage',
   components: { CodeMirror, BrowserFrame, Tab },
