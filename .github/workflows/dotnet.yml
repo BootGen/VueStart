@@ -28,11 +28,12 @@ jobs:
       working-directory: ./ClientApp
     - name: Build
       run: dotnet publish -c Release
+      working-directory: ./Server
     - name: Archive built application
       uses: actions/upload-artifact@v2
       with:
         name: editor
-        path: bin/Release/net5.0/publish
+        path: Server/bin/Release/net5.0/publish
 
   #deploy:
   #  needs: build
