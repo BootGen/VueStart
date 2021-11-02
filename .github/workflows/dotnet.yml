@@ -23,17 +23,25 @@ jobs:
     - name: Install dependencies (nuget)
       run: dotnet restore
       working-directory: ./Server
+    - name: Build Server
+      run: dotnet publish -c Release
+      working-directory: ./Server
+    - name: Archive built server application
+      uses: actions/upload-artifact@v2
+      with:
+        name: server
+        path: Server/bin/Release/net5.0/publish
     - name: Install dependencies (npm)
       run: npm ci
       working-directory: ./ClientApp
-    - name: Build
-      run: dotnet publish -c Release
-      working-directory: ./Server
-    - name: Archive built application
+    - name: Build Client
+      run: npm run build
+      working-directory: ./ClientApp
+    - name: Archive built client application
       uses: actions/upload-artifact@v2
       with:
-        name: editor
-        path: Server/bin/Release/net5.0/publish
+        name: client
+        path: ClientApp/dist
 
   #deploy:
   #  needs: build
