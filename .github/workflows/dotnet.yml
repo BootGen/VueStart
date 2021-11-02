@@ -1,4 +1,4 @@
-name: Test
+name: Deploy
 
 on:
   push:
@@ -43,9 +43,9 @@ jobs:
         name: client
         path: ClientApp/dist
 
-  #deploy:
-  #  needs: build
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #  - name: Trigger webhook
-  #    run: curl -s http://bootgen.com:9000/hooks/update?token=${{ secrets.WEBHOOK_TOKEN }}
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Trigger webhook
+      run: curl -s http://vuestart.com:9000/hooks/update-vuestart?token=${{ secrets.WEBHOOK_TOKEN }}
