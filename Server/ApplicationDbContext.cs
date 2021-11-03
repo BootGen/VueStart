@@ -8,6 +8,7 @@ namespace VueStart
     {
         public DbSet<StatisticRecord> StatisticRecords { get; set; }
         public DbSet<Visitor> Visitors { get; set; }
+        public DbSet<Visit> Visits { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -26,6 +27,9 @@ namespace VueStart
                 .IsRequired();
             modelBuilder.Entity<Visitor>()
                 .HasMany<Visit>(v => v.Visits);
+            modelBuilder.Entity<Visit>()
+                .Property(b => b.Id)
+                .IsRequired();
         }
     }
 }

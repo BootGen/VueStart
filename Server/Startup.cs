@@ -31,9 +31,14 @@ namespace VueStart
         {
             services.AddControllers();
             services.AddMemoryCache();
-            var connection = new SqliteConnection("DataSource=:memory:");
-            connection.Open();
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connection));
+            var connectionString = Configuration.GetConnectionString("MySQL");
+            if (!string.IsNullOrWhiteSpace(connectionString)) {
+                services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(connectionString, ServerVersion.Parse("8.0.23")));
+            } else {
+                var connection = new SqliteConnection("DataSource=:memory:");
+                connection.Open();
+                services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connection));
+            }
             services.AddScoped<StatisticsService>();
             
         }

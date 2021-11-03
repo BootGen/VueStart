@@ -50,14 +50,15 @@ namespace VueStart.Middlewares
                     visitor = dbContext.Visitors.Add(visitor).Entity;
                 }
                 dbContext.Entry(visitor).Collection(v => v.Visits).Load();
-                var now = DateTime.Now;
-                var date = new DateTime(now.Year, now.Month, now.Day);
-                var visit = visitor.Visits.FirstOrDefault(v => v.Date == date);
+                var today = DateTime.Now.Date;
+                var visit = visitor.Visits.FirstOrDefault(v => v.Start.Date == today);
                 if (visit != null) {
                     visit.Count += 1;
+                    visit.End = DateTime.Now;
                 } else {
                     visitor.Visits.Add(new Visit {
-                        Date = date,
+                        Start = DateTime.Now,
+                        End = DateTime.Now,
                         Count = 1
                     });
                 }
