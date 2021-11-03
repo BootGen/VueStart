@@ -103,7 +103,6 @@ app.component('{{ kebab_case class.name }}-edit', {
   {{~ for property in class.common_properties
       if !property.is_key ~}}
   <li class="list-group-item">
-    {{ (get_type property) }}
     <div class="col-12 d-flex justify-content-start form-floating">
       <input 
       {{~ if (get_type property) == "Date" ~}}
