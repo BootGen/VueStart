@@ -108,11 +108,23 @@ export default defineComponent({
         }
       })
     })
+
     window.addEventListener('storage', () => {
       json.value = localStorage.getItem('json').toString();
     });
-
-
+    
+    window.onload = function () {
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = function() {
+          if (showNav.value) {
+            showNav.value = false;
+            window.history.pushState(null, "", window.location.href);
+          } else {
+            history.back();
+          }
+        };
+    }
+    
     let idtoken = localStorage.getItem('idtoken');
     if (!idtoken) {
       idtoken = ''
