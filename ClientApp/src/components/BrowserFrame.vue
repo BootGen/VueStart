@@ -2,7 +2,7 @@
   <div class="col-12 browser-frame">
     <div class="d-flex browser-nav py-1">
       <button type="button" class="btn-site inactive w-auto" :class="{ 'border-bottom-right' : borderRadius }">
-        <div class="d-flex align-items-center px-1 ">
+        <div class="d-flex align-items-center">
           <span class="dot" style="background:#ED594A;"></span>
           <span class="dot" style="background:#FDD800;"></span>
           <span class="dot" style="background:#5AFF5A;"></span>
@@ -138,5 +138,11 @@ input[type=text] {
 .hidden {
   display: none;
 }
-
+@media (max-width: 576px) {
+  .dot {
+    margin: 3px;
+    height: 10px;
+    width: 10px;
+  }
+}
 </style>

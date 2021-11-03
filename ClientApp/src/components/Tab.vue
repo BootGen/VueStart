@@ -39,7 +39,7 @@ export default defineComponent({
     display: flex;
     justify-content: space-between;
     padding: 5px;
-    padding-left: 15px;
+    padding-left: 10px;
     align-items: center;
   }
   .btn-site.active {
@@ -61,5 +61,16 @@ export default defineComponent({
   }
   .border-bottom-right {
     border-bottom-right-radius: 10px;
+  }
+
+  @media (max-width: 576px) {
+    .btn-site {
+      font-size: 10pt;
+      padding-left: 7px;
+    }
+    .px-2 {
+      padding-right: 0.25rem!important;
+      padding-left: 0.25rem!important;
+    }
   }
 </style>
