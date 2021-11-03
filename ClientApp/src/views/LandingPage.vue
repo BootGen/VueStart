@@ -3,12 +3,12 @@
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showNav, 'content' : showNav }">
       <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`../assets/vuecoon_${$store.state.vuecoonType}.webp`)" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <div class="jumbo-text-full" :class="{ 'landing': !showNav, 'content' : showNav }">
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center justify-content-center ">
           <img class="vue_logo" alt="vue" :src="require(`../assets/vue_logo.webp`)">
           <h1 class="title">ue Start!</h1>
         </div>
         <div class="d-flex align-items-center jumbo-text" :class="{ 'landing': !showNav, 'content' : showNav }">
-          <div>
+          <div class="d-flex flex-column align-items-center">
             <p class="lead text-justify">
               Lorem Ipsum is simply dummy text of the printing and typesetting industry. Deploy test. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
             </p>
@@ -220,7 +220,7 @@ export default defineComponent({
     overflow: hidden;
   }
   .jumbo-text-full.content{
-    width: 80vw;
+    max-width: 40em;
     justify-content: center;
     display: flex;
     flex-direction: column;
@@ -231,7 +231,7 @@ export default defineComponent({
     text-align: center;
   }
   .jumbo-text-full.landing{
-    width: 35vw;
+    width: 40em;
   }
   .slogen-text{
     transition: all 1s ease-in-out;
@@ -357,10 +357,6 @@ export default defineComponent({
     .jumbo-text.landing{
       height: 21rem;
     }
-    
-    .jumbo-text-full.landing{
-      width: 50vw;
-    }
 
     .codemirror{
       position: unset;
@@ -414,9 +410,11 @@ export default defineComponent({
     }
     .jumbo-text-full.landing{
       width: 100vw;
+      text-align: center;
     }
     .jumbo-text-full.content{
       margin: unset;
+      text-align: center;
     }
     .vuecoon {
       display: none;
