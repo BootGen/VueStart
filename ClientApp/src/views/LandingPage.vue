@@ -39,7 +39,7 @@
       </div>
       <button type="button" id="download-btn" class="btn fill-btn rounded-pill btn-lg" @click="download"><span>Download Application </span><span class="bi bi-download" aria-hidden="true"></span></button>
     </div>
-    <div class="footer" :class="{ 'landing': !showNav, 'content' : showNav, }">
+    <div class="col-12 d-flex align-items-center footer" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
     </div>
   </div>
@@ -318,12 +318,9 @@ export default defineComponent({
   }
   .footer{
     position: absolute;
-    right: 0;
-    margin: 1%;
     padding-top: 1rem;
     transition: all 1s ease-in-out;
     overflow: hidden;
-    vertical-align: bottom;
   }
   .footer p {
     margin: auto;
