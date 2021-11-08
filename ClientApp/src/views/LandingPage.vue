@@ -9,14 +9,14 @@
         </div>
         <div class="d-flex align-items-center jumbo-text" :class="{ 'landing': !showNav, 'content' : showNav }">
           <div class="d-flex flex-column align-items-center">
-            <p class="lead text-justify">
+            <p class="lead">
               Lorem Ipsum is simply dummy text of the printing and typesetting industry. Deploy test. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
             </p>
             <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showNav = !showNav">Start!</button>
           </div>
         </div>
         <div class="slogen-text" :class="{ 'landing': !showNav, 'content' : showNav }">
-          <p class="lead text-justify">
+          <p class="lead">
             Lorem Ipsum is simply dummy text of the printing and typesetting industry.
           </p>
         </div>
@@ -232,18 +232,15 @@ export default defineComponent({
     overflow: hidden;
   }
   .jumbo-text-full.content{
-    max-width: 40em;
+    max-width: 40%;
     justify-content: center;
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-right: 15vh;
   }
-  .jumbo-text-full.content p{
-    text-align: center;
-  }
   .jumbo-text-full.landing{
-    width: 40em;
+    width: 40%;
   }
   .slogen-text{
     transition: all 1s ease-in-out;
@@ -407,7 +404,7 @@ export default defineComponent({
   }
   @media (max-width: 576px) {
     .jumbotron.content {
-      height: 27vh;
+      height: 20vh;
     }
     .vue_logo.landing{
       top: 80%;
@@ -426,6 +423,7 @@ export default defineComponent({
     }
     .jumbo-text-full.content{
       margin: unset;
+      max-width: 100%;
       text-align: center;
     }
     .vuecoon {
