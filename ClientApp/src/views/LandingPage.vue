@@ -37,7 +37,13 @@
           </div>
         </browser-frame>
       </div>
-      <button type="button" id="download-btn" class="btn fill-btn rounded-pill btn-lg" @click="download"><span>Download Application </span><span class="bi bi-download" aria-hidden="true"></span></button>
+      <div class="d-flex browser-buttons">
+        <div class="d-flex mx-5">
+          <button type="button" class="btn rounded-pill btn-lg mx-1" :class="{ 'fill-btn': displayMode == displayModes.Card, 'outline-btn': displayMode != displayModes.Card }" @click="displayMode = displayModes.Card"><span class="bi bi-view-stacked" aria-hidden="true"></span></button>
+          <button type="button" class="btn rounded-pill btn-lg mx-1" :class="{ 'fill-btn': displayMode == displayModes.Accordian, 'outline-btn': displayMode != displayModes.Accordian }" @click="displayMode = displayModes.Accordian"><span class="bi bi-text-indent-left" aria-hidden="true"></span></button>
+        </div>
+        <button type="button" id="download-btn" class="btn fill-btn rounded-pill btn-lg" @click="download"><span>Download Application </span><span class="bi bi-download" aria-hidden="true"></span></button>
+      </div>
     </div>
     <div class="col-12 d-flex align-items-center footer" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
@@ -58,14 +64,19 @@ export default defineComponent({
   name: 'LandingPage',
   components: { CodeMirror, BrowserFrame, Tab },
   setup() {
-    const json = ref("");
+    const json = ref('');
     const jsonSchema = ref('');
     const generateTypes = {
-      View: "view",
-      Form: "form",
-      Editor: "editor",
+      View: 'view',
+      Form: 'form',
+      Editor: 'editor',
     }
     const generateType = ref(generateTypes.Editor);
+    const displayModes = {
+      Card: 'card',
+      Accordian: 'accordian'
+    }
+    const displayMode = ref(displayModes.Card);
 
     function saveToLocalStorage(newValue) {
       try {
@@ -161,7 +172,7 @@ export default defineComponent({
       fileLink.click();
     }
 
-    return { showNav, json, appUrl, download, generateType, generateTypes, changeGeneratedMode}
+    return { showNav, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, displayMode, displayModes }
   }
 });
 
@@ -177,11 +188,22 @@ export default defineComponent({
     border-color: #17a062;
     background-color: #17a062;
   }
-  #download-btn {
+  .outline-btn {
+    color: #42b983;
+    background-color: transparent;
+    border: solid 1px #42b983;
+    padding: 0.25rem 1rem;
+  }
+  .outline-btn:hover {
+    color: #42b983;
+    background-color: rgba(200, 200, 200, 0.3);
+  }
+  .browser-buttons {
     position: absolute;
     bottom: 0.5rem;
     right: 2rem;
     font-size: 1rem!important;
+    z-index: 99;
   }
 
   .pulse-download-btn {
