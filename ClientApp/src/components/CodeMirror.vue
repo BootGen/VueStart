@@ -219,6 +219,10 @@ export default defineComponent({
       margin-left: unset;
       justify-content: center;
     }
-    
+  }
+  @media (max-width: 576px) {
+    .cm-line {
+      tab-size: 2;
+    }
   }
 </style>
