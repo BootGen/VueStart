@@ -31,68 +31,70 @@ namespace VueStart.Middlewares
 
         private static async void LogVisit(HttpContext context,  IConfiguration config, string token)
         {
-            using (var dbContext = new ApplicationDbContext(config))
-            {
-                var visitor = dbContext.Visitors.FirstOrDefault(v => v.Token == token);
-                if (visitor == null)
+            await Task.Run(async () => {
+                using (var dbContext = new ApplicationDbContext(config))
                 {
-                    var ipInfotoken = config.GetValue<string>("IpInfoToken");
-                    if (context.Connection.RemoteIpAddress != null && !string.IsNullOrWhiteSpace(ipInfotoken))
+                    var visitor = dbContext.Visitors.FirstOrDefault(v => v.Token == token);
+                    if (visitor == null)
                     {
-                        var geoLocationTask = WebRequest.Create($"https://ipinfo.io/{context.Connection.RemoteIpAddress?.ToString()}?token={ipInfotoken}").GetResponseAsync();
-                        using (var response = await geoLocationTask)
+                        var ipInfotoken = config.GetValue<string>("IpInfoToken");
+                        if (context.Connection.RemoteIpAddress != null && !string.IsNullOrWhiteSpace(ipInfotoken))
                         {
-                            using (var reader = new StreamReader(response.GetResponseStream()))
+                            var geoLocationTask = WebRequest.Create($"https://ipinfo.io/{context.Connection.RemoteIpAddress?.ToString()}?token={ipInfotoken}").GetResponseAsync();
+                            using (var response = await geoLocationTask)
                             {
-                                var jsonString = reader.ReadToEnd();
-                                var jObject = JObject.Parse(jsonString);
-                                visitor.Country = jObject.GetValue("country")?.ToString();
-                                visitor.Region = jObject.GetValue("region")?.ToString();
-                                visitor.City = jObject.GetValue("city")?.ToString();
-                                dbContext.Update(visitor);
-                                dbContext.SaveChanges();
+                                using (var reader = new StreamReader(response.GetResponseStream()))
+                                {
+                                    var jsonString = reader.ReadToEnd();
+                                    var jObject = JObject.Parse(jsonString);
+                                    visitor.Country = jObject.GetValue("country")?.ToString();
+                                    visitor.Region = jObject.GetValue("region")?.ToString();
+                                    visitor.City = jObject.GetValue("city")?.ToString();
+                                    dbContext.Update(visitor);
+                                    dbContext.SaveChanges();
+                                }
                             }
                         }
+                        var uaString = context.Request.Headers["User-Agent"].FirstOrDefault();
+                        var uaParser = Parser.GetDefault();
+                        ClientInfo c = uaParser.Parse(uaString);
+                        visitor = new Visitor
+                        {
+                            Token = token,
+                            UserAgent = uaString,
+                            OSFamily = c.OS.Family,
+                            OSMajor = c.OS.Major,
+                            OSMinor = c.OS.Minor,
+                            DeviceBrand = c.Device.Brand,
+                            DeviceFamily = c.Device.Family,
+                            DeviceModel = c.Device.Model,
+                            BrowserFamily = c.UA.Family,
+                            BrowserMajor = c.UA.Major,
+                            BrowserMinor = c.UA.Minor
+                        };
+                        visitor = dbContext.Visitors.Add(visitor).Entity;
                     }
-                    var uaString = context.Request.Headers["User-Agent"].FirstOrDefault();
-                    var uaParser = Parser.GetDefault();
-                    ClientInfo c = uaParser.Parse(uaString);
-                    visitor = new Visitor
+                    dbContext.Entry(visitor).Collection(v => v.Visits).Load();
+                    var today = DateTime.Now.Date;
+                    var visit = visitor.Visits.FirstOrDefault(v => v.Start.Date == today);
+                    if (visit != null)
                     {
-                        Token = token,
-                        UserAgent = uaString,
-                        OSFamily = c.OS.Family,
-                        OSMajor = c.OS.Major,
-                        OSMinor = c.OS.Minor,
-                        DeviceBrand = c.Device.Brand,
-                        DeviceFamily = c.Device.Family,
-                        DeviceModel = c.Device.Model,
-                        BrowserFamily = c.UA.Family,
-                        BrowserMajor = c.UA.Major,
-                        BrowserMinor = c.UA.Minor
-                    };
-                    visitor = dbContext.Visitors.Add(visitor).Entity;
-                }
-                dbContext.Entry(visitor).Collection(v => v.Visits).Load();
-                var today = DateTime.Now.Date;
-                var visit = visitor.Visits.FirstOrDefault(v => v.Start.Date == today);
-                if (visit != null)
-                {
-                    visit.Count += 1;
-                    visit.End = DateTime.Now;
-                }
-                else
-                {
-                    visit = new Visit
+                        visit.Count += 1;
+                        visit.End = DateTime.Now;
+                    }
+                    else
                     {
-                        Start = DateTime.Now,
-                        End = DateTime.Now,
-                        Count = 1
-                    };
-                    visitor.Visits.Add(visit);
+                        visit = new Visit
+                        {
+                            Start = DateTime.Now,
+                            End = DateTime.Now,
+                            Count = 1
+                        };
+                        visitor.Visits.Add(visit);
+                    }
+                    dbContext.SaveChanges();
                 }
-                dbContext.SaveChanges();
-            }
+            });
         }
     }
 }
