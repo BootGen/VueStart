@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace VueStart.Services
 {
@@ -16,12 +18,11 @@ namespace VueStart.Services
 
     public class StatisticsService
     {
-        private readonly ApplicationDbContext dbContext;
+        private readonly IConfiguration configuration;
 
-        public StatisticsService(ApplicationDbContext dbContext)
+        public StatisticsService(IConfiguration configuration)
         {
-            this.dbContext = dbContext;
-            dbContext.Database.EnsureCreated();
+            this.configuration = configuration;
         }
 
         private static int StringHash(string text)
@@ -73,22 +74,29 @@ namespace VueStart.Services
             }
         }
 
-        public void  onEvent(string data, ActionType actionType, ArtifactType artifactType) {
-            int hash = StringHash(data);
-            var record = dbContext.StatisticRecords.Where(r => r.Hash == hash && r.Data == data).FirstOrDefault();
-            if (record == null) {
-                record = new StatisticRecord {
-                    Data = data,
-                    Hash = hash,
-                    FirstUse = DateTime.Now
-                };
-                UpdateRecord(record, actionType, artifactType);
-                dbContext.StatisticRecords.Add(record);
-            } else {
-                UpdateRecord(record, actionType, artifactType);
-            }
-            dbContext.SaveChanges();
+        public  async void  onEvent(string data, ActionType actionType, ArtifactType artifactType)
+        {
+            await Task.Run(() =>{
+                int hash = StringHash(data);
+                using (var dbContext = new ApplicationDbContext(configuration))
+                {
+                    var record = dbContext.StatisticRecords.Where(r => r.Hash == hash && r.Data == data).FirstOrDefault();
+                    if (record == null)
+                    {
+                        record = new StatisticRecord
+                        {
+                            Data = data,
+                            Hash = hash,
+                            FirstUse = DateTime.Now
+                        };
+                        UpdateRecord(record, actionType, artifactType);
+                        dbContext.StatisticRecords.Add(record);
+                    } else {
+                        UpdateRecord(record, actionType, artifactType);
+                    }
+                    dbContext.SaveChanges();
+                }        
+            });
         }
-
     }
 }
