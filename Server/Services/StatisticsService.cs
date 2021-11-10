@@ -16,6 +16,7 @@ namespace VueStart.Services
     }
 
     public enum ArtifactType {
+        None,
         View,
         Form,
         Editor

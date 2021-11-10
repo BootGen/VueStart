@@ -28,55 +28,47 @@ namespace VueStart.Controllers
             this.statisticsService = statisticsService;
         }
 
-        [HttpPost]
-        [Route("generate/editor/{layout}")]
-        public IActionResult GenerateEditor([FromBody] JsonElement json, string layout)
+        private ArtifactType GetArtifactType(string type)
         {
-            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Generate, ArtifactType.Editor);
-            return Ok(new { Id = Generate(json, "Data Editor", $"editor-{layout}.sbn") });
-        }
-        
-        [HttpPost]
-        [Route("generate/view/{layout}")]
-        public IActionResult GenerateView([FromBody] JsonElement json, string layout)
-        {
-            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Generate, ArtifactType.View);
-            return Ok(new { Id = Generate(json, "Data View", $"view-{layout}.sbn") });
-        }
-
-        [HttpPost]
-        [Route("generate/form/{layout}")]
-        public IActionResult GenerateForm([FromBody] JsonElement json, string layout)
-        {
-            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Generate, ArtifactType.Form);
-            return Ok(new { Id = Generate(json, "Data Form", $"form-{layout}.sbn") });
+            switch (type)
+            {
+                case "editor":
+                    return ArtifactType.Editor;
+                case "form":
+                    return ArtifactType.Form;
+                case "view":
+                    return ArtifactType.View;
+                default:
+                    return ArtifactType.None;
+            }
         }
 
         [HttpPost]
-        [Route("download/editor/{layout}")]
-        public IActionResult DownloadEditor([FromBody] JsonElement json, string layout)
+        [Route("generate/{type}/{layout}")]
+        public IActionResult Generates([FromBody] JsonElement json, string type, string layout)
         {
-            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Download, ArtifactType.Editor);
-            var memoryStream = CreateZipStream(json, "Data Editor", $"editor-{layout}.sbn");
-            return File(memoryStream, "application/zip", "editor.zip");
+            var artifactType = GetArtifactType(type);
+            if (artifactType == ArtifactType.None)
+                return NotFound();
+            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Generate, artifactType);
+            return Ok(new { Id = Generate(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn") });
+        }
+
+        private static string ToUpperFirst(string type)
+        {
+            return Char.ToUpper(type.First()) + type.Substring(1);
         }
 
         [HttpPost]
-        [Route("download/view/{layout}")]
-        public IActionResult DownloadView([FromBody] JsonElement json, string layout)
+        [Route("download/{type}/{layout}")]
+        public IActionResult DownloadEditor([FromBody] JsonElement json, string type, string layout)
         {
-            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Download, ArtifactType.View);
-            var memoryStream = CreateZipStream(json, "Data View", $"view-{layout}.sbn");
-            return File(memoryStream, "application/zip", "view.zip");
-        }
-
-        [HttpPost]
-        [Route("download/form/{layout}")]
-        public IActionResult DownloadForm([FromBody] JsonElement json, string layout)
-        {
-            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Download, ArtifactType.Form);
-            var memoryStream = CreateZipStream(json, "Data Form", $"form-{layout}.sbn");
-            return File(memoryStream, "application/zip", "form.zip");
+            var artifactType = GetArtifactType(type);
+            if (artifactType == ArtifactType.None)
+                return NotFound();
+            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Download, artifactType);
+            var memoryStream = CreateZipStream(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn");
+            return File(memoryStream, "application/zip", $"{type}.zip");
         }
 
         private MemoryStream CreateZipStream(JsonElement json, string title, string templateFileName)
