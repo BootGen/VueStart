@@ -98,13 +98,13 @@ app.component('{{ kebab_case class.name }}-list', {
       </h2>
       <div :id="accordionId+'-collapseOne'" class="accordion-collapse collapse show" aria-labelledby="{{ class.name.plural }}-headingOne" v-for="item in modelValue" :key="item.id">
         <div class="accordion-body">
-          <div class="card shadow">
+          <div>
             <{{ kebab_case class.name }}-view v-model="item.value"></{{ kebab_case class.name }}-view>
           </div>
           {{~ for property in class.properties
             if property.is_collection && property.class
             ~}}
-            <div class="card ms-3 mt-2">
+            <div class="ms-5 mt-2">
               <{{ kebab_case property.class.name }}-list v-model="item.value.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
             </div>
           {{~ end
