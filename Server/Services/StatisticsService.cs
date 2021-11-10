@@ -1,7 +1,12 @@
 using System;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
+using UAParser;
 
 namespace VueStart.Services
 {
@@ -74,12 +79,17 @@ namespace VueStart.Services
             }
         }
 
-        public  async void  onEvent(string data, ActionType actionType, ArtifactType artifactType)
+        public  async void  onEvent(HttpContext context, string data, ActionType actionType, ArtifactType artifactType)
         {
-            await Task.Run(() =>{
+            var uaString = context.Request.Headers["User-Agent"].FirstOrDefault();
+            string token = context.Request.Headers["idtoken"].FirstOrDefault();
+            await Task.Run(async () => {
                 int hash = StringHash(data);
                 using (var dbContext = new ApplicationDbContext(configuration))
                 {
+                    dbContext.Database.EnsureCreated();
+                    if (!string.IsNullOrWhiteSpace(token))
+                        await LogVisit(context, token, dbContext);
                     var record = dbContext.StatisticRecords.Where(r => r.Hash == hash && r.Data == data).FirstOrDefault();
                     if (record == null)
                     {
@@ -97,6 +107,83 @@ namespace VueStart.Services
                     dbContext.SaveChanges();
                 }        
             });
+        }
+
+        
+
+        private async Task LogVisit(HttpContext context, string token, ApplicationDbContext dbContext)
+        {
+            var visitor = dbContext.Visitors.FirstOrDefault(v => v.Token == token);
+            if (visitor == null)
+            {
+                visitor = CreateVisitor(context, token);
+                await SetGeoLocation(context, visitor);
+                visitor = dbContext.Visitors.Add(visitor).Entity;
+            }
+            AddVisit(dbContext, visitor);
+        }
+
+        private void AddVisit(ApplicationDbContext dbContext, Visitor visitor)
+        {
+            dbContext.Entry(visitor).Collection(v => v.Visits).Load();
+            var today = DateTime.Now.Date;
+            var visit = visitor.Visits.FirstOrDefault(v => v.Start.Date == today);
+            if (visit != null)
+            {
+                visit.Count += 1;
+                visit.End = DateTime.Now;
+            }
+            else
+            {
+                visit = new Visit
+                {
+                    Start = DateTime.Now,
+                    End = DateTime.Now,
+                    Count = 1
+                };
+                visitor.Visits.Add(visit);
+            }
+        }
+
+        private async Task SetGeoLocation(HttpContext context, Visitor visitor)
+        {
+            var ipInfotoken = configuration.GetValue<string>("IpInfoToken");
+            if (context.Connection.RemoteIpAddress == null || string.IsNullOrWhiteSpace(ipInfotoken))
+                return;
+            var geoLocationTask = WebRequest.Create($"https://ipinfo.io/{context.Connection.RemoteIpAddress?.ToString()}?token={ipInfotoken}").GetResponseAsync();
+            using (var response = await geoLocationTask)
+            {
+                using (var reader = new StreamReader(response.GetResponseStream()))
+                {
+                    var jsonString = reader.ReadToEnd();
+                    var jObject = JObject.Parse(jsonString);
+                    visitor.Country = jObject.GetValue("country")?.ToString();
+                    visitor.Region = jObject.GetValue("region")?.ToString();
+                    visitor.City = jObject.GetValue("city")?.ToString();
+                }
+            }
+        }
+
+        private static Visitor CreateVisitor(HttpContext context, string token)
+        {
+            var uaString = context.Request.Headers["User-Agent"].FirstOrDefault();
+            var uaParser = Parser.GetDefault();
+            ClientInfo c = uaParser.Parse(uaString);
+            var visitor = new Visitor
+            {
+                Token = token,
+                UserAgent = uaString,
+                OSFamily = c.OS.Family,
+                OSMajor = c.OS.Major,
+                OSMinor = c.OS.Minor,
+                DeviceBrand = c.Device.Brand,
+                DeviceFamily = c.Device.Family,
+                DeviceModel = c.Device.Model,
+                BrowserFamily = c.UA.Family,
+                BrowserMajor = c.UA.Major,
+                BrowserMinor = c.UA.Minor
+            };
+            return visitor;
         }
     }
 }

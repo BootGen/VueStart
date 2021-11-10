@@ -32,7 +32,7 @@ namespace VueStart.Controllers
         [Route("editor")]
         public IActionResult GenerateEditor([FromBody] JsonElement json)
         {
-            statisticsService.onEvent(json.ToString(), ActionType.Generate, ArtifactType.Editor);
+            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Generate, ArtifactType.Editor);
             return Ok(new { Id = Generate(json, "Data Editor", "editor.sbn") });
         }
         
@@ -40,7 +40,7 @@ namespace VueStart.Controllers
         [Route("view")]
         public IActionResult GenerateView([FromBody] JsonElement json)
         {
-            statisticsService.onEvent(json.ToString(), ActionType.Generate, ArtifactType.View);
+            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Generate, ArtifactType.View);
             return Ok(new { Id = Generate(json, "Data View", "view.sbn") });
         }
 
@@ -48,7 +48,7 @@ namespace VueStart.Controllers
         [Route("form")]
         public IActionResult GenerateForm([FromBody] JsonElement json)
         {
-            statisticsService.onEvent(json.ToString(), ActionType.Generate, ArtifactType.Form);
+            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Generate, ArtifactType.Form);
             return Ok(new { Id = Generate(json, "Data Form", "form.sbn") });
         }
 
@@ -56,7 +56,7 @@ namespace VueStart.Controllers
         [Route("editor/download")]
         public IActionResult DownloadEditor([FromBody] JsonElement json)
         {
-            statisticsService.onEvent(json.ToString(), ActionType.Download, ArtifactType.Editor);
+            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Download, ArtifactType.Editor);
             var memoryStream = CreateZipStream(json, "Data Editor", "editor.sbn");
             return File(memoryStream, "application/zip", "editor.zip");
         }
@@ -65,7 +65,7 @@ namespace VueStart.Controllers
         [Route("view/download")]
         public IActionResult DownloadView([FromBody] JsonElement json)
         {
-            statisticsService.onEvent(json.ToString(), ActionType.Download, ArtifactType.View);
+            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Download, ArtifactType.View);
             var memoryStream = CreateZipStream(json, "Data View", "view.sbn");
             return File(memoryStream, "application/zip", "view.zip");
         }
@@ -74,7 +74,7 @@ namespace VueStart.Controllers
         [Route("form/download")]
         public IActionResult DownloadForm([FromBody] JsonElement json)
         {
-            statisticsService.onEvent(json.ToString(), ActionType.Download, ArtifactType.Form);
+            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Download, ArtifactType.Form);
             var memoryStream = CreateZipStream(json, "Data Form", "form.sbn");
             return File(memoryStream, "application/zip", "form.zip");
         }
