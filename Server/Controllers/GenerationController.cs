@@ -32,25 +32,24 @@ namespace VueStart.Controllers
         [Route("generate/editor/{layout}")]
         public IActionResult GenerateEditor([FromBody] JsonElement json, string layout)
         {
-            Console.WriteLine(layout);
             statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Generate, ArtifactType.Editor);
-            return Ok(new { Id = Generate(json, "Data Editor", "editor.sbn") });
+            return Ok(new { Id = Generate(json, "Data Editor", $"editor-{layout}.sbn") });
         }
         
         [HttpPost]
-        [Route("generate/view")]
-        public IActionResult GenerateView([FromBody] JsonElement json)
+        [Route("generate/view/{layout}")]
+        public IActionResult GenerateView([FromBody] JsonElement json, string layout)
         {
             statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Generate, ArtifactType.View);
-            return Ok(new { Id = Generate(json, "Data View", "view.sbn") });
+            return Ok(new { Id = Generate(json, "Data View", $"view-{layout}.sbn") });
         }
 
         [HttpPost]
-        [Route("generate/form")]
-        public IActionResult GenerateForm([FromBody] JsonElement json)
+        [Route("generate/form/{layout}")]
+        public IActionResult GenerateForm([FromBody] JsonElement json, string layout)
         {
             statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Generate, ArtifactType.Form);
-            return Ok(new { Id = Generate(json, "Data Form", "form.sbn") });
+            return Ok(new { Id = Generate(json, "Data Form", $"form-{layout}.sbn") });
         }
 
         [HttpPost]

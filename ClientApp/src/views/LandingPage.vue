@@ -39,8 +39,8 @@
       </div>
       <div class="d-flex browser-buttons">
         <div class="d-flex mx-5">
-          <button type="button" class="btn rounded-pill btn-lg mx-1" :class="{ 'fill-btn': displayMode == displayModes.Card, 'outline-btn': displayMode != displayModes.Card }" @click="displayMode = displayModes.Card"><span class="bi bi-view-stacked" aria-hidden="true"></span></button>
-          <button type="button" class="btn rounded-pill btn-lg mx-1" :class="{ 'fill-btn': displayMode == displayModes.Accordian, 'outline-btn': displayMode != displayModes.Accordian }" @click="displayMode = displayModes.Accordian"><span class="bi bi-text-indent-left" aria-hidden="true"></span></button>
+          <button type="button" class="btn rounded-pill btn-lg mx-1" :class="{ 'fill-btn': layoutMode == layoutModes.Card, 'outline-btn': layoutMode != layoutModes.Card }" @click="changeLayoutMode(layoutModes.Card)"><span class="bi bi-view-stacked" aria-hidden="true"></span></button>
+          <button type="button" class="btn rounded-pill btn-lg mx-1" :class="{ 'fill-btn': layoutMode == layoutModes.Accordion, 'outline-btn': layoutMode != layoutModes.Accordion }" @click="changeLayoutMode(layoutModes.Accordion)"><span class="bi bi-text-indent-left" aria-hidden="true"></span></button>
         </div>
         <button type="button" id="download-btn" class="btn fill-btn rounded-pill btn-lg" @click="download"><span>Download Application </span><span class="bi bi-download" aria-hidden="true"></span></button>
       </div>
@@ -72,11 +72,11 @@ export default defineComponent({
       Editor: 'editor',
     }
     const generateType = ref(generateTypes.Editor);
-    const displayModes = {
+    const layoutModes = {
       Card: 'card',
-      Accordian: 'accordian'
+      Accordion: 'accordion'
     }
-    const displayMode = ref(displayModes.Card);
+    const layoutMode = ref(layoutModes.Card);
 
     function saveToLocalStorage(newValue) {
       try {
@@ -153,12 +153,16 @@ export default defineComponent({
     const showNav = ref(false);
     const appUrl = ref("");
     async function generate() {
-      const resp = await axios.post(`generate/${generateType.value}/card`, JSON.parse(json.value), config);
+      const resp = await axios.post(`generate/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), config);
       saveToLocalStorage(json.value);
       appUrl.value = `files/${resp.data.id}/index.html`;
     }
     function changeGeneratedMode(type) {
       generateType.value = type
+      generate()
+    }
+    function changeLayoutMode(type) {
+      layoutMode.value = type
       generate()
     }
     async function download() {
@@ -172,7 +176,7 @@ export default defineComponent({
       fileLink.click();
     }
 
-    return { showNav, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, displayMode, displayModes }
+    return { showNav, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode }
   }
 });
 
