@@ -166,7 +166,7 @@ export default defineComponent({
       generate()
     }
     async function download() {
-      const response = await axios.post(`download/${generateType.value}`, JSON.parse(json.value), {responseType: 'blob', ...config});
+      const response = await axios.post(`download/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), {responseType: 'blob', ...config});
       const fileURL = window.URL.createObjectURL(new Blob([response.data]));
       const fileLink = document.createElement('a');
       fileLink.href = fileURL;
