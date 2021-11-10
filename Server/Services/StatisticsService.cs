@@ -81,15 +81,16 @@ namespace VueStart.Services
 
         public  async void  onEvent(HttpContext context, string data, ActionType actionType, ArtifactType artifactType)
         {
-            var uaString = context.Request.Headers["User-Agent"].FirstOrDefault();
+            string uaString = context.Request.Headers["User-Agent"].FirstOrDefault();
             string token = context.Request.Headers["idtoken"].FirstOrDefault();
+            string remoteIpAddress = context.Connection.RemoteIpAddress.ToString();
             await Task.Run(async () => {
                 int hash = StringHash(data);
                 using (var dbContext = new ApplicationDbContext(configuration))
                 {
                     dbContext.Database.EnsureCreated();
                     if (!string.IsNullOrWhiteSpace(token))
-                        await LogVisit(context, token, dbContext);
+                        await LogVisit(uaString, remoteIpAddress, token, dbContext);
                     var record = dbContext.StatisticRecords.Where(r => r.Hash == hash && r.Data == data).FirstOrDefault();
                     if (record == null)
                     {
@@ -111,13 +112,13 @@ namespace VueStart.Services
 
         
 
-        private async Task LogVisit(HttpContext context, string token, ApplicationDbContext dbContext)
+        private async Task LogVisit(string uaString, string remoteIpAddress, string token, ApplicationDbContext dbContext)
         {
             var visitor = dbContext.Visitors.FirstOrDefault(v => v.Token == token);
             if (visitor == null)
             {
-                visitor = CreateVisitor(context, token);
-                await SetGeoLocation(context, visitor);
+                visitor = CreateVisitor(uaString, token);
+                await SetGeoLocation(remoteIpAddress, visitor);
                 visitor = dbContext.Visitors.Add(visitor).Entity;
             }
             AddVisit(dbContext, visitor);
@@ -145,12 +146,12 @@ namespace VueStart.Services
             }
         }
 
-        private async Task SetGeoLocation(HttpContext context, Visitor visitor)
+        private async Task SetGeoLocation(string remoteIpAddress, Visitor visitor)
         {
             var ipInfotoken = configuration.GetValue<string>("IpInfoToken");
-            if (context.Connection.RemoteIpAddress == null || string.IsNullOrWhiteSpace(ipInfotoken))
+            if (string.IsNullOrWhiteSpace(remoteIpAddress) || string.IsNullOrWhiteSpace(ipInfotoken))
                 return;
-            var geoLocationTask = WebRequest.Create($"https://ipinfo.io/{context.Connection.RemoteIpAddress?.ToString()}?token={ipInfotoken}").GetResponseAsync();
+            var geoLocationTask = WebRequest.Create($"https://ipinfo.io/{remoteIpAddress}?token={ipInfotoken}").GetResponseAsync();
             using (var response = await geoLocationTask)
             {
                 using (var reader = new StreamReader(response.GetResponseStream()))
@@ -164,9 +165,8 @@ namespace VueStart.Services
             }
         }
 
-        private static Visitor CreateVisitor(HttpContext context, string token)
+        private static Visitor CreateVisitor(string uaString, string token)
         {
-            var uaString = context.Request.Headers["User-Agent"].FirstOrDefault();
             var uaParser = Parser.GetDefault();
             ClientInfo c = uaParser.Parse(uaString);
             var visitor = new Visitor
