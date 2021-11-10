@@ -16,7 +16,7 @@ using VueStart.Services;
 namespace VueStart.Controllers
 {
     [ApiController]
-    [Route("generate")]
+    [Route("")]
     public class GenerationController : ControllerBase
     {
         private readonly IMemoryCache memoryCache;
@@ -29,15 +29,16 @@ namespace VueStart.Controllers
         }
 
         [HttpPost]
-        [Route("editor")]
-        public IActionResult GenerateEditor([FromBody] JsonElement json)
+        [Route("generate/editor/{layout}")]
+        public IActionResult GenerateEditor([FromBody] JsonElement json, string layout)
         {
+            Console.WriteLine(layout);
             statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Generate, ArtifactType.Editor);
             return Ok(new { Id = Generate(json, "Data Editor", "editor.sbn") });
         }
         
         [HttpPost]
-        [Route("view")]
+        [Route("generate/view")]
         public IActionResult GenerateView([FromBody] JsonElement json)
         {
             statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Generate, ArtifactType.View);
@@ -45,7 +46,7 @@ namespace VueStart.Controllers
         }
 
         [HttpPost]
-        [Route("form")]
+        [Route("generate/form")]
         public IActionResult GenerateForm([FromBody] JsonElement json)
         {
             statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Generate, ArtifactType.Form);
@@ -53,7 +54,7 @@ namespace VueStart.Controllers
         }
 
         [HttpPost]
-        [Route("editor/download")]
+        [Route("download/editor")]
         public IActionResult DownloadEditor([FromBody] JsonElement json)
         {
             statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Download, ArtifactType.Editor);
@@ -62,7 +63,7 @@ namespace VueStart.Controllers
         }
 
         [HttpPost]
-        [Route("view/download")]
+        [Route("download/view")]
         public IActionResult DownloadView([FromBody] JsonElement json)
         {
             statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Download, ArtifactType.View);
@@ -71,7 +72,7 @@ namespace VueStart.Controllers
         }
 
         [HttpPost]
-        [Route("form/download")]
+        [Route("download/form")]
         public IActionResult DownloadForm([FromBody] JsonElement json)
         {
             statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Download, ArtifactType.Form);

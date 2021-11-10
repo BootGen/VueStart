@@ -153,7 +153,7 @@ export default defineComponent({
     const showNav = ref(false);
     const appUrl = ref("");
     async function generate() {
-      const resp = await axios.post(`generate/${generateType.value}`, JSON.parse(json.value), config);
+      const resp = await axios.post(`generate/${generateType.value}/card`, JSON.parse(json.value), config);
       saveToLocalStorage(json.value);
       appUrl.value = `files/${resp.data.id}/index.html`;
     }
@@ -162,7 +162,7 @@ export default defineComponent({
       generate()
     }
     async function download() {
-      const response = await axios.post(`generate/${generateType.value}/download`, JSON.parse(json.value), {responseType: 'blob', ...config});
+      const response = await axios.post(`download/${generateType.value}`, JSON.parse(json.value), {responseType: 'blob', ...config});
       const fileURL = window.URL.createObjectURL(new Blob([response.data]));
       const fileLink = document.createElement('a');
       fileLink.href = fileURL;
