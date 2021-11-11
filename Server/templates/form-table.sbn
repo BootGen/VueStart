@@ -1,0 +1,197 @@
+const ref = Vue.ref;
+const reactive = Vue.reactive;
+const watchEffect = Vue.watchEffect;
+{{~ for class in classes
+  if class.is_root
+    root = class
+    break
+  end 
+end ~}}
+const  app = Vue.createApp({
+  template: `
+  {{~ for property in root.properties
+  if property.is_collection && property.class
+  ~}}
+    <{{ kebab_case property.class.name }}-list v-model="{{ camel_case root.name }}.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
+{{~ end
+  end ~}}
+  `,
+  name: 'App',
+  setup: function () {
+    const {{ camel_case root.name }} = ref(null);
+    function toDataModel(data) {
+        const v = { ... data };
+        for (const property in v) {
+          if(Array.isArray(v[property])){
+            v[property] = toDataArray(v[property]);
+          }
+        }
+        return v
+    }
+    function toDataArray(data) {
+      return data.map((val, idx) => {
+        const v = { ... val };
+        for (const property in v) {
+          if(Array.isArray(v[property])){
+            v[property] = toDataArray(v[property]);
+          }
+        }
+        return {
+          id: idx,
+          value: v
+        }
+      })
+    }
+    function toSimpleObject(data) {
+      let obj =  { ...data };
+      for (const property in obj) {
+        if(Array.isArray(obj[property])){
+          obj[property] = toSimpleArray(obj[property]);
+        }
+      }
+      return obj;
+    }
+    function toSimpleArray(data) {
+      let arr =  data.map(val => {
+        return { ...val.value }
+      });
+      arr.forEach(item => {
+        for (const property in item) {
+          if(Array.isArray(item[property])){
+            item[property] = toSimpleArray(item[property]);
+          }
+        }
+      });
+      return arr;
+    }
+    function saveToLocalStorage(newValue) {
+        let minimized = JSON.stringify(newValue);
+        let oldValue = localStorage.getItem('json');
+        if (minimized != oldValue) {
+          localStorage.setItem('json', minimized);
+        }
+    }
+    function loadFromLocalStorage() {
+      let json = localStorage.getItem('json');
+      if (json) {
+        const val = JSON.parse(json);
+        if (val) {
+          {{ camel_case root.name }}.value = toDataModel(val);
+        }
+      }
+    }
+    loadFromLocalStorage();
+
+    watchEffect(() => {
+      saveToLocalStorage(toSimpleObject({{ camel_case root.name }}.value));
+    });
+
+    window.addEventListener('storage', loadFromLocalStorage);
+    return { {{ camel_case root.name }}  }
+  },
+});
+
+{{~ for class in classes ~}}
+
+app.component('{{ kebab_case class.name }}-edit', {
+  template: `
+  <li class="list-group-item">
+    <button type="button" class="btn btn-sm rounded-pill" @click="$emit('delete')">
+      <span class="bi bi-trash" aria-hidden="true"></span> Delete
+    </button>
+  </li>
+  {{~ for property in class.common_properties
+      if !property.is_key ~}}
+  <li class="list-group-item">
+    <div class="col-12 d-flex justify-content-start form-floating">
+      <input 
+      {{~ if (get_type property) == "Date" ~}}
+      type="datetime-local"
+      {{~ else if (get_type property) == "number" ~}}
+      type="number"
+      {{~ else ~}}
+      type="text"
+      {{~ end ~}} 
+      class="form-control"
+      v-model="modelValue.{{ camel_case property.name }}"
+      placeholder="{{ property.name }}">
+      <label for="floatingInput">{{ property.name }}</label>
+    </div>
+  </li>
+  {{~ end
+      end ~}}
+  `,
+  name: '{{ class.name }}Edit',
+  props: {
+    modelValue: Object,
+  },
+  emits: ['update:modelValue', 'delete'],
+});
+
+app.component('{{ kebab_case class.name }}-list', {
+  template: `
+  <div class="mt-3">
+    <div class="col-12 d-flex justify-content-between mb-1">
+      <h5>{{ class.name.plural }}:</h5>
+      <button type="button" class="btn btn-sm rounded-pill mb-1" @click="addNewItem()">
+        <span class="bi bi-plus" aria-hidden="true"></span> Add
+      </button>
+    </div>
+    <div class="col-12 mb-2" v-for="item in modelValue" :key="item.id">
+      <div class="card shadow-sm">
+        <{{ kebab_case class.name }}-edit v-model="item.value" @delete="deleteItem(item)"></{{ kebab_case class.name }}-edit>
+      </div>
+      {{~ for property in class.properties
+          if property.is_collection && property.class
+          ~}}
+      <div class="card ms-5 mt-2">
+      <{{ kebab_case property.class.name }}-list v-model="item.value.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
+      </div>
+      {{~ end
+          end ~}}
+    </div>
+    <div class="col-12 mb-2" v-if="newItem != null">
+      <div class="card">
+        <{{ kebab_case class.name }}-edit v-model="newItem" @canceled="cancelAdd" @saved="saveNewItem()"></{{ kebab_case class.name }}-edit>
+      </div>
+    </div>
+  </div>`,
+  name: '{{ class.name }}List',
+  props: {
+    modelValue: Object
+  },
+  emits: ['update:modelValue'],
+  setup(props, context) {
+    const newItem = ref(null);
+
+    function deleteItem(item) {
+      if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
+        context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id));
+      }
+    }
+    function addNewItem() {
+      newItem.value = {
+        {{~ for property in class.properties
+            if !property.is_key && !property.is_parent_reference ~}}
+        {{ camel_case property.name }}: {{ if property.is_collection }}[]{{else}}''{{end}}{{if !for.last}},{{end}}
+        {{~ end
+            end ~}}
+      };
+    }
+    function saveNewItem() {
+        const items = [...props.modelValue];
+        const lastId = items.length == 0 ? 0 : items[items.length-1].id;
+        items.push({id: lastId + 1, value: newItem.value});
+        context.emit('update:modelValue', items);
+        newItem.value = null;
+    }
+    function cancelAdd() {
+        newItem.value = null;
+    }
+
+    return { newItem, deleteItem, addNewItem, saveNewItem, cancelAdd };
+  }
+});
+{{~ end ~}}
+
+app.mount('#app');

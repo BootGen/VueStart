@@ -41,6 +41,7 @@
         <div class="d-flex mx-5">
           <button type="button" class="btn rounded-pill btn-lg mx-1" :class="{ 'fill-btn': layoutMode == layoutModes.Card, 'outline-btn': layoutMode != layoutModes.Card }" @click="changeLayoutMode(layoutModes.Card)"><span class="bi bi-view-stacked" aria-hidden="true"></span></button>
           <button type="button" class="btn rounded-pill btn-lg mx-1" :class="{ 'fill-btn': layoutMode == layoutModes.Accordion, 'outline-btn': layoutMode != layoutModes.Accordion }" @click="changeLayoutMode(layoutModes.Accordion)"><span class="bi bi-text-indent-left" aria-hidden="true"></span></button>
+          <button type="button" class="btn rounded-pill btn-lg mx-1" :class="{ 'fill-btn': layoutMode == layoutModes.Table, 'outline-btn': layoutMode != layoutModes.Table }" @click="changeLayoutMode(layoutModes.Table)"><span class="bi bi-table" aria-hidden="true"></span></button>
         </div>
         <button type="button" id="download-btn" class="btn fill-btn rounded-pill btn-lg" @click="download"><span>Download Application </span><span class="bi bi-download" aria-hidden="true"></span></button>
       </div>
@@ -74,7 +75,8 @@ export default defineComponent({
     const generateType = ref(generateTypes.Editor);
     const layoutModes = {
       Card: 'card',
-      Accordion: 'accordion'
+      Accordion: 'accordion',
+      Table: 'table'
     }
     const layoutMode = ref(layoutModes.Card);
 
