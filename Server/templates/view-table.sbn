@@ -1,0 +1,112 @@
+const ref = Vue.ref;
+const reactive = Vue.reactive;
+const watchEffect = Vue.watchEffect;
+{{~ for class in classes
+  if class.is_root
+    root = class
+    break
+  end 
+end ~}}
+const  app = Vue.createApp({
+  template: `
+    {{~ for property in root.properties
+      if property.is_collection && property.class
+      ~}}
+    <{{ kebab_case property.class.name }}-list v-model="{{ camel_case root.name }}.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
+    {{~ end
+      end ~}}
+  `,
+  name: 'App',
+  setup: function () {
+    const {{ camel_case root.name }} = ref([]);
+    function toDataModel(data) {
+        const v = { ... data };
+        for (const property in v) {
+          if(Array.isArray(v[property])){
+            v[property] = toDataArray(v[property]);
+          }
+        }
+        return v
+    }
+    function toDataArray(data) {
+      return data.map((val, idx) => {
+        const v = { ... val };
+        for (const property in v) {
+          if(Array.isArray(v[property])){
+            v[property] = toDataArray(v[property]);
+          }
+        }
+        return {
+          id: idx,
+          value: v
+        }
+      })
+    }
+    function loadFromLocalStorage() {
+      let json = localStorage.getItem('json');
+      if (json) {
+        const val = JSON.parse(json);
+        if (val) {
+          {{ camel_case root.name }}.value = toDataModel(val);
+        }
+      }
+    }
+    loadFromLocalStorage();
+
+    window.addEventListener('storage', loadFromLocalStorage);
+    return { {{ camel_case root.name }}  }
+  },
+});
+
+{{~ for class in classes ~}}
+app.component('{{ kebab_case class.name }}-view', {
+  template: `
+  {{~ for property in class.common_properties
+  if !property.is_key ~}}
+  <li class="list-group-item">
+    <div class="row">
+      <div class="col-4 d-flex justify-content-start text-break text-start">
+        {{ property.name }}:
+      </div>
+      <div class="col-8 d-flex justify-content-start text-break">
+        {{'{{'}} modelValue.{{ camel_case property.name }} {{'}}'}}
+      </div>
+    </div>
+  </li>
+  {{~ end
+      end ~}}
+  `,
+  name: '{{ class.name }}View',
+  props: {
+    modelValue: Object,
+  }
+});
+
+app.component('{{ kebab_case class.name }}-list', {
+  template: `
+  <div class="mt-3">
+    <div class="col-12 d-flex justify-content-between mb-1">
+      <h5>{{ class.name.plural }}:</h5>
+    </div>
+    <div class="col-12 mb-2" v-for="item in modelValue" :key="item.id">
+      <div class="card shadow-sm">
+        <{{ kebab_case class.name }}-view v-model="item.value"></{{ kebab_case class.name }}-view>
+      </div>
+        {{~ for property in class.properties
+            if property.is_collection && property.class
+            ~}}
+        <div class="card ms-5 mt-2">
+        <{{ kebab_case property.class.name }}-list v-model="item.value.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
+        </div>
+        {{~ end
+            end ~}}
+    </div>
+  </div>`,
+  name: '{{ class.name }}List',
+  props: {
+    modelValue: Object
+  }
+});
+{{~ end ~}}
+
+app.mount('#app');
