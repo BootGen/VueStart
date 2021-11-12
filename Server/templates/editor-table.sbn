@@ -18,7 +18,7 @@ const  app = Vue.createApp({
   {{~ for class in classes ~}}
   {{~ for property in class.properties
     if property.is_collection && property.class ~}}
-    <{{ kebab_case property.class.name }}-list v-model="items.value" @show="show" v-if="tableName == '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}-list>
+    <{{ kebab_case property.class.name }}-list v-model="items[tableName]" @show="show" v-if="tableName == '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}-list>
     {{~ end
   end ~}}
   {{~ end ~}}
@@ -27,11 +27,11 @@ const  app = Vue.createApp({
   setup: function () {
     const {{ camel_case root.name }} = ref(null);
     let tableName = ref('');
-    let items = reactive([]);
+    let items = ref(null);
 
-    function show(name, item) {
+    function show(name, i) {
       tableName.value = name;
-      items.value = item;
+      items.value = i;
     }
     
     function toDataModel(data) {
@@ -119,7 +119,7 @@ app.component('{{ kebab_case class.name }}-view', {
     {{~ for property in class.properties
       if property.is_collection && property.class ~}}
     <td class="align-middle">
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ camel_case property.name }}', modelValue.{{ camel_case property.name }})">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ camel_case property.name }}', modelValue)">
         <span class="bi bi-eye" aria-hidden="true"></span>
       </button>
     </td>
