@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using UAParser;
@@ -25,10 +28,12 @@ namespace VueStart.Services
     public class StatisticsService
     {
         private readonly IConfiguration configuration;
+        private readonly IMemoryCache memoryCache;
 
-        public StatisticsService(IConfiguration configuration)
+        public StatisticsService(IConfiguration configuration, IMemoryCache memoryCache)
         {
             this.configuration = configuration;
+            this.memoryCache = memoryCache;
         }
 
         private static int StringHash(string text)
@@ -80,38 +85,87 @@ namespace VueStart.Services
             }
         }
 
-        public  async void  onEvent(HttpContext context, string data, ActionType actionType, ArtifactType artifactType)
+        public  async void  OnEvent(HttpContext context, string data, ActionType actionType, ArtifactType artifactType)
         {
             string uaString = context.Request.Headers["User-Agent"].FirstOrDefault();
             string token = context.Request.Headers["idtoken"].FirstOrDefault();
             string remoteIpAddress = context.Connection.RemoteIpAddress.ToString();
-            await Task.Run(async () => {
-                int hash = StringHash(data);
-                using (var dbContext = new ApplicationDbContext(configuration))
-                {
-                    dbContext.Database.EnsureCreated();
-                    if (!string.IsNullOrWhiteSpace(token))
-                        await LogVisit(uaString, remoteIpAddress, token, dbContext);
-                    var record = dbContext.StatisticRecords.Where(r => r.Hash == hash && r.Data == data).FirstOrDefault();
-                    if (record == null)
-                    {
-                        record = new StatisticRecord
-                        {
-                            Data = data,
-                            Hash = hash,
-                            FirstUse = DateTime.Now
-                        };
-                        UpdateRecord(record, actionType, artifactType);
-                        dbContext.StatisticRecords.Add(record);
-                    } else {
-                        UpdateRecord(record, actionType, artifactType);
-                    }
-                    dbContext.SaveChanges();
-                }        
+            await Task.Run(async () =>
+            {
+                var sw = new Stopwatch();
+                sw.Start();
+                await OnEvent(data, actionType, artifactType, uaString, token, remoteIpAddress);
+                sw.Stop();
+                Console.WriteLine($"Logging time: {sw.ElapsedMilliseconds}");
             });
         }
 
-        
+        private async Task OnEvent(string data, ActionType actionType, ArtifactType artifactType, string uaString, string token, string remoteIpAddress)
+        {
+            int hash = StringHash(data);
+            memoryCache.GetOrCreate<List<Visitor>>("visitors", e => {
+                return  new List<Visitor>();
+            });
+            using (var dbContext = new ApplicationDbContext(configuration))
+            {
+                dbContext.Database.EnsureCreated();
+                if (!string.IsNullOrWhiteSpace(token))
+                    await LogVisit(uaString, remoteIpAddress, token, dbContext);
+                var record = dbContext.StatisticRecords.Where(r => r.Hash == hash && r.Data == data).FirstOrDefault();
+                if (record == null)
+                {
+                    record = new StatisticRecord
+                    {
+                        Data = data,
+                        Hash = hash,
+                        FirstUse = DateTime.Now
+                    };
+                    UpdateRecord(record, actionType, artifactType);
+                    dbContext.StatisticRecords.Add(record);
+                }
+                else
+                {
+                    UpdateRecord(record, actionType, artifactType);
+                }
+                var sw2 = new Stopwatch();
+                sw2.Start();
+                dbContext.SaveChanges();
+                sw2.Stop();
+                Console.WriteLine($"Saving time: {sw2.ElapsedMilliseconds}");
+            }
+        }
+        private async Task SaveData(string data, ActionType actionType, ArtifactType artifactType, string uaString, string token, string remoteIpAddress)
+        {
+            int hash = StringHash(data);
+            using (var dbContext = new ApplicationDbContext(configuration))
+            {
+                dbContext.Database.EnsureCreated();
+                if (!string.IsNullOrWhiteSpace(token))
+                    await LogVisit(uaString, remoteIpAddress, token, dbContext);
+                var record = dbContext.StatisticRecords.Where(r => r.Hash == hash && r.Data == data).FirstOrDefault();
+                if (record == null)
+                {
+                    record = new StatisticRecord
+                    {
+                        Data = data,
+                        Hash = hash,
+                        FirstUse = DateTime.Now
+                    };
+                    UpdateRecord(record, actionType, artifactType);
+                    dbContext.StatisticRecords.Add(record);
+                }
+                else
+                {
+                    UpdateRecord(record, actionType, artifactType);
+                }
+                var sw2 = new Stopwatch();
+                sw2.Start();
+                dbContext.SaveChanges();
+                sw2.Stop();
+                Console.WriteLine($"Saving time: {sw2.ElapsedMilliseconds}");
+            }
+        }
+
 
         private async Task LogVisit(string uaString, string remoteIpAddress, string token, ApplicationDbContext dbContext)
         {

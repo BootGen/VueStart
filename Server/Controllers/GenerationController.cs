@@ -12,6 +12,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 using System.IO.Compression;
 using VueStart.Services;
+using System.Diagnostics;
 
 namespace VueStart.Controllers
 {
@@ -50,7 +51,7 @@ namespace VueStart.Controllers
             var artifactType = GetArtifactType(type);
             if (artifactType == ArtifactType.None)
                 return NotFound();
-            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Generate, artifactType);
+            statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Generate, artifactType);
             return Ok(new { Id = Generate(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn") });
         }
 
@@ -66,7 +67,7 @@ namespace VueStart.Controllers
             var artifactType = GetArtifactType(type);
             if (artifactType == ArtifactType.None)
                 return NotFound();
-            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Download, artifactType);
+            statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Download, artifactType);
             var memoryStream = CreateZipStream(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn");
             return File(memoryStream, "application/zip", $"{type}.zip");
         }
@@ -117,9 +118,13 @@ namespace VueStart.Controllers
         }
 
         private string Generate(JsonElement json, string title, string templateFileName) {
+            var sw = new Stopwatch();
+            sw.Start();
             string id = Generate(json, title, templateFileName, out string appjs, out string indexhtml);
             memoryCache.Set($"{id}/app.js", Minify(appjs), TimeSpan.FromMinutes(1));
             memoryCache.Set($"{id}/index.html", Minify(indexhtml), TimeSpan.FromMinutes(1));
+            sw.Stop();
+            Console.WriteLine($"Generation time: {sw.ElapsedMilliseconds}");
             return id;
         }
 
