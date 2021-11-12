@@ -10,15 +10,30 @@ end ~}}
 const  app = Vue.createApp({
   template: `
   {{~ for property in root.properties
-  if property.is_collection && property.class
-  ~}}
-    <{{ kebab_case property.class.name }}-list v-model="{{ camel_case root.name }}.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
-{{~ end
+  if property.is_collection && property.class ~}}
+    {{ property.properties }}
+    <{{ kebab_case property.class.name }}-list v-model="{{ camel_case root.name }}.{{ camel_case property.class.name.plural }}" @show="show" v-if="tableName == ''"></{{ kebab_case property.class.name }}-list>
+  {{~ end
+    end ~}}
+  {{~ for class in classes ~}}
+  {{~ for property in class.properties
+    if property.is_collection && property.class ~}}
+    <{{ kebab_case property.class.name }}-list v-model="items.value" @show="show" v-if="tableName == '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}-list>
+    {{~ end
   end ~}}
+  {{~ end ~}}
   `,
   name: 'App',
   setup: function () {
     const {{ camel_case root.name }} = ref(null);
+    let tableName = ref('');
+    let items = reactive([]);
+
+    function show(name, item) {
+      tableName.value = name;
+      items.value = item;
+    }
+    
     function toDataModel(data) {
         const v = { ... data };
         for (const property in v) {
@@ -87,7 +102,7 @@ const  app = Vue.createApp({
     });
 
     window.addEventListener('storage', loadFromLocalStorage);
-    return { {{ camel_case root.name }}  }
+    return { {{ camel_case root.name }}, items, tableName, show }
   },
 });
 
@@ -101,6 +116,15 @@ app.component('{{ kebab_case class.name }}-view', {
     </td>
     {{~ end
         end ~}}
+    {{~ for property in class.properties
+      if property.is_collection && property.class ~}}
+    <td class="align-middle">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ camel_case property.name }}', modelValue.{{ camel_case property.name }})">
+        <span class="bi bi-eye" aria-hidden="true"></span>
+      </button>
+    </td>
+    {{~ end
+      end ~}}
     <td class="align-middle text-end">
       <button type="button" class="btn btn-sm rounded-pill" @click="$emit('edit')">
         <span class="bi bi-pencil" aria-hidden="true"></span>
@@ -114,7 +138,7 @@ app.component('{{ kebab_case class.name }}-view', {
   props: {
     modelValue: Object,
   },
-  emits: ['edit',  'delete']
+  emits: ['edit',  'delete', 'show']
 });
 
 app.component('{{ kebab_case class.name }}-edit', {
@@ -122,7 +146,7 @@ app.component('{{ kebab_case class.name }}-edit', {
   {{~ for property in class.common_properties
   if !property.is_key ~}}
     <td class="align-middle">
-      <div class="col-12 d-flex justify-content-start form-floating">
+      <div class="col-12 d-flex justify-content-start">
         <input 
         {{~ if (get_type property) == "Date" ~}}
         type="datetime-local"
@@ -133,12 +157,20 @@ app.component('{{ kebab_case class.name }}-edit', {
         {{~ end ~}} 
         class="form-control"
         v-model="editedItem.{{ camel_case property.name }}"
-        placeholder="{{ property.name }}">
-        <label for="floatingInput">{{ property.name }}</label>
+        :placeholder="{{ property.name }}">
       </div>
     </td>
     {{~ end
         end ~}}
+        {{~ for property in class.properties
+    if property.is_collection && property.class ~}}
+    <td class="align-middle">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ camel_case property.name }}', modelValue.{{ camel_case property.name }})">
+        <span class="bi bi-eye" aria-hidden="true"></span>
+      </button>
+    </td>
+    {{~ end
+      end ~}}
     <td class="align-middle text-end">
       <button type="button" class="btn btn-sm rounded-pill" @click="save">
         <span class="bi bi-save" aria-hidden="true"></span>
@@ -155,7 +187,6 @@ app.component('{{ kebab_case class.name }}-edit', {
   emits: ['update:modelValue', 'canceled', 'saved'],
   setup(props, context) {
     const editedItem = reactive({ ...props.modelValue });
-
     function save() {
       context.emit('update:modelValue', editedItem);
       context.emit('saved');
@@ -183,13 +214,21 @@ app.component('{{ kebab_case class.name }}-list', {
         </th>
         {{~ end
             end ~}}
+        {{~ for property in class.properties
+          if property.is_collection && property.class
+          ~}}
+          <th scope="col">
+          {{ property.name }}
+          </th>
+        {{~ end
+          end ~}}
         <th scope="col"></th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="item in modelValue" :key="item.id">
-        <{{ kebab_case class.name }}-edit v-model="item.value" @canceled="finishEditing()" @saved="finishEditing()" v-if="editedItemId === item.id"></{{ kebab_case class.name }}-edit>
-        <{{ kebab_case class.name }}-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></{{ kebab_case class.name }}-view>
+        <{{ kebab_case class.name }}-edit v-model="item.value" @canceled="finishEditing()" @saved="finishEditing()" @show="show" v-if="editedItemId === item.id"></{{ kebab_case class.name }}-edit>
+        <{{ kebab_case class.name }}-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" @show="show" v-else></{{ kebab_case class.name }}-view>
       </tr>
       <tr v-if="newItem != null">
         <{{ kebab_case class.name }}-edit v-model="newItem" @canceled="cancelAdd" @saved="saveNewItem()"></{{ kebab_case class.name }}-edit>
@@ -205,10 +244,14 @@ app.component('{{ kebab_case class.name }}-list', {
   props: {
     modelValue: Object
   },
-  emits: ['update:modelValue'],
+  emits: ['update:modelValue', 'show'],
   setup(props, context) {
     const editedItemId = ref(-1);
     const newItem = ref(null);
+
+    function show(tableName, item) {
+      context.emit('show', tableName, item);
+    }
 
     function editItem(item) {
       editedItemId.value = item.id;
@@ -237,11 +280,18 @@ app.component('{{ kebab_case class.name }}-list', {
         context.emit('update:modelValue', items);
         newItem.value = null;
     }
+    {{~ for property in class.properties
+      if property.is_collection && property.class ~}}
+      function show{{ property.name }}(item) {
+        context.emit('update:modelValue', item.value.{{ camel_case property.name }});
+      }
+    {{~ end
+      end ~}}
     function cancelAdd() {
         newItem.value = null;
     }
 
-    return { editedItemId, newItem, editItem, deleteItem, finishEditing, addNewItem, saveNewItem, cancelAdd };
+    return { editedItemId, newItem, editItem, deleteItem, finishEditing, addNewItem, saveNewItem, cancelAdd, show};
   }
 });
 {{~ end ~}}
