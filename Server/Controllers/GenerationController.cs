@@ -118,13 +118,9 @@ namespace VueStart.Controllers
         }
 
         private string Generate(JsonElement json, string title, string templateFileName) {
-            var sw = new Stopwatch();
-            sw.Start();
             string id = Generate(json, title, templateFileName, out string appjs, out string indexhtml);
             memoryCache.Set($"{id}/app.js", Minify(appjs), TimeSpan.FromMinutes(1));
             memoryCache.Set($"{id}/index.html", Minify(indexhtml), TimeSpan.FromMinutes(1));
-            sw.Stop();
-            Console.WriteLine($"Generation time: {sw.ElapsedMilliseconds}");
             return id;
         }
 
