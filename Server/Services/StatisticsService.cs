@@ -28,6 +28,24 @@ namespace VueStart.Services
 
     public class StatisticsService
     {
+        private struct CacheKey
+        {
+            public int Day { get; set; }
+            public int Period { get; set; }
+        }
+
+        private struct VisitorData
+        {
+            public Visitor Visitor { get; set; }
+            public string Ip { get; set; }
+        }
+
+        private struct PeriodData
+        {
+            public Dictionary<string, VisitorData> Visitors;
+            public List<StatisticRecord> Records;
+        }
+
         private readonly IConfiguration configuration;
         private readonly IMemoryCache memoryCache;
 
@@ -89,28 +107,30 @@ namespace VueStart.Services
         public void OnEvent(HttpContext context, string data, ActionType actionType, ArtifactType artifactType)
         {   
             var now = DateTime.Now;
-            int day = (now - new DateTime(2021, 1, 1)).Days;
-            int period = (int)now.TimeOfDay.TotalMinutes / 15;
-            int prevPeriod = memoryCache.GetOrCreate("period", e => period);
-            var visitors = memoryCache.GetOrCreate("visitors", e => new Dictionary<string, Tuple<Visitor, string>>());
-            var records = memoryCache.GetOrCreate("records", e => new List<StatisticRecord>());
-            if (period != prevPeriod) {
-                memoryCache.Set("visitors", new Dictionary<string, Tuple<Visitor, string>>());
-                memoryCache.Set("records", new List<StatisticRecord>());
-                memoryCache.Set("period", period);
-            }
-            SaveVisitToCahce(visitors, context, day, period);
-            SaveStatisticRecordToCache(records, data, actionType, artifactType);
-            if (period != prevPeriod) {
-                Task.Run(async () =>
-                {
+            var periodLengthInMinutes = 1;
+            var key = new CacheKey
+            {
+                Day = (now - new DateTime(2021, 1, 1)).Days,
+                Period = (int)now.TimeOfDay.TotalMinutes / periodLengthInMinutes
+            };
+            var periodData = memoryCache.GetOrCreate(key, entry => {
+                entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(periodLengthInMinutes + 0.5));
+                entry.RegisterPostEvictionCallback( (object key, object value, EvictionReason reason, object state) => {
+                    Task.Run(async () => {
                         var sw = new Stopwatch();
                         sw.Start();
-                        await SaveData(visitors, records);
+                        await SaveData((PeriodData)value);
                         sw.Stop();
                         Console.WriteLine($"Saving time: {sw.ElapsedMilliseconds}");
+                    });
                 });
-            }
+                return new PeriodData {
+                    Visitors = new Dictionary<string, VisitorData>(),
+                    Records = new List<StatisticRecord>()
+                };
+            });
+            SaveVisitToCahce(periodData.Visitors, context, key);
+            SaveStatisticRecordToCache(periodData.Records, data, actionType, artifactType);
         }
 
 
@@ -130,37 +150,40 @@ namespace VueStart.Services
             UpdateRecord(record, actionType, artifactType);
         }
 
-        private void SaveVisitToCahce(Dictionary<string, Tuple<Visitor, string>> visitors, HttpContext context, int day, int period)
+        private void SaveVisitToCahce(Dictionary<string, VisitorData> visitors, HttpContext context, CacheKey key)
         {
             string uaString = context.Request.Headers["User-Agent"].FirstOrDefault();
             string token = context.Request.Headers["idtoken"].FirstOrDefault();
             string remoteIpAddress = context.Connection.RemoteIpAddress.ToString();
             if (visitors.TryGetValue(token, out var data))
             {
-                data.Item1.Visits.First().Count += 1;
+                data.Visitor.Visits.First().Count += 1;
             }
             else
             {
                 var visitor = CreateVisitor(uaString, token);
-                visitors.Add(token, Tuple.Create(visitor, remoteIpAddress));
-                visitor.Visits = new List<Visit>{
+                visitors.Add(token, new VisitorData {
+                    Visitor = visitor,
+                    Ip = remoteIpAddress
+                });
+                visitor.Visits = new List<Visit> {
                     new Visit
                     {
-                        Day = day,
-                        Period = period,
+                        Day = key.Day,
+                        Period = key.Period,
                         Count = 1
                     }
                 };
             }
         }
 
-        private async Task SaveData(Dictionary<string, Tuple<Visitor, string>> visitors, List<StatisticRecord> records)
+        private async Task SaveData(PeriodData data)
         {
             using (var dbContext = new ApplicationDbContext(configuration))
             {
                 dbContext.Database.EnsureCreated();
-                await SaveVisitors(visitors, dbContext);
-                SaveRecords(records, dbContext);
+                await SaveVisitors(data.Visitors, dbContext);
+                SaveRecords(data.Records, dbContext);
                 dbContext.SaveChanges();
             }
         }
@@ -187,12 +210,12 @@ namespace VueStart.Services
             }
         }
 
-        private async Task SaveVisitors(Dictionary<string, Tuple<Visitor, string>> visitors, ApplicationDbContext dbContext)
+        private async Task SaveVisitors(Dictionary<string, VisitorData> visitors, ApplicationDbContext dbContext)
         {
-            var toLocate = new List<Tuple<Visitor, string>>();
+            var toLocate = new List<VisitorData>();
             foreach (var item in visitors)
             {
-                var visitor = item.Value.Item1;
+                var visitor = item.Value.Visitor;
                 var earlierVisitor = dbContext.Visitors.FirstOrDefault(v => v.Token == visitor.Token);
                 if (earlierVisitor != null)
                 {
@@ -201,8 +224,7 @@ namespace VueStart.Services
                 }
                 else
                 {
-                    visitor = dbContext.Visitors.Add(visitor).Entity;
-                    toLocate.Add(Tuple.Create(visitor, item.Value.Item2));
+                    toLocate.Add(item.Value);
                 }
             }
             if (toLocate.Any()) {
@@ -211,10 +233,13 @@ namespace VueStart.Services
                 await SetGeoLocation(toLocate);
                 sw.Stop();
                 Console.WriteLine($"Geo location time: {sw.ElapsedMilliseconds}");
+                foreach (var item in toLocate) {
+                    dbContext.Visitors.Add(item.Visitor);
+                }
             }
         }
 
-        private async Task SetGeoLocation(List<Tuple<Visitor, string>> data)
+        private async Task SetGeoLocation(List<VisitorData> data)
         {
             var ipInfotoken = configuration.GetValue<string>("IpInfoToken");
             if (string.IsNullOrWhiteSpace(ipInfotoken))
@@ -222,7 +247,7 @@ namespace VueStart.Services
             WebRequest webRequest = WebRequest.Create($"https://ipinfo.io/batch?token={ipInfotoken}");
             webRequest.Method = "POST";
             webRequest.ContentType = "application/json";
-            string ipListString = data.Select(d => $"\"{d.Item2}\"").Aggregate((a, b) => $"{a}, {b}");
+            string ipListString = data.Select(d => $"\"{d.Ip}\"").Aggregate((a, b) => $"{a}, {b}");
             string stringData = $"[{ipListString}]";
             var body = Encoding.Default.GetBytes(stringData);
             webRequest.GetRequestStream().Write(body, 0, body.Length);
@@ -234,9 +259,9 @@ namespace VueStart.Services
                     var jsonString = reader.ReadToEnd();
                     var jObject = JObject.Parse(jsonString);
                     foreach (var item in data) {
-                        var obj = jObject.GetValue(item.Item2) as JObject;
+                        var obj = jObject.GetValue(item.Ip) as JObject;
                         if (obj != null)
-                            SetLocation(item.Item1, obj);
+                            SetLocation(item.Visitor, obj);
                     }
                 }
             }
