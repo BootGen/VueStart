@@ -242,6 +242,7 @@ namespace VueStart.Services
         private async Task SetGeoLocation(List<VisitorData> data)
         {
             var ipInfotoken = configuration.GetValue<string>("IpInfoToken");
+            Console.WriteLine(ipInfotoken);
             if (string.IsNullOrWhiteSpace(ipInfotoken))
                 return;
             WebRequest webRequest = WebRequest.Create($"https://ipinfo.io/batch?token={ipInfotoken}");
@@ -257,6 +258,7 @@ namespace VueStart.Services
                 using (var reader = new StreamReader(response.GetResponseStream()))
                 {
                     var jsonString = reader.ReadToEnd();
+                    Console.WriteLine(jsonString);
                     var jObject = JObject.Parse(jsonString);
                     foreach (var item in data) {
                         var obj = jObject.GetValue(item.Ip) as JObject;
