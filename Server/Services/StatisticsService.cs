@@ -97,6 +97,7 @@ namespace VueStart.Services
             if (period != prevPeriod) {
                 memoryCache.Set("visitors", new Dictionary<string, Tuple<Visitor, string>>());
                 memoryCache.Set("records", new List<StatisticRecord>());
+                memoryCache.Set("period", period);
             }
             SaveVisitToCahce(visitors, context, day, period);
             SaveStatisticRecordToCache(records, data, actionType, artifactType);
