@@ -11,6 +11,7 @@ namespace VueStart
         public int Count { get; set; }
         public long Database { get; set; }
         public long Generate { get; set; }
+        public long Download { get; internal set; }
         public long GeoLocation { get; set; }
     }
 }

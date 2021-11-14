@@ -50,6 +50,9 @@ namespace VueStart.Services
         private readonly IConfiguration configuration;
         private readonly IMemoryCache memoryCache;
 
+        private Stopwatch GenerateWatch;
+        private PeriodData Data;
+
         public StatisticsService(IConfiguration configuration, IMemoryCache memoryCache)
         {
             this.configuration = configuration;
@@ -105,6 +108,17 @@ namespace VueStart.Services
             }
         }
 
+        public void OnGenerateEnd()
+        {
+            GenerateWatch.Stop();
+            Data.ProfilerRecord.Generate += GenerateWatch.ElapsedMilliseconds;
+        }
+        public void OnDownloadEnd()
+        {
+            GenerateWatch.Stop();
+            Data.ProfilerRecord.Download += GenerateWatch.ElapsedMilliseconds;
+        }
+
         public void OnEvent(HttpContext context, string jsonData, ActionType actionType, ArtifactType artifactType)
         {   
             var now = DateTime.Now;
@@ -114,7 +128,7 @@ namespace VueStart.Services
                 Day = (now - new DateTime(2021, 1, 1)).Days,
                 Period = (int)now.TimeOfDay.TotalMinutes / periodLengthInMinutes
             };
-            var periodData = memoryCache.GetOrCreate(key, entry => {
+            Data = memoryCache.GetOrCreate(key, entry => {
                 entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(periodLengthInMinutes + 0.5));
                 entry.RegisterPostEvictionCallback( (object key, object value, EvictionReason reason, object state) => {
                     Task.Run(async () => {
@@ -132,9 +146,11 @@ namespace VueStart.Services
                     }
                 };
             });
-            periodData.ProfilerRecord.Count += 1;
-            SaveVisitToCahce(periodData.Visitors, context, key);
-            SaveStatisticRecordToCache(periodData.Records, jsonData, actionType, artifactType);
+            Data.ProfilerRecord.Count += 1;
+            SaveVisitToCahce(Data.Visitors, context, key);
+            SaveStatisticRecordToCache(Data.Records, jsonData, actionType, artifactType);
+            GenerateWatch = new Stopwatch();
+            GenerateWatch.Start();
         }
 
 

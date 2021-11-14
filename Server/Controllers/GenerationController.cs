@@ -52,7 +52,9 @@ namespace VueStart.Controllers
             if (artifactType == ArtifactType.None)
                 return NotFound();
             statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Generate, artifactType);
-            return Ok(new { Id = Generate(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn") });
+            string artifactId = Generate(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn");
+            statisticsService.OnGenerateEnd();
+            return base.Ok(new { Id = artifactId });
         }
 
         private static string ToUpperFirst(string type)
@@ -69,6 +71,7 @@ namespace VueStart.Controllers
                 return NotFound();
             statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Download, artifactType);
             var memoryStream = CreateZipStream(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn");
+            statisticsService.OnDownloadEnd();
             return File(memoryStream, "application/zip", $"{type}.zip");
         }
 
