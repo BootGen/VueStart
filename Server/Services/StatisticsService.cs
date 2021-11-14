@@ -44,6 +44,7 @@ namespace VueStart.Services
         {
             public Dictionary<string, VisitorData> Visitors;
             public List<StatisticRecord> Records;
+            public ProfilerRecord ProfilerRecord;
         }
 
         private readonly IConfiguration configuration;
@@ -104,10 +105,10 @@ namespace VueStart.Services
             }
         }
 
-        public void OnEvent(HttpContext context, string data, ActionType actionType, ArtifactType artifactType)
+        public void OnEvent(HttpContext context, string jsonData, ActionType actionType, ArtifactType artifactType)
         {   
             var now = DateTime.Now;
-            var periodLengthInMinutes = 1;
+            var periodLengthInMinutes = 15;
             var key = new CacheKey
             {
                 Day = (now - new DateTime(2021, 1, 1)).Days,
@@ -117,33 +118,36 @@ namespace VueStart.Services
                 entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(periodLengthInMinutes + 0.5));
                 entry.RegisterPostEvictionCallback( (object key, object value, EvictionReason reason, object state) => {
                     Task.Run(async () => {
-                        var sw = new Stopwatch();
-                        sw.Start();
                         await SaveData((PeriodData)value);
-                        sw.Stop();
-                        Console.WriteLine($"Saving time: {sw.ElapsedMilliseconds}");
                     });
                 });
-                return new PeriodData {
+                return new PeriodData
+                {
                     Visitors = new Dictionary<string, VisitorData>(),
-                    Records = new List<StatisticRecord>()
+                    Records = new List<StatisticRecord>(),
+                    ProfilerRecord = new ProfilerRecord
+                    {
+                        Day = key.Day,
+                        Period = key.Period
+                    }
                 };
             });
+            periodData.ProfilerRecord.Count += 1;
             SaveVisitToCahce(periodData.Visitors, context, key);
-            SaveStatisticRecordToCache(periodData.Records, data, actionType, artifactType);
+            SaveStatisticRecordToCache(periodData.Records, jsonData, actionType, artifactType);
         }
 
 
-        private void SaveStatisticRecordToCache(List<StatisticRecord> records, string data, ActionType actionType, ArtifactType artifactType)
+        private void SaveStatisticRecordToCache(List<StatisticRecord> records, string jsonData, ActionType actionType, ArtifactType artifactType)
         {
-            int hash = StringHash(data);
+            int hash = StringHash(jsonData);
             var record = records.FirstOrDefault(r => r.Hash == hash);
             if (record == null)
             {
                 record = new StatisticRecord
                 {
                     Hash = hash,
-                    Data = data,
+                    Data = jsonData,
                     FirstUse = DateTime.Now
                 };
                 records.Add(record);
@@ -181,12 +185,21 @@ namespace VueStart.Services
 
         private async Task SaveData(PeriodData data)
         {
+            var sw = new Stopwatch();
+            sw.Start();
             using (var dbContext = new ApplicationDbContext(configuration))
             {
                 dbContext.Database.EnsureCreated();
-                await SaveVisitors(data.Visitors, dbContext);
+                await SaveVisitors(data, dbContext);
                 SaveRecords(data.Records, dbContext);
                 dbContext.SaveChanges();
+                sw.Stop();
+                data.ProfilerRecord.Database = sw.ElapsedMilliseconds - data.ProfilerRecord.GeoLocation;
+                sw.Restart();
+                dbContext.ProfilerRecords.Add(data.ProfilerRecord);
+                dbContext.SaveChanges();
+                sw.Stop();
+                Console.WriteLine($"\n\nSaving profiler record: {sw.ElapsedMilliseconds}");
             }
         }
 
@@ -212,10 +225,10 @@ namespace VueStart.Services
             }
         }
 
-        private async Task SaveVisitors(Dictionary<string, VisitorData> visitors, ApplicationDbContext dbContext)
+        private async Task SaveVisitors(PeriodData data, ApplicationDbContext dbContext)
         {
             var toLocate = new List<VisitorData>();
-            foreach (var item in visitors)
+            foreach (var item in data.Visitors)
             {
                 var visitor = item.Value.Visitor;
                 var earlierVisitor = dbContext.Visitors.FirstOrDefault(v => v.Token == visitor.Token);
@@ -234,7 +247,7 @@ namespace VueStart.Services
                 sw.Start();
                 await SetGeoLocation(toLocate);
                 sw.Stop();
-                Console.WriteLine($"Geo location time: {sw.ElapsedMilliseconds}");
+                data.ProfilerRecord.GeoLocation = sw.ElapsedMilliseconds;
                 foreach (var item in toLocate) {
                     dbContext.Visitors.Add(item.Visitor);
                 }
@@ -244,7 +257,6 @@ namespace VueStart.Services
         private async Task SetGeoLocation(List<VisitorData> data)
         {
             var ipInfotoken = configuration.GetValue<string>("IpInfoToken");
-            Console.WriteLine(ipInfotoken);
             if (string.IsNullOrWhiteSpace(ipInfotoken))
                 return;
             WebRequest webRequest = WebRequest.Create($"https://ipinfo.io/batch?token={ipInfotoken}");
@@ -260,12 +272,14 @@ namespace VueStart.Services
                 using (var reader = new StreamReader(response.GetResponseStream()))
                 {
                     var jsonString = reader.ReadToEnd();
-                    Console.WriteLine(jsonString);
                     var jObject = JObject.Parse(jsonString);
                     foreach (var item in data) {
                         var obj = jObject.GetValue(item.Ip) as JObject;
-                        if (obj != null)
+                        if (obj != null) {
                             SetLocation(item.Visitor, obj);
+                            Console.WriteLine("\n\nGeo location:");
+                            Console.WriteLine(JObject.FromObject(item.Visitor).ToString());
+                        }
                     }
                 }
             }
@@ -298,6 +312,8 @@ namespace VueStart.Services
                 BrowserMajor = c.UA.Major,
                 BrowserMinor = c.UA.Minor
             };
+            Console.WriteLine("\n\nNew visitor:");
+            Console.WriteLine(JObject.FromObject(visitor).ToString());
             return visitor;
         }
     }
