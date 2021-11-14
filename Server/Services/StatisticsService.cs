@@ -143,7 +143,8 @@ namespace VueStart.Services
                 record = new StatisticRecord
                 {
                     Hash = hash,
-                    Data = data
+                    Data = data,
+                    FirstUse = DateTime.Now
                 };
                 records.Add(record);
             }
@@ -154,6 +155,7 @@ namespace VueStart.Services
         {
             string uaString = context.Request.Headers["User-Agent"].FirstOrDefault();
             string token = context.Request.Headers["idtoken"].FirstOrDefault();
+            string citation = context.Request.Headers["citation"].FirstOrDefault();
             string remoteIpAddress = context.Connection.RemoteIpAddress.ToString();
             if (visitors.TryGetValue(token, out var data))
             {
@@ -161,7 +163,7 @@ namespace VueStart.Services
             }
             else
             {
-                var visitor = CreateVisitor(uaString, token);
+                var visitor = CreateVisitor(uaString, token, citation);
                 visitors.Add(token, new VisitorData {
                     Visitor = visitor,
                     Ip = remoteIpAddress
@@ -276,13 +278,15 @@ namespace VueStart.Services
             visitor.City = jObject.GetValue("city")?.ToString();
         }
 
-        private static Visitor CreateVisitor(string uaString, string token)
+        private static Visitor CreateVisitor(string uaString, string token, string citation)
         {
             var uaParser = Parser.GetDefault();
             ClientInfo c = uaParser.Parse(uaString);
             var visitor = new Visitor
             {
                 Token = token,
+                Citation = citation,
+                FirstVisit = DateTime.Now,
                 UserAgent = uaString,
                 OSFamily = c.OS.Family,
                 OSMajor = c.OS.Major,
