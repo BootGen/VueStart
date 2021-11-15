@@ -1,4 +1,7 @@
+using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
@@ -36,6 +39,18 @@ namespace VueStart
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
+            app.UseExceptionHandler(builder => {
+                builder.Run(async context => {
+                        var service = new ErrorHandlerService(Configuration);
+                        var handler = context.Features.Get<IExceptionHandlerFeature>();
+                        var exception = handler?.Error;
+                        
+                        if (exception != null) {
+                            service.OnException(exception, await new StreamReader(context.Request.Body).ReadToEndAsync());
+                        }
+                    });
             });
 
             //app.UseHttpsRedirection();
