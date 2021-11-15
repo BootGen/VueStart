@@ -35,6 +35,13 @@
       h5 {
         color: #42b983;
       }
+      .disabled{
+        color: #777!important;
+      }
+      .clickable:hover {
+        color: #17a062;
+        cursor: pointer;
+      }
       </style>
   </head>
   <body>
