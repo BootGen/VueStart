@@ -149,7 +149,8 @@ export default defineComponent({
 
     let config = {
       headers: {
-        'idtoken': idtoken
+        'idtoken': idtoken,
+        'citation': document.referrer
       }
     }
     const showNav = ref(false);

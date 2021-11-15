@@ -9,6 +9,8 @@ namespace VueStart
     public class ApplicationDbContext : DbContext
     {
         public DbSet<StatisticRecord> StatisticRecords { get; set; }
+        public DbSet<ProfilerRecord> ProfilerRecords { get; set; }
+        public DbSet<Error> Errors { get; set; }
         public DbSet<Visitor> Visitors { get; set; }
         public DbSet<Visit> Visits { get; set; }
         public IConfiguration Configuration { get; }
@@ -50,6 +52,12 @@ namespace VueStart
             modelBuilder.Entity<Visitor>()
                 .HasMany<Visit>(v => v.Visits);
             modelBuilder.Entity<Visit>()
+                .Property(b => b.Id)
+                .IsRequired();
+            modelBuilder.Entity<ProfilerRecord>()
+                .Property(b => b.Id)
+                .IsRequired();
+            modelBuilder.Entity<Error>()
                 .Property(b => b.Id)
                 .IsRequired();
         }

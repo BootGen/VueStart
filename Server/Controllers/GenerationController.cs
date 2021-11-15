@@ -12,6 +12,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 using System.IO.Compression;
 using VueStart.Services;
+using System.Diagnostics;
 
 namespace VueStart.Controllers
 {
@@ -50,8 +51,10 @@ namespace VueStart.Controllers
             var artifactType = GetArtifactType(type);
             if (artifactType == ArtifactType.None)
                 return NotFound();
-            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Generate, artifactType);
-            return Ok(new { Id = Generate(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn") });
+            statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Generate, artifactType);
+            string artifactId = Generate(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn");
+            statisticsService.OnGenerateEnd();
+            return base.Ok(new { Id = artifactId });
         }
 
         private static string ToUpperFirst(string type)
@@ -66,8 +69,9 @@ namespace VueStart.Controllers
             var artifactType = GetArtifactType(type);
             if (artifactType == ArtifactType.None)
                 return NotFound();
-            statisticsService.onEvent(Request.HttpContext, json.ToString(), ActionType.Download, artifactType);
+            statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Download, artifactType);
             var memoryStream = CreateZipStream(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn");
+            statisticsService.OnDownloadEnd();
             return File(memoryStream, "application/zip", $"{type}.zip");
         }
 
