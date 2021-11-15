@@ -122,13 +122,23 @@ const  app = Vue.createApp({
   },
 });
 
+app.config.globalProperties.$filters = {
+  formatDatetime(date) {
+    return date.replace('T', '. ').replaceAll('-', '.');
+  }
+}
+
 {{~ for class in classes ~}}
 app.component('{{ kebab_case class.name }}-view', {
   template: `
     {{~ for property in class.common_properties
       if !property.is_key ~}}
     <td class="align-middle">
+    {{~ if (get_type property) == "Date" ~}}
+      {{'{{'}} $filters.formatDatetime(modelValue.{{ camel_case property.name }}) {{'}}'}}
+    {{~ else ~}}
       {{'{{'}} modelValue.{{ camel_case property.name }} {{'}}'}}
+    {{~ end ~}}
     </td>
     {{~ end
         end ~}}

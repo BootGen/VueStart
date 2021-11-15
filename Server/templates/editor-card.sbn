@@ -90,7 +90,11 @@ const  app = Vue.createApp({
     return { {{ camel_case root.name }}  }
   },
 });
-
+app.config.globalProperties.$filters = {
+  formatDatetime(date) {
+    return date.replace('T', '. ').replaceAll('-', '.');
+  }
+}
 {{~ for class in classes ~}}
 app.component('{{ kebab_case class.name }}-view', {
   template: `
@@ -110,7 +114,11 @@ app.component('{{ kebab_case class.name }}-view', {
         {{ property.name }}:
       </div>
       <div class="col-8 d-flex justify-content-start text-break">
+      {{~ if (get_type property) == "Date" ~}}
+        {{'{{'}} $filters.formatDatetime(modelValue.{{ camel_case property.name }}) {{'}}'}}
+      {{~ else ~}}
         {{'{{'}} modelValue.{{ camel_case property.name }} {{'}}'}}
+      {{~ end ~}}
       </div>
     </div>
   </li>
