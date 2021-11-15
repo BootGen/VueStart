@@ -95,7 +95,7 @@ app.config.globalProperties.$filters = {
   formatDatetime(date) {
     return date.replace('T', '. ').replaceAll('-', '.');
   }
-}
+};
 
 {{~ for class in classes ~}}
 app.component('{{ kebab_case class.name }}-view', {
