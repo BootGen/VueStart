@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -27,9 +28,13 @@ namespace VueStart
 
         private static Error ExceptionToError(Exception e)
         {
+            var st = new StackTrace(e, true);
+            var frame = st.GetFrame(0);
             return new Error {
                 Message = e.Message,
                 StackTrace = e.StackTrace,
+                File = frame.GetFileName(),
+                Line = frame.GetFileLineNumber(),
                 Source = e.Source,
                 HResult = e.HResult
             };
