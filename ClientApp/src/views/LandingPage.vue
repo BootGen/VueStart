@@ -86,7 +86,7 @@
             </li>
           </ul>
         </div>
-        <div class="fab fab-icon-holder" @click="download">
+        <div id="download-btn" class="fab fab-icon-holder pulse-download-btn" @click="download">
           <span class="bi bi-download" aria-hidden="true"></span>
         </div>
       </div>
@@ -136,7 +136,7 @@ export default defineComponent({
         document.getElementById('download-btn').classList.add('pulse-download-btn');
         setTimeout(function(){ 
           document.getElementById('download-btn').classList.remove('pulse-download-btn');
-        }, 3000);
+        }, 2000);
       } catch (e) {
         console.log(e)
       }
@@ -243,7 +243,6 @@ export default defineComponent({
     height: 50px;
     border-radius: 100%;
     background: #42b983;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
   }
 
   .fab-icon-holder:hover {
