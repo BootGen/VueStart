@@ -38,12 +38,57 @@
         </browser-frame>
       </div>
       <div class="d-flex browser-buttons">
-        <div class="d-flex mx-5">
-          <button type="button" class="btn rounded-pill btn-lg mx-1" :class="{ 'fill-btn': layoutMode == layoutModes.Card, 'outline-btn': layoutMode != layoutModes.Card }" @click="changeLayoutMode(layoutModes.Card)"><span class="bi bi-view-stacked" aria-hidden="true"></span></button>
-          <button type="button" class="btn rounded-pill btn-lg mx-1" :class="{ 'fill-btn': layoutMode == layoutModes.Accordion, 'outline-btn': layoutMode != layoutModes.Accordion }" @click="changeLayoutMode(layoutModes.Accordion)"><span class="bi bi-text-indent-left" aria-hidden="true"></span></button>
-          <button type="button" class="btn rounded-pill btn-lg mx-1" :class="{ 'fill-btn': layoutMode == layoutModes.Table, 'outline-btn': layoutMode != layoutModes.Table }" @click="changeLayoutMode(layoutModes.Table)"><span class="bi bi-table" aria-hidden="true"></span></button>
+        <div class="fab-container">
+          <div class="fab fab-icon-holder">
+            <span class="bi bi-pencil" aria-hidden="true" v-if="generateType == generateTypes.Editor"></span>
+            <span class="bi bi-eye" aria-hidden="true" v-if="generateType == generateTypes.View"></span>
+            <span class="bi bi-file-earmark-code" aria-hidden="true" v-if="generateType == generateTypes.Form"></span>
+          </div>
+          <ul class="fab-options">
+            <li>
+              <div class="fab-icon-holder" @click="changeGeneratedMode(generateTypes.Editor)">
+                <span class="bi bi-pencil" aria-hidden="true"></span>
+              </div>
+            </li>
+            <li>
+              <div class="fab-icon-holder" @click="changeGeneratedMode(generateTypes.View)">
+                <span class="bi bi-eye" aria-hidden="true"></span>
+              </div>
+            </li>
+            <li>
+              <div class="fab-icon-holder" @click="changeGeneratedMode(generateTypes.Form)">
+                <span class="bi bi-file-earmark-code" aria-hidden="true"></span>
+              </div>
+            </li>
+          </ul>
         </div>
-        <button type="button" id="download-btn" class="btn fill-btn rounded-pill btn-lg" @click="download"><span>Download Application </span><span class="bi bi-download" aria-hidden="true"></span></button>
+        <div class="fab-container mx-2">
+          <div class="fab fab-icon-holder">
+            <span class="bi bi-view-stacked" aria-hidden="true" v-if="layoutMode == layoutModes.Card"></span>
+            <span class="bi bi-text-indent-left" aria-hidden="true" v-if="layoutMode == layoutModes.Accordion"></span>
+            <span class="bi bi-table" aria-hidden="true" v-if="layoutMode == layoutModes.Table"></span>
+          </div>
+          <ul class="fab-options">
+            <li>
+              <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Card)">
+                <span class="bi bi-view-stacked" aria-hidden="true"></span>
+              </div>
+            </li>
+            <li>
+              <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Accordion)">
+                <span class="bi bi-text-indent-left" aria-hidden="true"></span>
+              </div>
+            </li>
+            <li>
+              <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Table)">
+                <span class="bi bi-table" aria-hidden="true"></span>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="fab fab-icon-holder" @click="download">
+          <span class="bi bi-download" aria-hidden="true"></span>
+        </div>
       </div>
     </div>
     <div class="col-12 d-flex align-items-center footer" :class="{ 'landing': !showNav, 'content' : showNav, }">
@@ -186,6 +231,63 @@ export default defineComponent({
 </script>
 
 <style>
+  .fab-container {
+    bottom: 50px;
+    right: 50px;
+    z-index: 999;
+    cursor: pointer;
+  }
+
+  .fab-icon-holder {
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    background: #42b983;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .fab-icon-holder:hover {
+    background: #17a062;
+  }
+
+  .fab-icon-holder span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 25px;
+    color: #ffffff;
+  }
+
+  .fab {
+    width: 60px;
+    height: 60px;
+    background: #42b983;
+  }
+
+  .fab-options {
+    list-style-type: none;
+    margin: 0;
+    position: absolute;
+    bottom: 70px;
+    padding: 0;
+    opacity: 0;
+    transition: all 0.3s ease;
+    transform: scale(0);
+    transform-origin: 85% bottom;
+  }
+
+  .fab:hover+.fab-options,
+  .fab-options:hover {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .fab-options li {
+    display: flex;
+    justify-content: flex-end;
+    padding: 5px;
+  }
   .fill-btn {
     color: #ffffff;
     background-color: #42b983;
