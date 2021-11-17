@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -20,21 +21,21 @@ namespace VueStart.Services
     {
         private struct CacheKey
         {
-            public int Day { get; set; }
-            public int Period { get; set; }
+            public int Day { get; init; }
+            public int Period { get; init; }
         }
 
         private struct VisitorData
         {
-            public Visitor Visitor { get; set; }
-            public string Ip { get; set; }
+            public Visitor Visitor { get; init; }
+            public string Ip { get; init; }
         }
 
         private struct PeriodData
         {
-            public Dictionary<string, VisitorData> Visitors;
-            public List<StatisticRecord> Records;
-            public ProfilerRecord ProfilerRecord;
+            public Dictionary<string, VisitorData> Visitors { get; init; }
+            public List<StatisticRecord> Records { get; init; }
+            public ProfilerRecord ProfilerRecord { get; init; }
         }
 
         private readonly IConfiguration configuration;
@@ -178,6 +179,7 @@ namespace VueStart.Services
                     Visitor = visitor,
                     Ip = remoteIpAddress
                 });
+
                 visitor.Visits = new List<Visit> {
                     new Visit
                     {
@@ -193,20 +195,18 @@ namespace VueStart.Services
         {
             var sw = new Stopwatch();
             sw.Start();
-            using (var dbContext = new ApplicationDbContext(configuration))
-            {
-                dbContext.Database.EnsureCreated();
-                await SaveVisitors(data, dbContext);
-                SaveRecords(data.Records, dbContext);
-                dbContext.SaveChanges();
-                sw.Stop();
-                data.ProfilerRecord.Database = sw.ElapsedMilliseconds - data.ProfilerRecord.GeoLocation;
-                sw.Restart();
-                dbContext.ProfilerRecords.Add(data.ProfilerRecord);
-                dbContext.SaveChanges();
-                sw.Stop();
-                Console.WriteLine($"\n\nSaving profiler record: {sw.ElapsedMilliseconds}");
-            }
+            using var dbContext = new ApplicationDbContext(configuration);
+            dbContext.Database.EnsureCreated();
+            await SaveVisitors(data, dbContext);
+            SaveRecords(data.Records, dbContext);
+            dbContext.SaveChanges();
+            sw.Stop();
+            data.ProfilerRecord.Database = sw.ElapsedMilliseconds - data.ProfilerRecord.GeoLocation;
+            sw.Restart();
+            dbContext.ProfilerRecords.Add(data.ProfilerRecord);
+            dbContext.SaveChanges();
+            sw.Stop();
+            Console.WriteLine($"\n\nSaving profiler record: {sw.ElapsedMilliseconds}");
         }
 
         private static void SaveRecords(List<StatisticRecord> records, ApplicationDbContext dbContext)
@@ -265,28 +265,23 @@ namespace VueStart.Services
             var ipInfotoken = configuration.GetValue<string>("IpInfoToken");
             if (string.IsNullOrWhiteSpace(ipInfotoken))
                 return;
-            WebRequest webRequest = WebRequest.Create($"https://ipinfo.io/batch?token={ipInfotoken}");
-            webRequest.Method = "POST";
-            webRequest.ContentType = "application/json";
+
+            using var client = new HttpClient();
             string ipListString = data.Select(d => $"\"{d.Ip}\"").Aggregate((a, b) => $"{a}, {b}");
             string stringData = $"[{ipListString}]";
-            var body = Encoding.Default.GetBytes(stringData);
-            webRequest.GetRequestStream().Write(body, 0, body.Length);
-            var geoLocationTask = webRequest.GetResponseAsync();
-            using (var response = await geoLocationTask)
-            {
-                using (var reader = new StreamReader(response.GetResponseStream()))
-                {
-                    var jsonString = reader.ReadToEnd();
-                    var jObject = JObject.Parse(jsonString);
-                    foreach (var item in data) {
-                        var obj = jObject.GetValue(item.Ip) as JObject;
-                        if (obj != null) {
-                            SetLocation(item.Visitor, obj);
-                            Console.WriteLine("\n\nGeo location:");
-                            Console.WriteLine(JObject.FromObject(item.Visitor).ToString());
-                        }
-                    }
+            var content = new StringContent(stringData, Encoding.UTF8, "application/json");
+                
+            using var response = await client.PostAsync($"https://ipinfo.io/batch?token={ipInfotoken}", content);
+            using var reader = new StreamReader(response.Content.ReadAsStream());
+
+            var jsonString = reader.ReadToEnd();
+            var jObject = JObject.Parse(jsonString);
+            foreach (var item in data) {
+                var obj = jObject.GetValue(item.Ip) as JObject;
+                if (obj != null) {
+                    SetLocation(item.Visitor, obj);
+                    Console.WriteLine("\n\nGeo location:");
+                    Console.WriteLine(JObject.FromObject(item.Visitor).ToString());
                 }
             }
         }

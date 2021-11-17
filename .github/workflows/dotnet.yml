@@ -12,7 +12,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.x
+        dotnet-version: 6.0.x
         lfs: true
     - name: Use Node.js 15.x
       uses: actions/setup-node@v2
