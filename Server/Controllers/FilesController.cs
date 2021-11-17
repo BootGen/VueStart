@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using BootGen;
-using Newtonsoft.Json.Linq;
 using System.IO;
-using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 
 namespace VueStart.Controllers
 {
     [ApiController]
-    [Route("files")]
+    [Route("api/files")]
     public class FilesController : ControllerBase
     {
         private readonly IMemoryCache memoryCache;

@@ -6,9 +6,9 @@ namespace VueStart
     public class Visitor {
 
         public int Id { get; set; }
-        public string Token { get; set; }
-        public string Citation { get; set; }
-        public DateTime FirstVisit { get; set; }
+        public string Token { get; init; }
+        public string Citation { get; init; }
+        public DateTime FirstVisit { get; init; }
         public string Country { get; set; }
         public string Region { get; set; }
         public string City { get; set; }

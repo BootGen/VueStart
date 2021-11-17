@@ -11,20 +11,10 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using UAParser;
+using VueStart.Data;
 
 namespace VueStart.Services
 {
-    public enum ActionType {
-        Generate,
-        Download
-    }
-
-    public enum ArtifactType {
-        None,
-        View,
-        Form,
-        Editor
-    }
 
     public class StatisticsService
     {

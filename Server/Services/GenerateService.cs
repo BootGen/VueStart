@@ -8,11 +8,11 @@ using Newtonsoft.Json.Linq;
 
 namespace VueStart.Services
 {
-    public class GenerateService
+    public class GenerationService
     {
         private readonly IMemoryCache memoryCache;
 
-        public GenerateService(IMemoryCache memoryCache)
+        public GenerationService(IMemoryCache memoryCache)
         {
             this.memoryCache = memoryCache;
         }
@@ -31,13 +31,13 @@ namespace VueStart.Services
                 {"classes", dataModel.CommonClasses}
             });
             indexhtml = generator.Render("index.sbn", new Dictionary<string, object> {
-                {"base_url", $"/files/{id}/"},
+                {"base_url", $"/api/files/{id}/"},
                 {"title", $"{title}"}
             });
             return id;
         }
 
-        public string Generate(JsonElement json, string title, string templateFileName) {
+        public string GenerateToCache(JsonElement json, string title, string templateFileName) {
             string id = Generate(json, title, templateFileName, out string appjs, out string indexhtml);
             memoryCache.Set($"{id}/app.js", Minify(appjs), TimeSpan.FromMinutes(1));
             memoryCache.Set($"{id}/index.html", Minify(indexhtml), TimeSpan.FromMinutes(1));

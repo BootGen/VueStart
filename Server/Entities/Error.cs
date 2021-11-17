@@ -3,12 +3,12 @@ namespace VueStart
     public class Error
     {
         public int Id { get; set; }
-        public string Message { get; set; }
-        public string StackTrace { get; internal set; }
-        public string File { get; internal set; }
-        public int Line { get; internal set; }
-        public string Source { get; internal set; }
-        public int HResult { get; internal set; }
-        public string Data { get; internal set; }
+        public string Message { get; init; }
+        public string StackTrace { get; init; }
+        public string File { get; init; }
+        public int Line { get; init; }
+        public string Source { get; init; }
+        public int HResult { get; init; }
+        public string Data { get; set; }
     }
 }
