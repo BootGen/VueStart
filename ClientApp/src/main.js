@@ -16,4 +16,8 @@ const store = createStore({
     }
 })
 
+Vue.config.errorHandler = function (err, vm, info) {
+  console.log (err, vm, info)
+}
+
 createApp(App).use(store).use(router).mount('#app')
