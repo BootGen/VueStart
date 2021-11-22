@@ -10,7 +10,8 @@ namespace VueStart
     {
         public DbSet<StatisticRecord> StatisticRecords { get; set; }
         public DbSet<ProfilerRecord> ProfilerRecords { get; set; }
-        public DbSet<Error> Errors { get; set; }
+        public DbSet<ServerError> ServerErrors { get; set; }
+        public DbSet<ClientError> ClientErrors { get; set; }
         public DbSet<Visitor> Visitors { get; set; }
         public DbSet<Visit> Visits { get; set; }
         public IConfiguration Configuration { get; }
@@ -57,7 +58,7 @@ namespace VueStart
             modelBuilder.Entity<ProfilerRecord>()
                 .Property(b => b.Id)
                 .IsRequired();
-            modelBuilder.Entity<Error>()
+            modelBuilder.Entity<ServerError>()
                 .Property(b => b.Id)
                 .IsRequired();
         }

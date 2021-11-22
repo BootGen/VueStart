@@ -12,7 +12,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.x
+        dotnet-version: 6.0.x
         lfs: true
     - name: Use Node.js 15.x
       uses: actions/setup-node@v2
@@ -30,7 +30,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: server
-        path: Server/bin/Release/net5.0/publish
+        path: Server/bin/Release/net6.0/publish
     - name: Install dependencies (npm)
       run: npm ci
       working-directory: ./ClientApp

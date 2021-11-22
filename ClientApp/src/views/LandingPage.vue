@@ -201,9 +201,9 @@ export default defineComponent({
     const showNav = ref(false);
     const appUrl = ref("");
     async function generate() {
-      const resp = await axios.post(`generate/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), config);
+      const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), config);
       saveToLocalStorage(json.value);
-      appUrl.value = `files/${resp.data.id}/index.html`;
+      appUrl.value = `api/files/${resp.data.id}/index.html`;
     }
     function changeGeneratedMode(type) {
       generateType.value = type
@@ -214,7 +214,7 @@ export default defineComponent({
       generate()
     }
     async function download() {
-      const response = await axios.post(`download/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), {responseType: 'blob', ...config});
+      const response = await axios.post(`api/download/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), {responseType: 'blob', ...config});
       const fileURL = window.URL.createObjectURL(new Blob([response.data]));
       const fileLink = document.createElement('a');
       fileLink.href = fileURL;
