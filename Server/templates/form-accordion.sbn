@@ -95,14 +95,14 @@ const  app = Vue.createApp({
 
 app.component('{{ kebab_case class.name }}-edit', {
   template: `
-  <li class="list-group-item">
+  <li class="list-group-item text-start">
     <button type="button" class="btn btn-sm rounded-pill" @click="$emit('delete')">
       <span class="bi bi-trash" aria-hidden="true"></span> Delete
     </button>
   </li>
   {{~ for property in class.common_properties
       if !property.is_key ~}}
-  <li class="list-group-item">
+  <li class="list-group-item text-start">
     <div class="col-12 d-flex justify-content-start form-floating">
       <input 
       {{~ if (get_type property) == "Date" ~}}
@@ -134,12 +134,7 @@ app.component('{{ kebab_case class.name }}-list', {
     <div class="accordion-item">
       <h2 class="accordion-header" id="{{ class.name.plural }}-headingOne">
         <button class="accordion-button" type="button" data-bs-toggle="collapse" :data-bs-target="'#'+accordionId+'-collapseOne'" aria-expanded="true" :aria-controls="accordionId+'-collapseOne'">
-          <div class="col-6 d-flex justify-content-between align-items-center">
-            <h5>{{ class.name.plural }}:</h5>
-            <button type="button" class="btn btn-sm rounded-pill" @click="addNewItem()">
-              <span class="bi bi-plus" aria-hidden="true"></span> Add
-            </button>
-          </div>
+          <h5>{{ class.name.plural }}:</h5>
         </button>
       </h2>
       <div :id="accordionId+'-collapseOne'" class="accordion-collapse collapse show" aria-labelledby="{{ class.name.plural }}-headingOne" v-for="item in modelValue" :key="item.id">
@@ -156,6 +151,14 @@ app.component('{{ kebab_case class.name }}-list', {
           {{~ end
           end ~}}
         </div>
+      </div>
+      <div class="d-flex p-2" v-if="newItem == null">
+        <button type="button" class="btn btn-sm rounded-pill mb-1" @click="addNewItem()">
+          <span class="bi bi-plus" aria-hidden="true"></span> Add {{ class.name }}
+        </button>
+      </div>
+      <div class="col-12 p-2" v-if="newItem != null">
+        <{{ kebab_case class.name }}-edit v-model="newItem" @canceled="cancelAdd" @saved="saveNewItem()"></{{ kebab_case class.name }}-edit>
       </div>
     </div>
   </div>`,
