@@ -177,6 +177,7 @@ app.component('{{ kebab_case class.name }}-list', {
         {{~ end
             end ~}}
       };
+      saveNewItem();
     }
     function saveNewItem() {
         const items = [...props.modelValue];
@@ -185,11 +186,8 @@ app.component('{{ kebab_case class.name }}-list', {
         context.emit('update:modelValue', items);
         newItem.value = null;
     }
-    function cancelAdd() {
-        newItem.value = null;
-    }
 
-    return { newItem, deleteItem, addNewItem, saveNewItem, cancelAdd };
+    return { newItem, deleteItem, addNewItem, saveNewItem };
   }
 });
 {{~ end ~}}
