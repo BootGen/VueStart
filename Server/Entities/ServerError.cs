@@ -1,8 +1,11 @@
+using System;
+
 namespace VueStart
 {
-    public class Error
+    public class ServerError
     {
         public int Id { get; set; }
+        public DateTime DateTime { get; init; }
         public string Message { get; init; }
         public string StackTrace { get; init; }
         public string File { get; init; }

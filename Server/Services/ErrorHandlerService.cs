@@ -16,21 +16,22 @@ namespace VueStart
 
         public void OnException(Exception e, string data)
         {
-            Error error = e.InnerException == null ? ExceptionToError(e) : ExceptionToError(e.InnerException);
+            ServerError error = e.InnerException == null ? ExceptionToError(e) : ExceptionToError(e.InnerException);
             error.Data = data;
             using (var dbContext = new ApplicationDbContext(configuration))
             {
                 dbContext.Database.EnsureCreated();
-                dbContext.Errors.Add(error);
+                dbContext.ServerErrors.Add(error);
                 dbContext.SaveChanges();
             }
         }
 
-        private static Error ExceptionToError(Exception e)
+        private static ServerError ExceptionToError(Exception e)
         {
             var st = new StackTrace(e, true);
             var frame = st.GetFrame(0);
-            return new Error {
+            return new ServerError {
+                DateTime = DateTime.Now,
                 Message = e.Message,
                 StackTrace = e.StackTrace,
                 File = frame.GetFileName(),
