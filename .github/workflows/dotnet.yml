@@ -30,7 +30,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: server
-        path: Server/bin/Release/net5.0/publish
+        path: Server/bin/Release/net6.0/publish
     - name: Install dependencies (npm)
       run: npm ci
       working-directory: ./ClientApp
