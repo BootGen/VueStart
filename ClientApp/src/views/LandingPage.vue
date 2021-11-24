@@ -1,7 +1,7 @@
 <template>
   <div class="col-12">
-    <div class="download-panel-container" v-if="showDownloadPanel">
-      <download-panel class="download-panel shadow" :show="showDownloadPanel" :generateType="generateType" :layoutMode="layoutMode" @close="showDownloadPanel = false" @download="download"></download-panel>
+    <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
+      <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" :generateType="generateType" :layoutMode="layoutMode" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showNav, 'content' : showNav }">
       <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`../assets/vuecoon_${$store.state.vuecoonType}.webp`)" :class="{ 'landing': !showNav, 'content' : showNav, }">
@@ -237,15 +237,33 @@ export default defineComponent({
 
 <style>
 .download-panel{
+  transition: all 1s ease-in-out;
   width: 60%;
   margin: 2rem auto;
 }
+.download-panel.show{
+  opacity: 1;
+  margin: 2rem auto;
+}
+.download-panel.hide{
+  opacity: 0;
+  visibility: hidden;
+  margin-top: 100%;
+}
 .download-panel-container {
+  transition: all 1s ease-in-out;
   position: fixed;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.1);
   z-index: 999;
+}
+.download-panel-container.show{
+  opacity: 1;
+}
+.download-panel-container.hide{
+  opacity: 0;
+  visibility: hidden;
 }
 
 .dot {

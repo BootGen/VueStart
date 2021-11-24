@@ -89,6 +89,7 @@ export default defineComponent({
   background: #fff;
   margin-top: -1rem;
   padding: 1rem;
+  border-radius: 5px;
 }
 .download-panel-browser{
     z-index: 9;
