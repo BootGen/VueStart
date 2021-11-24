@@ -27,13 +27,17 @@ namespace VueStart.Controllers
         [Route("{type}/{layout}")]
         public IActionResult Generates([FromBody] JsonElement json, string type, string layout)
         {
-            var artifactType = type.ToArtifactType();
-            if (artifactType == ArtifactType.None)
-                return NotFound();
-            statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Generate, artifactType);
-            string artifactId = generateService.GenerateToCache(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn");
-            statisticsService.OnGenerateEnd();
-            return base.Ok(new { Id = artifactId });
+            try {
+                var artifactType = type.ToArtifactType();
+                if (artifactType == ArtifactType.None)
+                    return NotFound();
+                statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Generate, artifactType);
+                string artifactId = generateService.GenerateToCache(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn");
+                statisticsService.OnGenerateEnd();
+                return Ok(new { Id = artifactId });
+            } catch (FormatException e) {
+                return BadRequest(new { error = e.Message });
+            }
         }
 
         private static string ToUpperFirst(string type)
