@@ -1,5 +1,8 @@
 <template>
   <div class="col-12">
+    <div class="download-panel-container" v-if="showDownloadPanel">
+      <download-panel class="download-panel shadow" :show="showDownloadPanel" :generateType="generateType" :layoutMode="layoutMode" @close="showDownloadPanel = false" @download="download"></download-panel>
+    </div>
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showNav, 'content' : showNav }">
       <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`../assets/vuecoon_${$store.state.vuecoonType}.webp`)" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <div class="jumbo-text-full" :class="{ 'landing': !showNav, 'content' : showNav }">
@@ -30,9 +33,9 @@
       <div class="browser custom-card shadow">
         <browser-frame v-model="appUrl" :borderRadius="generateType == generateTypes.Editor">
           <div class="d-flex w-100 h-auto">
-            <tab title="Editor" icon="pencil" :showVr="generateType != generateTypes.Editor && generateType != generateTypes.View" @select="changeGeneratedMode(generateTypes.Editor)" :class="{ 'inactive': generateType != generateTypes.Editor, 'active' : generateType == generateTypes.Editor, 'border-bottom-right' : generateType == generateTypes.View }"></tab>
-            <tab title="View" icon="eye" :showVr="generateType != generateTypes.View && generateType != generateTypes.Form" @select="changeGeneratedMode(generateTypes.View)" :class="{ 'inactive': generateType != generateTypes.View, 'active' : generateType == generateTypes.View, 'border-bottom-right' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.Editor }"></tab>
-            <tab title="Form" icon="file-earmark-code" :showVr="generateType != generateTypes.Form" @select="changeGeneratedMode(generateTypes.Form)" :class="{ 'inactive': generateType != generateTypes.Form, 'active' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.View }"></tab>
+            <tab :title="generateTypes.Editor" icon="pencil" :showVr="generateType != generateTypes.Editor && generateType != generateTypes.View" @select="changeGeneratedMode(generateTypes.Editor)" :class="{ 'inactive': generateType != generateTypes.Editor, 'active' : generateType == generateTypes.Editor, 'border-bottom-right' : generateType == generateTypes.View }"></tab>
+            <tab :title="generateTypes.View" icon="eye" :showVr="generateType != generateTypes.View && generateType != generateTypes.Form" @select="changeGeneratedMode(generateTypes.View)" :class="{ 'inactive': generateType != generateTypes.View, 'active' : generateType == generateTypes.View, 'border-bottom-right' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.Editor }"></tab>
+            <tab :title="generateTypes.Form" icon="file-earmark-code" :showVr="generateType != generateTypes.Form" @select="changeGeneratedMode(generateTypes.Form)" :class="{ 'inactive': generateType != generateTypes.Form, 'active' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.View }"></tab>
             <button type="button" class="btn-site inactive" :class="{ 'border-bottom-left' : generateType == generateTypes.Form }"><span class="bi bi-plus" aria-hidden="true"></span></button>
           </div>
         </browser-frame>
@@ -86,7 +89,7 @@
             </li>
           </ul>
         </div>
-        <div id="download-btn" class="fab fab-icon-holder pulse-download-btn" @click="download">
+        <div id="download-btn" class="fab fab-icon-holder pulse-download-btn" @click="showDownloadPanel = true">
           <span class="bi bi-download" aria-hidden="true"></span>
         </div>
       </div>
@@ -104,11 +107,12 @@ import { getSchema } from '../utils/Schema';
 import { debounce } from '../utils/Helper';
 import CodeMirror from '../components/CodeMirror.vue';
 import BrowserFrame from '../components/BrowserFrame.vue'
+import DownloadPanel from '../components/DownloadPanel.vue'
 import Tab from '../components/Tab.vue'
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { CodeMirror, BrowserFrame, Tab },
+  components: { CodeMirror, BrowserFrame, DownloadPanel, Tab },
   setup() {
     const json = ref('');
     const jsonSchema = ref('');
@@ -124,6 +128,7 @@ export default defineComponent({
       Table: 'table'
     }
     const layoutMode = ref(layoutModes.Card);
+    const showDownloadPanel = ref(false);
 
     function saveToLocalStorage(newValue) {
       try {
@@ -213,24 +218,44 @@ export default defineComponent({
       layoutMode.value = type
       generate()
     }
-    async function download() {
-      const response = await axios.post(`api/download/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), {responseType: 'blob', ...config});
+    async function download(generateType, layoutMode) {
+      const response = await axios.post(`api/download/${generateType}/${layoutMode}`, JSON.parse(json.value), {responseType: 'blob', ...config});
       const fileURL = window.URL.createObjectURL(new Blob([response.data]));
       const fileLink = document.createElement('a');
       fileLink.href = fileURL;
       fileLink.target = '_blank';
-      fileLink.setAttribute('download', `${generateType.value}.zip`);
+      fileLink.setAttribute('download', `${generateType}.zip`);
       document.body.appendChild(fileLink);
       fileLink.click();
     }
 
-    return { showNav, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode }
+    return { showNav, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel }
   }
 });
 
 </script>
 
 <style>
+.download-panel{
+  width: 60%;
+  margin: 2rem auto;
+}
+.download-panel-container {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.1);
+  z-index: 999;
+}
+
+.dot {
+  margin: 4px;
+  height: 12px;
+  width: 12px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+}
   .fab-container {
     bottom: 50px;
     right: 50px;
@@ -490,6 +515,10 @@ export default defineComponent({
   @media (max-width: 1200px) {
     .jumbo-text.landing{
       height: 23rem;
+    }
+    .download-panel{
+      width: 90%;
+      margin: 2rem auto;
     }
   }
   @media (max-width: 992px) {
