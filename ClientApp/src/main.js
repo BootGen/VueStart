@@ -1,5 +1,4 @@
 import App from './App.vue'
-import router from './router'
 import { createStore } from 'vuex'
 import { createApp } from 'vue'
 import axios from 'axios';
@@ -18,7 +17,7 @@ const store = createStore({
 });
 
 const app = createApp(App);
-app.use(store).use(router).mount('#app')
+app.use(store).mount('#app')
 
 app.config.errorHandler = function (err, vm, info) {
   axios.post('api/errors', { ...err, info, vm })
