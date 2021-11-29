@@ -1,7 +1,7 @@
 <template>
   <div class="col-12">
     <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
-      <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" :generateType="generateType" :layoutMode="layoutMode" @close="showDownloadPanel = false" @download="download"></download-panel>
+      <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showNav, 'content' : showNav }">
       <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${$store.state.vuecoonType}.webp`)" :class="{ 'landing': !showNav, 'content' : showNav, }">
@@ -218,13 +218,13 @@ export default defineComponent({
       layoutMode.value = type
       generate()
     }
-    async function download(generateType, layoutMode) {
-      const response = await axios.post(`api/download/${generateType}/${layoutMode}`, JSON.parse(json.value), {responseType: 'blob', ...config});
+    async function download() {
+      const response = await axios.post(`api/download/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), {responseType: 'blob', ...config});
       const fileURL = window.URL.createObjectURL(new Blob([response.data]));
       const fileLink = document.createElement('a');
       fileLink.href = fileURL;
       fileLink.target = '_blank';
-      fileLink.setAttribute('download', `${generateType}.zip`);
+      fileLink.setAttribute('download', `${generateType.value}.zip`);
       document.body.appendChild(fileLink);
       fileLink.click();
     }
@@ -238,12 +238,11 @@ export default defineComponent({
 <style>
 .download-panel{
   transition: all 1s ease-in-out;
-  width: 60%;
-  margin: 2rem auto;
+  width: max-content;
+  margin: 1rem auto;
 }
 .download-panel.show{
   opacity: 1;
-  margin: 2rem auto;
 }
 .download-panel.hide{
   opacity: 0;
@@ -257,6 +256,9 @@ export default defineComponent({
   height: 100%;
   background-color: rgba(0, 0, 0, 0.1);
   z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .download-panel-container.show{
   opacity: 1;
@@ -533,10 +535,6 @@ export default defineComponent({
   @media (max-width: 1200px) {
     .jumbo-text.landing{
       height: 23rem;
-    }
-    .download-panel{
-      width: 90%;
-      margin: 2rem auto;
     }
   }
   @media (max-width: 992px) {
