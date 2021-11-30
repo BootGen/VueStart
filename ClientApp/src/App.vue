@@ -46,21 +46,25 @@
             <span class="bi bi-pencil" aria-hidden="true" v-if="generateType == generateTypes.Editor"></span>
             <span class="bi bi-eye" aria-hidden="true" v-if="generateType == generateTypes.View"></span>
             <span class="bi bi-file-earmark-code" aria-hidden="true" v-if="generateType == generateTypes.Form"></span>
+            <span class="ps-2">Mode</span>
           </div>
           <ul class="fab-options">
             <li>
               <div class="fab-icon-holder" @click="changeGeneratedMode(generateTypes.Editor)">
                 <span class="bi bi-pencil" aria-hidden="true"></span>
+                <span class="ps-2">Editor</span>
               </div>
             </li>
             <li>
               <div class="fab-icon-holder" @click="changeGeneratedMode(generateTypes.View)">
                 <span class="bi bi-eye" aria-hidden="true"></span>
+                <span class="ps-2">View</span>
               </div>
             </li>
             <li>
               <div class="fab-icon-holder" @click="changeGeneratedMode(generateTypes.Form)">
                 <span class="bi bi-file-earmark-code" aria-hidden="true"></span>
+                <span class="ps-2">Form</span>
               </div>
             </li>
           </ul>
@@ -70,21 +74,25 @@
             <span class="bi bi-view-stacked" aria-hidden="true" v-if="layoutMode == layoutModes.Card"></span>
             <span class="bi bi-text-indent-left" aria-hidden="true" v-if="layoutMode == layoutModes.Accordion"></span>
             <span class="bi bi-table" aria-hidden="true" v-if="layoutMode == layoutModes.Table"></span>
+            <span class="ps-2">Layout</span>
           </div>
           <ul class="fab-options">
             <li>
               <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Card)">
                 <span class="bi bi-view-stacked" aria-hidden="true"></span>
+                <span class="ps-2">Card</span>
               </div>
             </li>
             <li>
               <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Accordion)">
                 <span class="bi bi-text-indent-left" aria-hidden="true"></span>
+                <span class="ps-2">Accordion</span>
               </div>
             </li>
             <li>
               <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Table)">
                 <span class="bi bi-table" aria-hidden="true"></span>
+                <span class="ps-2">Table</span>
               </div>
             </li>
           </ul>
@@ -277,38 +285,30 @@ export default defineComponent({
   display: inline-block;
 }
   .fab-container {
-    bottom: 50px;
-    right: 50px;
     z-index: 999;
     cursor: pointer;
   }
-
   .fab-icon-holder {
-    width: 50px;
     height: 50px;
-    border-radius: 100%;
-    background: #42b983;
+    border-radius: 25px;
+    background-color: #42b983;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    padding: 1rem;
   }
-
+  .fab-icon-holder .bi{
+    font-size: 1.5rem;
+  }
   .fab-icon-holder:hover {
     background: #17a062;
   }
 
-  .fab-icon-holder span {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    font-size: 25px;
-    color: #ffffff;
-  }
-
   .fab {
-    width: 60px;
     height: 60px;
     background: #42b983;
   }
-
   .fab-options {
     list-style-type: none;
     margin: 0;
@@ -319,19 +319,21 @@ export default defineComponent({
     transition: all 0.3s ease;
     transform: scale(0);
     transform-origin: 85% bottom;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
   }
-
   .fab:hover+.fab-options,
   .fab-options:hover {
     opacity: 1;
     transform: scale(1);
   }
-
   .fab-options li {
     display: flex;
     justify-content: flex-end;
     padding: 5px;
   }
+
   .fill-btn {
     color: #ffffff;
     background-color: #42b983;
