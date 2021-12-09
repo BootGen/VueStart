@@ -1,5 +1,6 @@
 <template>
   <div class="col-12 h-100 p-0">
+    serverError:{{serverError}}
     <div class="col-12 h-100" id="editor"></div>
     <alert class="aler-msg" :class="{ 'show': showErrorMsg, 'hide': !showErrorMsg }" :errorMsg="errorMsg" @close="showErrorMsg = false"></alert>
   </div>
@@ -24,6 +25,7 @@ export default defineComponent({
   components: { Alert },
   props: {
     modelValue: String,
+    serverError: String
   },
   emits: ['update:modelValue'],
   setup(props, context) {
@@ -131,14 +133,22 @@ export default defineComponent({
       editor.dispatch({effects: [StateEffect.appendConfig.of([underlineField, underlineTheme])]});
       setEditorValue();
     })
+    function showServerError() {
+      store.commit('setType', 'error');
+      showErrorMsg.value = true;
+      errorMsg.value = props.serverError
+    }
     function showErrorState(validationResult) {
       underlineChanged = true;
+      console.log('run', props.serverError)
       if(validationResult.error){
         store.commit('setType', 'error');
         showErrorMsg.value = true;
         errorMsg.value = validationResult.message;
         if (validationResult.from > 0 && validationResult.to > 0 && validationResult.to > validationResult.from)
           editor.dispatch({effects: [addUnderline.of({ from: validationResult.from, to: validationResult.to })]});
+      }else if (props.serverError != '') {
+        showServerError()
       } else {
         store.commit('setType', 'default');
         showErrorMsg.value = false;
@@ -186,8 +196,6 @@ export default defineComponent({
   .cm-editor {
     height: 100%;
   }
-
-
   .CodeMirror {
     height: 100%;
     background-color: #34495E;

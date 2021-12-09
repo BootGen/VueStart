@@ -27,7 +27,7 @@
     </div>
 
     <div class="codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
-      <code-mirror v-model="json"></code-mirror>
+      <code-mirror v-model="json" :serverError="serverError"></code-mirror>
     </div>
     <div class="browser-container" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <div class="browser custom-card shadow">
@@ -137,6 +137,7 @@ export default defineComponent({
     }
     const layoutMode = ref(layoutModes.Card);
     const showDownloadPanel = ref(false);
+    const serverError = ref('');
 
     function saveToLocalStorage(newValue) {
       try {
@@ -213,10 +214,16 @@ export default defineComponent({
     }
     const showNav = ref(false);
     const appUrl = ref("");
+
     async function generate() {
-      const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), config);
-      saveToLocalStorage(json.value);
-      appUrl.value = `api/files/${resp.data.id}/index.html`;
+      try {
+        const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), config);
+        saveToLocalStorage(json.value);
+        appUrl.value = `api/files/${resp.data.id}/index.html`;
+        serverError.value = '';
+      } catch (e) {
+        serverError.value = e.response.data.error;
+      }
     }
     function changeGeneratedMode(type) {
       generateType.value = type
@@ -237,7 +244,7 @@ export default defineComponent({
       fileLink.click();
     }
 
-    return { showNav, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel }
+    return { showNav, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, serverError }
   }
 });
 
