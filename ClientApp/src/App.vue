@@ -27,7 +27,7 @@
     </div>
 
     <div class="codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
-      <code-mirror v-model="json" :serverError="serverError"></code-mirror>
+      <code-mirror v-model:modelValue="json" v-model:error="serverError"></code-mirror>
     </div>
     <div class="browser-container" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <div class="browser custom-card shadow">
