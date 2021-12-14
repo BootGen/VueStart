@@ -12,15 +12,18 @@
         </div>
         <div class="d-flex align-items-center jumbo-text" :class="{ 'landing': !showNav, 'content' : showNav }">
           <div class="d-flex flex-column align-items-center">
-            <p class="lead">
-              Lorem Ipsum is simply dummy text of the printing and typesetting industry. Deploy test. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+            <p class="lead text-justify">
+              Welcome to <span class="fg-primary">VueStart</span>!<br />
+              we are glad you finally found your place.<br />
+              All you have to do is give us the structure described in json and you can already download the finished application in the form of your choice.<br />
+              When you're ready, just click the <span class="fg-primary">Start</span> button.
             </p>
             <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showNav = !showNav">Start!</button>
           </div>
         </div>
         <div class="slogen-text" :class="{ 'landing': !showNav, 'content' : showNav }">
-          <p class="lead">
-            Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+          <p class="lead text-center">
+            If you want to create a complete project with backend and frontend, go to our <a href="https://bootgen.com" target="_blank">BootGen</a> page.
           </p>
         </div>
       </div>
@@ -251,6 +254,12 @@ export default defineComponent({
 </script>
 
 <style>
+.fg-primary {
+  color: #42b983;
+}
+.text-justify{
+  text-align: justify;
+}
 .download-panel{
   transition: all 1s ease-in-out;
   width: max-content;
@@ -518,8 +527,11 @@ export default defineComponent({
   .footer p {
     margin: auto;
   }
-  .footer a {
+  a {
     color: #42b983;
+  }
+  a:hover {
+    color: #17a062;
   }
   .footer.content{
     opacity: 1;
@@ -547,10 +559,6 @@ export default defineComponent({
     }
   }
   @media (max-width: 992px) {
-    .jumbo-text.landing{
-      height: 21rem;
-    }
-
     .codemirror{
       position: unset;
       width: 92%;
