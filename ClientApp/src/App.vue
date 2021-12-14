@@ -6,7 +6,7 @@
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showNav, 'content' : showNav }">
       <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${$store.state.vuecoonType}.webp`)" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <div class="jumbo-text-full" :class="{ 'landing': !showNav, 'content' : showNav }">
-        <div class="d-flex align-items-center justify-content-center ">
+        <div class="d-flex align-items-center justify-content-center">
           <img class="vue_logo" alt="vue" :src="require(`./assets/vue_logo.webp`)">
           <h1 class="title">ue Start!</h1>
         </div>
@@ -21,13 +21,20 @@
             <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showNav = !showNav">Start!</button>
           </div>
         </div>
-        <div class="slogen-text" :class="{ 'landing': !showNav, 'content' : showNav }">
+        <div class="d-flex slogen-text" :class="{ 'landing': !showNav, 'content' : showNav }">
           <p class="lead text-center">
             If you want to create a complete project with backend and frontend, go to our <a href="https://bootgen.com" target="_blank">BootGen</a> page.
           </p>
         </div>
       </div>
-    </div>
+      <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github" :class="{ 'landing': !showNav, 'content' : showNav }">
+        <div class="d-flex align-items-center px-2">
+          <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
+          <span class="bi bi-star-fill star-icon px-2" aria-hidden="true"></span>
+        </div>
+        <p class="small-text">Star this project on GitHub</p>
+      </div>
+    </div>  
 
     <div class="codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <code-mirror v-model:modelValue="json" v-model:error="serverError"></code-mirror>
@@ -246,8 +253,11 @@ export default defineComponent({
       document.body.appendChild(fileLink);
       fileLink.click();
     }
+    function openGithub (){
+      window.open("https://github.com/BootGen/VueStart");
+    }
 
-    return { showNav, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, serverError }
+    return { showNav, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, serverError, openGithub }
   }
 });
 
@@ -425,15 +435,14 @@ export default defineComponent({
     overflow: hidden;
   }
   .jumbo-text-full.content{
-    max-width: 40%;
+    max-width: 50%;
     justify-content: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-right: 15vh;
   }
   .jumbo-text-full.landing{
-    width: 40%;
+    width: 50%;
   }
   .slogen-text{
     transition: all 1s ease-in-out;
@@ -452,6 +461,32 @@ export default defineComponent({
   .vue_logo {
     width: 3rem;
     height: 3rem;
+  }
+  .small-text {
+    font-size: 0.8rem;
+  }
+  .github {
+    transition: all 1s ease-in-out;
+    overflow: hidden;
+  }
+  .github.content{
+    opacity: 1;
+    height: 100%;
+    width: auto;
+    visibility: visible;
+  }
+  .github.landing{
+    opacity: 0;
+    height: 0;
+    width: 0;
+    visibility: hidden;
+  }
+  .github-icon {
+    font-size: min(6vh, 6vw);
+  }
+  .star-icon {
+    color: rgb(222, 169, 64);
+    font-size: min(4.5vh, 4.5vw);
   }
   .title {
     margin-left: -5px;
@@ -620,6 +655,9 @@ export default defineComponent({
     }
     .vuecoon {
       display: none;
+    }
+    .github {
+      display: none!important;
     }
   }
 
