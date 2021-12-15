@@ -626,9 +626,11 @@ body {
 
     .footer{
       font-size: 0.8rem;
+      bottom: unset;
     }
     .footer.content{
       height: 2rem;
+      top: calc(170vh + 1.5rem);
       padding-top: 5px;
     }
   }
