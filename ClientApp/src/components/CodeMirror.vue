@@ -1,7 +1,7 @@
 <template>
   <div class="col-12 h-100 p-0">
     <div class="col-12 h-100" id="editor"></div>
-    <alert class="aler-msg" :class="{ 'show': errorMsg != '', 'hide': errorMsg == '' }" :errorMsg="errorMsg" @close="hideError"></alert>
+    <alert class="aler-msg" :class="{ 'show': error != '', 'hide': error == '' }" :errorMsg="error" @close="error = ''"></alert>
   </div>
 </template>
 
@@ -13,11 +13,10 @@ import { json } from "@codemirror/lang-json"
 import {StateField, StateEffect} from "@codemirror/state"
 
 
-import { defineComponent, onMounted, ref, watchEffect } from 'vue';
+import { defineComponent, onMounted, watchEffect } from 'vue';
 import Alert from './Alert.vue';
 import { debounce } from '../utils/Helper';
 import { prettyPrint, validateJson } from '../utils/PrettyPrint';
-import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'CodeMirror',
@@ -26,11 +25,9 @@ export default defineComponent({
     modelValue: String,
     error: String,
   },
-  emits: ['update:modelValue'],
+  emits: ['update:modelValue', 'update:error'],
   setup(props, context) {
-    const errorMsg = ref(props.error);
     let editor = null;
-    const store = useStore();
 
     const underlineMark = Decoration.mark({class: "cm-underline"})
     const addUnderline = StateEffect.define();
@@ -127,38 +124,20 @@ export default defineComponent({
           })
         }
       }
-      function setErrorMsg() {
-        store.commit('setType', 'default');
-        errorMsg.value = props.error
-      }
       watchEffect(setEditorValue);
-      watchEffect(setErrorMsg);
-      watchEffect(errorMsg.value);
       editor.dispatch({effects: [StateEffect.appendConfig.of([underlineField, underlineTheme])]});
       setEditorValue();
     })
 
     function setErrorState(validationResult) {
-      console.log('setErrorState');
       underlineChanged = true;
       if(validationResult.error){
-        showError(validationResult.message);
         if (validationResult.from > 0 && validationResult.to > 0 && validationResult.to > validationResult.from)
           editor.dispatch({effects: [addUnderline.of({ from: validationResult.from, to: validationResult.to })]});
-      } else if(props.error == '') {
-        hideError()
+        context.emit('update:error', validationResult.message);
       } else {
-        store.commit('setType', 'error');
-        errorMsg.value = props.error
+        context.emit('update:error', '');
       }
-    }
-    function showError(msg) {
-      store.commit('setType', 'error');
-      errorMsg.value = msg;
-    }
-    function hideError() {
-      store.commit('setType', 'default');
-      errorMsg.value = '';
     }
     function indent() {
         const cursorPosition = editor.state.selection.main.head;
@@ -193,7 +172,6 @@ export default defineComponent({
           }
         }
     }
-    return { errorMsg, hideError }
   }
 });
 </script>

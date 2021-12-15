@@ -4,7 +4,7 @@
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showNav, 'content' : showNav }">
-      <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${$store.state.vuecoonType}.webp`)" :class="{ 'landing': !showNav, 'content' : showNav, }">
+      <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${inputError === '' ? 'default' : 'error'}.webp`)" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <div class="jumbo-text-full" :class="{ 'landing': !showNav, 'content' : showNav }">
         <div class="d-flex align-items-center justify-content-center">
           <img class="vue_logo" alt="vue" :src="require(`./assets/vue_logo.webp`)">
@@ -37,7 +37,7 @@
     </div>  
 
     <div class="codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
-      <code-mirror v-model:modelValue="json" v-model:error="serverError"></code-mirror>
+      <code-mirror v-model:modelValue="json" v-model:error="inputError"></code-mirror>
     </div>
     <div class="browser-container" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <div class="browser custom-card shadow">
@@ -147,7 +147,7 @@ export default defineComponent({
     }
     const layoutMode = ref(layoutModes.Card);
     const showDownloadPanel = ref(false);
-    const serverError = ref('');
+    const inputError = ref('');
 
     function saveToLocalStorage(newValue) {
       try {
@@ -228,9 +228,9 @@ export default defineComponent({
         const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), config);
         saveToLocalStorage(json.value);
         appUrl.value = `api/files/${resp.data.id}/index.html`;
-        serverError.value = '';
+        inputError.value = '';
       } catch (e) {
-        serverError.value = e.response.data.error;
+        inputError.value = e.response.data.error;
       }
     }
     function changeGeneratedMode(type) {
@@ -255,7 +255,7 @@ export default defineComponent({
       window.open("https://github.com/BootGen/VueStart");
     }
 
-    return { showNav, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, serverError, openGithub }
+    return { showNav, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub }
   }
 });
 

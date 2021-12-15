@@ -1,23 +1,10 @@
 import App from './App.vue'
-import { createStore } from 'vuex'
 import { createApp } from 'vue'
 import axios from 'axios';
 
-const store = createStore({
-    state () {
-      return {
-        vuecoonType: 'default'
-      }
-    },
-    mutations: {
-      setType (state, type) {
-        state.vuecoonType = type
-      }
-    }
-});
 
 const app = createApp(App);
-app.use(store).mount('#app')
+app.mount('#app')
 
 app.config.errorHandler = function (err, vm, info) {
   axios.post('api/errors', { ...err, info, vm })
