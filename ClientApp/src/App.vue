@@ -8,7 +8,7 @@
       <div class="jumbo-text-full" :class="{ 'landing': !showNav, 'content' : showNav }">
         <div class="d-flex align-items-center justify-content-center">
           <img class="vue_logo" alt="vue" :src="require(`./assets/vue_logo.webp`)">
-          <h1 class="title">ue Start!</h1>
+          <p class="title">ue Start!</p>
         </div>
         <div class="d-flex align-items-center jumbo-text" :class="{ 'landing': !showNav, 'content' : showNav }">
           <div class="d-flex flex-column align-items-center">
@@ -22,8 +22,8 @@
           </div>
         </div>
         <div class="d-flex slogen-text" :class="{ 'landing': !showNav, 'content' : showNav }">
-          <p class="lead text-center">
-            If you want to create a complete project with backend and frontend, go to our <a href="https://bootgen.com" target="_blank">BootGen</a> page.
+          <p class="text-center">
+           The Vue Generator
           </p>
         </div>
       </div>
@@ -32,7 +32,7 @@
           <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
           <span class="bi bi-star-fill star-icon px-2" aria-hidden="true"></span>
         </div>
-        <p class="small-text">Star this project on GitHub</p>
+        <p class="small-text">Star this project on GitHub!</p>
       </div>
     </div>  
 
@@ -194,7 +194,6 @@ export default defineComponent({
     window.addEventListener('storage', () => {
       json.value = localStorage.getItem('json').toString();
     });
-    
     window.onload = function () {
         window.history.pushState(null, "", window.location.href);
         window.onpopstate = function() {
@@ -206,7 +205,6 @@ export default defineComponent({
           }
         };
     }
-    
     let idtoken = localStorage.getItem('idtoken');
     if (!idtoken) {
       idtoken = ''
@@ -264,6 +262,10 @@ export default defineComponent({
 </script>
 
 <style>
+body {
+  height: 100%;
+  overflow: hidden;
+}
 .fg-primary {
   color: #42b983;
 }
@@ -347,7 +349,7 @@ export default defineComponent({
     transform-origin: 85% bottom;
     display: flex;
     flex-direction: column;
-    align-items: start;
+    align-items: flex-start;
   }
   .fab:hover+.fab-options,
   .fab-options:hover {
@@ -381,7 +383,7 @@ export default defineComponent({
   }
   .browser-buttons {
     position: absolute;
-    bottom: 0.5rem;
+    bottom: -1rem;
     right: 2rem;
     font-size: 1rem!important;
     z-index: 99;
@@ -468,6 +470,7 @@ export default defineComponent({
   .github {
     transition: all 1s ease-in-out;
     overflow: hidden;
+    cursor: pointer;
   }
   .github.content{
     opacity: 1;
@@ -482,14 +485,19 @@ export default defineComponent({
     visibility: hidden;
   }
   .github-icon {
-    font-size: min(6vh, 6vw);
+    font-size: min(5vh, 5vw);
   }
   .star-icon {
     color: rgb(222, 169, 64);
-    font-size: min(4.5vh, 4.5vw);
+    font-size: min(4vh, 4vw);
   }
   .title {
-    margin-left: -5px;
+    margin-left: -3px;
+    font-size: 1.5rem;
+    margin-top: 0;
+    margin-bottom: .5rem;
+    font-weight: 500;
+    line-height: 1.2;
   }
   .codemirror{
     position: absolute;
@@ -501,7 +509,7 @@ export default defineComponent({
   }
   .codemirror.content{
     opacity: 1;
-    height: 78vh;
+    height: 76vh;
     top: 14vh;
     visibility: visible;
   }
@@ -519,7 +527,7 @@ export default defineComponent({
     overflow: hidden;
     vertical-align: bottom;
     width: 100%;
-    height: 82vh;
+    height: 80vh;
   }
   .browser.landing{
     height: 0vh;
@@ -535,14 +543,13 @@ export default defineComponent({
     margin: 1%;
     margin-left: 45%;
     transition: all 1s ease-in-out;
-    overflow: hidden;
     vertical-align: bottom;
     background-color: transparent;
     box-shadow: 0rem -1.5rem 2rem rgb(0 0 0 / 10%);
   }
   .browser-container.content{
     opacity: 1;
-    height: calc(82vh + 2rem);
+    height: 80vh;
     transition-delay: 300ms;
     top: 12vh;
     visibility: visible;
@@ -555,7 +562,6 @@ export default defineComponent({
   }
   .footer{
     position: absolute;
-    padding-top: 1rem;
     transition: all 1s ease-in-out;
     overflow: hidden;
   }
@@ -572,7 +578,7 @@ export default defineComponent({
     opacity: 1;
     height: 2.5rem;
     transition-delay: 500ms;
-    top: calc(15vh + 80vh);
+    top: 93vh;
     visibility: visible;
   }
   .footer.landing{
@@ -607,7 +613,7 @@ export default defineComponent({
     }
 
     .browser-container.content{
-      top: calc(15vh + 78vh - 1vh);
+      top: calc(15vh + 76vh - 1vh);
       transition-delay: 600ms;
     }
     .footer.content{
@@ -619,7 +625,7 @@ export default defineComponent({
     }
     .footer.content{
       height: 2rem;
-      top: calc(15vh + 78vh - 1vh + 82vh + 1.5rem);
+      top: calc(170vh + 1.5rem);
       padding-top: 5px;
     }
   }
@@ -632,14 +638,6 @@ export default defineComponent({
   @media (max-width: 576px) {
     .jumbotron.content {
       height: 20vh;
-    }
-    .vue_logo.landing{
-      top: 80%;
-    }
-    .vue_logo.content{
-      top: 19%;
-      width: 90px;
-      left: calc( 50% - 45px );
     }
     .jumbo-text.landing{
       height: 26rem;
