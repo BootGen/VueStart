@@ -23,7 +23,7 @@
         </div>
         <div class="d-flex slogen-text" :class="{ 'landing': !showNav, 'content' : showNav }">
           <p class="text-center">
-           The Vue Generator
+          Generate forms, data editors and viewers!
           </p>
         </div>
       </div>
@@ -564,6 +564,7 @@ body {
     position: absolute;
     transition: all 1s ease-in-out;
     overflow: hidden;
+    bottom: 0;
   }
   .footer p {
     margin: auto;
@@ -578,13 +579,11 @@ body {
     opacity: 1;
     height: 2.5rem;
     transition-delay: 500ms;
-    top: 93vh;
     visibility: visible;
   }
   .footer.landing{
     opacity: 0;
     height: 0vh;
-    top: 98vh;
     visibility: hidden;
   }
   .pulse-download-btn:hover {
@@ -625,7 +624,6 @@ body {
     }
     .footer.content{
       height: 2rem;
-      top: calc(170vh + 1.5rem);
       padding-top: 5px;
     }
   }
@@ -633,6 +631,9 @@ body {
 
     .jumbo-text.landing{
       height: 29rem;
+    }
+    .github .small-text {
+      display: none!important;
     }
   }
   @media (max-width: 576px) {
