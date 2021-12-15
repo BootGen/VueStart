@@ -38,7 +38,9 @@ export default defineComponent({
 }
 .logo {
   height: 150px;
-  margin-bottom: 0.5rem;
+  width: 150px;
+  object-fit: contain;
+  margin: 1rem;
 }
 .close-btn {
   font-size: 1.5rem;

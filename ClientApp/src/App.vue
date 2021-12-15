@@ -599,6 +599,11 @@ body {
     }
   }
   @media (max-width: 992px) {
+    body {
+      height: unset;
+      overflow: unset;
+    }
+
     .codemirror{
       position: unset;
       width: 92%;
@@ -628,6 +633,10 @@ body {
     }
   }
   @media (max-width: 768px) {
+    body {
+      height: unset;
+      overflow: unset;
+    }
 
     .jumbo-text.landing{
       height: 29rem;
@@ -637,6 +646,10 @@ body {
     }
   }
   @media (max-width: 576px) {
+    body {
+      height: unset;
+      overflow: unset;
+    }
     .jumbotron.content {
       height: 20vh;
     }
