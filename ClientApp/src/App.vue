@@ -3,14 +3,14 @@
     <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
-    <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showNav, 'content' : showNav }">
-      <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${inputError === '' ? 'default' : 'error'}.webp`)" :class="{ 'landing': !showNav, 'content' : showNav, }">
-      <div class="jumbo-text-full" :class="{ 'landing': !showNav, 'content' : showNav }">
+    <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showContent, 'content' : showContent }">
+      <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${inputError === '' ? 'default' : 'error'}.webp`)" :class="{ 'landing': !showContent, 'content' : showContent, }">
+      <div class="jumbo-text-full" :class="{ 'landing': !showContent, 'content' : showContent }">
         <div class="d-flex align-items-center justify-content-center">
           <img class="vue_logo" alt="vue" :src="require(`./assets/vue_logo.webp`)">
           <p class="title">ue Start!</p>
         </div>
-        <div class="d-flex align-items-center jumbo-text" :class="{ 'landing': !showNav, 'content' : showNav }">
+        <div class="d-flex align-items-center jumbo-text" :class="{ 'landing': !showContent, 'content' : showContent }">
           <div class="d-flex flex-column align-items-center">
             <p class="lead text-justify">
               Welcome to <span class="fg-primary">VueStart</span>!<br />
@@ -18,16 +18,16 @@
               All you have to do is give us the structure described in json and you can already download the finished application in the form of your choice.<br />
               When you're ready, just click the <span class="fg-primary">Start</span> button.
             </p>
-            <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showNav = !showNav">Start!</button>
+            <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showContent = !showContent">Start!</button>
           </div>
         </div>
-        <div class="d-flex slogen-text" :class="{ 'landing': !showNav, 'content' : showNav }">
+        <div class="d-flex slogen-text" :class="{ 'landing': !showContent, 'content' : showContent }">
           <p class="text-center">
           Generate forms, data editors and viewers!
           </p>
         </div>
       </div>
-      <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github" :class="{ 'landing': !showNav, 'content' : showNav }">
+      <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github" :class="{ 'landing': !showContent, 'content' : showContent }">
         <div class="d-flex align-items-center px-2">
           <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
           <span class="bi bi-star-fill star-icon px-2" aria-hidden="true"></span>
@@ -36,10 +36,10 @@
       </div>
     </div>  
 
-    <div class="codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
+    <div class="codemirror custom-card" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <code-mirror v-model:modelValue="json" v-model:error="inputError"></code-mirror>
     </div>
-    <div class="browser-container" :class="{ 'landing': !showNav, 'content' : showNav, }">
+    <div class="browser-container" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <div class="browser custom-card shadow">
         <browser-frame v-model="appUrl" :borderRadius="generateType == generateTypes.Editor">
           <div class="d-flex w-100 h-auto">
@@ -112,7 +112,7 @@
         </div>
       </div>
     </div>
-    <div class="col-12 d-flex align-items-center footer" :class="{ 'landing': !showNav, 'content' : showNav, }">
+    <div class="col-12 d-flex align-items-center footer" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
     </div>
   </div>
@@ -197,8 +197,8 @@ export default defineComponent({
     window.onload = function () {
         window.history.pushState(null, "", window.location.href);
         window.onpopstate = function() {
-          if (showNav.value) {
-            showNav.value = false;
+          if (showContent.value) {
+            showContent.value = false;
             window.history.pushState(null, "", window.location.href);
           } else {
             history.back();
@@ -220,7 +220,7 @@ export default defineComponent({
         'citation': document.referrer
       }
     }
-    const showNav = ref(false);
+    const showContent = ref(false);
     const appUrl = ref("");
 
     async function generate() {
@@ -255,7 +255,7 @@ export default defineComponent({
       window.open("https://github.com/BootGen/VueStart");
     }
 
-    return { showNav, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub }
+    return { showContent, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub }
   }
 });
 
@@ -493,7 +493,7 @@ body {
   }
   .title {
     margin-left: -3px;
-    font-size: 1.5rem;
+    font-size: 1.9rem;
     margin-top: 0;
     margin-bottom: .5rem;
     font-weight: 500;
