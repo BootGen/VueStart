@@ -98,7 +98,7 @@ app.config.globalProperties.$filters = {
 {{~ for class in classes ~}}
 app.component('{{ kebab_case class.name }}-view', {
   template: `
-  <li class="list-group-item">
+  <li class="list-group-item text-start">
     <button type="button" class="btn btn-sm rounded-pill" @click="$emit('edit')">
       <span class="bi bi-pencil" aria-hidden="true"></span> Edit
     </button>
@@ -108,7 +108,7 @@ app.component('{{ kebab_case class.name }}-view', {
   </li>
   {{~ for property in class.common_properties
   if !property.is_key ~}}
-  <li class="list-group-item">
+  <li class="list-group-item text-start">
     <div class="row">
       <div class="col-4 d-flex justify-content-start text-break text-start">
         {{ property.name }}:
@@ -134,7 +134,7 @@ app.component('{{ kebab_case class.name }}-view', {
 
 app.component('{{ kebab_case class.name }}-edit', {
   template: `
-  <li class="list-group-item">
+  <li class="list-group-item text-start">
     <button type="button" class="btn btn-sm rounded-pill" @click="save">
       <span class="bi bi-save" aria-hidden="true"></span> Save
     </button>
@@ -144,7 +144,7 @@ app.component('{{ kebab_case class.name }}-edit', {
   </li>
   {{~ for property in class.common_properties
       if !property.is_key ~}}
-  <li class="list-group-item">
+  <li class="list-group-item text-start">
     <div class="col-12 d-flex justify-content-start form-floating">
       <input 
       {{~ if (get_type property) == "Date" ~}}
@@ -186,11 +186,8 @@ app.component('{{ kebab_case class.name }}-edit', {
 app.component('{{ kebab_case class.name }}-list', {
   template: `
   <div class="mt-3">
-    <div class="col-12 d-flex justify-content-between align-items-center mb-1">
+    <div class="d-flex mb-1">
       <h5>{{ class.name.plural }}:</h5>
-      <button type="button" class="btn btn-sm rounded-pill mb-1" @click="addNewItem()">
-        <span class="bi bi-plus" aria-hidden="true"></span> Add
-      </button>
     </div>
     <div class="col-12 mb-2" v-for="item in modelValue" :key="item.id">
       <div class="card shadow-sm">
@@ -205,6 +202,11 @@ app.component('{{ kebab_case class.name }}-list', {
         </div>
       {{~ end
       end ~}}
+    </div>
+    <div class="d-flex" v-if="newItem == null">
+      <button type="button" class="btn btn-sm rounded-pill mb-1" @click="addNewItem()">
+        <span class="bi bi-plus" aria-hidden="true"></span> Add {{ class.name }}
+      </button>
     </div>
     <div class="col-12 mb-2" v-if="newItem != null">
       <div class="card">

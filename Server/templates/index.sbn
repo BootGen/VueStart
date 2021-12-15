@@ -23,14 +23,13 @@
         border-radius: 0.5rem;
       }
       .btn {
-        color: #42b983;
-        background-color: transparent;
-        border: solid 1px #42b983;
+        color: #ffffff;
+        background-color: #42b983!important;
         padding: 0.25rem 1rem;
       }
       .btn:hover {
-        color: #42b983;
-        background-color: rgba(200, 200, 200, 0.3);
+        color: #ffffff;
+        background-color: #17a062!important;
       }
       h5 {
         color: #42b983;

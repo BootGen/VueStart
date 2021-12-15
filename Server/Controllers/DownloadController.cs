@@ -31,13 +31,17 @@ namespace VueStart.Controllers
         [Route("{type}/{layout}")]
         public IActionResult DownloadEditor([FromBody] JsonElement json, string type, string layout)
         {
-            var artifactType = type.ToArtifactType();
-            if (artifactType == ArtifactType.None)
-                return NotFound();
-            statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Download, artifactType);
-            var memoryStream = CreateZipStream(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn");
-            statisticsService.OnDownloadEnd();
-            return File(memoryStream, "application/zip", $"{type}.zip");
+            try {
+                var artifactType = type.ToArtifactType();
+                if (artifactType == ArtifactType.None)
+                    return NotFound();
+                statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Download, artifactType);
+                var memoryStream = CreateZipStream(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn");
+                statisticsService.OnDownloadEnd();
+                return File(memoryStream, "application/zip", $"{type}.zip");
+            } catch (FormatException e) {
+                return BadRequest(new { error = e.Message });
+            }
         }
 
         private MemoryStream CreateZipStream(JsonElement json, string title, string templateFileName)

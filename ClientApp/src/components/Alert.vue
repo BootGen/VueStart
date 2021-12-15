@@ -28,12 +28,12 @@ export default defineComponent({
     position: absolute;
     bottom: 0;
     justify-content: center!important;
-    z-index: 9;
+    z-index: 999;
   }
   @media (max-width: 992px) {
     .error-alert-container {
       position: fixed;
-      z-index: 99;
+      z-index: 999;
     }    
   }
 </style>

@@ -17,7 +17,9 @@ namespace VueStart.Services
             this.memoryCache = memoryCache;
         }
         public string Generate(JsonElement json, string title, string templateFileName, out string appjs, out string indexhtml) {
-            var dataModel = new DataModel();
+            var dataModel = new DataModel {
+              TypeToString = TypeScriptGenerator.ToTypeScriptType
+            };
             var jObject = JObject.Parse(json.ToString(), new JsonLoadSettings { CommentHandling = CommentHandling.Ignore, DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
             dataModel.LoadRootObject("App", jObject);
             var collection = new ResourceCollection(dataModel);

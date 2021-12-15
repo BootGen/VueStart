@@ -1,38 +1,51 @@
 <template>
   <div class="col-12">
+    <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
+      <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
+    </div>
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showNav, 'content' : showNav }">
       <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${$store.state.vuecoonType}.webp`)" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <div class="jumbo-text-full" :class="{ 'landing': !showNav, 'content' : showNav }">
-        <div class="d-flex align-items-center justify-content-center ">
+        <div class="d-flex align-items-center justify-content-center">
           <img class="vue_logo" alt="vue" :src="require(`./assets/vue_logo.webp`)">
-          <h1 class="title">ue Start!</h1>
+          <p class="title">ue Start!</p>
         </div>
         <div class="d-flex align-items-center jumbo-text" :class="{ 'landing': !showNav, 'content' : showNav }">
           <div class="d-flex flex-column align-items-center">
-            <p class="lead">
-              Lorem Ipsum is simply dummy text of the printing and typesetting industry. Deploy test. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+            <p class="lead text-justify">
+              Welcome to <span class="fg-primary">VueStart</span>!<br />
+              we are glad you finally found your place.<br />
+              All you have to do is give us the structure described in json and you can already download the finished application in the form of your choice.<br />
+              When you're ready, just click the <span class="fg-primary">Start</span> button.
             </p>
             <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showNav = !showNav">Start!</button>
           </div>
         </div>
-        <div class="slogen-text" :class="{ 'landing': !showNav, 'content' : showNav }">
-          <p class="lead">
-            Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+        <div class="d-flex slogen-text" :class="{ 'landing': !showNav, 'content' : showNav }">
+          <p class="text-center">
+          Generate forms, data editors and viewers!
           </p>
         </div>
       </div>
-    </div>
+      <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github" :class="{ 'landing': !showNav, 'content' : showNav }">
+        <div class="d-flex align-items-center px-2">
+          <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
+          <span class="bi bi-star-fill star-icon px-2" aria-hidden="true"></span>
+        </div>
+        <p class="small-text">Star this project on GitHub!</p>
+      </div>
+    </div>  
 
     <div class="codemirror custom-card" :class="{ 'landing': !showNav, 'content' : showNav, }">
-      <code-mirror v-model="json"></code-mirror>
+      <code-mirror v-model:modelValue="json" v-model:error="serverError"></code-mirror>
     </div>
     <div class="browser-container" :class="{ 'landing': !showNav, 'content' : showNav, }">
       <div class="browser custom-card shadow">
         <browser-frame v-model="appUrl" :borderRadius="generateType == generateTypes.Editor">
           <div class="d-flex w-100 h-auto">
-            <tab title="Editor" icon="pencil" :showVr="generateType != generateTypes.Editor && generateType != generateTypes.View" @select="changeGeneratedMode(generateTypes.Editor)" :class="{ 'inactive': generateType != generateTypes.Editor, 'active' : generateType == generateTypes.Editor, 'border-bottom-right' : generateType == generateTypes.View }"></tab>
-            <tab title="View" icon="eye" :showVr="generateType != generateTypes.View && generateType != generateTypes.Form" @select="changeGeneratedMode(generateTypes.View)" :class="{ 'inactive': generateType != generateTypes.View, 'active' : generateType == generateTypes.View, 'border-bottom-right' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.Editor }"></tab>
-            <tab title="Form" icon="file-earmark-code" :showVr="generateType != generateTypes.Form" @select="changeGeneratedMode(generateTypes.Form)" :class="{ 'inactive': generateType != generateTypes.Form, 'active' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.View }"></tab>
+            <tab :title="generateTypes.Editor" icon="pencil" :showVr="generateType != generateTypes.Editor && generateType != generateTypes.View" @select="changeGeneratedMode(generateTypes.Editor)" :class="{ 'inactive': generateType != generateTypes.Editor, 'active' : generateType == generateTypes.Editor, 'border-bottom-right' : generateType == generateTypes.View }"></tab>
+            <tab :title="generateTypes.View" icon="eye" :showVr="generateType != generateTypes.View && generateType != generateTypes.Form" @select="changeGeneratedMode(generateTypes.View)" :class="{ 'inactive': generateType != generateTypes.View, 'active' : generateType == generateTypes.View, 'border-bottom-right' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.Editor }"></tab>
+            <tab :title="generateTypes.Form" icon="file-earmark-code" :showVr="generateType != generateTypes.Form" @select="changeGeneratedMode(generateTypes.Form)" :class="{ 'inactive': generateType != generateTypes.Form, 'active' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.View }"></tab>
             <button type="button" class="btn-site inactive" :class="{ 'border-bottom-left' : generateType == generateTypes.Form }"><span class="bi bi-plus" aria-hidden="true"></span></button>
           </div>
         </browser-frame>
@@ -43,21 +56,25 @@
             <span class="bi bi-pencil" aria-hidden="true" v-if="generateType == generateTypes.Editor"></span>
             <span class="bi bi-eye" aria-hidden="true" v-if="generateType == generateTypes.View"></span>
             <span class="bi bi-file-earmark-code" aria-hidden="true" v-if="generateType == generateTypes.Form"></span>
+            <span class="ps-2">Mode</span>
           </div>
           <ul class="fab-options">
             <li>
               <div class="fab-icon-holder" @click="changeGeneratedMode(generateTypes.Editor)">
                 <span class="bi bi-pencil" aria-hidden="true"></span>
+                <span class="ps-2">Editor</span>
               </div>
             </li>
             <li>
               <div class="fab-icon-holder" @click="changeGeneratedMode(generateTypes.View)">
                 <span class="bi bi-eye" aria-hidden="true"></span>
+                <span class="ps-2">View</span>
               </div>
             </li>
             <li>
               <div class="fab-icon-holder" @click="changeGeneratedMode(generateTypes.Form)">
                 <span class="bi bi-file-earmark-code" aria-hidden="true"></span>
+                <span class="ps-2">Form</span>
               </div>
             </li>
           </ul>
@@ -67,26 +84,30 @@
             <span class="bi bi-view-stacked" aria-hidden="true" v-if="layoutMode == layoutModes.Card"></span>
             <span class="bi bi-text-indent-left" aria-hidden="true" v-if="layoutMode == layoutModes.Accordion"></span>
             <span class="bi bi-table" aria-hidden="true" v-if="layoutMode == layoutModes.Table"></span>
+            <span class="ps-2">Layout</span>
           </div>
           <ul class="fab-options">
             <li>
               <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Card)">
                 <span class="bi bi-view-stacked" aria-hidden="true"></span>
+                <span class="ps-2">Card</span>
               </div>
             </li>
             <li>
               <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Accordion)">
                 <span class="bi bi-text-indent-left" aria-hidden="true"></span>
+                <span class="ps-2">Accordion</span>
               </div>
             </li>
             <li>
               <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Table)">
                 <span class="bi bi-table" aria-hidden="true"></span>
+                <span class="ps-2">Table</span>
               </div>
             </li>
           </ul>
         </div>
-        <div id="download-btn" class="fab fab-icon-holder pulse-download-btn" @click="download">
+        <div id="download-btn" class="fab fab-icon-holder pulse-download-btn" @click="showDownloadPanel = true">
           <span class="bi bi-download" aria-hidden="true"></span>
         </div>
       </div>
@@ -104,11 +125,12 @@ import { getSchema } from './utils/Schema';
 import { debounce } from './utils/Helper';
 import CodeMirror from './components/CodeMirror.vue';
 import BrowserFrame from './components/BrowserFrame.vue'
+import DownloadPanel from './components/DownloadPanel.vue'
 import Tab from './components/Tab.vue'
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { CodeMirror, BrowserFrame, Tab },
+  components: { CodeMirror, BrowserFrame, DownloadPanel, Tab },
   setup() {
     const json = ref('');
     const jsonSchema = ref('');
@@ -124,6 +146,8 @@ export default defineComponent({
       Table: 'table'
     }
     const layoutMode = ref(layoutModes.Card);
+    const showDownloadPanel = ref(false);
+    const serverError = ref('');
 
     function saveToLocalStorage(newValue) {
       try {
@@ -170,7 +194,6 @@ export default defineComponent({
     window.addEventListener('storage', () => {
       json.value = localStorage.getItem('json').toString();
     });
-    
     window.onload = function () {
         window.history.pushState(null, "", window.location.href);
         window.onpopstate = function() {
@@ -182,7 +205,6 @@ export default defineComponent({
           }
         };
     }
-    
     let idtoken = localStorage.getItem('idtoken');
     if (!idtoken) {
       idtoken = ''
@@ -200,10 +222,16 @@ export default defineComponent({
     }
     const showNav = ref(false);
     const appUrl = ref("");
+
     async function generate() {
-      const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), config);
-      saveToLocalStorage(json.value);
-      appUrl.value = `api/files/${resp.data.id}/index.html`;
+      try {
+        const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), config);
+        saveToLocalStorage(json.value);
+        appUrl.value = `api/files/${resp.data.id}/index.html`;
+        serverError.value = '';
+      } catch (e) {
+        serverError.value = e.response.data.error;
+      }
     }
     function changeGeneratedMode(type) {
       generateType.value = type
@@ -223,47 +251,92 @@ export default defineComponent({
       document.body.appendChild(fileLink);
       fileLink.click();
     }
+    function openGithub (){
+      window.open("https://github.com/BootGen/VueStart");
+    }
 
-    return { showNav, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode }
+    return { showNav, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, serverError, openGithub }
   }
 });
 
 </script>
 
 <style>
+body {
+  height: 100%;
+  overflow: hidden;
+}
+.fg-primary {
+  color: #42b983;
+}
+.text-justify{
+  text-align: justify;
+}
+.download-panel{
+  transition: all 1s ease-in-out;
+  width: max-content;
+  margin: 1rem auto;
+}
+.download-panel.show{
+  opacity: 1;
+}
+.download-panel.hide{
+  opacity: 0;
+  visibility: hidden;
+  margin-top: 100%;
+}
+.download-panel-container {
+  transition: all 1s ease-in-out;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.download-panel-container.show{
+  opacity: 1;
+}
+.download-panel-container.hide{
+  opacity: 0;
+  visibility: hidden;
+}
+
+.dot {
+  margin: 4px;
+  height: 12px;
+  width: 12px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+}
   .fab-container {
-    bottom: 50px;
-    right: 50px;
     z-index: 999;
     cursor: pointer;
   }
-
   .fab-icon-holder {
-    width: 50px;
     height: 50px;
-    border-radius: 100%;
-    background: #42b983;
+    border-radius: 25px;
+    background-color: #42b983;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    padding: 1rem;
   }
-
+  .fab-icon-holder .bi{
+    font-size: 1.5rem;
+  }
   .fab-icon-holder:hover {
     background: #17a062;
   }
 
-  .fab-icon-holder span {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    font-size: 25px;
-    color: #ffffff;
-  }
-
   .fab {
-    width: 60px;
     height: 60px;
     background: #42b983;
   }
-
   .fab-options {
     list-style-type: none;
     margin: 0;
@@ -274,19 +347,21 @@ export default defineComponent({
     transition: all 0.3s ease;
     transform: scale(0);
     transform-origin: 85% bottom;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
-
   .fab:hover+.fab-options,
   .fab-options:hover {
     opacity: 1;
     transform: scale(1);
   }
-
   .fab-options li {
     display: flex;
     justify-content: flex-end;
     padding: 5px;
   }
+
   .fill-btn {
     color: #ffffff;
     background-color: #42b983;
@@ -308,7 +383,7 @@ export default defineComponent({
   }
   .browser-buttons {
     position: absolute;
-    bottom: 0.5rem;
+    bottom: -1rem;
     right: 2rem;
     font-size: 1rem!important;
     z-index: 99;
@@ -362,15 +437,14 @@ export default defineComponent({
     overflow: hidden;
   }
   .jumbo-text-full.content{
-    max-width: 40%;
+    max-width: 50%;
     justify-content: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-right: 15vh;
   }
   .jumbo-text-full.landing{
-    width: 40%;
+    width: 50%;
   }
   .slogen-text{
     transition: all 1s ease-in-out;
@@ -390,8 +464,40 @@ export default defineComponent({
     width: 3rem;
     height: 3rem;
   }
+  .small-text {
+    font-size: 0.8rem;
+  }
+  .github {
+    transition: all 1s ease-in-out;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .github.content{
+    opacity: 1;
+    height: 100%;
+    width: auto;
+    visibility: visible;
+  }
+  .github.landing{
+    opacity: 0;
+    height: 0;
+    width: 0;
+    visibility: hidden;
+  }
+  .github-icon {
+    font-size: min(5vh, 5vw);
+  }
+  .star-icon {
+    color: rgb(222, 169, 64);
+    font-size: min(4vh, 4vw);
+  }
   .title {
-    margin-left: -5px;
+    margin-left: -3px;
+    font-size: 1.5rem;
+    margin-top: 0;
+    margin-bottom: .5rem;
+    font-weight: 500;
+    line-height: 1.2;
   }
   .codemirror{
     position: absolute;
@@ -403,7 +509,7 @@ export default defineComponent({
   }
   .codemirror.content{
     opacity: 1;
-    height: 78vh;
+    height: 76vh;
     top: 14vh;
     visibility: visible;
   }
@@ -421,7 +527,7 @@ export default defineComponent({
     overflow: hidden;
     vertical-align: bottom;
     width: 100%;
-    height: 82vh;
+    height: 80vh;
   }
   .browser.landing{
     height: 0vh;
@@ -437,14 +543,13 @@ export default defineComponent({
     margin: 1%;
     margin-left: 45%;
     transition: all 1s ease-in-out;
-    overflow: hidden;
     vertical-align: bottom;
     background-color: transparent;
     box-shadow: 0rem -1.5rem 2rem rgb(0 0 0 / 10%);
   }
   .browser-container.content{
     opacity: 1;
-    height: calc(82vh + 2rem);
+    height: 80vh;
     transition-delay: 300ms;
     top: 12vh;
     visibility: visible;
@@ -457,27 +562,28 @@ export default defineComponent({
   }
   .footer{
     position: absolute;
-    padding-top: 1rem;
     transition: all 1s ease-in-out;
     overflow: hidden;
+    bottom: 0;
   }
   .footer p {
     margin: auto;
   }
-  .footer a {
+  a {
     color: #42b983;
+  }
+  a:hover {
+    color: #17a062;
   }
   .footer.content{
     opacity: 1;
     height: 2.5rem;
     transition-delay: 500ms;
-    top: calc(15vh + 80vh);
     visibility: visible;
   }
   .footer.landing{
     opacity: 0;
     height: 0vh;
-    top: 98vh;
     visibility: hidden;
   }
   .pulse-download-btn:hover {
@@ -493,8 +599,9 @@ export default defineComponent({
     }
   }
   @media (max-width: 992px) {
-    .jumbo-text.landing{
-      height: 21rem;
+    body {
+      height: unset;
+      overflow: unset;
     }
 
     .codemirror{
@@ -510,7 +617,7 @@ export default defineComponent({
     }
 
     .browser-container.content{
-      top: calc(15vh + 78vh - 1vh);
+      top: calc(15vh + 76vh - 1vh);
       transition-delay: 600ms;
     }
     .footer.content{
@@ -519,30 +626,34 @@ export default defineComponent({
 
     .footer{
       font-size: 0.8rem;
+      bottom: unset;
     }
     .footer.content{
       height: 2rem;
-      top: calc(15vh + 78vh - 1vh + 82vh + 1.5rem);
+      top: calc(170vh + 1.5rem);
       padding-top: 5px;
     }
   }
   @media (max-width: 768px) {
+    body {
+      height: unset;
+      overflow: unset;
+    }
 
     .jumbo-text.landing{
       height: 29rem;
     }
+    .github .small-text {
+      display: none!important;
+    }
   }
   @media (max-width: 576px) {
+    body {
+      height: unset;
+      overflow: unset;
+    }
     .jumbotron.content {
       height: 20vh;
-    }
-    .vue_logo.landing{
-      top: 80%;
-    }
-    .vue_logo.content{
-      top: 19%;
-      width: 90px;
-      left: calc( 50% - 45px );
     }
     .jumbo-text.landing{
       height: 26rem;
@@ -558,6 +669,9 @@ export default defineComponent({
     }
     .vuecoon {
       display: none;
+    }
+    .github {
+      display: none!important;
     }
   }
 

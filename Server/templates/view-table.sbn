@@ -9,16 +9,41 @@ const watchEffect = Vue.watchEffect;
 end ~}}
 const  app = Vue.createApp({
   template: `
-    {{~ for property in root.properties
-      if property.is_collection && property.class
-      ~}}
-    <{{ kebab_case property.class.name }}-list v-model="{{ camel_case root.name }}.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
+  <div class="d-flex breadcrumb mb-1">
+    <div class="d-flex" v-for="(item, index) in breadcrumbs" :key="item">
+      <h5 class="px-2 clickable" v-if="item != breadcrumbs[breadcrumbs.length-1]" @click="sliceBreadcrumbs(item.name, item.data)">{{'{{'}} item.name {{'}}'}}</h5>
+      <h5 class="" v-if="item != breadcrumbs[breadcrumbs.length-1]">/</h5>
+    </div>
+      <h5 class="disabled px-2">{{'{{'}} breadcrumbs[breadcrumbs.length-1].name {{'}}'}}</h5>
+  </div>
+  {{~ for class in classes ~}}
+  {{~ for property in class.properties
+    if property.is_collection && property.class ~}}
+  <{{ kebab_case property.class.name }}-list v-model="breadcrumbs[breadcrumbs.length-1].data" @show="show" v-if="breadcrumbs[breadcrumbs.length-1].name == '{{ property.name }}'"></{{ kebab_case property.class.name }}-list>
     {{~ end
-      end ~}}
+  end ~}}
+  {{~ end ~}}
   `,
   name: 'App',
   setup: function () {
-    const {{ camel_case root.name }} = ref([]);
+    const {{ camel_case root.name }} = ref(null);
+    const breadcrumbs = ref([]);
+
+    function show(name, i) {
+      breadcrumbs.value.push({ name: name, data: i });
+    }
+
+    function sliceBreadcrumbs(name, i){
+      const arr = [];
+      for(let i = 0; i < breadcrumbs.value.length; i++){
+        arr.push(breadcrumbs.value[i]);
+        if(breadcrumbs.value[i].name == name){
+          break;
+        }
+      }
+      breadcrumbs.value = arr;
+    }
+    
     function toDataModel(data) {
         const v = { ... data };
         for (const property in v) {
@@ -48,13 +73,19 @@ const  app = Vue.createApp({
         const val = JSON.parse(json);
         if (val) {
           {{ camel_case root.name }}.value = toDataModel(val);
+          {{~ for property in root.properties
+          if property.is_collection && property.class ~}}
+          breadcrumbs.value.push({ name: '{{ property.name }}', data: {{ camel_case root.name }}.value.{{ camel_case property.class.name.plural }} }){{if !for.last}},{{end}}
+          {{~ end
+        end ~}}
+  
         }
       }
     }
     loadFromLocalStorage();
 
     window.addEventListener('storage', loadFromLocalStorage);
-    return { {{ camel_case root.name }}  }
+    return { {{ camel_case root.name }}, show, breadcrumbs, sliceBreadcrumbs }
   },
 });
 
@@ -67,54 +98,82 @@ app.config.globalProperties.$filters = {
 {{~ for class in classes ~}}
 app.component('{{ kebab_case class.name }}-view', {
   template: `
-  {{~ for property in class.common_properties
-  if !property.is_key ~}}
-  <li class="list-group-item">
-    <div class="row">
-      <div class="col-4 d-flex justify-content-start text-break text-start">
-        {{ property.name }}:
-      </div>
-      <div class="col-8 d-flex justify-content-start text-break">
-      {{~ if (get_type property) == "Date" ~}}
-        {{'{{'}} $filters.formatDatetime(modelValue.{{ camel_case property.name }}) {{'}}'}}
-      {{~ else ~}}
-        {{'{{'}} modelValue.{{ camel_case property.name }} {{'}}'}}
-      {{~ end ~}}
-      </div>
-    </div>
-  </li>
-  {{~ end
+    {{~ for property in class.common_properties
+      if !property.is_key ~}}
+    <td class="align-middle">
+    {{~ if (get_type property) == "Date" ~}}
+      {{'{{'}} $filters.formatDatetime(modelValue.{{ camel_case property.name }}) {{'}}'}}
+    {{~ else ~}}
+      {{'{{'}} modelValue.{{ camel_case property.name }} {{'}}'}}
+    {{~ end ~}}
+    </td>
+    {{~ end
+        end ~}}
+    {{~ for property in class.properties
+      if property.is_collection && property.class ~}}
+    <td class="align-middle">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ property.name }}', modelValue.{{ camel_case property.name }})">
+        <span class="bi bi-eye" aria-hidden="true"></span>
+      </button>
+    </td>
+    {{~ end
       end ~}}
   `,
   name: '{{ class.name }}View',
   props: {
     modelValue: Object,
-  }
+  },
+  emits: ['show']
 });
 
 app.component('{{ kebab_case class.name }}-list', {
   template: `
-  <div class="mt-3">
-    <div class="col-12 d-flex justify-content-between mb-1">
-      <h5>{{ class.name.plural }}:</h5>
-    </div>
-    <div class="col-12 mb-2" v-for="item in modelValue" :key="item.id">
-      <div class="card shadow-sm">
-        <{{ kebab_case class.name }}-view v-model="item.value"></{{ kebab_case class.name }}-view>
-      </div>
-        {{~ for property in class.properties
-            if property.is_collection && property.class
-            ~}}
-        <div class="card ms-5 mt-2">
-        <{{ kebab_case property.class.name }}-list v-model="item.value.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
-        </div>
+  <table class="table text-start">
+    <thead>
+      <tr class="table-light">
+        {{~ for property in class.common_properties
+        if !property.is_key ~}}
+        <th scope="col">
+          {{ property.name }}
+        </th>
         {{~ end
             end ~}}
-    </div>
-  </div>`,
+        {{~ for property in class.properties
+          if property.is_collection && property.class
+          ~}}
+          <th scope="col">
+          {{ property.name }}
+          </th>
+        {{~ end
+          end ~}}
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="item in modelValue" :key="item.id">
+        <{{ kebab_case class.name }}-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" @show="show" v-else></{{ kebab_case class.name }}-view>
+      </tr>
+    </tbody>
+  </table>`,
   name: '{{ class.name }}List',
   props: {
     modelValue: Object
+  },
+  emits: ['update:modelValue', 'show'],
+  setup(props, context) {
+    const newItem = ref(null);
+
+    function show(name, i) {
+      context.emit('show', name, i);
+    }
+    {{~ for property in class.properties
+      if property.is_collection && property.class ~}}
+      function show{{ property.name }}(item) {
+        context.emit('update:modelValue', item.value.{{ camel_case property.name }});
+      }
+    {{~ end
+      end ~}}
+
+    return { show };
   }
 });
 {{~ end ~}}

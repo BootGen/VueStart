@@ -1,7 +1,7 @@
 <template>
   <div class="col-12 h-100 p-0">
     <div class="col-12 h-100" id="editor"></div>
-    <alert class="aler-msg" :class="{ 'show': showErrorMsg, 'hide': !showErrorMsg }" :errorMsg="errorMsg" @close="showErrorMsg = false"></alert>
+    <alert class="aler-msg" :class="{ 'show': errorMsg != '', 'hide': errorMsg == '' }" :errorMsg="errorMsg" @close="hideError"></alert>
   </div>
 </template>
 
@@ -24,12 +24,12 @@ export default defineComponent({
   components: { Alert },
   props: {
     modelValue: String,
+    error: String,
   },
   emits: ['update:modelValue'],
   setup(props, context) {
-    const errorMsg = ref('');
+    const errorMsg = ref(props.error);
     let editor = null;
-    const showErrorMsg = ref(false);
     const store = useStore();
 
     const underlineMark = Decoration.mark({class: "cm-underline"})
@@ -58,12 +58,12 @@ export default defineComponent({
       provide: f => EditorView.decorations.from(f)
     })
 
+
     const underlineTheme = EditorView.baseTheme({
       ".cm-underline": { textDecoration: "underline 3px red" }
     })
-    
     onMounted(async () => {
-      let debouncedShowErrorState = debounce(showErrorState, 1000);
+      let debouncedSetErrorState = debounce(setErrorState, 1000);
 
       editor = new EditorView({
         state: EditorState.create({
@@ -107,7 +107,7 @@ export default defineComponent({
                   if (!validationResult.error) {
                     indent();
                   }
-                  debouncedShowErrorState(validationResult);
+                  debouncedSetErrorState(validationResult);
                   const value = editor.state.doc.toString();
                   if (props.modelValue != value) {
                     context.emit('update:modelValue', value);
@@ -127,22 +127,38 @@ export default defineComponent({
           })
         }
       }
+      function setErrorMsg() {
+        store.commit('setType', 'default');
+        errorMsg.value = props.error
+      }
       watchEffect(setEditorValue);
+      watchEffect(setErrorMsg);
+      watchEffect(errorMsg.value);
       editor.dispatch({effects: [StateEffect.appendConfig.of([underlineField, underlineTheme])]});
       setEditorValue();
     })
-    function showErrorState(validationResult) {
+
+    function setErrorState(validationResult) {
+      console.log('setErrorState');
       underlineChanged = true;
       if(validationResult.error){
-        store.commit('setType', 'error');
-        showErrorMsg.value = true;
-        errorMsg.value = validationResult.message;
+        showError(validationResult.message);
         if (validationResult.from > 0 && validationResult.to > 0 && validationResult.to > validationResult.from)
           editor.dispatch({effects: [addUnderline.of({ from: validationResult.from, to: validationResult.to })]});
+      } else if(props.error == '') {
+        hideError()
       } else {
-        store.commit('setType', 'default');
-        showErrorMsg.value = false;
+        store.commit('setType', 'error');
+        errorMsg.value = props.error
       }
+    }
+    function showError(msg) {
+      store.commit('setType', 'error');
+      errorMsg.value = msg;
+    }
+    function hideError() {
+      store.commit('setType', 'default');
+      errorMsg.value = '';
     }
     function indent() {
         const cursorPosition = editor.state.selection.main.head;
@@ -177,7 +193,7 @@ export default defineComponent({
           }
         }
     }
-    return { errorMsg, showErrorMsg }
+    return { errorMsg, hideError }
   }
 });
 </script>
@@ -186,8 +202,6 @@ export default defineComponent({
   .cm-editor {
     height: 100%;
   }
-
-
   .CodeMirror {
     height: 100%;
     background-color: #34495E;
