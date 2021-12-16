@@ -694,7 +694,10 @@ body {
       text-align: center;
     }
     .vuecoon.landing {
-      max-width: 200px;
+      max-width: 35vw;
+    }
+    .text-justify{
+      font-size: 1rem;
     }
     .jumbo-text-full.content {
       max-width: 50%;
