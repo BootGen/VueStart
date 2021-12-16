@@ -699,6 +699,9 @@ body {
     .jumbo-text-full.content {
       max-width: 50%;
     }
+    .github-icon {
+        font-size: min(10vh, 10vw);
+    }
     .vue_logo {
       width: 2.5rem;
       height: 2.5rem;
@@ -707,7 +710,10 @@ body {
       font-size: 1.5rem;
       margin-right: min(2.5vh, 7.5vw);
     }
-    .github {
+    .star-icon {
+      display: none!important;
+    }
+    .github > .small-text {
       display: none!important;
     }
     .slogen-text {
