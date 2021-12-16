@@ -431,7 +431,7 @@ body {
     margin: 1%;
   }
   .vuecoon.content {
-    max-width: 15vh;
+    max-width: min(15vh, 25vw);
   }
   .jumbotron {
     transition: all 1s ease-in-out;
@@ -679,7 +679,7 @@ body {
       overflow: unset;
     }
     .jumbotron.content {
-      height: 20vh;
+      height: min(15vh, 25vw);
     }
     .jumbo-text.landing{
       height: 26rem;
@@ -693,11 +693,31 @@ body {
       max-width: 100%;
       text-align: center;
     }
-    .vuecoon {
-      display: none;
+    .vuecoon.landing {
+      max-width: 200px;
+    }
+    .jumbo-text-full.content {
+      max-width: 50%;
+    }
+    .vue_logo {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+    .title {
+      font-size: 1.5rem;
+      margin-right: min(2.5vh, 7.5vw);
     }
     .github {
       display: none!important;
+    }
+    .slogen-text {
+      display: none!important;
+    }
+    .browser-container.content{
+      top: calc(min(15vh, 25vw) + 76vh - 1.5vh);
+    }
+    .footer.content{
+      top: calc(170vh + 1.5rem);
     }
   }
 
