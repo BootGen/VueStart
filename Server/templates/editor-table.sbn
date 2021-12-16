@@ -11,15 +11,15 @@ const  app = Vue.createApp({
   template: `
   <div class="d-flex breadcrumb mb-1">
     <div class="d-flex" v-for="(item, index) in breadcrumbs" :key="item">
-      <h5 class="px-2 clickable" v-if="item != breadcrumbs[breadcrumbs.length-1]" @click="sliceBreadcrumbs(item.name, item.data)">{{'{{'}} item.name {{'}}'}}</h5>
-      <h5 class="" v-if="item != breadcrumbs[breadcrumbs.length-1]">/</h5>
+      <h5 class="px-2 clickable" @click="sliceBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
+      <h5>/</h5>
     </div>
-      <h5 class="disabled px-2">{{'{{'}} breadcrumbs[breadcrumbs.length-1].name {{'}}'}}</h5>
+    <h5 class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
   </div>
   {{~ for class in classes ~}}
   {{~ for property in class.properties
     if property.is_collection && property.class ~}}
-  <{{ kebab_case property.class.name }}-list v-model="breadcrumbs[breadcrumbs.length-1].data" @show="show" v-if="breadcrumbs[breadcrumbs.length-1].name == '{{ property.name }}'"></{{ kebab_case property.class.name }}-list>
+  <{{ kebab_case property.class.name }}-list v-model="activeElement.obj[activeElement.property]" @show="show" v-if="activeElement.name == '{{ property.name }}'"></{{ kebab_case property.class.name }}-list>
     {{~ end
   end ~}}
   {{~ end ~}}
@@ -28,20 +28,17 @@ const  app = Vue.createApp({
   setup: function () {
     const {{ camel_case root.name }} = ref(null);
     const breadcrumbs = ref([]);
+    const activeElement = ref(null);
 
-    function show(name, i) {
-      breadcrumbs.value.push({ name: name, data: i });
+    function show(name, property, obj) {
+      if (activeElement.value)
+        breadcrumbs.value.push(activeElement.value);
+      activeElement.value = { name: name, property: property, obj: obj };
     }
 
-    function sliceBreadcrumbs(name, i){
-      const arr = [];
-      for(let i = 0; i < breadcrumbs.value.length; i++){
-        arr.push(breadcrumbs.value[i]);
-        if(breadcrumbs.value[i].name == name){
-          break;
-        }
-      }
-      breadcrumbs.value = arr;
+    function sliceBreadcrumbs(idx){
+      activeElement.value = breadcrumbs.value[idx];
+      breadcrumbs.value = breadcrumbs.value.slice(0, idx);
     }
     
     function toDataModel(data) {
@@ -104,7 +101,7 @@ const  app = Vue.createApp({
           {{ camel_case root.name }}.value = toDataModel(val);
           {{~ for property in root.properties
           if property.is_collection && property.class ~}}
-          breadcrumbs.value.push({ name: '{{ property.name }}', data: {{ camel_case root.name }}.value.{{ camel_case property.class.name.plural }} }){{if !for.last}},{{end}}
+          activeElement.value = { name: '{{ property.name }}', property: '{{ camel_case property.class.name.plural }}', obj: {{ camel_case root.name }}.value };
           {{~ end
         end ~}}
   
@@ -118,7 +115,7 @@ const  app = Vue.createApp({
     });
 
     window.addEventListener('storage', loadFromLocalStorage);
-    return { {{ camel_case root.name }}, show, breadcrumbs, sliceBreadcrumbs }
+    return { {{ camel_case root.name }}, show, breadcrumbs, sliceBreadcrumbs, activeElement }
   },
 });
 
@@ -145,7 +142,7 @@ app.component('{{ kebab_case class.name }}-view', {
     {{~ for property in class.properties
       if property.is_collection && property.class ~}}
     <td class="align-middle">
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ property.name }}', modelValue.{{ camel_case property.name }})">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ property.name }}', '{{ camel_case property.name }}', modelValue)">
         <span class="bi bi-eye" aria-hidden="true"></span>
       </button>
     </td>
@@ -191,7 +188,7 @@ app.component('{{ kebab_case class.name }}-edit', {
         {{~ for property in class.properties
     if property.is_collection && property.class ~}}
     <td class="align-middle">
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ property.name }}', modelValue.{{ camel_case property.name }})">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ property.name }}', '{{ camel_case property.name }}', modelValue)">
         <span class="bi bi-eye" aria-hidden="true"></span>
       </button>
     </td>
@@ -272,8 +269,8 @@ app.component('{{ kebab_case class.name }}-list', {
     const editedItemId = ref(-1);
     const newItem = ref(null);
 
-    function show(name, i) {
-      context.emit('show', name, i);
+    function show(name, property, obj) {
+      context.emit('show', name, property, obj);
     }
 
     function editItem(item) {
