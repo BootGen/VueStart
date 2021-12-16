@@ -37,7 +37,6 @@ function typeArray(val) {
   let r = {'type': 'object', 'properties': {}}
   val.forEach( function (v) {
     r = mergeDeep(r, typeValue(v).properties)
-    
   })
   return r;
 }
@@ -46,17 +45,23 @@ function typeArray(val) {
 function typeValue(val) {
   let type = [];
   if (Array.isArray(val)) {
-    type.push({array: true});
+    type.push('array');
   }
   
   if (typeof val == 'object') {
-    type.push({object: true});
+    type.push('object');
   }
   
-  if (typeof val == 'number' && Number.isInteger(val)) {
-    type.push({integer: true});
+  if (typeof val == 'number' ) {
+    if (Number.isInteger(val)) {
+      type.push('integer');
+    } else {
+      type.push('float');
+    }
   }
-  type.push({type: typeof val})
+  if(type.length == 0) {
+    type.push(typeof val);
+  }
 
   if (Array.isArray(val)) {
     return {'type': type, 'items': typeArray(val)};
@@ -67,10 +72,6 @@ function typeValue(val) {
     return {'type': type, 'properties': properties};
   }
   
-  if (typeof val == 'number' && Number.isInteger(val)) {
-    return {'type': type}
-  }
-
   return { 'type': type };
 }
 
