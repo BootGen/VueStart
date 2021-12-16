@@ -325,6 +325,7 @@ body {
     justify-content: center;
     color: #ffffff;
     padding: 1rem;
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
   }
   .fab-icon-holder .bi{
     font-size: 1.5rem;
@@ -334,7 +335,7 @@ body {
   }
 
   .fab {
-    height: 60px;
+    height: 50px;
     background: #42b983;
   }
   .fab-options {
@@ -701,6 +702,15 @@ body {
     }
     .footer.content{
       top: calc(170vh + 1.5rem);
+    }
+    .fab-icon-holder .bi {
+      font-size: 1rem;
+    }
+    .fab-icon-holder {
+      height: 40px;
+    }
+    .fab-options {
+      bottom: 50px;
     }
   }
 
