@@ -17,11 +17,9 @@ const  app = Vue.createApp({
     <h5 class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
   </div>
   {{~ for class in classes ~}}
-  {{~ for property in class.properties
-    if property.is_collection && property.class ~}}
-  <{{ kebab_case property.class.name }}-list v-model="activeElement.obj[activeElement.property]" @show="show" v-if="activeElement.name == '{{ property.name }}'"></{{ kebab_case property.class.name }}-list>
-    {{~ end
-  end ~}}
+  {{ class.name }}
+  {{'{{'}} activeElement.name {{'}}'}}
+  <{{ kebab_case class.name }}-list v-model="activeElement.obj[activeElement.property]" @show="show" v-if="activeElement.name == '{{ class.name.plural }}'"></{{ kebab_case class.name }}-list>
   {{~ end ~}}
   `,
   name: 'App',
