@@ -189,9 +189,9 @@ app.component('{{ kebab_case class.name }}-list', {
     <div class="d-flex mb-1">
       <h5>{{ class.name.plural }}:</h5>
     </div>
-    <div class="col-12 mb-2" v-for="item in modelValue" :key="item.id">
+    <div class="col-12 mb-2" v-for="(item, idx) in modelValue" :key="item.id">
       <div class="card shadow-sm">
-        <{{ kebab_case class.name }}-edit v-model="item.value" @canceled="finishEditing()" @saved="finishEditing()" v-if="editedItemId === item.id"></{{ kebab_case class.name }}-edit>
+        <{{ kebab_case class.name }}-edit modelValue="item.value" @update:modelValue="updateItem(idx, item)" @canceled="finishEditing()" @saved="finishEditing()" v-if="editedItemId === item.id"></{{ kebab_case class.name }}-edit>
         <{{ kebab_case class.name }}-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></{{ kebab_case class.name }}-view>
       </div>
       {{~ for property in class.properties
@@ -230,6 +230,11 @@ app.component('{{ kebab_case class.name }}-list', {
       if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
         context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id));
       }
+    }
+    function updateItem(idx, item) {
+      let newList = [...props.modelValue];
+      newList[idx] = item;
+      context.emit('update:modelValue', newList);
     }
     function finishEditing() {
       editedItemId.value = -1;
