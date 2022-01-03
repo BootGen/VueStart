@@ -230,7 +230,7 @@ app.component('{{ kebab_case class.name }}-list', {
 
     const accordionId = randomToken();
 
-    return { editedItemIdx, newItem, editItem, deleteItem, finishEditing, addNewItem, saveNewItem, cancelAdd, accordionId };
+    return { editedItemIdx, newItem, editItem, deleteItem, endEditing, addNewItem, saveNewItem, cancelAdd, accordionId };
   }
 });
 {{~ end ~}}
