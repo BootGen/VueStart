@@ -149,7 +149,7 @@ app.component('{{ kebab_case class.name }}-list', {
         <div class="accordion-body">
           <div>
             <{{ kebab_case class.name }}-edit :modelValue="item" @update:modelValue="updateItem(idx, $event)" @canceled="endEditing()" v-if="editedItemIdx === idx"></{{ kebab_case class.name }}-edit>
-            <{{ kebab_case class.name }}-view :value="item.value" @delete="deleteItem(idx)" @edit="editItem(idx)" v-else></{{ kebab_case class.name }}-view>
+            <{{ kebab_case class.name }}-view :value="item" @delete="deleteItem(idx)" @edit="editItem(idx)" v-else></{{ kebab_case class.name }}-view>
           </div>
           {{~ for property in class.properties
             if property.is_collection && property.class ~}}
@@ -234,6 +234,7 @@ app.component('{{ kebab_case class.name }}-list', {
       newItem,
       editItem,
       deleteItem,
+      updateItem,
       endEditing,
       addNewItem,
       saveNewItem,
