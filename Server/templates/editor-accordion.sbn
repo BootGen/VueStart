@@ -19,51 +19,6 @@ const  app = Vue.createApp({
   name: 'App',
   setup: function () {
     const {{ camel_case root.name }} = ref(null);
-    function toDataModel(data) {
-        const v = { ... data };
-        for (const property in v) {
-          if(Array.isArray(v[property])){
-            v[property] = toDataArray(v[property]);
-          }
-        }
-        return v
-    }
-    function toDataArray(data) {
-      return data.map((val, idx) => {
-        const v = { ... val };
-        for (const property in v) {
-          if(Array.isArray(v[property])){
-            v[property] = toDataArray(v[property]);
-          }
-        }
-        return {
-          id: idx,
-          value: v
-        }
-      })
-    }
-    function toSimpleObject(data) {
-      let obj =  { ...data };
-      for (const property in obj) {
-        if(Array.isArray(obj[property])){
-          obj[property] = toSimpleArray(obj[property]);
-        }
-      }
-      return obj;
-    }
-    function toSimpleArray(data) {
-      let arr =  data.map(val => {
-        return { ...val.value }
-      });
-      arr.forEach(item => {
-        for (const property in item) {
-          if(Array.isArray(item[property])){
-            item[property] = toSimpleArray(item[property]);
-          }
-        }
-      });
-      return arr;
-    }
     function saveToLocalStorage(newValue) {
         let minimized = JSON.stringify(newValue);
         let oldValue = localStorage.getItem('json');
@@ -74,16 +29,13 @@ const  app = Vue.createApp({
     function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
       if (json) {
-        const val = JSON.parse(json);
-        if (val) {
-          {{ camel_case root.name }}.value = toDataModel(val);
-        }
+        {{ camel_case root.name }}.value = JSON.parse(json);
       }
     }
     loadFromLocalStorage();
 
     watchEffect(() => {
-      saveToLocalStorage(toSimpleObject({{ camel_case root.name }}.value));
+      saveToLocalStorage({{ camel_case root.name }}.value);
     });
 
     window.addEventListener('storage', loadFromLocalStorage);
@@ -193,16 +145,16 @@ app.component('{{ kebab_case class.name }}-list', {
           <h5>{{ class.name.plural }}:</h5>
         </button>
       </h2>
-      <div :id="accordionId+'-collapseOne'" class="accordion-collapse collapse show" aria-labelledby="{{ class.name.plural }}-headingOne" v-for="(item, idx) in modelValue" :key="item.id">
+      <div :id="accordionId+'-collapseOne'" class="accordion-collapse collapse show" aria-labelledby="{{ class.name.plural }}-headingOne" v-for="(item, idx) in modelValue" :key="idx">
         <div class="accordion-body">
           <div>
-            <{{ kebab_case class.name }}-edit :modelValue="item.value" @update:modelValue="updateItem(idx, $event)" @canceled="endEditing()" v-if="editedItemId === item.id"></{{ kebab_case class.name }}-edit>
-            <{{ kebab_case class.name }}-view :value="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></{{ kebab_case class.name }}-view>
+            <{{ kebab_case class.name }}-edit :modelValue="item" @update:modelValue="updateItem(idx, $event)" @canceled="endEditing()" v-if="editedItemIdx === idx"></{{ kebab_case class.name }}-edit>
+            <{{ kebab_case class.name }}-view :value="item.value" @delete="deleteItem(idx)" @edit="editItem(idx)" v-else></{{ kebab_case class.name }}-view>
           </div>
           {{~ for property in class.properties
             if property.is_collection && property.class ~}}
             <div class="ms-5 mt-2">
-              <{{ kebab_case property.class.name }}-list :modelValue="item.value.{{ camel_case property.class.name.plural }}" @update:modelValue="update{{ property.class.name.plural }}(idx, $event)"></{{ kebab_case property.class.name }}-list>
+              <{{ kebab_case property.class.name }}-list :modelValue="item.{{ camel_case property.class.name.plural }}" @update:modelValue="update{{ property.class.name.plural }}(idx, $event)"></{{ kebab_case property.class.name }}-list>
             </div>
           {{~ end
           end ~}}
@@ -220,19 +172,19 @@ app.component('{{ kebab_case class.name }}-list', {
   </div>`,
   name: '{{ class.name }}List',
   props: {
-    modelValue: Object
+    modelValue: Array
   },
   emits: ['update:modelValue'],
   setup(props, context) {
-    const editedItemId = ref(-1);
+    const editedItemIdx = ref(-1);
     const newItem = ref(null);
 
-    function editItem(item) {
-      editedItemId.value = item.id;
+    function editItem(idx) {
+      editedItemIdx.value = idx;
     }
-    function deleteItem(item) {
+    function deleteItem(idx) {
       if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
-        context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id));
+        context.emit('update:modelValue', props.modelValue.filter((item, i) => i !== idx));
       }
     }
     function updateItem(idx, item) {
@@ -254,7 +206,7 @@ app.component('{{ kebab_case class.name }}-list', {
     {{~ end
       end ~}}
     function endEditing() {
-      editedItemId.value = -1;
+      editedItemIdx.value = -1;
     }
     function addNewItem() {
       newItem.value = {
@@ -278,7 +230,7 @@ app.component('{{ kebab_case class.name }}-list', {
 
     const accordionId = randomToken();
 
-    return { editedItemId, newItem, editItem, deleteItem, finishEditing, addNewItem, saveNewItem, cancelAdd, accordionId };
+    return { editedItemIdx, newItem, editItem, deleteItem, finishEditing, addNewItem, saveNewItem, cancelAdd, accordionId };
   }
 });
 {{~ end ~}}
