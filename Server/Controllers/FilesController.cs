@@ -26,7 +26,6 @@ namespace VueStart.Controllers
             string content;
             if (!memoryCache.TryGetValue(key, out content))
                 return NotFound();
-            memoryCache.Remove(key);
 
             string contentType;
 
