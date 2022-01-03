@@ -1,10 +1,8 @@
 <template>
-  <div class="row" v-if="show">
-    <div class="col-12 d-flex error-alert-container">
-      <div class="alert m-2 alert-danger d-flex align-items-center">
-        <button type="button" class="btn-close p-2" aria-label="Close" @click="show=false"></button>
-        {{ errorMsg }}
-      </div>
+  <div class="col-12 d-flex error-alert-container"  v-if="show">
+    <div class="alert m-2 alert-danger d-flex align-items-center">
+      {{ errorMsg }}
+      <button type="button" class="btn p-2" aria-label="Close" @click="show=false"><span class="bi bi-x-lg px-2" aria-hidden="true"></span></button>
     </div>
   </div>
 </template>
