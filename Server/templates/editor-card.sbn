@@ -224,7 +224,7 @@ app.component('{{ kebab_case class.name }}-list', {
         newItem.value = null;
     }
 
-    return { editedItemIdx, newItem, editItem, deleteItem, finishEditing, addNewItem, saveNewItem, cancelAdd };
+    return { editedItemIdx, newItem, editItem, deleteItem, endEditing, addNewItem, saveNewItem, cancelAdd };
   }
 });
 {{~ end ~}}
