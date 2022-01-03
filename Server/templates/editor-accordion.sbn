@@ -200,10 +200,9 @@ app.component('{{ kebab_case class.name }}-list', {
             <{{ kebab_case class.name }}-view :value="item.value" @delete="deleteItem(item)" @edit="editItem(item)" v-else></{{ kebab_case class.name }}-view>
           </div>
           {{~ for property in class.properties
-            if property.is_collection && property.class
-            ~}}
+            if property.is_collection && property.class ~}}
             <div class="ms-5 mt-2">
-              <{{ kebab_case property.class.name }}-list v-model="item.value.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
+              <{{ kebab_case property.class.name }}-list :modelValue="item.value.{{ camel_case property.class.name.plural }}" @update:modelValue="update{{ property.class.name.plural }}(idx, $event)"></{{ kebab_case property.class.name }}-list>
             </div>
           {{~ end
           end ~}}
@@ -242,6 +241,18 @@ app.component('{{ kebab_case class.name }}-list', {
       endEditing();
       context.emit('update:modelValue', newList);
     }
+    {{~ for property in class.properties
+        if property.is_collection && property.class ~}}
+    function update{{ property.class.name.plural }}(idx, list) {
+      let newList = [...props.modelValue];
+      newList[idx] = {
+        ...newList[idx],
+        {{ camel_case property.class.name.plural }}: list
+      };
+      context.emit('update:modelValue', newList);
+    }
+    {{~ end
+      end ~}}
     function endEditing() {
       editedItemId.value = -1;
     }
