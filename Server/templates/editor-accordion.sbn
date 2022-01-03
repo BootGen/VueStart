@@ -219,8 +219,7 @@ app.component('{{ kebab_case class.name }}-list', {
     }
     function saveNewItem(item) {
         const items = [...props.modelValue];
-        const lastId = items.length == 0 ? 0 : items[items.length-1].id;
-        items.push({id: lastId + 1, value: item});
+        items.push(item);
         context.emit('update:modelValue', items);
         newItem.value = null;
     }
@@ -230,7 +229,22 @@ app.component('{{ kebab_case class.name }}-list', {
 
     const accordionId = randomToken();
 
-    return { editedItemIdx, newItem, editItem, deleteItem, endEditing, addNewItem, saveNewItem, cancelAdd, accordionId };
+    return {
+      editedItemIdx,
+      newItem,
+      editItem,
+      deleteItem,
+      endEditing,
+      addNewItem,
+      saveNewItem,
+      cancelAdd,
+      accordionId,
+      {{~ for property in class.properties
+        if property.is_collection && property.class ~}}
+      update{{ property.class.name.plural }},
+      {{~ end 
+      end ~}}
+    };
   }
 });
 {{~ end ~}}
