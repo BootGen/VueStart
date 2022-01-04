@@ -12,7 +12,7 @@ const  app = Vue.createApp({
     {{~ for property in root.properties
       if property.is_collection && property.class
       ~}}
-    <{{ kebab_case property.class.name }}-list v-model="{{ camel_case root.name }}.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
+    <{{ kebab_case property.class.name }}-list :value="{{ camel_case root.name }}.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
     {{~ end
       end ~}}
   `,
@@ -78,7 +78,7 @@ app.component('{{ kebab_case class.name }}-list', {
         </button>
       </h2>
       <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
-      <div :id="accordionId+'-collapseOne'" class="accordion-collapse collapse show" aria-labelledby="{{ class.name.plural }}-headingOne" v-for="(item, idx) in modelValue" :key="idx">
+      <div :id="accordionId+'-collapseOne'" class="accordion-collapse collapse show" aria-labelledby="{{ class.name.plural }}-headingOne" v-for="(item, idx) in value" :key="idx">
         <div class="accordion-body">
           <div>
             <{{ kebab_case class.name }}-view :value="item"></{{ kebab_case class.name }}-view>
@@ -86,7 +86,7 @@ app.component('{{ kebab_case class.name }}-list', {
           {{~ for property in class.properties
             if property.is_collection && property.class ~}}
             <div class="ms-5 mt-2">
-              <{{ kebab_case property.class.name }}-list :modelValue="item.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
+              <{{ kebab_case property.class.name }}-list :value="item.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
             </div>
           {{~ end
           end ~}}
@@ -96,7 +96,7 @@ app.component('{{ kebab_case class.name }}-list', {
   </div>`,
   name: '{{ class.name }}List',
   props: {
-    modelValue: Array
+    value: Array
   },
   setup() {
     const accordionId = randomToken();
