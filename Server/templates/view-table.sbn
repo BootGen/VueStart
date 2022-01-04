@@ -38,16 +38,12 @@ const  app = Vue.createApp({
     function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
       if (json) {
-        const val = JSON.parse(json);
-        if (val) {
-          {{ camel_case root.name }}.value = JSON.parse(json);
-          {{~ for property in root.properties
-          if property.is_collection && property.class ~}}
-          activeElement.value = { name: '{{ property.name }}', property: '{{ camel_case property.class.name.plural }}', obj: {{ camel_case root.name }}.value };
-          {{~ end
-        end ~}}
-  
-        }
+        {{ camel_case root.name }}.value = JSON.parse(json);
+        {{~ for property in root.properties
+        if property.is_collection && property.class ~}}
+        activeElement.value = { name: '{{ property.name }}', property: '{{ camel_case property.class.name.plural }}', obj: {{ camel_case root.name }}.value };
+        {{~ end
+          end ~}}
       }
     }
     loadFromLocalStorage();
@@ -128,8 +124,6 @@ app.component('{{ kebab_case class.name }}-list', {
   },
   emits: ['show'],
   setup(props, context) {
-    const newItem = ref(null);
-
     function show(name, property, obj) {
       context.emit('show', name, property, obj);
     }
