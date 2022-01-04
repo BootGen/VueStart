@@ -115,6 +115,7 @@
     <div class="col-12 d-flex align-items-center footer" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
     </div>
+    <tip :tipMsg="tipMsg" v-if="tipMsg != '' && showContent"></tip>
   </div>
 </template>
 
@@ -127,10 +128,11 @@ import CodeMirror from './components/CodeMirror.vue';
 import BrowserFrame from './components/BrowserFrame.vue'
 import DownloadPanel from './components/DownloadPanel.vue'
 import Tab from './components/Tab.vue'
+import Tip from './components/Tip.vue';
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { CodeMirror, BrowserFrame, DownloadPanel, Tab },
+  components: { CodeMirror, BrowserFrame, DownloadPanel, Tab, Tip },
   setup() {
     const json = ref('');
     const jsonSchema = ref('');
@@ -148,6 +150,14 @@ export default defineComponent({
     const layoutMode = ref(layoutModes.Card);
     const showDownloadPanel = ref(false);
     const inputError = ref('');
+    const tipMsg = ref('');
+    
+    if(localStorage.getItem('showTips') != 'false') {
+      localStorage.setItem('showTips', true);
+    }
+    if (!localStorage.getItem('firstUse') && localStorage.getItem('showTips') == 'true') {
+      tipMsg.value = 'Try to edit the JSON data on the left side, and see the changes in the application on the right side';
+    }
 
     function saveToLocalStorage(newValue) {
       try {
@@ -156,6 +166,19 @@ export default defineComponent({
         let oldValue = localStorage.getItem('json');
         if (minimized != oldValue) {
             localStorage.setItem('json', minimized);
+            if(showContent.value && localStorage.getItem('showTips') == 'true') {
+              let debouncedTip = debounce(setTip, 1000);
+              let largeDebouncedTip = debounce(setTip, 8000);
+              if(!localStorage.getItem('regeneratedTip')) {
+                localStorage.setItem('firstUse', true)
+                debouncedTip('If you make structural changes to the JSON data, the application is automatically regenerated.');
+              }
+              if(!localStorage.getItem('buttonsTip')) {
+                largeDebouncedTip('Try out multiple application types and layouts with the buttons in the bottom right corner');
+                localStorage.setItem('regeneratedTip', true);
+                localStorage.setItem('buttonsTip', true);
+              }
+            }
         }
         document.getElementById('download-btn').classList.add('pulse-download-btn');
         setTimeout(function(){ 
@@ -171,6 +194,9 @@ export default defineComponent({
         return data;
       return JSON.stringify(data);
     }
+    function setTip(msg) {
+      tipMsg.value = msg;
+    }
     getProjectContentFromServer('example_input').then( (content) => {
       json.value = content;
       jsonSchema.value = ref(getSchema(JSON.parse(json.value)));
@@ -179,8 +205,8 @@ export default defineComponent({
         try {
           const newSchema = getSchema(JSON.parse(json.value));
           if(JSON.stringify(newSchema) != JSON.stringify(jsonSchema.value)) {
-            jsonSchema.value = newSchema
-            debouncedGenerate()
+            jsonSchema.value = newSchema;
+            debouncedGenerate();
           } else {
             saveToLocalStorage(json.value);
           }
@@ -255,7 +281,7 @@ export default defineComponent({
       window.open("https://github.com/BootGen/VueStart");
     }
 
-    return { showContent, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub }
+    return { showContent, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg }
   }
 });
 
