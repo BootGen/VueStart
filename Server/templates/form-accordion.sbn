@@ -126,8 +126,6 @@ app.component('{{ kebab_case class.name }}-list', {
   },
   emits: ['update:modelValue'],
   setup(props, context) {
-    const newItem = ref(null);
-    const editedItemIdx = ref(-1);
 
     function deleteItem(idx) {
       if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
@@ -137,7 +135,6 @@ app.component('{{ kebab_case class.name }}-list', {
     function updateItem(idx, item) {
       let newList = [...props.modelValue];
       newList[idx] = item;
-      endEditing();
       context.emit('update:modelValue', newList);
     }
     {{~ for property in class.properties
@@ -152,34 +149,28 @@ app.component('{{ kebab_case class.name }}-list', {
     }
     {{~ end
       end ~}}
-    function endEditing() {
-      editedItemIdx.value = -1;
-    }
     function addNewItem() {
-      newItem.value = {
+      let newItem = {
         {{~ for property in class.properties
             if !property.is_key && !property.is_parent_reference ~}}
         {{ camel_case property.name }}: {{ if property.is_collection }}[]{{else}}''{{end}}{{if !for.last}},{{end}}
         {{~ end
             end ~}}
       };
-      saveNewItem(newItem.value);
+      saveNewItem(newItem);
     }
     function saveNewItem(item) {
       const items = [...props.modelValue];
       items.push(item);
       context.emit('update:modelValue', items);
-      newItem.value = null;
     }
 
     const accordionId = randomToken();
 
     return {
-      editedItemIdx,
       deleteItem,
       updateItem,
       addNewItem,
-      saveNewItem,
       accordionId,
       {{~ for property in class.properties
         if property.is_collection && property.class ~}}
