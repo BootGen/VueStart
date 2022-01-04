@@ -39,6 +39,20 @@ namespace VueStart.Services
             return id;
         }
 
+        public JsonElement Fix(JsonElement json) {
+            var jObject = JObject.Parse(json.ToString(), new JsonLoadSettings { CommentHandling = CommentHandling.Ignore, DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
+            try {
+                var dataModel = new DataModel {
+                TypeToString = TypeScriptGenerator.ToTypeScriptType
+                };
+                dataModel.LoadRootObject("App", jObject);
+            } catch (NamingException e) {
+                var jsonString = jObject.RenamingArrays(e.ActualName, e.SuggestedName).ToString();
+                return JsonDocument.Parse(jsonString).RootElement;
+            }
+            return json;
+        }
+
         public string GenerateToCache(JsonElement json, string title, string templateFileName) {
             string id = Generate(json, title, templateFileName, out string appjs, out string indexhtml);
             memoryCache.Set($"{id}/app.js", Minify(appjs), TimeSpan.FromMinutes(3));
