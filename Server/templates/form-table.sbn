@@ -11,83 +11,30 @@ const  app = Vue.createApp({
   template: `
   <div class="d-flex breadcrumb mb-1">
     <div class="d-flex" v-for="(item, index) in breadcrumbs" :key="item">
-      <h5 class="px-2 clickable" v-if="item != breadcrumbs[breadcrumbs.length-1]" @click="sliceBreadcrumbs(item.name, item.data)">{{'{{'}} item.name {{'}}'}}</h5>
-      <h5 class="" v-if="item != breadcrumbs[breadcrumbs.length-1]">/</h5>
+      <h5 class="px-2 clickable" @click="sliceBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
+      <h5>/</h5>
     </div>
-      <h5 class="disabled px-2">{{'{{'}} breadcrumbs[breadcrumbs.length-1].name {{'}}'}}</h5>
+      <h5 class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
   </div>
   {{~ for class in classes ~}}
-  {{~ for property in class.properties
-    if property.is_collection && property.class ~}}
-  <{{ kebab_case property.class.name }}-list v-model="breadcrumbs[breadcrumbs.length-1].data" @show="show" v-if="breadcrumbs[breadcrumbs.length-1].name == '{{ property.name }}'"></{{ kebab_case property.class.name }}-list>
-    {{~ end
-  end ~}}
+  <{{ kebab_case class.name }}-list v-model="activeElement.obj[activeElement.property]" @show="show" v-if="activeElement.name == '{{ class.name.plural }}'"></{{ kebab_case class.name }}-list>
   {{~ end ~}}
   `,
   name: 'App',
   setup: function () {
     const {{ camel_case root.name }} = ref(null);
     const breadcrumbs = ref([]);
+    const activeElement = ref(null);
 
-    function show(name, i) {
-      breadcrumbs.value.push({ name: name, data: i });
+    function show(name, property, obj) {
+      if (activeElement.value)
+        breadcrumbs.value.push(activeElement.value);
+      activeElement.value = { name: name, property: property, obj: obj };
     }
 
-    function sliceBreadcrumbs(name, i){
-      const arr = [];
-      for(let i = 0; i < breadcrumbs.value.length; i++){
-        arr.push(breadcrumbs.value[i]);
-        if(breadcrumbs.value[i].name == name){
-          break;
-        }
-      }
-      breadcrumbs.value = arr;
-    }
-    
-    function toDataModel(data) {
-        const v = { ... data };
-        for (const property in v) {
-          if(Array.isArray(v[property])){
-            v[property] = toDataArray(v[property]);
-          }
-        }
-        return v
-    }
-    function toDataArray(data) {
-      return data.map((val, idx) => {
-        const v = { ... val };
-        for (const property in v) {
-          if(Array.isArray(v[property])){
-            v[property] = toDataArray(v[property]);
-          }
-        }
-        return {
-          id: idx,
-          value: v
-        }
-      })
-    }
-    function toSimpleObject(data) {
-      let obj =  { ...data };
-      for (const property in obj) {
-        if(Array.isArray(obj[property])){
-          obj[property] = toSimpleArray(obj[property]);
-        }
-      }
-      return obj;
-    }
-    function toSimpleArray(data) {
-      let arr =  data.map(val => {
-        return { ...val.value }
-      });
-      arr.forEach(item => {
-        for (const property in item) {
-          if(Array.isArray(item[property])){
-            item[property] = toSimpleArray(item[property]);
-          }
-        }
-      });
-      return arr;
+    function sliceBreadcrumbs(idx){
+      activeElement.value = breadcrumbs.value[idx];
+      breadcrumbs.value = breadcrumbs.value.slice(0, idx);
     }
     function saveToLocalStorage(newValue) {
         let minimized = JSON.stringify(newValue);
@@ -101,10 +48,10 @@ const  app = Vue.createApp({
       if (json) {
         const val = JSON.parse(json);
         if (val) {
-          {{ camel_case root.name }}.value = toDataModel(val);
+          {{ camel_case root.name }}.value = JSON.parse(json);
           {{~ for property in root.properties
           if property.is_collection && property.class ~}}
-          breadcrumbs.value.push({ name: '{{ property.name }}', data: {{ camel_case root.name }}.value.{{ camel_case property.class.name.plural }} }){{if !for.last}},{{end}}
+          activeElement.value = { name: '{{ property.name }}', property: '{{ camel_case property.class.name.plural }}', obj: {{ camel_case root.name }}.value };
           {{~ end
         end ~}}
   
@@ -114,11 +61,11 @@ const  app = Vue.createApp({
     loadFromLocalStorage();
 
     watchEffect(() => {
-      saveToLocalStorage(toSimpleObject({{ camel_case root.name }}.value));
+      saveToLocalStorage({{ camel_case root.name }}.value);
     });
 
     window.addEventListener('storage', loadFromLocalStorage);
-    return { {{ camel_case root.name }}, show, breadcrumbs, sliceBreadcrumbs }
+    return { {{ camel_case root.name }}, show, breadcrumbs, sliceBreadcrumbs, activeElement }
   },
 });
 
@@ -139,7 +86,8 @@ app.component('{{ kebab_case class.name }}-edit', {
         type="text"
         {{~ end ~}} 
         class="form-control"
-        v-model="modelValue.{{ camel_case property.name }}"
+        v-model="editedItem.{{ camel_case property.name }}"
+        @input="save"
         :placeholder="{{ property.name }}">
       </div>
     </td>
@@ -148,7 +96,7 @@ app.component('{{ kebab_case class.name }}-edit', {
         {{~ for property in class.properties
     if property.is_collection && property.class ~}}
     <td class="align-middle">
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ property.name }}', modelValue.{{ camel_case property.name }})">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ property.name }}', '{{ camel_case property.name }}', modelValue)">
         <span class="bi bi-eye" aria-hidden="true"></span>
       </button>
     </td>
@@ -165,6 +113,15 @@ app.component('{{ kebab_case class.name }}-edit', {
     modelValue: Object,
   },
   emits: ['update:modelValue', 'delete'],
+  setup(props, context) {
+    const editedItem = reactive({ ...props.modelValue });
+
+    function save() {
+      context.emit('update:modelValue', editedItem);
+    }
+
+    return { editedItem, save }
+  },
 });
 
 app.component('{{ kebab_case class.name }}-list', {
@@ -191,11 +148,8 @@ app.component('{{ kebab_case class.name }}-list', {
       </tr>
     </thead>
     <tbody>
-      <tr v-for="item in modelValue" :key="item.id">
-        <{{ kebab_case class.name }}-edit v-model="item.value" @delete="deleteItem(item)" @show="show"></{{ kebab_case class.name }}-edit>
-      </tr>
-      <tr v-if="newItem != null">
-        <{{ kebab_case class.name }}-edit v-model="newItem" @canceled="cancelAdd" @saved="saveNewItem()"></{{ kebab_case class.name }}-edit>
+      <tr v-for="(item, idx) in modelValue" :key="idx">
+        <{{ kebab_case class.name }}-edit :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(item)" @show="show"></{{ kebab_case class.name }}-edit>
       </tr>
       <tr>
         <button type="button" class="btn btn-sm rounded-pill m-1" @click="addNewItem()">
@@ -206,36 +160,50 @@ app.component('{{ kebab_case class.name }}-list', {
   </table>`,
   name: '{{ class.name }}List',
   props: {
-    modelValue: Object
+    modelValue: Array
   },
   emits: ['update:modelValue', 'show'],
   setup(props, context) {
-    const newItem = ref(null);
 
-    function show(name, i) {
-      context.emit('show', name, i);
+    function show(name, property, obj) {
+      context.emit('show', name, property, obj);
     }
-    function deleteItem(item) {
+    function deleteItem(idx) {
       if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
-        context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id));
+        context.emit('update:modelValue', props.modelValue.filter((item, i) => i !== idx));
       }
     }
+    function updateItem(idx, item) {
+      let newList = [...props.modelValue];
+      newList[idx] = item;
+      context.emit('update:modelValue', newList);
+    }
+    {{~ for property in class.properties
+        if property.is_collection && property.class ~}}
+    function update{{ property.class.name.plural }}(idx, list) {
+      let newList = [...props.modelValue];
+      newList[idx] = {
+        ...newList[idx],
+        {{ camel_case property.class.name.plural }}: list
+      };
+      context.emit('update:modelValue', newList);
+    }
+    {{~ end
+      end ~}}
     function addNewItem() {
-      newItem.value = {
+      let newItem = {
         {{~ for property in class.properties
             if !property.is_key && !property.is_parent_reference ~}}
         {{ camel_case property.name }}: {{ if property.is_collection }}[]{{else}}''{{end}}{{if !for.last}},{{end}}
         {{~ end
             end ~}}
       };
-      saveNewItem();
+      saveNewItem(newItem);
     }
-    function saveNewItem() {
+    function saveNewItem(item) {
         const items = [...props.modelValue];
-        const lastId = items.length == 0 ? 0 : items[items.length-1].id;
-        items.push({id: lastId + 1, value: newItem.value});
+        items.push(item);
         context.emit('update:modelValue', items);
-        newItem.value = null;
     }
     {{~ for property in class.properties
       if property.is_collection && property.class ~}}
@@ -244,11 +212,18 @@ app.component('{{ kebab_case class.name }}-list', {
       }
     {{~ end
       end ~}}
-    function cancelAdd() {
-        newItem.value = null;
-    }
 
-    return { newItem, deleteItem, addNewItem, show};
+    return {
+      deleteItem,
+      updateItem,
+      addNewItem,
+      show,
+      {{~ for property in class.properties
+        if property.is_collection && property.class ~}}
+      update{{ property.class.name.plural }},
+      {{~ end 
+      end ~}}
+    };
   }
 });
 {{~ end ~}}
