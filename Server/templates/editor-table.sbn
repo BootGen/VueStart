@@ -30,6 +30,7 @@ const  app = Vue.createApp({
       if (activeElement.value)
         breadcrumbs.value.push(activeElement.value);
       activeElement.value = { name: name, property: property, obj: obj };
+      console.log('activeElement:', activeElement.value);
     }
 
     function sliceBreadcrumbs(idx){
@@ -37,51 +38,6 @@ const  app = Vue.createApp({
       breadcrumbs.value = breadcrumbs.value.slice(0, idx);
     }
     
-    function toDataModel(data) {
-        const v = { ... data };
-        for (const property in v) {
-          if(Array.isArray(v[property])){
-            v[property] = toDataArray(v[property]);
-          }
-        }
-        return v
-    }
-    function toDataArray(data) {
-      return data.map((val, idx) => {
-        const v = { ... val };
-        for (const property in v) {
-          if(Array.isArray(v[property])){
-            v[property] = toDataArray(v[property]);
-          }
-        }
-        return {
-          id: idx,
-          value: v
-        }
-      })
-    }
-    function toSimpleObject(data) {
-      let obj =  { ...data };
-      for (const property in obj) {
-        if(Array.isArray(obj[property])){
-          obj[property] = toSimpleArray(obj[property]);
-        }
-      }
-      return obj;
-    }
-    function toSimpleArray(data) {
-      let arr =  data.map(val => {
-        return { ...val.value }
-      });
-      arr.forEach(item => {
-        for (const property in item) {
-          if(Array.isArray(item[property])){
-            item[property] = toSimpleArray(item[property]);
-          }
-        }
-      });
-      return arr;
-    }
     function saveToLocalStorage(newValue) {
         let minimized = JSON.stringify(newValue);
         let oldValue = localStorage.getItem('json');
@@ -94,7 +50,7 @@ const  app = Vue.createApp({
       if (json) {
         const val = JSON.parse(json);
         if (val) {
-          {{ camel_case root.name }}.value = toDataModel(val);
+          {{ camel_case root.name }}.value = JSON.parse(json);
           {{~ for property in root.properties
           if property.is_collection && property.class ~}}
           activeElement.value = { name: '{{ property.name }}', property: '{{ camel_case property.class.name.plural }}', obj: {{ camel_case root.name }}.value };
@@ -107,7 +63,7 @@ const  app = Vue.createApp({
     loadFromLocalStorage();
 
     watchEffect(() => {
-      saveToLocalStorage(toSimpleObject({{ camel_case root.name }}.value));
+      saveToLocalStorage({{ camel_case root.name }}.value);
     });
 
     window.addEventListener('storage', loadFromLocalStorage);
@@ -128,9 +84,9 @@ app.component('{{ kebab_case class.name }}-view', {
       if !property.is_key ~}}
     <td class="align-middle">
     {{~ if (get_type property) == "Date" ~}}
-      {{'{{'}} $filters.formatDatetime(modelValue.{{ camel_case property.name }}) {{'}}'}}
+      {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
     {{~ else ~}}
-      {{'{{'}} modelValue.{{ camel_case property.name }} {{'}}'}}
+      {{'{{'}} value.{{ camel_case property.name }} {{'}}'}}
     {{~ end ~}}
     </td>
     {{~ end
@@ -138,7 +94,7 @@ app.component('{{ kebab_case class.name }}-view', {
     {{~ for property in class.properties
       if property.is_collection && property.class ~}}
     <td class="align-middle">
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ property.name }}', '{{ camel_case property.name }}', modelValue)">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ property.name }}', '{{ camel_case property.name }}', value)">
         <span class="bi bi-eye" aria-hidden="true"></span>
       </button>
     </td>
@@ -155,7 +111,7 @@ app.component('{{ kebab_case class.name }}-view', {
   `,
   name: '{{ class.name }}View',
   props: {
-    modelValue: Object,
+    value: Object,
   },
   emits: ['edit',  'delete', 'show']
 });
@@ -203,12 +159,11 @@ app.component('{{ kebab_case class.name }}-edit', {
   props: {
     modelValue: Object,
   },
-  emits: ['update:modelValue', 'canceled', 'saved'],
+  emits: ['update:modelValue', 'canceled'],
   setup(props, context) {
     const editedItem = reactive({ ...props.modelValue });
     function save() {
       context.emit('update:modelValue', editedItem);
-      context.emit('saved');
     }
     function cancel() {
       context.emit('canceled');
@@ -242,12 +197,12 @@ app.component('{{ kebab_case class.name }}-list', {
       </tr>
     </thead>
     <tbody>
-      <tr v-for="item in modelValue" :key="item.id">
-        <{{ kebab_case class.name }}-edit v-model="item.value" @canceled="finishEditing()" @saved="finishEditing()" @show="show" v-if="editedItemId === item.id"></{{ kebab_case class.name }}-edit>
-        <{{ kebab_case class.name }}-view v-model="item.value" @delete="deleteItem(item)" @edit="editItem(item)" @show="show" v-else></{{ kebab_case class.name }}-view>
+      <tr v-for="(item, idx) in modelValue" :key="idx">
+        <{{ kebab_case class.name }}-edit :modelValue="item" @update:modelValue="updateItem(idx, $event)" @canceled="endEditing()" @show="show" v-if="editedItemIdx === idx"></{{ kebab_case class.name }}-edit>
+        <{{ kebab_case class.name }}-view :value="item" @delete="deleteItem(idx)" @edit="editItem(idx)" @show="show" v-else></{{ kebab_case class.name }}-view>
       </tr>
       <tr v-if="newItem != null">
-        <{{ kebab_case class.name }}-edit v-model="newItem" @canceled="cancelAdd" @saved="saveNewItem()"></{{ kebab_case class.name }}-edit>
+        <{{ kebab_case class.name }}-edit :modelValue="newItem" @update:modelValue="saveNewItem($event)" @canceled="cancelAdd"></{{ kebab_case class.name }}-edit>
       </tr>
       <tr>
         <button type="button" class="btn btn-sm rounded-pill m-1" @click="addNewItem()">
@@ -258,27 +213,45 @@ app.component('{{ kebab_case class.name }}-list', {
   </table>`,
   name: '{{ class.name }}List',
   props: {
-    modelValue: Object
+    modelValue: Array
   },
   emits: ['update:modelValue', 'show'],
   setup(props, context) {
-    const editedItemId = ref(-1);
+    const editedItemIdx = ref(-1);
     const newItem = ref(null);
 
     function show(name, property, obj) {
       context.emit('show', name, property, obj);
     }
 
-    function editItem(item) {
-      editedItemId.value = item.id;
+    function editItem(idx) {
+      editedItemIdx.value = idx;
     }
-    function deleteItem(item) {
+    function deleteItem(idx) {
       if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
-        context.emit('update:modelValue', props.modelValue.filter(i => i.id !== item.id));
+        context.emit('update:modelValue', props.modelValue.filter((item, i) => i !== idx));
       }
     }
-    function finishEditing() {
-      editedItemId.value = -1;
+    function updateItem(idx, item) {
+      let newList = [...props.modelValue];
+      newList[idx] = item;
+      endEditing();
+      context.emit('update:modelValue', newList);
+    }
+    {{~ for property in class.properties
+        if property.is_collection && property.class ~}}
+    function update{{ property.class.name.plural }}(idx, list) {
+      let newList = [...props.modelValue];
+      newList[idx] = {
+        ...newList[idx],
+        {{ camel_case property.class.name.plural }}: list
+      };
+      context.emit('update:modelValue', newList);
+    }
+    {{~ end
+      end ~}}
+    function endEditing() {
+      editedItemIdx.value = -1;
     }
     function addNewItem() {
       newItem.value = {
@@ -289,10 +262,9 @@ app.component('{{ kebab_case class.name }}-list', {
             end ~}}
       };
     }
-    function saveNewItem() {
+    function saveNewItem(item) {
         const items = [...props.modelValue];
-        const lastId = items.length == 0 ? 0 : items[items.length-1].id;
-        items.push({id: lastId + 1, value: newItem.value});
+        items.push(item);
         context.emit('update:modelValue', items);
         newItem.value = null;
     }
@@ -307,7 +279,23 @@ app.component('{{ kebab_case class.name }}-list', {
         newItem.value = null;
     }
 
-    return { editedItemId, newItem, editItem, deleteItem, finishEditing, addNewItem, saveNewItem, cancelAdd, show};
+    return {
+      editedItemIdx,
+      newItem,
+      editItem,
+      deleteItem,
+      updateItem,
+      endEditing,
+      addNewItem,
+      saveNewItem,
+      cancelAdd,
+      show,
+      {{~ for property in class.properties
+        if property.is_collection && property.class ~}}
+      update{{ property.class.name.plural }},
+      {{~ end 
+      end ~}}
+    };
   }
 });
 {{~ end ~}}
