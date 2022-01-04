@@ -18,40 +18,25 @@ const  app = Vue.createApp({
   `,
   name: 'App',
   setup: function () {
-    const {{ camel_case root.name }} = ref([]);
-    function toDataModel(data) {
-        const v = { ... data };
-        for (const property in v) {
-          if(Array.isArray(v[property])){
-            v[property] = toDataArray(v[property]);
-          }
+    const {{ camel_case root.name }} = ref(null);
+    function saveToLocalStorage(newValue) {
+        let minimized = JSON.stringify(newValue);
+        let oldValue = localStorage.getItem('json');
+        if (minimized != oldValue) {
+          localStorage.setItem('json', minimized);
         }
-        return v
-    }
-    function toDataArray(data) {
-      return data.map((val, idx) => {
-        const v = { ... val };
-        for (const property in v) {
-          if(Array.isArray(v[property])){
-            v[property] = toDataArray(v[property]);
-          }
-        }
-        return {
-          id: idx,
-          value: v
-        }
-      })
     }
     function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
       if (json) {
-        const val = JSON.parse(json);
-        if (val) {
-          {{ camel_case root.name }}.value = toDataModel(val);
-        }
+        {{ camel_case root.name }}.value = JSON.parse(json);
       }
     }
     loadFromLocalStorage();
+    
+    watchEffect(() => {
+      saveToLocalStorage({{ camel_case root.name }}.value);
+    });
 
     window.addEventListener('storage', loadFromLocalStorage);
     return { {{ camel_case root.name }}  }
@@ -76,9 +61,9 @@ app.component('{{ kebab_case class.name }}-view', {
       </div>
       <div class="col-8 d-flex justify-content-start text-break">
       {{~ if (get_type property) == "Date" ~}}
-        {{'{{'}} $filters.formatDatetime(modelValue.{{ camel_case property.name }}) {{'}}'}}
+        {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
       {{~ else ~}}
-        {{'{{'}} modelValue.{{ camel_case property.name }} {{'}}'}}
+        {{'{{'}} value.{{ camel_case property.name }} {{'}}'}}
       {{~ end ~}}
       </div>
     </div>
@@ -88,7 +73,7 @@ app.component('{{ kebab_case class.name }}-view', {
   `,
   name: '{{ class.name }}View',
   props: {
-    modelValue: Object,
+    value: Object,
   }
 });
 
@@ -104,13 +89,12 @@ app.component('{{ kebab_case class.name }}-list', {
       <div :id="accordionId+'-collapseOne'" class="accordion-collapse collapse show" aria-labelledby="{{ class.name.plural }}-headingOne" v-for="item in modelValue" :key="item.id">
         <div class="accordion-body">
           <div>
-            <{{ kebab_case class.name }}-view v-model="item.value"></{{ kebab_case class.name }}-view>
+            <{{ kebab_case class.name }}-view :value="item"></{{ kebab_case class.name }}-view>
           </div>
           {{~ for property in class.properties
-            if property.is_collection && property.class
-            ~}}
+            if property.is_collection && property.class ~}}
             <div class="ms-5 mt-2">
-              <{{ kebab_case property.class.name }}-list v-model="item.value.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
+              <{{ kebab_case property.class.name }}-list :modelValue="item.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
             </div>
           {{~ end
           end ~}}
@@ -120,7 +104,7 @@ app.component('{{ kebab_case class.name }}-list', {
   </div>`,
   name: '{{ class.name }}List',
   props: {
-    modelValue: Object
+    modelValue: Array
   },
   setup() {
     const accordionId = randomToken();
