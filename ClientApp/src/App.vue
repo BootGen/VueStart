@@ -1,5 +1,6 @@
 <template>
   <div class="col-12">
+    <tip class="tip-msg" :tipMsg="tipMsg" @hide="hideTip" :class="{ 'show': showContent && tipMsg, 'hide' : !showContent || !tipMsg }"></tip>
     <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
@@ -115,7 +116,6 @@
     <div class="col-12 d-flex align-items-center footer" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
     </div>
-    <tip :tipMsg="tipMsg" v-if="tipMsg != '' && showContent"></tip>
   </div>
 </template>
 
@@ -150,7 +150,7 @@ export default defineComponent({
     const layoutMode = ref(layoutModes.Card);
     const showDownloadPanel = ref(false);
     const inputError = ref(null);
-    const tipMsg = ref('');
+    const tipMsg = ref(null);
     
     if(localStorage.getItem('showTips') != 'false') {
       localStorage.setItem('showTips', true);
@@ -281,7 +281,12 @@ export default defineComponent({
       window.open("https://github.com/BootGen/VueStart");
     }
 
-    return { showContent, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg }
+    function hideTip (){
+      localStorage.setItem('showTips', false);
+      tipMsg.value = null;
+    }
+
+    return { showContent, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg, hideTip }
   }
 });
 
@@ -585,6 +590,21 @@ body {
     opacity: 0;
     height: 0vh;
     top: 98vh;
+    visibility: hidden;
+  }
+  .tip-msg{
+    bottom: 0;
+    justify-content: center!important;
+    position: fixed;
+    z-index: 999;
+    transition: all 1s ease-in-out;
+  }
+  .tip-msg.show{
+    opacity: 1;
+    visibility: visible;
+  }
+  .tip-msg.hide{
+    opacity: 0;
     visibility: hidden;
   }
   .footer{
