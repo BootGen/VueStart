@@ -1,16 +1,5 @@
 'use strict';
 
-function isObject(item) {
-  return (item && typeof item === 'object' && !Array.isArray(item));
-}
-
-function merge(current, updates) {
-  for (key of Object.keys(updates)) {
-    if (!current.hasOwnProperty(key) || typeof updates[key] !== 'object') current[key] = updates[key];
-    else merge(current[key], updates[key]);
-  }
-  return current;
-}
 function mergeDeep(target, source) {
   const isObject = (obj) => obj && typeof obj === 'object';
 
@@ -18,74 +7,81 @@ function mergeDeep(target, source) {
     return source;
   }
 
+  let result = {};
+
   Object.keys(source).forEach(key => {
     const targetValue = target[key];
     const sourceValue = source[key];
     if (Array.isArray(targetValue) && Array.isArray(sourceValue)) {
-      target[key] = targetValue.concat(sourceValue);
+      let mergedArray = [ ...targetValue];
+      sourceValue.forEach(val => {
+        if (!mergedArray.includes(val)) {
+          mergedArray.push(val)
+        }
+      });
+      result[key] = mergedArray;
     } else if (isObject(targetValue) && isObject(sourceValue)) {
-      target[key] = mergeDeep(Object.assign({}, targetValue), sourceValue);
+      result[key] = mergeDeep(targetValue, sourceValue);
     } else {
-      target[key] = sourceValue;
+      result[key] = sourceValue;
     }
   });
 
-  return target;
+  return result;
 }
 
-function typeArray(val) {
-  let r = {'type': 'object', 'properties': {}}
+function getArraySchema(val) {
+  let r = {type: [], properties: {}}
   val.forEach( function (v) {
-    r = mergeDeep(r, typeValue(v).properties)
+    const type = getType(v);
+    if (!r.type.includes(type)) {
+      r.type.push(type);
+    }
+    r.properties = mergeDeep(r.properties, getSchema(v).properties)
   })
   return r;
 }
 
 
-function typeValue(val) {
-  let type = [];
-  if (Array.isArray(val)) {
-    type.push('array');
-  }
-  
-  if (typeof val == 'object') {
-    type.push('object');
-  }
-  
-  if (typeof val == 'number' ) {
-    if (Number.isInteger(val)) {
-      type.push('integer');
-    } else {
-      type.push('float');
-    }
-  }
-  if(type.length == 0) {
-    type.push(typeof val);
-  }
-
-  if (Array.isArray(val)) {
-    return {'type': type, 'items': typeArray(val)};
-  }
-  
-  if (typeof val == 'object') {
-    let properties = getProperties(val);
-    return {'type': type, 'properties': properties};
-  }
-  
-  return { 'type': type };
-}
-
 function getProperties(j) {
   let k = Object.keys(j);
   k.forEach(function(name) {
-    j[name] = typeValue(j[name]);
+    j[name] = getSchema(j[name]);
   })
   return j;
 }
 
-export function getSchema(json_object) {
-  let schema = {};
-  schema['properties'] = getProperties(json_object);
-
-  return schema;
+function getType(val) {
+  
+  if (Array.isArray(val)) {
+    return 'array';
+  }
+  
+  if (typeof val == 'object') {
+    return 'object';
+  }
+  
+  if (typeof val == 'number') {
+    if (Number.isInteger(val)) {
+      return 'integer';
+    }
+    return 'float';
+  }
+  
+  return typeof val;
 }
+
+export function getSchema(val) {
+  let type = getType(val);
+
+  if (type === 'array') {
+    return {type: [type], items: getArraySchema(val)};
+  }
+  
+  if (type === 'object') {
+    return {type: [type], properties: getProperties(val)};
+  }
+  
+  return { type: [type] };
+}
+
