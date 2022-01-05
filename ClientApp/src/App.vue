@@ -4,7 +4,7 @@
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showContent, 'content' : showContent }">
-      <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${inputError === '' ? 'default' : 'error'}.webp`)" :class="{ 'landing': !showContent, 'content' : showContent, }">
+      <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${!inputError ? 'default' : 'error'}.webp`)" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <div class="jumbo-text-full" :class="{ 'landing': !showContent, 'content' : showContent }">
         <div class="d-flex align-items-center justify-content-center">
           <img class="vue_logo" alt="vue" :src="require(`./assets/vue_logo.webp`)">
@@ -149,7 +149,7 @@ export default defineComponent({
     }
     const layoutMode = ref(layoutModes.Card);
     const showDownloadPanel = ref(false);
-    const inputError = ref('');
+    const inputError = ref(null);
     const tipMsg = ref('');
     
     if(localStorage.getItem('showTips') != 'false') {
@@ -254,7 +254,7 @@ export default defineComponent({
         const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), config);
         saveToLocalStorage(json.value);
         appUrl.value = `api/files/${resp.data.id}/index.html`;
-        inputError.value = '';
+        inputError.value = null;
       } catch (e) {
         inputError.value = e.response.data.error;
       }
