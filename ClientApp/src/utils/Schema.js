@@ -1,33 +1,40 @@
 'use strict';
 
-function mergeDeep(target, source) {
+function mergeDeep(obj1, obj2) {
   const isObject = (obj) => obj && typeof obj === 'object';
 
-  if (!isObject(target) || !isObject(source)) {
-    return source;
+  if (!isObject(obj1) || !isObject(obj2)) {
+    return obj1 || obj2;
   }
 
   let result = {};
 
-  Object.keys(source).forEach(key => {
-    const targetValue = target[key];
-    const sourceValue = source[key];
-    if (Array.isArray(targetValue) && Array.isArray(sourceValue)) {
-      let mergedArray = [ ...targetValue];
-      sourceValue.forEach(val => {
-        if (!mergedArray.includes(val)) {
-          mergedArray.push(val)
-        }
-      });
+  mergeArrays(Object.keys(obj2), Object.keys(obj1)).forEach(key => {
+    const value1 = obj1[key];
+    const value2 = obj2[key];
+    if (Array.isArray(value1) && Array.isArray(value2)) {
+      let mergedArray = mergeArrays(value1, value2);
       result[key] = mergedArray;
-    } else if (isObject(targetValue) && isObject(sourceValue)) {
-      result[key] = mergeDeep(targetValue, sourceValue);
+    } else if (isObject(value1) && isObject(value2)) {
+      result[key] = mergeDeep(value1, value2);
+    } else if (value1) {
+      result[key] = value1;
     } else {
-      result[key] = sourceValue;
+      result[key] = value2;
     }
   });
 
   return result;
+}
+
+function mergeArrays(array1, array2) {
+  let mergedArray = [...array1];
+  array2.forEach(val => {
+    if (!mergedArray.includes(val)) {
+      mergedArray.push(val);
+    }
+  });
+  return mergedArray;
 }
 
 function getArraySchema(val) {
