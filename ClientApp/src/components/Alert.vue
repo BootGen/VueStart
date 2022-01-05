@@ -1,8 +1,8 @@
 <template>
-  <div class="col-12 d-flex error-alert-container"  v-if="show">
+  <div class="col-12 d-flex error-alert-container">
     <div class="alert m-2 alert-danger d-flex align-items-center">
       {{ errorMsg }}
-      <button type="button" class="btn p-2" aria-label="Close" @click="show=false"><span class="bi bi-x-lg px-2" aria-hidden="true"></span></button>
+      <button type="button" class="btn p-2" aria-label="Close" @click="$emit('close')"><span class="bi bi-x-lg px-2" aria-hidden="true"></span></button>
     </div>
   </div>
 </template>
@@ -14,10 +14,7 @@ export default defineComponent({
   props: {
     errorMsg: String
   },
-  setup() {
-    const show = ref(true);
-    return { show };
-  }
+  emits: ['close']
 });
 </script>
 

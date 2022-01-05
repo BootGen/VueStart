@@ -1,7 +1,7 @@
 <template>
   <div class="col-12 h-100 p-0">
     <div class="col-12 h-100" id="editor"></div>
-    <alert class="aler-msg" :class="{ 'show': errorMessage != '', 'hide': errorMessage == '' }" :errorMsg="errorMessage" @close="clearError"></alert>
+    <alert class="aler-msg" :class="{ 'show': errorMessage, 'hide': !errorMessage }" :errorMsg="tempErrorMsg" @close="clearError"></alert>
   </div>
 </template>
 
@@ -28,8 +28,15 @@ export default defineComponent({
   emits: ['update:modelValue', 'update:error'],
   setup(props, context) {
     let editor = null;
-    let syntaxError = ref('');
-    const errorMessage = computed(() => syntaxError.value !== '' ? syntaxError.value : props.error)
+    let syntaxError = ref(null);
+    const errorMessage = computed(() => syntaxError.value ? syntaxError.value : props.error);
+    const tempErrorMsg = ref(null);
+
+    watchEffect(() => {
+      if(errorMessage.value) {
+        tempErrorMsg.value = errorMessage.value;
+      }
+    });
 
     const underlineMark = Decoration.mark({class: "cm-underline"})
     const addUnderline = StateEffect.define();
@@ -175,11 +182,11 @@ export default defineComponent({
         }
     }
     function clearError() {
-      syntaxError.value = '';
-      if (props.error !== '')
-        context.emit('update:error', '')
+      syntaxError.value = null;
+      if (props.error !== null)
+        context.emit('update:error', null)
     }
-    return { errorMessage, clearError }
+    return { errorMessage, clearError, tempErrorMsg }
   }
 });
 </script>
