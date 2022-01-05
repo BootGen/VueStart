@@ -17,7 +17,6 @@ const  app = Vue.createApp({
     <h5 class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
   </div>
   {{~ for class in classes ~}}
-  {{'{{'}} activeElement.name {{'}}'}}
   <{{ kebab_case class.name }}-list v-model="activeElement.obj[activeElement.property]" @show="show" v-if="activeElement.name == '{{ class.name.plural }}'"></{{ kebab_case class.name }}-list>
   {{~ end ~}}
   `,
