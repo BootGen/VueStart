@@ -46,16 +46,12 @@ const  app = Vue.createApp({
     function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
       if (json) {
-        const val = JSON.parse(json);
-        if (val) {
           {{ camel_case root.name }}.value = JSON.parse(json);
           {{~ for property in root.properties
           if property.is_collection && property.class ~}}
           activeElement.value = { name: '{{ property.name }}', property: '{{ camel_case property.class.name.plural }}', obj: {{ camel_case root.name }}.value };
           {{~ end
         end ~}}
-  
-        }
       }
     }
     loadFromLocalStorage();
@@ -86,8 +82,8 @@ app.component('{{ kebab_case class.name }}-edit', {
         type="text"
         {{~ end ~}} 
         class="form-control"
-        v-model="editedItem.{{ camel_case property.name }}"
-        @input="save"
+        :value="modelValue.{{ camel_case property.name }}"
+        @input="$emit('update:modelValue', { ...modelValue, {{ camel_case property.name }}: $event.target.value })"
         :placeholder="{{ property.name }}">
       </div>
     </td>
@@ -112,16 +108,7 @@ app.component('{{ kebab_case class.name }}-edit', {
   props: {
     modelValue: Object,
   },
-  emits: ['update:modelValue', 'delete'],
-  setup(props, context) {
-    const editedItem = reactive({ ...props.modelValue });
-
-    function save() {
-      context.emit('update:modelValue', editedItem);
-    }
-
-    return { editedItem, save }
-  },
+  emits: ['update:modelValue', 'delete']
 });
 
 app.component('{{ kebab_case class.name }}-list', {
@@ -148,6 +135,7 @@ app.component('{{ kebab_case class.name }}-list', {
       </tr>
     </thead>
     <tbody>
+      <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
       <tr v-for="(item, idx) in modelValue" :key="idx">
         <{{ kebab_case class.name }}-edit :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(item)" @show="show"></{{ kebab_case class.name }}-edit>
       </tr>
