@@ -1,7 +1,7 @@
 <template>
   <div class="col-12 h-100 p-0">
     <div class="col-12 h-100" id="editor"></div>
-    <alert class="aler-msg" :class="{ 'show': error != '', 'hide': error == '' }" :errorMsg="error" @close="error = ''"></alert>
+    <alert class="aler-msg" :class="{ 'show': errorMessage != '', 'hide': errorMessage == '' }" :errorMsg="errorMessage" @close="clearError"></alert>
   </div>
 </template>
 
@@ -13,7 +13,7 @@ import { json } from "@codemirror/lang-json"
 import {StateField, StateEffect} from "@codemirror/state"
 
 
-import { defineComponent, onMounted, watchEffect } from 'vue';
+import { defineComponent, onMounted, watchEffect, ref, computed } from 'vue';
 import Alert from './Alert.vue';
 import { debounce } from '../utils/Helper';
 import { prettyPrint, validateJson } from '../utils/PrettyPrint';
@@ -28,6 +28,8 @@ export default defineComponent({
   emits: ['update:modelValue', 'update:error'],
   setup(props, context) {
     let editor = null;
+    let syntaxError = ref('');
+    const errorMessage = computed(() => syntaxError.value !== '' ? syntaxError.value : props.error)
 
     const underlineMark = Decoration.mark({class: "cm-underline"})
     const addUnderline = StateEffect.define();
@@ -134,9 +136,9 @@ export default defineComponent({
       if(validationResult.error){
         if (validationResult.from > 0 && validationResult.to > 0 && validationResult.to > validationResult.from)
           editor.dispatch({effects: [addUnderline.of({ from: validationResult.from, to: validationResult.to })]});
-        context.emit('update:error', validationResult.message);
+        syntaxError.value = validationResult.message;
       } else {
-        context.emit('update:error', '');
+        syntaxError.value = '';
       }
     }
     function indent() {
@@ -172,6 +174,12 @@ export default defineComponent({
           }
         }
     }
+    function clearError() {
+      syntaxError.value = '';
+      if (props.error !== '')
+        context.emit('update:error', '')
+    }
+    return { errorMessage, clearError }
   }
 });
 </script>
