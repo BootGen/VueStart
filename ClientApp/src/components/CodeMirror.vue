@@ -1,7 +1,7 @@
 <template>
   <div class="col-12 h-100 p-0">
     <div class="col-12 h-100" id="editor"></div>
-    <alert class="aler-msg" :class="{ 'show': errorMessage, 'hide': !errorMessage }" :errorMsg="lastErrorMsg" :fixableData="fixableData" @close="clearError" @fixData="$emit('fixData')"></alert>
+    <alert class="aler-msg" :class="{ 'show': errorMessage, 'hide': !errorMessage }" :errorMsg="lastErrorMsg" :fixableData="fixable" @close="clearError" @fixData="$emit('fixData')"></alert>
   </div>
 </template>
 
@@ -31,6 +31,7 @@ export default defineComponent({
     let editor = null;
     let syntaxError = ref(null);
     const errorMessage = computed(() => syntaxError.value ? syntaxError.value : props.error);
+    const fixable = computed(() => !syntaxError.value && props.fixableData ? true : false);
     const lastErrorMsg = ref(null);
 
     watchEffect(() => {
@@ -187,7 +188,7 @@ export default defineComponent({
       if (props.error !== null)
         context.emit('update:error', null)
     }
-    return { errorMessage, clearError, lastErrorMsg }
+    return { errorMessage, clearError, lastErrorMsg, fixable }
   }
 });
 </script>
