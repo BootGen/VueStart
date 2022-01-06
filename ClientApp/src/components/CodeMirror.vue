@@ -1,7 +1,7 @@
 <template>
   <div class="col-12 h-100 p-0">
     <div class="col-12 h-100" id="editor"></div>
-    <alert class="aler-msg" :class="{ 'show': errorMessage, 'hide': !errorMessage }" :errorMsg="lastErrorMsg" @close="clearError"></alert>
+    <alert class="aler-msg" :class="{ 'show': errorMessage, 'hide': !errorMessage }" :errorMsg="lastErrorMsg" :fixableData="fixableData" @close="clearError" @fixData="$emit('fixData')"></alert>
   </div>
 </template>
 
@@ -24,8 +24,9 @@ export default defineComponent({
   props: {
     modelValue: String,
     error: String,
+    fixableData: Boolean
   },
-  emits: ['update:modelValue', 'update:error'],
+  emits: ['update:modelValue', 'update:error', 'fixData'],
   setup(props, context) {
     let editor = null;
     let syntaxError = ref(null);

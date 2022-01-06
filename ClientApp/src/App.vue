@@ -37,7 +37,7 @@
     </div>  
 
     <div class="codemirror custom-card" :class="{ 'landing': !showContent, 'content' : showContent, }">
-      <code-mirror v-model:modelValue="json" v-model:error="inputError"></code-mirror>
+      <code-mirror v-model:modelValue="json" v-model:error="inputError" :fixableData="fixableData" @fixData="fixData"></code-mirror>
     </div>
     <div class="browser-container" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <div class="browser custom-card shadow">
@@ -150,6 +150,7 @@ export default defineComponent({
     const layoutMode = ref(layoutModes.Card);
     const showDownloadPanel = ref(false);
     const inputError = ref(null);
+    const fixableData = ref(false);
     const tipMsg = ref('');
     
     if(localStorage.getItem('showTips') != 'false') {
@@ -252,12 +253,21 @@ export default defineComponent({
     async function generate() {
       try {
         const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), config);
+        console.log('resp:', resp);
         saveToLocalStorage(json.value);
         appUrl.value = `api/files/${resp.data.id}/index.html`;
         inputError.value = null;
       } catch (e) {
+        if(e.response.data.fixable){
+          fixableData.value = true;
+        }
         inputError.value = e.response.data.error;
       }
+    }
+    async function fixData() {
+      const fixedJson = await axios.post('http://localhost:5000/api/generate/fix', JSON.parse(json.value));
+      json.value = JSON.stringify(fixedJson.data);
+      generate();
     }
     function changeGeneratedMode(type) {
       generateType.value = type
@@ -281,7 +291,7 @@ export default defineComponent({
       window.open("https://github.com/BootGen/VueStart");
     }
 
-    return { showContent, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg }
+    return { showContent, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg, fixableData, fixData }
   }
 });
 
