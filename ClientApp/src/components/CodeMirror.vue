@@ -37,6 +37,7 @@ export default defineComponent({
     watchEffect(() => {
       if(errorMessage.value) {
         lastErrorMsg.value = errorMessage.value;
+        context.emit('update:error', errorMessage.value);
       }
     });
 
