@@ -26,7 +26,7 @@ export default defineComponent({
     error: String,
     fixableData: Boolean
   },
-  emits: ['update:modelValue', 'update:error', 'fixData'],
+  emits: ['update:modelValue', 'update:error', 'fixData', 'checkServerError'],
   setup(props, context) {
     let editor = null;
     let syntaxError = ref(null);
@@ -147,7 +147,8 @@ export default defineComponent({
           editor.dispatch({effects: [addUnderline.of({ from: validationResult.from, to: validationResult.to })]});
         syntaxError.value = validationResult.message;
       } else {
-        syntaxError.value = '';
+        syntaxError.value = null;
+        context.emit('checkServerError');
       }
     }
     function indent() {
