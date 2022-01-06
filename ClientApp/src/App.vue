@@ -5,7 +5,7 @@
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showContent, 'content' : showContent }">
-      <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${!inputError ? 'default' : 'error'}.webp`)" :class="{ 'landing': !showContent, 'content' : showContent, }">
+      <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <div class="jumbo-text-full" :class="{ 'landing': !showContent, 'content' : showContent }">
         <div class="d-flex align-items-center justify-content-center">
           <img class="vue_logo" alt="vue" :src="require(`./assets/vue_logo.webp`)">
@@ -151,14 +151,34 @@ export default defineComponent({
     const showDownloadPanel = ref(false);
     const inputError = ref(null);
     const tipMsg = ref(null);
-    
+    const vuecoonStates = {
+      Default: 'default',
+      Error: 'error',
+      Success: 'success'
+    };
+    const vuecoonState = ref(vuecoonStates.Default);
+
+    watchEffect(() => {
+      if(inputError.value) {
+        vuecoonState.value = vuecoonStates.Error;
+      } else {
+        vuecoonState.value = vuecoonStates.Default;
+      }
+    });
     if(localStorage.getItem('showTips') != 'false') {
       localStorage.setItem('showTips', true);
     }
-    if (!localStorage.getItem('firstUse') && localStorage.getItem('showTips') == 'true') {
+    if (!localStorage.getItem('firstUse') && localStorage.getItem('showTips') === 'true') {
       tipMsg.value = 'Try to edit the JSON data on the left side, and see the changes in the application on the right side';
     }
-
+    function setVuecoon (state, time){
+      vuecoonState.value = state;
+      let debounceResetVuecoon = debounce(resetVuecoon, time);
+      debounceResetVuecoon();
+    }
+    function resetVuecoon (){
+      vuecoonState.value = vuecoonStates.Default;
+    }
     function saveToLocalStorage(newValue) {
       try {
         let obj = JSON.parse(newValue);
@@ -166,17 +186,17 @@ export default defineComponent({
         let oldValue = localStorage.getItem('json');
         if (minimized != oldValue) {
             localStorage.setItem('json', minimized);
-            if(showContent.value && localStorage.getItem('showTips') == 'true') {
+            if(showContent.value && localStorage.getItem('showTips') === 'true') {
               let debouncedTip = debounce(setTip, 1000);
               let largeDebouncedTip = debounce(setTip, 8000);
               if(!localStorage.getItem('regeneratedTip')) {
+                setVuecoon(vuecoonStates.Success, 2000);
                 localStorage.setItem('firstUse', true)
                 debouncedTip('If you make structural changes to the JSON data, the application is automatically regenerated.');
               }
               if(!localStorage.getItem('buttonsTip')) {
                 largeDebouncedTip('Try out multiple application types and layouts with the buttons in the bottom right corner');
                 localStorage.setItem('regeneratedTip', true);
-                localStorage.setItem('buttonsTip', true);
               }
             }
         }
@@ -260,10 +280,22 @@ export default defineComponent({
       }
     }
     function changeGeneratedMode(type) {
+      if(localStorage.getItem('showTips') === 'true' && localStorage.getItem('regeneratedTip') === 'true'){
+        setVuecoon(vuecoonStates.Success, 2000);
+        let debouncedTip = debounce(setTip, 2000);
+        debouncedTip(null);
+        localStorage.setItem('buttonsTip', true);
+      }
       generateType.value = type
       generate()
     }
     function changeLayoutMode(type) {
+      if(localStorage.getItem('showTips') === 'true' && localStorage.getItem('regeneratedTip') === 'true'){
+        setVuecoon(vuecoonStates.Success, 2000);
+        let debouncedTip = debounce(setTip, 2000);
+        debouncedTip(null);
+        localStorage.setItem('buttonsTip', true);
+      }
       layoutMode.value = type
       generate()
     }
@@ -286,7 +318,7 @@ export default defineComponent({
       tipMsg.value = null;
     }
 
-    return { showContent, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg, hideTip }
+    return { showContent, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg, hideTip, vuecoonState }
   }
 });
 
