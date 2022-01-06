@@ -28,6 +28,9 @@ namespace VueStart.Controllers
         [Route("{type}/{layout}")]
         public IActionResult Generates([FromBody] JsonElement json, string type, string layout)
         {
+            if (json.ValueKind != JsonValueKind.Object) {
+                return BadRequest(new { error = "The root element must be an object!", fixable = false });
+            }
             try {
                 var artifactType = type.ToArtifactType();
                 if (artifactType == ArtifactType.None)
