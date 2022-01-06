@@ -18,7 +18,7 @@ export default defineComponent({
     errorMsg: String,
     fixableData: Boolean
   },
-  emits: ['close']
+  emits: ['close', 'fixData']
 });
 </script>
 
@@ -32,6 +32,8 @@ export default defineComponent({
   .fix-btn {
     color: #842029;
     text-decoration: underline;
+    padding: unset;
+    padding-left: 0.5rem;
   }
   .fix-btn:hover {
     color: #b42733;

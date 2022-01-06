@@ -253,13 +253,15 @@ export default defineComponent({
     async function generate() {
       try {
         const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), config);
-        console.log('resp:', resp);
         saveToLocalStorage(json.value);
         appUrl.value = `api/files/${resp.data.id}/index.html`;
         inputError.value = null;
+        fixableData.value = false;
       } catch (e) {
         if(e.response.data.fixable){
           fixableData.value = true;
+        } else {
+          fixableData.value = false;
         }
         inputError.value = e.response.data.error;
       }
