@@ -1,7 +1,7 @@
 <template>
   <div class="col-12 h-100 p-0">
     <div class="col-12 h-100" id="editor"></div>
-    <alert class="aler-msg" :class="{ 'show': errorMessage, 'hide': !errorMessage }" :errorMsg="tempErrorMsg" @close="clearError"></alert>
+    <alert class="aler-msg" :class="{ 'show': errorMessage, 'hide': !errorMessage }" :errorMsg="lastErrorMsg" @close="clearError"></alert>
   </div>
 </template>
 
@@ -30,11 +30,11 @@ export default defineComponent({
     let editor = null;
     let syntaxError = ref(null);
     const errorMessage = computed(() => syntaxError.value ? syntaxError.value : props.error);
-    const tempErrorMsg = ref(null);
+    const lastErrorMsg = ref(null);
 
     watchEffect(() => {
       if(errorMessage.value) {
-        tempErrorMsg.value = errorMessage.value;
+        lastErrorMsg.value = errorMessage.value;
       }
     });
 
@@ -186,7 +186,7 @@ export default defineComponent({
       if (props.error !== null)
         context.emit('update:error', null)
     }
-    return { errorMessage, clearError, tempErrorMsg }
+    return { errorMessage, clearError, lastErrorMsg }
   }
 });
 </script>
