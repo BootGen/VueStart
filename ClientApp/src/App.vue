@@ -37,7 +37,7 @@
     </div>  
 
     <div class="codemirror custom-card" :class="{ 'landing': !showContent, 'content' : showContent, }">
-      <code-mirror v-model:modelValue="json" v-model:error="inputError" :fixableData="fixableData" @fixData="fixData"></code-mirror>
+      <code-mirror v-model:modelValue="json" v-model:error="inputError" :fixableData="fixableData" @fixData="fixData" @checkServerError="generate"></code-mirror>
     </div>
     <div class="browser-container" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <div class="browser custom-card shadow">
@@ -293,7 +293,7 @@ export default defineComponent({
       window.open("https://github.com/BootGen/VueStart");
     }
 
-    return { showContent, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg, fixableData, fixData }
+    return { showContent, json, appUrl, download, generate, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg, fixableData, fixData }
   }
 });
 
