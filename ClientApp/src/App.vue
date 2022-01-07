@@ -18,7 +18,7 @@
               All you have to do is give us the structure described in json and you can already download the finished application in the form of your choice.<br />
               When you're ready, just click the <span class="fg-primary">Start</span> button.
             </p>
-            <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showContent = !showContent">Start!</button>
+            <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="changeView">Start!</button>
           </div>
         </div>
         <div class="d-flex slogen-text" :class="{ 'landing': !showContent, 'content' : showContent }">
@@ -218,15 +218,11 @@ export default defineComponent({
       json.value = localStorage.getItem('json').toString();
     });
     window.onload = function () {
-        window.history.pushState(null, "", window.location.href);
-        window.onpopstate = function() {
-          if (showContent.value) {
-            showContent.value = false;
-            window.history.pushState(null, "", window.location.href);
-          } else {
-            history.back();
-          }
-        };
+      window.onpopstate = function() {
+        if (showContent.value) {
+          showContent.value = false;
+        }
+      };
     }
     let idtoken = localStorage.getItem('idtoken');
     if (!idtoken) {
@@ -291,8 +287,17 @@ export default defineComponent({
     function openGithub (){
       window.open("https://github.com/BootGen/VueStart");
     }
+    function changeView(){
+      showContent.value = !showContent.value;
+      if(showContent.value) {
+        history.pushState({}, '', 'editor');
+        console.log(history);
+      } else {
+        history.back();
+      }
+    }
 
-    return { showContent, json, appUrl, download, generate, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg, fixableData, fixData }
+    return { showContent, json, appUrl, download, generate, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg, fixableData, fixData, changeView }
   }
 });
 
