@@ -1,6 +1,6 @@
 <template>
   <div class="col-12">
-    <tip class="tip-msg" :tipMsg="tipMsg" @hide="hideTip" :class="{ 'show': showContent && tipMsg, 'hide' : !showContent || !tipMsg }"></tip>
+    <tip class="tip-msg" :tipMsg="tipMsg" @hide="hideAllTip" :class="{ 'show': showContent && tipMsg, 'hide' : !showContent || !tipMsg }"></tip>
     <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
@@ -165,19 +165,34 @@ export default defineComponent({
         vuecoonState.value = vuecoonStates.Default;
       }
     });
-    if(localStorage.getItem('showTips') != 'false') {
+    if(localStorage.getItem('showTips') !== 'false') {
       localStorage.setItem('showTips', true);
     }
-    if (!localStorage.getItem('firstUse') && localStorage.getItem('showTips') === 'true') {
-      tipMsg.value = 'Try to edit the JSON data on the left side, and see the changes in the application on the right side';
+    if (localStorage.getItem('firstUse') !== 'false' && localStorage.getItem('showTips') === 'true') {
+      setTip('Try to edit the JSON data on the left side, and see the changes in the application on the right side');
     }
     function setVuecoon (state, time){
       vuecoonState.value = state;
-      let debounceResetVuecoon = debounce(resetVuecoon, time);
+      let debounceResetVuecoon = debounce(resetVuecoon, time*2);
       debounceResetVuecoon();
     }
     function resetVuecoon (){
       vuecoonState.value = vuecoonStates.Default;
+    }
+    function setTip(msg) {
+      tipMsg.value = msg;
+    }
+    function setNextTip(msg, time){
+      setVuecoon(vuecoonStates.Success, time);
+      setTip(null);
+      if(msg) {
+        let debouncedTip = debounce(setTip, time);
+        debouncedTip(msg);
+      }
+    }
+    function hideAllTip (){
+      localStorage.setItem('showTips', false);
+      setTip(null);
     }
     function saveToLocalStorage(newValue) {
       try {
@@ -186,18 +201,9 @@ export default defineComponent({
         let oldValue = localStorage.getItem('json');
         if (minimized != oldValue) {
             localStorage.setItem('json', minimized);
-            if(showContent.value && localStorage.getItem('showTips') === 'true') {
-              let debouncedTip = debounce(setTip, 1000);
-              let largeDebouncedTip = debounce(setTip, 8000);
-              if(!localStorage.getItem('regeneratedTip')) {
-                setVuecoon(vuecoonStates.Success, 2000);
-                localStorage.setItem('firstUse', true)
-                debouncedTip('If you make structural changes to the JSON data, the application is automatically regenerated.');
-              }
-              if(!localStorage.getItem('buttonsTip')) {
-                largeDebouncedTip('Try out multiple application types and layouts with the buttons in the bottom right corner');
-                localStorage.setItem('regeneratedTip', true);
-              }
+            if(showContent.value && localStorage.getItem('showTips') === 'true' && localStorage.getItem('regeneratedTip') !== 'true') {
+              setNextTip('If you make structural changes to the JSON data, the application is automatically regenerated.', 1000);
+              localStorage.setItem('firstUse', false);
             }
         }
         document.getElementById('download-btn').classList.add('pulse-download-btn');
@@ -205,7 +211,7 @@ export default defineComponent({
           document.getElementById('download-btn').classList.remove('pulse-download-btn');
         }, 2000);
       } catch (e) {
-        console.log(e)
+        console.log(e);
       }
     }
     async function getProjectContentFromServer(name) {
@@ -213,9 +219,6 @@ export default defineComponent({
       if (typeof data === 'string')
         return data;
       return JSON.stringify(data);
-    }
-    function setTip(msg) {
-      tipMsg.value = msg;
     }
     getProjectContentFromServer('example_input').then( (content) => {
       json.value = content;
@@ -270,6 +273,10 @@ export default defineComponent({
     const appUrl = ref("");
 
     async function generate() {
+      if(showContent.value && localStorage.getItem('showTips') === 'true' && localStorage.getItem('buttonsTip') !== 'true') {
+        setNextTip('Try out multiple application types and layouts with the buttons in the bottom right corner', 1000);
+        localStorage.setItem('regeneratedTip', true);
+      }
       try {
         const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), config);
         saveToLocalStorage(json.value);
@@ -280,20 +287,16 @@ export default defineComponent({
       }
     }
     function changeGeneratedMode(type) {
-      if(localStorage.getItem('showTips') === 'true' && localStorage.getItem('regeneratedTip') === 'true'){
-        setVuecoon(vuecoonStates.Success, 2000);
-        let debouncedTip = debounce(setTip, 2000);
-        debouncedTip(null);
+      if(localStorage.getItem('showTips') === 'true' && localStorage.getItem('regeneratedTip') === 'true' && localStorage.getItem('buttonsTip') !== 'true'){
+        setNextTip(null, 1000);
         localStorage.setItem('buttonsTip', true);
       }
       generateType.value = type
       generate()
     }
     function changeLayoutMode(type) {
-      if(localStorage.getItem('showTips') === 'true' && localStorage.getItem('regeneratedTip') === 'true'){
-        setVuecoon(vuecoonStates.Success, 2000);
-        let debouncedTip = debounce(setTip, 2000);
-        debouncedTip(null);
+      if(localStorage.getItem('showTips') === 'true' && localStorage.getItem('regeneratedTip') === 'true' && localStorage.getItem('buttonsTip') !== 'true'){
+        setNextTip(null, 1000);
         localStorage.setItem('buttonsTip', true);
       }
       layoutMode.value = type
@@ -313,12 +316,7 @@ export default defineComponent({
       window.open("https://github.com/BootGen/VueStart");
     }
 
-    function hideTip (){
-      localStorage.setItem('showTips', false);
-      tipMsg.value = null;
-    }
-
-    return { showContent, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg, hideTip, vuecoonState }
+    return { showContent, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg, hideAllTip, vuecoonState }
   }
 });
 
