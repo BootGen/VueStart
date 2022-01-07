@@ -250,13 +250,17 @@ export default defineComponent({
     const appUrl = ref("");
 
     async function generate() {
-      try {
-        const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), config);
-        saveToLocalStorage(json.value);
-        appUrl.value = `api/files/${resp.data.id}/index.html`;
-        inputError.value = null;
-      } catch (e) {
-        inputError.value = e.response.data.error;
+      if(typeof JSON.parse(json.value) == 'object') {
+        try {
+          const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), config);
+          saveToLocalStorage(json.value);
+          appUrl.value = `api/files/${resp.data.id}/index.html`;
+          inputError.value = null;
+        } catch (e) {
+          inputError.value = e.response.data.error;
+        }
+      } else {
+        inputError.value = 'The root element must be an object!';
       }
     }
     function changeGeneratedMode(type) {
