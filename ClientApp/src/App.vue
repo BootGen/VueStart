@@ -168,7 +168,11 @@ export default defineComponent({
     if(localStorage.getItem('showTips') !== 'false') {
       localStorage.setItem('showTips', true);
     }
-    if (localStorage.getItem('firstUse') !== 'false' && localStorage.getItem('showTips') === 'true') {
+    if (localStorage.getItem('showTips') === 'true' && localStorage.getItem('firstUse') === 'false' && localStorage.getItem('regeneratedTip') === 'true' && localStorage.getItem('buttonsTip') !== 'true') {
+      setTip('Try out multiple application types and layouts with the buttons in the bottom right corner');
+    } else if (localStorage.getItem('showTips') === 'true' && localStorage.getItem('firstUse') === 'false' && localStorage.getItem('regeneratedTip') !== 'true') {
+      setTip('If you make structural changes to the JSON data, the application is automatically regenerated.');
+    } else if (localStorage.getItem('firstUse') !== 'false' && localStorage.getItem('showTips') === 'true') {
       setTip('Try to edit the JSON data on the left side, and see the changes in the application on the right side');
     }
     function setVuecoon (state, time){
