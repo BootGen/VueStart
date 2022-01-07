@@ -218,6 +218,7 @@ export default defineComponent({
       json.value = localStorage.getItem('json').toString();
     });
     window.onload = function () {
+      showContent.value = window.location.pathname === '/editor' ? true : false;
       window.onpopstate = function() {
         if (showContent.value) {
           showContent.value = false;
