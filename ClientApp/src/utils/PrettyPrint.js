@@ -18,16 +18,14 @@ function getErrorPosition(str, err) {
   let from = -1;
   let to = -1;
   
-  if(userAgent.match(/chrome|chromium|crios/i)){
-    from = getFrom(str, err.message.match(/\d+/g)[0]);
-  }else if(userAgent.match(/firefox|fxios/i)){
+  if(userAgent.match(/firefox|fxios/i)){
     from = getFrom(str, err.message.match(/\d+/g)[1], err.message.match(/\d+/g)[0]);
   }else if(userAgent.match(/opr\//i)){
     from = getFrom(str, err.message.match(/\d+/g)[0]);
   } else if(userAgent.match(/edg/i)){
     from = getFrom(str, err.message.match(/\d+/g)[0]);
   }else{
-    console.log("No browser detection");
+    from = getFrom(str, err.message.match(/\d+/g)[0]); //chrome
   }
   if (from > 0) {
     let charCount = 0;

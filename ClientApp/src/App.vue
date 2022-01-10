@@ -18,7 +18,7 @@
               All you have to do is give us the structure described in json and you can already download the finished application in the form of your choice.<br />
               When you're ready, just click the <span class="fg-primary">Start</span> button.
             </p>
-            <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showContent = !showContent">Start!</button>
+            <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="changeView">Start!</button>
           </div>
         </div>
         <div class="d-flex slogen-text" :class="{ 'landing': !showContent, 'content' : showContent }">
@@ -37,7 +37,7 @@
     </div>  
 
     <div class="codemirror custom-card" :class="{ 'landing': !showContent, 'content' : showContent, }">
-      <code-mirror v-model:modelValue="json" v-model:error="inputError"></code-mirror>
+      <code-mirror v-model:modelValue="json" v-model:error="inputError" :fixableData="fixableData" @fixData="fixData"></code-mirror>
     </div>
     <div class="browser-container" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <div class="browser custom-card shadow">
@@ -150,6 +150,7 @@ export default defineComponent({
     const layoutMode = ref(layoutModes.Card);
     const showDownloadPanel = ref(false);
     const inputError = ref(null);
+    const fixableData = ref(false);
     const tipMsg = ref('');
     
     if(localStorage.getItem('showTips') != 'false') {
@@ -160,33 +161,29 @@ export default defineComponent({
     }
 
     function saveToLocalStorage(newValue) {
-      try {
-        let obj = JSON.parse(newValue);
-        let minimized = JSON.stringify(obj);
-        let oldValue = localStorage.getItem('json');
-        if (minimized != oldValue) {
-            localStorage.setItem('json', minimized);
-            if(showContent.value && localStorage.getItem('showTips') == 'true') {
-              let debouncedTip = debounce(setTip, 1000);
-              let largeDebouncedTip = debounce(setTip, 8000);
-              if(!localStorage.getItem('regeneratedTip')) {
-                localStorage.setItem('firstUse', true)
-                debouncedTip('If you make structural changes to the JSON data, the application is automatically regenerated.');
-              }
-              if(!localStorage.getItem('buttonsTip')) {
-                largeDebouncedTip('Try out multiple application types and layouts with the buttons in the bottom right corner');
-                localStorage.setItem('regeneratedTip', true);
-                localStorage.setItem('buttonsTip', true);
-              }
+      let obj = JSON.parse(newValue);
+      let minimized = JSON.stringify(obj);
+      let oldValue = localStorage.getItem('json');
+      if (minimized != oldValue) {
+          localStorage.setItem('json', minimized);
+          if(showContent.value && localStorage.getItem('showTips') == 'true') {
+            let debouncedTip = debounce(setTip, 1000);
+            let largeDebouncedTip = debounce(setTip, 8000);
+            if(!localStorage.getItem('regeneratedTip')) {
+              localStorage.setItem('firstUse', true)
+              debouncedTip('If you make structural changes to the JSON data, the application is automatically regenerated.');
             }
-        }
-        document.getElementById('download-btn').classList.add('pulse-download-btn');
-        setTimeout(function(){ 
-          document.getElementById('download-btn').classList.remove('pulse-download-btn');
-        }, 2000);
-      } catch (e) {
-        console.log(e)
+            if(!localStorage.getItem('buttonsTip')) {
+              largeDebouncedTip('Try out multiple application types and layouts with the buttons in the bottom right corner');
+              localStorage.setItem('regeneratedTip', true);
+              localStorage.setItem('buttonsTip', true);
+            }
+          }
       }
+      document.getElementById('download-btn').classList.add('pulse-download-btn');
+      setTimeout(function(){ 
+        document.getElementById('download-btn').classList.remove('pulse-download-btn');
+      }, 2000);
     }
     async function getProjectContentFromServer(name) {
       const data = (await axios.get(`/${name}.json`, {responseType: 'text', ...config})).data;
@@ -206,7 +203,7 @@ export default defineComponent({
           const newSchema = getSchema(JSON.parse(json.value));
           if(JSON.stringify(newSchema) != JSON.stringify(jsonSchema.value)) {
             jsonSchema.value = newSchema;
-            debouncedGenerate();
+            debouncedGenerate(json.value);
           } else {
             saveToLocalStorage(json.value);
           }
@@ -216,21 +213,14 @@ export default defineComponent({
         }
       })
     })
-
+    function setShowContentForUrl(){
+      showContent.value = window.location.pathname === '/editor' ? true : false;
+    }
+    window.addEventListener('popstate', setShowContentForUrl);
+    window.addEventListener('load', setShowContentForUrl);
     window.addEventListener('storage', () => {
       json.value = localStorage.getItem('json').toString();
     });
-    window.onload = function () {
-        window.history.pushState(null, "", window.location.href);
-        window.onpopstate = function() {
-          if (showContent.value) {
-            showContent.value = false;
-            window.history.pushState(null, "", window.location.href);
-          } else {
-            history.back();
-          }
-        };
-    }
     let idtoken = localStorage.getItem('idtoken');
     if (!idtoken) {
       idtoken = ''
@@ -249,23 +239,37 @@ export default defineComponent({
     const showContent = ref(false);
     const appUrl = ref("");
 
-    async function generate() {
+    async function generate(data) {
       try {
-        const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), config);
-        saveToLocalStorage(json.value);
+        const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(data), config);
+        saveToLocalStorage(data);
         appUrl.value = `api/files/${resp.data.id}/index.html`;
         inputError.value = null;
+        fixableData.value = false;
       } catch (e) {
-        inputError.value = e.response.data.error;
+        const response = e.response;
+        if (response) {
+          if(response.data.fixable){
+            fixableData.value = true;
+          } else {
+            fixableData.value = false;
+          }
+          inputError.value = response.data.error;
+        } 
       }
+    }
+    async function fixData() {
+      const fixedJson = await axios.post('api/generate/fix', JSON.parse(json.value));
+      json.value = JSON.stringify(fixedJson.data);
+      generate(json.value);
     }
     function changeGeneratedMode(type) {
       generateType.value = type
-      generate()
+      generate(json.value)
     }
     function changeLayoutMode(type) {
       layoutMode.value = type
-      generate()
+      generate(json.value)
     }
     async function download() {
       const response = await axios.post(`api/download/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), {responseType: 'blob', ...config});
@@ -280,8 +284,16 @@ export default defineComponent({
     function openGithub (){
       window.open("https://github.com/BootGen/VueStart");
     }
+    function changeView(){
+      showContent.value = !showContent.value;
+      if(showContent.value) {
+        history.pushState({}, '', 'editor');
+      } else {
+        history.back();
+      }
+    }
 
-    return { showContent, json, appUrl, download, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg }
+    return { showContent, json, appUrl, download, generate, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg, fixableData, fixData, changeView }
   }
 });
 

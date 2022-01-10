@@ -1,7 +1,7 @@
 <template>
   <div class="col-12 h-100 p-0">
     <div class="col-12 h-100" id="editor"></div>
-    <alert class="aler-msg" :class="{ 'show': errorMessage, 'hide': !errorMessage }" :errorMsg="lastErrorMsg" @close="clearError"></alert>
+    <alert class="aler-msg" :class="{ 'show': errorMessage, 'hide': !errorMessage }" :errorMsg="lastErrorMsg" :fixableData="fixable" @close="clearError" @fixData="$emit('fixData')"></alert>
   </div>
 </template>
 
@@ -24,17 +24,20 @@ export default defineComponent({
   props: {
     modelValue: String,
     error: String,
+    fixableData: Boolean
   },
-  emits: ['update:modelValue', 'update:error'],
+  emits: ['update:modelValue', 'update:error', 'fixData'],
   setup(props, context) {
     let editor = null;
     let syntaxError = ref(null);
     const errorMessage = computed(() => syntaxError.value ? syntaxError.value : props.error);
+    const fixable = computed(() => !syntaxError.value && props.fixableData ? true : false);
     const lastErrorMsg = ref(null);
 
     watchEffect(() => {
       if(errorMessage.value) {
         lastErrorMsg.value = errorMessage.value;
+        context.emit('update:error', errorMessage.value);
       }
     });
 
@@ -145,7 +148,7 @@ export default defineComponent({
           editor.dispatch({effects: [addUnderline.of({ from: validationResult.from, to: validationResult.to })]});
         syntaxError.value = validationResult.message;
       } else {
-        syntaxError.value = '';
+        syntaxError.value = null;
       }
     }
     function indent() {
@@ -186,7 +189,7 @@ export default defineComponent({
       if (props.error !== null)
         context.emit('update:error', null)
     }
-    return { errorMessage, clearError, lastErrorMsg }
+    return { errorMessage, clearError, lastErrorMsg, fixable }
   }
 });
 </script>
