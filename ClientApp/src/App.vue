@@ -213,7 +213,9 @@ export default defineComponent({
         }
       })
     })
-
+    window.addEventListener('popstate', function(){
+      showContent.value = window.location.pathname === '/editor' ? true : false;
+    });
     window.addEventListener('storage', () => {
       json.value = localStorage.getItem('json').toString();
     });
@@ -292,7 +294,6 @@ export default defineComponent({
       showContent.value = !showContent.value;
       if(showContent.value) {
         history.pushState({}, '', 'editor');
-        console.log(history);
       } else {
         history.back();
       }
