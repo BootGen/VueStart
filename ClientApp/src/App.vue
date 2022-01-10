@@ -213,20 +213,14 @@ export default defineComponent({
         }
       })
     })
-    window.addEventListener('popstate', function(){
+    function setShowContentForUrl(){
       showContent.value = window.location.pathname === '/editor' ? true : false;
-    });
+    }
+    window.addEventListener('popstate', setShowContentForUrl);
+    window.addEventListener('load', setShowContentForUrl);
     window.addEventListener('storage', () => {
       json.value = localStorage.getItem('json').toString();
     });
-    window.onload = function () {
-      showContent.value = window.location.pathname === '/editor' ? true : false;
-      window.onpopstate = function() {
-        if (showContent.value) {
-          showContent.value = false;
-        }
-      };
-    }
     let idtoken = localStorage.getItem('idtoken');
     if (!idtoken) {
       idtoken = ''
