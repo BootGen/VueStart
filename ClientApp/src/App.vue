@@ -37,7 +37,7 @@
     </div>  
 
     <div class="codemirror custom-card" :class="{ 'landing': !showContent, 'content' : showContent, }">
-      <code-mirror v-model:modelValue="json" v-model:error="inputError" :fixableData="fixableData" @fixData="fixData" @checkServerError="generate"></code-mirror>
+      <code-mirror v-model:modelValue="json" v-model:error="inputError" :fixableData="fixableData" @fixData="fixData"></code-mirror>
     </div>
     <div class="browser-container" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <div class="browser custom-card shadow">
@@ -161,33 +161,29 @@ export default defineComponent({
     }
 
     function saveToLocalStorage(newValue) {
-      try {
-        let obj = JSON.parse(newValue);
-        let minimized = JSON.stringify(obj);
-        let oldValue = localStorage.getItem('json');
-        if (minimized != oldValue) {
-            localStorage.setItem('json', minimized);
-            if(showContent.value && localStorage.getItem('showTips') == 'true') {
-              let debouncedTip = debounce(setTip, 1000);
-              let largeDebouncedTip = debounce(setTip, 8000);
-              if(!localStorage.getItem('regeneratedTip')) {
-                localStorage.setItem('firstUse', true)
-                debouncedTip('If you make structural changes to the JSON data, the application is automatically regenerated.');
-              }
-              if(!localStorage.getItem('buttonsTip')) {
-                largeDebouncedTip('Try out multiple application types and layouts with the buttons in the bottom right corner');
-                localStorage.setItem('regeneratedTip', true);
-                localStorage.setItem('buttonsTip', true);
-              }
+      let obj = JSON.parse(newValue);
+      let minimized = JSON.stringify(obj);
+      let oldValue = localStorage.getItem('json');
+      if (minimized != oldValue) {
+          localStorage.setItem('json', minimized);
+          if(showContent.value && localStorage.getItem('showTips') == 'true') {
+            let debouncedTip = debounce(setTip, 1000);
+            let largeDebouncedTip = debounce(setTip, 8000);
+            if(!localStorage.getItem('regeneratedTip')) {
+              localStorage.setItem('firstUse', true)
+              debouncedTip('If you make structural changes to the JSON data, the application is automatically regenerated.');
             }
-        }
-        document.getElementById('download-btn').classList.add('pulse-download-btn');
-        setTimeout(function(){ 
-          document.getElementById('download-btn').classList.remove('pulse-download-btn');
-        }, 2000);
-      } catch (e) {
-        console.log(e)
+            if(!localStorage.getItem('buttonsTip')) {
+              largeDebouncedTip('Try out multiple application types and layouts with the buttons in the bottom right corner');
+              localStorage.setItem('regeneratedTip', true);
+              localStorage.setItem('buttonsTip', true);
+            }
+          }
       }
+      document.getElementById('download-btn').classList.add('pulse-download-btn');
+      setTimeout(function(){ 
+        document.getElementById('download-btn').classList.remove('pulse-download-btn');
+      }, 2000);
     }
     async function getProjectContentFromServer(name) {
       const data = (await axios.get(`/${name}.json`, {responseType: 'text', ...config})).data;
@@ -207,7 +203,7 @@ export default defineComponent({
           const newSchema = getSchema(JSON.parse(json.value));
           if(JSON.stringify(newSchema) != JSON.stringify(jsonSchema.value)) {
             jsonSchema.value = newSchema;
-            debouncedGenerate();
+            debouncedGenerate(json.value);
           } else {
             saveToLocalStorage(json.value);
           }
@@ -250,34 +246,37 @@ export default defineComponent({
     const showContent = ref(false);
     const appUrl = ref("");
 
-    async function generate() {
+    async function generate(data) {
       try {
-        const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), config);
-        saveToLocalStorage(json.value);
+        const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(data), config);
+        saveToLocalStorage(data);
         appUrl.value = `api/files/${resp.data.id}/index.html`;
         inputError.value = null;
         fixableData.value = false;
       } catch (e) {
-        if(e.response.data.fixable){
-          fixableData.value = true;
-        } else {
-          fixableData.value = false;
-        }
-        inputError.value = e.response.data.error;
+        const response = e.response;
+        if (response) {
+          if(response.data.fixable){
+            fixableData.value = true;
+          } else {
+            fixableData.value = false;
+          }
+          inputError.value = response.data.error;
+        } 
       }
     }
     async function fixData() {
-      const fixedJson = await axios.post('http://localhost:5000/api/generate/fix', JSON.parse(json.value));
+      const fixedJson = await axios.post('api/generate/fix', JSON.parse(json.value));
       json.value = JSON.stringify(fixedJson.data);
-      generate();
+      generate(json.value);
     }
     function changeGeneratedMode(type) {
       generateType.value = type
-      generate()
+      generate(json.value)
     }
     function changeLayoutMode(type) {
       layoutMode.value = type
-      generate()
+      generate(json.value)
     }
     async function download() {
       const response = await axios.post(`api/download/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), {responseType: 'blob', ...config});
