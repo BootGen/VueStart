@@ -13,17 +13,15 @@
         <div class="d-flex align-items-center jumbo-text" :class="{ 'landing': !showContent, 'content' : showContent }">
           <div class="d-flex flex-column align-items-center">
             <p class="lead text-justify">
-              Welcome to <span class="fg-primary">VueStart</span>!<br />
-              we are glad you finally found your place.<br />
-              All you have to do is give us the structure described in json and you can already download the finished application in the form of your choice.<br />
-              When you're ready, just click the <span class="fg-primary">Start</span> button.
+              Speed up frontend development, with this open source Vue.js component generator.
+              Generate forms, tables and data editors for any JSON data.
             </p>
             <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="changeView">Start!</button>
           </div>
         </div>
         <div class="d-flex slogen-text" :class="{ 'landing': !showContent, 'content' : showContent }">
           <p class="text-center">
-          Generate forms, data editors and viewers!
+          Generate forms, tables and data editors!
           </p>
         </div>
       </div>
@@ -37,7 +35,7 @@
     </div>  
 
     <div class="codemirror custom-card" :class="{ 'landing': !showContent, 'content' : showContent, }">
-      <code-mirror v-model:modelValue="json" v-model:error="inputError" :fixableData="fixableData" @fixData="fixData"></code-mirror>
+      <code-mirror v-model="json" :error="inputError" :fixableData="fixableData" @fixData="fixData"></code-mirror>
     </div>
     <div class="browser-container" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <div class="browser custom-card shadow">
