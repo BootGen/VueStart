@@ -1,10 +1,11 @@
 <template>
   <div class="col-12">
+    <tip class="tip-msg" :tipMsg="tipMsg" @hide="hideAllTip" :class="{ 'show': showContent && tipMsg, 'hide' : !showContent || !tipMsg }"></tip>
     <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showContent, 'content' : showContent }">
-      <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${!inputError ? 'default' : 'error'}.webp`)" :class="{ 'landing': !showContent, 'content' : showContent, }">
+      <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <div class="jumbo-text-full" :class="{ 'landing': !showContent, 'content' : showContent }">
         <div class="d-flex align-items-center justify-content-center">
           <img class="vue_logo" alt="vue" :src="require(`./assets/vue_logo.webp`)">
@@ -113,7 +114,6 @@
     <div class="col-12 d-flex align-items-center footer" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
     </div>
-    <tip :tipMsg="tipMsg" v-if="tipMsg != '' && showContent"></tip>
   </div>
 </template>
 
@@ -149,48 +149,77 @@ export default defineComponent({
     const showDownloadPanel = ref(false);
     const inputError = ref(null);
     const isFixable = ref(false);
-    const tipMsg = ref('');
+    const tipMsg = ref(null);
+    const vuecoonStates = {
+      Default: 'default',
+      Error: 'error',
+      Success: 'success'
+    };
+    const vuecoonState = ref(vuecoonStates.Default);
     
-    if(localStorage.getItem('showTips') != 'false') {
+    watchEffect(() => {
+      if(inputError.value) {
+        vuecoonState.value = vuecoonStates.Error;
+      } else {
+        vuecoonState.value = vuecoonStates.Default;
+      }
+    });
+    if(localStorage.getItem('showTips') !== 'false') {
       localStorage.setItem('showTips', true);
     }
-    if (!localStorage.getItem('firstUse') && localStorage.getItem('showTips') == 'true') {
-      tipMsg.value = 'Try to edit the JSON data on the left side, and see the changes in the application on the right side';
+    if (localStorage.getItem('showTips') === 'true' && localStorage.getItem('firstUse') === 'false' && localStorage.getItem('regeneratedTip') === 'true' && localStorage.getItem('buttonsTip') !== 'true') {
+      setTip('Try out multiple application types and layouts with the buttons in the bottom right corner');
+    } else if (localStorage.getItem('showTips') === 'true' && localStorage.getItem('firstUse') === 'false' && localStorage.getItem('regeneratedTip') !== 'true') {
+      setTip('If you make structural changes to the JSON data, the application is automatically regenerated.');
+    } else if (localStorage.getItem('firstUse') !== 'false' && localStorage.getItem('showTips') === 'true') {
+      setTip('Try to edit the JSON data on the left side, and see the changes in the application on the right side');
     }
-
+    function setVuecoon (state, time){
+      vuecoonState.value = state;
+      let debounceResetVuecoon = debounce(resetVuecoon, time*2);
+      debounceResetVuecoon();
+    }
+    function resetVuecoon (){
+      vuecoonState.value = vuecoonStates.Default;
+    }
+    function setTip(msg) {
+      tipMsg.value = msg;
+    }
+    function setNextTip(msg, time){
+      setVuecoon(vuecoonStates.Success, time);
+      setTip(null);
+      if(msg) {
+        let debouncedTip = debounce(setTip, time);
+        debouncedTip(msg);
+      }
+    }
+    function hideAllTip (){
+      localStorage.setItem('showTips', false);
+      setTip(null);
+    }
     function saveToLocalStorage(newValue) {
       let obj = JSON.parse(newValue);
       let minimized = JSON.stringify(obj);
       let oldValue = localStorage.getItem('json');
       if (minimized != oldValue) {
           localStorage.setItem('json', minimized);
-          if(showContent.value && localStorage.getItem('showTips') == 'true') {
-            let debouncedTip = debounce(setTip, 1000);
-            let largeDebouncedTip = debounce(setTip, 8000);
-            if(!localStorage.getItem('regeneratedTip')) {
-              localStorage.setItem('firstUse', true)
-              debouncedTip('If you make structural changes to the JSON data, the application is automatically regenerated.');
+            if(showContent.value && localStorage.getItem('showTips') === 'true' && localStorage.getItem('regeneratedTip') !== 'true') {
+              setNextTip('If you make structural changes to the JSON data, the application is automatically regenerated.', 1000);
+              localStorage.setItem('firstUse', false);
             }
-            if(!localStorage.getItem('buttonsTip')) {
-              largeDebouncedTip('Try out multiple application types and layouts with the buttons in the bottom right corner');
-              localStorage.setItem('regeneratedTip', true);
-              localStorage.setItem('buttonsTip', true);
-            }
-          }
-      }
+        }
       document.getElementById('download-btn').classList.add('pulse-download-btn');
       setTimeout(function(){ 
         document.getElementById('download-btn').classList.remove('pulse-download-btn');
       }, 2000);
+      } catch (e) {
+        console.log(e);
     }
     async function getProjectContentFromServer(name) {
       const data = (await axios.get(`/${name}.json`, {responseType: 'text', ...config})).data;
       if (typeof data === 'string')
         return data;
       return JSON.stringify(data);
-    }
-    function setTip(msg) {
-      tipMsg.value = msg;
     }
     getProjectContentFromServer('example_input').then( (content) => {
       json.value = content;
@@ -238,6 +267,10 @@ export default defineComponent({
     const appUrl = ref("");
 
     async function generate(data) {
+      if(showContent.value && localStorage.getItem('showTips') === 'true' && localStorage.getItem('buttonsTip') !== 'true') {
+        setNextTip('Try out multiple application types and layouts with the buttons in the bottom right corner', 1000);
+        localStorage.setItem('regeneratedTip', true);
+      }
       try {
         const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(data), config);
         saveToLocalStorage(data);
@@ -262,10 +295,18 @@ export default defineComponent({
       generate(json.value);
     }
     function changeGeneratedMode(type) {
+      if(localStorage.getItem('showTips') === 'true' && localStorage.getItem('regeneratedTip') === 'true' && localStorage.getItem('buttonsTip') !== 'true'){
+        setNextTip(null, 1000);
+        localStorage.setItem('buttonsTip', true);
+      }
       generateType.value = type
       generate(json.value)
     }
     function changeLayoutMode(type) {
+      if(localStorage.getItem('showTips') === 'true' && localStorage.getItem('regeneratedTip') === 'true' && localStorage.getItem('buttonsTip') !== 'true'){
+        setNextTip(null, 1000);
+        localStorage.setItem('buttonsTip', true);
+      }
       layoutMode.value = type
       generate(json.value)
     }
@@ -291,7 +332,7 @@ export default defineComponent({
       }
     }
 
-    return { showContent, json, appUrl, download, generate, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg, isFixable, fixData, changeView }
+    return { showContent, json, appUrl, download, generate, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg, isFixable, fixData, changeView, hideAllTip, vuecoonState }
   }
 });
 
@@ -595,6 +636,21 @@ body {
     opacity: 0;
     height: 0vh;
     top: 98vh;
+    visibility: hidden;
+  }
+  .tip-msg{
+    bottom: 0;
+    justify-content: center!important;
+    position: fixed;
+    z-index: 999;
+    transition: all 1s ease-in-out;
+  }
+  .tip-msg.show{
+    opacity: 1;
+    visibility: visible;
+  }
+  .tip-msg.hide{
+    opacity: 0;
     visibility: hidden;
   }
   .footer{

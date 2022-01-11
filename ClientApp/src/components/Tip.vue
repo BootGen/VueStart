@@ -1,37 +1,42 @@
 <template>
-  <div class="d-flex tip-alert-container col-12" v-if="show">
-    <div class="alert m-2 alert-info d-flex align-items-center">
-      {{ tipMsg }}
-      <button type="button" class="btn p-2" aria-label="Hide" @click="hideTips()"><span class="bi bi-bell-slash px-2" aria-hidden="true"></span></button>
-    </div>
+  <div class="alert m-2 alert-info d-flex align-items-center">
+    {{ tempTipMsg }}
+    <button type="button" class="btn p-2" aria-label="Hide" @click="$emit('hide')"><span class="bi bi-bell-slash px-2" aria-hidden="true"></span></button>
   </div>
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, watchEffect } from 'vue';
 export default defineComponent({
   name: 'Tip',
   props: {
     tipMsg: String
   },
-  setup() {
-    const show = ref(true);
+  emits: ['hide'],
+  setup(props) {
+    const tempTipMsg = ref(null);
 
-    function hideTips(){
-      localStorage.setItem('showTips', false);
-      show.value = false;
-    }
-    return { show, hideTips };
+    watchEffect(() => {
+      if(props.tipMsg) {
+        tempTipMsg.value = props.tipMsg;
+      }
+    });
+
+    return { tempTipMsg }
   }
 });
 </script>
 
-<style>
-  .tip-alert-container {
-    bottom: 0;
-    justify-content: center!important;
-    position: fixed;
-    z-index: 999;
-    
+<style scoped>
+  .alert {
+    left: 50%!important;
+    transform: translate(-50%,-40%)!important;
   }
-</style>
+  @media (max-width: 992px) {
+    .alert {
+      left: unset!important;
+      transform: unset!important;
+      width: -webkit-fill-available;
+    }
+  }
+</style>>
