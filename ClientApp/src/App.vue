@@ -35,7 +35,7 @@
     </div>  
 
     <div class="codemirror custom-card" :class="{ 'landing': !showContent, 'content' : showContent, }">
-      <code-mirror v-model="json" :error="inputError" :fixableData="fixableData" @fixData="fixData"></code-mirror>
+      <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData"></code-mirror>
     </div>
     <div class="browser-container" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <div class="browser custom-card shadow">
@@ -148,7 +148,7 @@ export default defineComponent({
     const layoutMode = ref(layoutModes.Card);
     const showDownloadPanel = ref(false);
     const inputError = ref(null);
-    const fixableData = ref(false);
+    const isFixable = ref(false);
     const tipMsg = ref('');
     
     if(localStorage.getItem('showTips') != 'false') {
@@ -243,14 +243,14 @@ export default defineComponent({
         saveToLocalStorage(data);
         appUrl.value = `api/files/${resp.data.id}/index.html`;
         inputError.value = null;
-        fixableData.value = false;
+        isFixable.value = false;
       } catch (e) {
         const response = e.response;
         if (response) {
           if(response.data.fixable){
-            fixableData.value = true;
+            isFixable.value = true;
           } else {
-            fixableData.value = false;
+            isFixable.value = false;
           }
           inputError.value = response.data.error;
         } 
@@ -291,7 +291,7 @@ export default defineComponent({
       }
     }
 
-    return { showContent, json, appUrl, download, generate, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg, fixableData, fixData, changeView }
+    return { showContent, json, appUrl, download, generate, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg, isFixable, fixData, changeView }
   }
 });
 

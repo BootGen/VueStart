@@ -1,8 +1,8 @@
 <template>
   <div class="col-12 h-100 p-0">
     <div class="col-12 h-100" id="editor"></div>
-    <alert class="aler-msg" :class="{ 'show': syntaxError, 'hide': !syntaxError }" :errorMsg="syntaxError" :fixableData="false" @close="clearError"></alert>
-    <alert class="aler-msg" :class="{ 'show': error, 'hide': !error }" :errorMsg="error" :fixableData="fixableData" @close="clearError" @fixData="$emit('fixData')" v-if="!syntaxError"></alert>
+    <alert class="aler-msg" :class="{ 'show': syntaxError, 'hide': !syntaxError }" :errorMessage="syntaxError" :isFixable="false" @close="clearError"></alert>
+    <alert class="aler-msg" :class="{ 'show': error, 'hide': !error }" :errorMessage="error" :isFixable="isFixable" @close="clearError" @fixData="$emit('fixData')" v-if="!syntaxError"></alert>
   </div>
 </template>
 
@@ -25,7 +25,7 @@ export default defineComponent({
   props: {
     modelValue: String,
     error: String,
-    fixableData: Boolean
+    isFixable: Boolean
   },
   emits: ['update:modelValue',  'fixData'],
   setup(props, context) {
