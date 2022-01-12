@@ -34,7 +34,7 @@
         <p class="small-text">Star this project on GitHub!</p>
       </div>
     </div>  
-    <editor :showContent="showContent"></editor>
+    <editor :config="config" :showContent="showContent" @download="onDownloadClicked"></editor>
     <div class="col-12 d-flex align-items-center footer" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
     </div>
@@ -47,6 +47,7 @@ import { defineComponent, ref } from 'vue';
 import DownloadPanel from './components/DownloadPanel.vue'
 import Editor from './components/Editor.vue'
 import Tip from './components/Tip.vue';
+import axios from "axios";
 
 export default defineComponent({
   name: 'LandingPage',
@@ -60,7 +61,26 @@ export default defineComponent({
       Success: 'success'
     };
     const vuecoonState = ref(vuecoonStates.Default);
-    
+
+    let idtoken = localStorage.getItem('idtoken');
+    if (!idtoken) {
+      idtoken = ''
+      while (idtoken.length < 16)
+        idtoken += Math.random().toString(36).substring(2);
+      idtoken = idtoken.substring(0, 16);
+      localStorage.setItem('idtoken', idtoken)
+    }
+
+    let config = {
+      headers: {
+        'idtoken': idtoken,
+        'citation': document.referrer
+      }
+    }
+
+    let downloadUrl = "";
+    let downloadedFileName = "";
+
     /*watchEffect(() => {
       if(inputError.value) {
         vuecoonState.value = vuecoonStates.Error;
@@ -113,7 +133,25 @@ export default defineComponent({
       }
     }
 
-    return { showContent, showDownloadPanel, openGithub, tipMsg, changeView, vuecoonState }
+    async function download() {
+      const response = await axios.post(downloadUrl, JSON.parse(localStorage.getItem('json')), {responseType: 'blob', ...config});
+      const fileURL = window.URL.createObjectURL(new Blob([response.data]));
+      const fileLink = document.createElement('a');
+      fileLink.href = fileURL;
+      fileLink.target = '_blank';
+      fileLink.setAttribute('download', downloadedFileName);
+      document.body.appendChild(fileLink);
+      fileLink.click();
+      showDownloadPanel.value = false;
+    }
+
+    function onDownloadClicked(url, fileName) {
+      downloadUrl = url;
+      downloadedFileName = fileName;
+      showDownloadPanel.value = true;
+    }
+
+    return { showContent, showDownloadPanel, openGithub, tipMsg, changeView, vuecoonState, config, download, onDownloadClicked }
   }
 });
 

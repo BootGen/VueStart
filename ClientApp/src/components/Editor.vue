@@ -70,7 +70,7 @@
             </li>
           </ul>
         </div>
-        <div id="download-btn" class="fab fab-icon-holder pulse-download-btn" @click="showDownloadPanel = true">
+        <div id="download-btn" class="fab fab-icon-holder pulse-download-btn" @click="onDownloadClicked">
           <span class="bi bi-download" aria-hidden="true"></span>
         </div>
       </div>
@@ -88,9 +88,11 @@ import {debounce} from "@/utils/Helper";
 export default defineComponent({
   components: { CodeMirror, BrowserFrame, Tab },
   props: {
-    showContent: Boolean
+    showContent: Boolean,
+    config: Object
   },
-  setup() {
+  emits: ['download'],
+  setup(props, context) {
     const inputError = ref(null);
     const isFixable = ref(false);
     const json = ref('');
@@ -109,23 +111,8 @@ export default defineComponent({
     }
     const layoutMode = ref(layoutModes.Card);
     window.addEventListener('storage', () => {
-      json.value = localStorage.getItem('json').toString();
+      json.value = localStorage.getItem('json');
     });
-    let idtoken = localStorage.getItem('idtoken');
-    if (!idtoken) {
-      idtoken = ''
-      while (idtoken.length < 16)
-        idtoken += Math.random().toString(36).substring(2);
-      idtoken = idtoken.substring(0, 16);
-      localStorage.setItem('idtoken', idtoken)
-    }
-
-    let config = {
-      headers: {
-        'idtoken': idtoken,
-        'citation': document.referrer
-      }
-    }
     async function fixData() {
       const fixedJson = await axios.post('api/generate/fix', JSON.parse(json.value));
       json.value = JSON.stringify(fixedJson.data);
@@ -139,20 +126,9 @@ export default defineComponent({
       layoutMode.value = type
       generate(json.value)
     }
-    async function download() {
-      const response = await axios.post(`api/download/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), {responseType: 'blob', ...config});
-      const fileURL = window.URL.createObjectURL(new Blob([response.data]));
-      const fileLink = document.createElement('a');
-      fileLink.href = fileURL;
-      fileLink.target = '_blank';
-      fileLink.setAttribute('download', `${generateType.value}.zip`);
-      document.body.appendChild(fileLink);
-      fileLink.click();
-    }
-
     async function generate(data) {
       try {
-        const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(data), config);
+        const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(data), props.config);
         saveToLocalStorage(data);
         appUrl.value = `api/files/${resp.data.id}/index.html`;
         inputError.value = null;
@@ -180,11 +156,12 @@ export default defineComponent({
       }, 2000);
     }
     async function getProjectContentFromServer(name) {
-      const data = (await axios.get(`/${name}.json`, {responseType: 'text', ...config})).data;
+      const data = (await axios.get(`/${name}.json`, {responseType: 'text', ...props.config})).data;
       if (typeof data === 'string')
         return data;
       return JSON.stringify(data);
     }
+
     getProjectContentFromServer('example_input').then( (content) => {
       json.value = content;
       jsonSchema.value = getSchema(JSON.parse(json.value));
@@ -204,9 +181,12 @@ export default defineComponent({
           nop()
         }
       })
-    })
+    });
+    function onDownloadClicked() {
+      context.emit('download', `api/download/${generateType.value}/${layoutMode.value}`, `${generateType.value}.zip`)
+    }
     return { json, inputError, appUrl, generateType, generateTypes, layoutMode, layoutModes,
-      changeGeneratedMode, changeLayoutMode, download, fixData, isFixable }
+      changeGeneratedMode, changeLayoutMode, fixData, isFixable, onDownloadClicked }
   },
 })
 </script>
