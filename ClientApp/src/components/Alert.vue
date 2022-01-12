@@ -2,8 +2,8 @@
   <div class="col-12 d-flex error-alert-container">
     <div class="alert m-2 alert-danger d-flex align-items-center">
       <div>
-        {{ errorMsg }}
-        <button type="button" class="btn fix-btn" aria-label="Fix" @click="$emit('fixData')" v-if="fixableData">fix</button>
+        {{ errorMessage }}
+        <button type="button" class="btn fix-btn" aria-label="Fix" @click="$emit('fixData')" v-if="isFixable">fix</button>
       </div>
       <button type="button" class="btn p-2" aria-label="Close" @click="$emit('close')"><span class="bi bi-x-lg px-2" aria-hidden="true"></span></button>
     </div>
@@ -11,14 +11,23 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, watchEffect } from 'vue';
 export default defineComponent({
   name: 'Alert',
   props: {
-    errorMsg: String,
-    fixableData: Boolean
+    errorMessage: String,
+    isFixable: Boolean
   },
-  emits: ['close', 'fixData']
+  emits: ['close', 'fixData'],
+  setup(props) {
+    let errorMessage = ref(props.errorMessage)
+    watchEffect(() => {
+      if(props.errorMessage) {
+        errorMessage.value = props.errorMessage;
+      }
+    });
+    return { errorMessage }
+  }
 });
 </script>
 

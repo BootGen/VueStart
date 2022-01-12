@@ -1,7 +1,8 @@
 <template>
   <div class="col-12 h-100 p-0">
     <div class="col-12 h-100" id="editor"></div>
-    <alert class="aler-msg" :class="{ 'show': errorMessage, 'hide': !errorMessage }" :errorMsg="lastErrorMsg" :fixableData="fixable" @close="clearError" @fixData="$emit('fixData')"></alert>
+    <alert class="alert-msg" :class="{ 'show': syntaxError, 'hide': !syntaxError }" :errorMessage="syntaxError" :isFixable="false" @close="clearError"></alert>
+    <alert class="alert-msg" :class="{ 'show': error, 'hide': !error }" :errorMessage="error" :isFixable="isFixable" @close="clearError" @fixData="$emit('fixData')" v-if="!syntaxError"></alert>
   </div>
 </template>
 
@@ -13,7 +14,7 @@ import { json } from "@codemirror/lang-json"
 import {StateField, StateEffect} from "@codemirror/state"
 
 
-import { defineComponent, onMounted, watchEffect, ref, computed } from 'vue';
+import { defineComponent, onMounted, watchEffect, ref } from 'vue';
 import Alert from './Alert.vue';
 import { debounce } from '../utils/Helper';
 import { prettyPrint, validateJson } from '../utils/PrettyPrint';
@@ -24,22 +25,12 @@ export default defineComponent({
   props: {
     modelValue: String,
     error: String,
-    fixableData: Boolean
+    isFixable: Boolean
   },
-  emits: ['update:modelValue', 'update:error', 'fixData'],
+  emits: ['update:modelValue',  'fixData'],
   setup(props, context) {
     let editor = null;
     let syntaxError = ref(null);
-    const errorMessage = computed(() => syntaxError.value ? syntaxError.value : props.error);
-    const fixable = computed(() => !syntaxError.value && props.fixableData ? true : false);
-    const lastErrorMsg = ref(null);
-
-    watchEffect(() => {
-      if(errorMessage.value) {
-        lastErrorMsg.value = errorMessage.value;
-        context.emit('update:error', errorMessage.value);
-      }
-    });
 
     const underlineMark = Decoration.mark({class: "cm-underline"})
     const addUnderline = StateEffect.define();
@@ -149,6 +140,8 @@ export default defineComponent({
         syntaxError.value = validationResult.message;
       } else {
         syntaxError.value = null;
+        const cursorPosition = editor.state.selection.main.head;
+        editor.dispatch({ selection: {anchor: cursorPosition} })
       }
     }
     function indent() {
@@ -186,10 +179,8 @@ export default defineComponent({
     }
     function clearError() {
       syntaxError.value = null;
-      if (props.error !== null)
-        context.emit('update:error', null)
     }
-    return { errorMessage, clearError, lastErrorMsg, fixable }
+    return { syntaxError, clearError }
   }
 });
 </script>
@@ -211,21 +202,21 @@ export default defineComponent({
     color: #42b983!important;
   }
 
-  .aler-msg{
+  .alert-msg{
     margin-left: 20px;
     transition: all 0.5s;
     margin-right: unset;
   }
-  .aler-msg.show{
+  .alert-msg.show{
     opacity: 1;
     visibility: visible;
   }
-  .aler-msg.hide{
+  .alert-msg.hide{
     opacity: 0;
     visibility: hidden;
   }
   @media (max-width: 992px) {
-    .aler-msg {
+    .alert-msg {
       margin-left: unset;
       justify-content: center;
     }
