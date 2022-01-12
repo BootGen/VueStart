@@ -16,7 +16,8 @@ export default defineComponent({
     typeChanged: Boolean,
     downloaded: Boolean
   },
-  setup(props) {
+  emits: ['success'],
+  setup(props, context) {
     const hideTips = computed(() => {
       if (localStorage.getItem("hideTips") === "true")
         return true;
@@ -51,6 +52,7 @@ export default defineComponent({
       const generated = props.generated;
       const typeChanged = props.typeChanged;
       const downloaded = props.downloaded;
+      const oldIdx = tipIdx.value;
       if (tipIdx.value === 0 && modified) {
         tipIdx.value = 1;
       }
@@ -67,6 +69,8 @@ export default defineComponent({
       showTip.value = false;
       if (tipIdx.value < tips.length)
         showTipMessage();
+      if (oldIdx !== tipIdx.value)
+        context.emit('success');
     });
 
     return { tipMessage, hide, hideTips }

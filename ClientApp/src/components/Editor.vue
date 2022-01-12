@@ -1,6 +1,6 @@
 <template>
     <div class="codemirror custom-card" :class="{ 'landing': !showContent, 'content' : showContent, }">
-      <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData"></code-mirror>
+      <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData" @hasSyntaxError="$emit('hasError', $event)"></code-mirror>
     </div>
     <div class="browser-container" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <div class="browser custom-card shadow">
@@ -91,7 +91,7 @@ export default defineComponent({
     showContent: Boolean,
     config: Object
   },
-  emits: ['download', 'modified', 'generated', 'typeChanged'],
+  emits: ['download', 'modified', 'generated', 'typeChanged', 'hasError'],
   setup(props, context) {
     const inputError = ref(null);
     const isFixable = ref(false);
@@ -135,12 +135,14 @@ export default defineComponent({
         appUrl.value = `api/files/${resp.data.id}/index.html`;
         inputError.value = null;
         isFixable.value = false;
+        context.emit('hasError', false);
       } catch (e) {
         const response = e.response;
         if (response) {
           isFixable.value = !!response.data.fixable;
           inputError.value = response.data.error;
         }
+        context.emit('hasError', true);
       }
     }
 

@@ -27,7 +27,7 @@ export default defineComponent({
     error: String,
     isFixable: Boolean
   },
-  emits: ['update:modelValue',  'fixData'],
+  emits: ['update:modelValue',  'fixData', 'hasSyntaxError'],
   setup(props, context) {
     let editor = null;
     let syntaxError = ref(null);
@@ -139,8 +139,10 @@ export default defineComponent({
         if (validationResult.from > 0 && validationResult.to > 0 && validationResult.to > validationResult.from)
           editor.dispatch({effects: [addUnderline.of({ from: validationResult.from, to: validationResult.to })]});
         syntaxError.value = validationResult.message;
+        context.emit('hasSyntaxError', true);
       } else {
         syntaxError.value = null;
+        context.emit('hasSyntaxError', false);
         const cursorPosition = editor.state.selection.main.head;
         editor.dispatch({ selection: {anchor: cursorPosition} })
       }
@@ -162,7 +164,7 @@ export default defineComponent({
         }
         if (' \t\n\r\v'.indexOf(lastChar) === -1) {
           const newValue = prettyPrint(json);
-          if (json != newValue) {
+          if (json !== newValue) {
             editor.dispatch({ changes: {from: 0, to: editor.state.doc.length, insert: newValue} })
             let newCursorPosition = 0;
             for (let i = 0; i < newValue.length; ++i) {

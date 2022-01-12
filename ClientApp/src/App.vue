@@ -1,6 +1,6 @@
 <template>
   <div class="col-12">
-    <tip :modified="modified" :generated="generated" :typeChanged="typeChanged" :downloaded="downloaded" v-if="showContent" ></tip>
+    <tip :modified="modified" :generated="generated" :typeChanged="typeChanged" :downloaded="downloaded" @success="setSuccessVuecoon" v-if="showContent" ></tip>
     <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
@@ -34,7 +34,7 @@
         <p class="small-text">Star this project on GitHub!</p>
       </div>
     </div>  
-    <editor :config="config" :showContent="showContent" @download="onDownloadClicked" @modified="modified = true" @generated="generated = true" @typeChanged="typeChanged = true" ></editor>
+    <editor :config="config" :showContent="showContent" @download="onDownloadClicked" @modified="modified = true" @generated="generated = true" @typeChanged="typeChanged = true" @hasError="hasError" ></editor>
     <div class="col-12 d-flex align-items-center footer" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
     </div>
@@ -48,6 +48,7 @@ import DownloadPanel from './components/DownloadPanel.vue'
 import Editor from './components/Editor.vue'
 import Tip from './components/Tip.vue';
 import axios from "axios";
+import {debounce} from "@/utils/Helper";
 
 export default defineComponent({
   name: 'LandingPage',
@@ -83,32 +84,23 @@ export default defineComponent({
 
     let downloadUrl = "";
     let downloadedFileName = "";
-
-    /*watchEffect(() => {
-      if(inputError.value) {
+    function hasError(value) {
+      if(value) {
         vuecoonState.value = vuecoonStates.Error;
       } else {
-        vuecoonState.value = vuecoonStates.Default;
+        if (vuecoonState.value === vuecoonStates.Error)
+          vuecoonState.value = vuecoonStates.Default;
       }
-    });*/
+    }
 
-    /*function setVuecoon (state, time){
-      vuecoonState.value = state;
-      let debounceResetVuecoon = debounce(resetVuecoon, time*2);
+    let debounceResetVuecoon = debounce(resetVuecoon, 2000);
+    function setSuccessVuecoon(){
+      vuecoonState.value = vuecoonStates.Success;
       debounceResetVuecoon();
     }
     function resetVuecoon (){
       vuecoonState.value = vuecoonStates.Default;
-    }*/
-
-    /*function setNextTip(msg, time){
-      setVuecoon(vuecoonStates.Success, time);
-      setTip(null);
-      if(msg) {
-        let debouncedTip = debounce(setTip, time);
-        debouncedTip(msg);
-      }
-    }*/
+    }
 
     function setShowContentForUrl(){
       showContent.value = window.location.pathname === '/editor';
@@ -148,7 +140,8 @@ export default defineComponent({
     }
 
     return { showContent, showDownloadPanel, openGithub, changeView, vuecoonState,
-      config, download, onDownloadClicked, modified, generated, typeChanged, downloaded }
+      config, download, onDownloadClicked, modified, generated, typeChanged,
+      downloaded, hasError, setSuccessVuecoon }
   }
 });
 
