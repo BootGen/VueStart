@@ -1,12 +1,13 @@
 <template>
   <div class="alert m-2 alert-info d-flex align-items-center tip-msg" :class="{ 'show': !hideTips, 'hide' : hideTips }">
     {{ tipMessage }}
-    <button type="button" class="btn p-2" aria-label="Hide" @click="$emit('hide')"><span class="bi bi-bell-slash px-2" aria-hidden="true"></span></button>
+    <button type="button" class="btn p-2" aria-label="Hide" @click="hide"><span class="bi bi-bell-slash px-2" aria-hidden="true"></span></button>
   </div>
 </template>
 
 <script>
 import { defineComponent, ref, computed, watchEffect } from 'vue';
+import {debounce} from "@/utils/Helper";
 export default defineComponent({
   name: 'Tip',
   props: {
@@ -14,7 +15,6 @@ export default defineComponent({
     generated: Boolean,
     typeChanged: Boolean
   },
-  emits: ['hide'],
   setup(props) {
     const hideTips = computed(() => {
       if (localStorage.getItem("hideTips") === "true")
@@ -36,29 +36,41 @@ export default defineComponent({
 
     function hide() {
       localStorage.setItem("hideTips", "true");
+      showTip.value = false;
     }
 
+
+
+    const showTipMessage = debounce(function() {
+      tipMessage.value = tips[tipIdx.value];
+      showTip.value = true;
+    }, 1000);
+
     watchEffect(() => {
+      const modified = props.modified;
+      const generated = props.generated;
+      const typeChanged = props.typeChanged;
       switch (tipIdx.value) {
         case 0:
-          if (props.modified) {
+          if (modified) {
             tipIdx.value = 1;
           }
           break;
         case 1:
-          if (props.generated) {
+          if (generated) {
             tipIdx.value = 2;
           }
           break;
         case 2:
-          if (props.typeChanged) {
+          if (typeChanged) {
             tipIdx.value = 3;
           }
           break;
       }
-      if (tipIdx.value < tips.length)
-        tipMessage.value = tips[tipIdx.value];
       localStorage.setItem('tipIdx', tipIdx.value.toString());
+      showTip.value = false;
+      if (tipIdx.value < tips.length)
+        showTipMessage();
     });
 
     return { tipMessage, hide, hideTips }

@@ -1,6 +1,6 @@
 <template>
   <div class="col-12">
-    <tip :modified="modified" :generated="generated" :typeChanged="typeChanged" ></tip>
+    <tip :modified="modified" :generated="generated" :typeChanged="typeChanged" v-if="showContent" ></tip>
     <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>

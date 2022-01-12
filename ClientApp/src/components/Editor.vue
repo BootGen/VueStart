@@ -150,7 +150,8 @@ export default defineComponent({
       let oldValue = localStorage.getItem('json');
       if (minimized !== oldValue) {
         localStorage.setItem('json', minimized);
-        context.emit('modified');
+        if (oldValue)
+          context.emit('modified');
       }
       const downloadButton = document.getElementById('download-btn');
       downloadButton.classList.add('pulse-download-btn');
@@ -165,6 +166,7 @@ export default defineComponent({
       return JSON.stringify(data);
     }
 
+    localStorage.removeItem('json');
     getProjectContentFromServer('example_input').then( (content) => {
       json.value = content;
       jsonSchema.value = getSchema(JSON.parse(json.value));
