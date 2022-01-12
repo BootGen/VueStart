@@ -1,8 +1,8 @@
 <template>
   <div class="col-12 h-100 p-0">
     <div class="col-12 h-100" id="editor"></div>
-    <alert class="aler-msg" :class="{ 'show': syntaxError, 'hide': !syntaxError }" :errorMessage="syntaxError" :isFixable="false" @close="clearError"></alert>
-    <alert class="aler-msg" :class="{ 'show': error, 'hide': !error }" :errorMessage="error" :isFixable="isFixable" @close="clearError" @fixData="$emit('fixData')" v-if="!syntaxError"></alert>
+    <alert class="alert-msg" :class="{ 'show': syntaxError, 'hide': !syntaxError }" :errorMessage="syntaxError" :isFixable="false" @close="clearError"></alert>
+    <alert class="alert-msg" :class="{ 'show': error, 'hide': !error }" :errorMessage="error" :isFixable="isFixable" @close="clearError" @fixData="$emit('fixData')" v-if="!syntaxError"></alert>
   </div>
 </template>
 
@@ -202,21 +202,21 @@ export default defineComponent({
     color: #42b983!important;
   }
 
-  .aler-msg{
+  .alert-msg{
     margin-left: 20px;
     transition: all 0.5s;
     margin-right: unset;
   }
-  .aler-msg.show{
+  .alert-msg.show{
     opacity: 1;
     visibility: visible;
   }
-  .aler-msg.hide{
+  .alert-msg.hide{
     opacity: 0;
     visibility: hidden;
   }
   @media (max-width: 992px) {
-    .aler-msg {
+    .alert-msg {
       margin-left: unset;
       justify-content: center;
     }

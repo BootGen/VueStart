@@ -17,15 +17,20 @@ function getErrorPosition(str, err) {
   let userAgent = navigator.userAgent;
   let from = -1;
   let to = -1;
-  
+  console.log(err.message);
+  let match = err.message.match(/\d+/g);
+  if (match === null || match.length === 0)
+    return { from: -1, to: -1 };
   if(userAgent.match(/firefox|fxios/i)){
-    from = getFrom(str, err.message.match(/\d+/g)[1], err.message.match(/\d+/g)[0]);
+    if (match.length === 1)
+      return { from: -1, to: -1 };
+    from = getFrom(str, match[1], match[0]);
   }else if(userAgent.match(/opr\//i)){
-    from = getFrom(str, err.message.match(/\d+/g)[0]);
+    from = getFrom(str, match[0]);
   } else if(userAgent.match(/edg/i)){
-    from = getFrom(str, err.message.match(/\d+/g)[0]);
+    from = getFrom(str, match[0]);
   }else{
-    from = getFrom(str, err.message.match(/\d+/g)[0]); //chrome
+    from = getFrom(str, match[0]); //chrome
   }
   if (from > 0) {
     let charCount = 0;
@@ -43,8 +48,10 @@ function getErrorPosition(str, err) {
 
 export function validateJson(text) {
   try {
-    JSON.parse(text);
-    return {error: false, line: -1, message: ''};
+    const obj = JSON.parse(text);
+    if (typeof obj !== 'object' || Array.isArray(obj))
+      return {error: true, message: 'The root element must be an object!'};
+    return {error: false, message: ''};
   } catch (err) {
     const positions = getErrorPosition(text, err);
     return {error: true, from: positions.from, to: positions.to, message: err.message};
