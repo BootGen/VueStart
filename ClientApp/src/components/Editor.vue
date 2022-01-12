@@ -216,52 +216,7 @@ body {
   height: 100%;
   overflow: hidden;
 }
-.fg-primary {
-  color: #42b983;
-}
-.text-justify{
-  text-align: justify;
-}
-.download-panel{
-  transition: all 1s ease-in-out;
-  width: max-content;
-  margin: 1rem auto;
-}
-.download-panel.show{
-  opacity: 1;
-}
-.download-panel.hide{
-  opacity: 0;
-  visibility: hidden;
-  margin-top: 100%;
-}
-.download-panel-container {
-  transition: all 1s ease-in-out;
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.1);
-  z-index: 999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.download-panel-container.show{
-  opacity: 1;
-}
-.download-panel-container.hide{
-  opacity: 0;
-  visibility: hidden;
-}
 
-.dot {
-  margin: 4px;
-  height: 12px;
-  width: 12px;
-  background-color: #bbb;
-  border-radius: 50%;
-  display: inline-block;
-}
 .fab-container {
   z-index: 999;
   cursor: pointer;
@@ -313,25 +268,6 @@ body {
   padding: 5px;
 }
 
-.fill-btn {
-  color: #ffffff;
-  background-color: #42b983;
-}
-.fill-btn:hover {
-  color: #ffffff;
-  border-color: #17a062;
-  background-color: #17a062;
-}
-.outline-btn {
-  color: #42b983;
-  background-color: transparent;
-  border: solid 1px #42b983;
-  padding: 0.25rem 1rem;
-}
-.outline-btn:hover {
-  color: #42b983;
-  background-color: rgba(200, 200, 200, 0.3);
-}
 .browser-buttons {
   position: absolute;
   bottom: -1rem;
@@ -348,108 +284,7 @@ body {
   -ms-animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
   animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
 }
-.vuecoon {
-  transition: all 1s ease-in-out;
-}
-.vuecoon.landing {
-  max-width: 300px;
-  margin: 1%;
-}
-.vuecoon.content {
-  max-width: min(15vh, 25vw);
-}
-.jumbotron {
-  transition: all 1s ease-in-out;
-  margin-left: 1%;
-  margin-right: 1%;
-}
-.jumbotron.landing {
-  height: calc( 100vh - 2.5rem );
-  transition-delay: 300ms;
-  border-bottom-left-radius: 0;
-}
-.jumbotron.content {
-  height: 15vh;
-}
-.jumbo-text{
-  transition: all 1s ease-in-out;
-  overflow: hidden;
-}
-.jumbo-text.content{
-  opacity: 0;
-  height: 0rem;
-}
-.jumbo-text.landing{
-  opacity: 1;
-  height: 19rem;
-}
-.jumbo-text-full{
-  transition: all 1s ease-in-out;
-  overflow: hidden;
-}
-.jumbo-text-full.content{
-  max-width: 50%;
-  justify-content: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.jumbo-text-full.landing{
-  width: 50%;
-}
-.slogen-text{
-  transition: all 1s ease-in-out;
-  overflow: hidden;
-}
-.slogen-text.content{
-  opacity: 1;
-  height: 100%;
-  visibility: visible;
-}
-.slogen-text.landing{
-  opacity: 0;
-  height: 0;
-  visibility: hidden;
-}
-.vue_logo {
-  width: 3rem;
-  height: 3rem;
-}
-.small-text {
-  font-size: 0.8rem;
-}
-.github {
-  transition: all 1s ease-in-out;
-  overflow: hidden;
-  cursor: pointer;
-}
-.github.content{
-  opacity: 1;
-  height: 100%;
-  width: auto;
-  visibility: visible;
-}
-.github.landing{
-  opacity: 0;
-  height: 0;
-  width: 0;
-  visibility: hidden;
-}
-.github-icon {
-  font-size: min(5vh, 5vw);
-}
-.star-icon {
-  color: rgb(222, 169, 64);
-  font-size: min(4vh, 4vw);
-}
-.title {
-  margin-left: -3px;
-  font-size: 1.9rem;
-  margin-top: 0;
-  margin-bottom: .5rem;
-  font-weight: 500;
-  line-height: 1.2;
-}
+
 .codemirror{
   position: absolute;
   width: 47%;
@@ -511,27 +346,7 @@ body {
   top: 98vh;
   visibility: hidden;
 }
-.tip-msg{
-  bottom: 0;
-  justify-content: center!important;
-  position: fixed;
-  z-index: 999;
-  transition: all 1s ease-in-out;
-}
-.tip-msg.show{
-  opacity: 1;
-  visibility: visible;
-}
-.tip-msg.hide{
-  opacity: 0;
-  visibility: hidden;
-}
-.footer{
-  position: absolute;
-  transition: all 1s ease-in-out;
-  overflow: hidden;
-  bottom: 0;
-}
+
 .footer p {
   margin: auto;
 }
@@ -541,17 +356,7 @@ a {
 a:hover {
   color: #17a062;
 }
-.footer.content{
-  opacity: 1;
-  height: 2.5rem;
-  transition-delay: 500ms;
-  visibility: visible;
-}
-.footer.landing{
-  opacity: 0;
-  height: 0vh;
-  visibility: hidden;
-}
+
 .pulse-download-btn:hover {
   -webkit-animation: none;
   -moz-animation: none;
@@ -560,9 +365,6 @@ a:hover {
 }
 
 @media (max-width: 1200px) {
-  .jumbo-text.landing{
-    height: 23rem;
-  }
 }
 @media (max-width: 992px) {
   body {
@@ -586,19 +388,7 @@ a:hover {
     top: calc(15vh + 76vh - 1vh);
     transition-delay: 600ms;
   }
-  .footer.content{
-    transition-delay: 700ms;
-  }
 
-  .footer{
-    font-size: 0.8rem;
-    bottom: unset;
-  }
-  .footer.content{
-    height: 2rem;
-    top: calc(170vh + 1.5rem);
-    padding-top: 5px;
-  }
 }
 @media (max-width: 768px) {
   body {
@@ -606,68 +396,17 @@ a:hover {
     overflow: unset;
   }
 
-  .jumbo-text.landing{
-    height: 29rem;
-  }
-  .github .small-text {
-    display: none!important;
-  }
 }
 @media (max-width: 576px) {
   body {
     height: unset;
     overflow: unset;
   }
-  .jumbotron.content {
-    height: min(15vh, 25vw);
-  }
-  .jumbo-text.landing{
-    height: 26rem;
-  }
-  .jumbo-text-full.landing{
-    width: 100vw;
-    text-align: center;
-  }
-  .jumbo-text-full.content{
-    margin: unset;
-    max-width: 100%;
-    text-align: center;
-  }
-  .vuecoon.landing {
-    max-width: 35vw;
-  }
-  .text-justify{
-    font-size: 1rem;
-  }
-  .jumbo-text-full.content {
-    max-width: 50%;
-  }
-  .github-icon {
-    font-size: min(10vh, 10vw);
-  }
-  .vue_logo {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
-  .title {
-    font-size: 1.5rem;
-    margin-right: min(2.5vh, 7.5vw);
-  }
-  .star-icon {
-    display: none!important;
-  }
-  .github > .small-text {
-    display: none!important;
-  }
-  .slogen-text {
-    display: none!important;
-  }
+
   .browser-container.content{
     top: calc(min(15vh, 25vw) + 76vh - 1.5vh);
   }
-  .footer.content{
-    top: calc(170vh + 1.5rem);
-  }
+
   .fab-icon-holder .bi {
     font-size: 1rem;
   }
@@ -698,14 +437,6 @@ a:hover {
   to {
     box-shadow: 0 0 0 15px rgba(66, 185, 131, 0);
   }
-}
-
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #333;
-  height: 100%!important;
 }
 
 .custom-card {

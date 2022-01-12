@@ -124,9 +124,7 @@ body {
   height: 100%;
   overflow: hidden;
 }
-.fg-primary {
-  color: #42b983;
-}
+
 .text-justify{
   text-align: justify;
 }
@@ -162,60 +160,7 @@ body {
   visibility: hidden;
 }
 
-.dot {
-  margin: 4px;
-  height: 12px;
-  width: 12px;
-  background-color: #bbb;
-  border-radius: 50%;
-  display: inline-block;
-}
-  .fab-container {
-    z-index: 999;
-    cursor: pointer;
-  }
-  .fab-icon-holder {
-    height: 50px;
-    border-radius: 25px;
-    background-color: #42b983;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #ffffff;
-    padding: 1rem;
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
-  }
-  .fab-icon-holder .bi{
-    font-size: 1.5rem;
-  }
-  .fab-icon-holder:hover {
-    background: #17a062;
-  }
-
-  .fab {
-    height: 50px;
-    background: #42b983;
-  }
-  .fab-options {
-    list-style-type: none;
-    margin: 0;
-    position: absolute;
-    bottom: 70px;
-    padding: 0;
-    opacity: 0;
-    transition: all 0.3s ease;
-    transform: scale(0);
-    transform-origin: 85% bottom;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .fab:hover+.fab-options,
-  .fab-options:hover {
-    opacity: 1;
-    transform: scale(1);
-  }
-  .fab-options li {
+.fab-options li {
     display: flex;
     justify-content: flex-end;
     padding: 5px;
@@ -230,33 +175,8 @@ body {
     border-color: #17a062;
     background-color: #17a062;
   }
-  .outline-btn {
-    color: #42b983;
-    background-color: transparent;
-    border: solid 1px #42b983;
-    padding: 0.25rem 1rem;
-  }
-  .outline-btn:hover {
-    color: #42b983;
-    background-color: rgba(200, 200, 200, 0.3);
-  }
-  .browser-buttons {
-    position: absolute;
-    bottom: -1rem;
-    right: 2rem;
-    font-size: 1rem!important;
-    z-index: 99;
-  }
 
-  .pulse-download-btn {
-    z-index: 9;
-    box-shadow: 0 0 0 0 rgba(66, 185, 131, 0.7);
-    -webkit-animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
-    -moz-animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
-    -ms-animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
-    animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
-  }
-  .vuecoon {
+.vuecoon {
     transition: all 1s ease-in-out;
   }
   .vuecoon.landing {
@@ -358,68 +278,12 @@ body {
     font-weight: 500;
     line-height: 1.2;
   }
-  .codemirror{
-    position: absolute;
-    width: 47%;
-    margin: 1%;
-    transition: all 1s ease-in-out;
-    transition-delay: 150ms;
-    overflow: hidden;
-  }
-  .codemirror.content{
-    opacity: 1;
-    height: 76vh;
-    top: 14vh;
-    visibility: visible;
-  }
-  .codemirror.landing{
-    opacity: 0;
-    height: 0vh;
-    top: 98vh;
-    visibility: hidden;
-  }
-  .browser{
-    z-index: 9;
-    border-radius: 5px;
-    background-color: #42b983;
-    transition: all 1s ease-in-out;
-    overflow: hidden;
-    vertical-align: bottom;
-    width: 100%;
-    height: 80vh;
-  }
-  .browser.landing{
-    height: 0vh;
-    top: 98vh;
-    visibility: hidden;
-  }
-  .shadow {
+
+.shadow {
     box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
   }
-  .browser-container{
-    position: absolute;
-    width: 54%;
-    margin: 1%;
-    margin-left: 45%;
-    transition: all 1s ease-in-out;
-    vertical-align: bottom;
-    background-color: transparent;
-    box-shadow: 0rem -1.5rem 2rem rgb(0 0 0 / 10%);
-  }
-  .browser-container.content{
-    opacity: 1;
-    height: 80vh;
-    transition-delay: 300ms;
-    top: 12vh;
-    visibility: visible;
-  }
-  .browser-container.landing{
-    opacity: 0;
-    height: 0vh;
-    top: 98vh;
-    visibility: hidden;
-  }
-  .tip-msg{
+
+.tip-msg{
     bottom: 0;
     justify-content: center!important;
     position: fixed;
@@ -460,14 +324,8 @@ body {
     height: 0vh;
     visibility: hidden;
   }
-  .pulse-download-btn:hover {
-    -webkit-animation: none;
-    -moz-animation: none;
-    -ms-animation: none;
-    animation: none;
-  }
 
-  @media (max-width: 1200px) {
+@media (max-width: 1200px) {
     .jumbo-text.landing{
       height: 23rem;
     }
@@ -478,22 +336,6 @@ body {
       overflow: unset;
     }
 
-    .codemirror{
-      position: unset;
-      width: 92%;
-      margin-left: 4%;
-      margin-right: 4%;
-    }
-
-    .browser-container{
-      width: 98%;
-      margin: 1%;
-    }
-
-    .browser-container.content{
-      top: calc(15vh + 76vh - 1vh);
-      transition-delay: 600ms;
-    }
     .footer.content{
       transition-delay: 700ms;
     }
@@ -570,20 +412,9 @@ body {
     .slogen-text {
       display: none!important;
     }
-    .browser-container.content{
-      top: calc(min(15vh, 25vw) + 76vh - 1.5vh);
-    }
+
     .footer.content{
       top: calc(170vh + 1.5rem);
-    }
-    .fab-icon-holder .bi {
-      font-size: 1rem;
-    }
-    .fab-icon-holder {
-      height: 40px;
-    }
-    .fab-options {
-      bottom: 50px;
     }
   }
 
@@ -608,15 +439,4 @@ body {
     }
   }
 
-  #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    color: #333;
-    height: 100%!important;
-  }
-
-  .custom-card {
-    border-radius: 5px;
-  }
 </style>
