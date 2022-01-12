@@ -45,7 +45,8 @@ const  app = Vue.createApp({
     }
     function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
-      if (json) {
+      if (json && json !== JSON.stringify({{ camel_case root.name }}.value)) {
+          breadcrumbs.value = [];
           {{ camel_case root.name }}.value = JSON.parse(json);
           {{~ for property in root.properties
           if property.is_collection && property.class ~}}
