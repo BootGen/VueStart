@@ -1,6 +1,6 @@
 <template>
   <div class="col-12">
-    <tip class="tip-msg" :tipMsg="tipMsg" @hide="hideAllTip" :class="{ 'show': showContent && tipMsg, 'hide' : !showContent || !tipMsg }"></tip>
+    <tip class="tip-msg" :tipMsg="tipMsg" :class="{ 'show': showContent && tipMsg, 'hide' : !showContent || !tipMsg }"></tip>
     <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
@@ -34,83 +34,7 @@
         <p class="small-text">Star this project on GitHub!</p>
       </div>
     </div>  
-
-    <div class="codemirror custom-card" :class="{ 'landing': !showContent, 'content' : showContent, }">
-      <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData"></code-mirror>
-    </div>
-    <div class="browser-container" :class="{ 'landing': !showContent, 'content' : showContent, }">
-      <div class="browser custom-card shadow">
-        <browser-frame v-model="appUrl" :borderRadius="generateType == generateTypes.Editor">
-          <div class="d-flex w-100 h-auto">
-            <tab :title="generateTypes.Editor" icon="pencil" :showVr="generateType != generateTypes.Editor && generateType != generateTypes.View" @select="changeGeneratedMode(generateTypes.Editor)" :class="{ 'inactive': generateType != generateTypes.Editor, 'active' : generateType == generateTypes.Editor, 'border-bottom-right' : generateType == generateTypes.View }"></tab>
-            <tab :title="generateTypes.View" icon="eye" :showVr="generateType != generateTypes.View && generateType != generateTypes.Form" @select="changeGeneratedMode(generateTypes.View)" :class="{ 'inactive': generateType != generateTypes.View, 'active' : generateType == generateTypes.View, 'border-bottom-right' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.Editor }"></tab>
-            <tab :title="generateTypes.Form" icon="file-earmark-code" :showVr="generateType != generateTypes.Form" @select="changeGeneratedMode(generateTypes.Form)" :class="{ 'inactive': generateType != generateTypes.Form, 'active' : generateType == generateTypes.Form, 'border-bottom-left' : generateType == generateTypes.View }"></tab>
-            <button type="button" class="btn-site inactive" :class="{ 'border-bottom-left' : generateType == generateTypes.Form }"><span class="bi bi-plus" aria-hidden="true"></span></button>
-          </div>
-        </browser-frame>
-      </div>
-      <div class="d-flex browser-buttons">
-        <div class="fab-container">
-          <div class="fab fab-icon-holder">
-            <span class="bi bi-pencil" aria-hidden="true" v-if="generateType == generateTypes.Editor"></span>
-            <span class="bi bi-eye" aria-hidden="true" v-if="generateType == generateTypes.View"></span>
-            <span class="bi bi-file-earmark-code" aria-hidden="true" v-if="generateType == generateTypes.Form"></span>
-            <span class="ps-2">Mode</span>
-          </div>
-          <ul class="fab-options">
-            <li>
-              <div class="fab-icon-holder" @click="changeGeneratedMode(generateTypes.Editor)">
-                <span class="bi bi-pencil" aria-hidden="true"></span>
-                <span class="ps-2">Editor</span>
-              </div>
-            </li>
-            <li>
-              <div class="fab-icon-holder" @click="changeGeneratedMode(generateTypes.View)">
-                <span class="bi bi-eye" aria-hidden="true"></span>
-                <span class="ps-2">View</span>
-              </div>
-            </li>
-            <li>
-              <div class="fab-icon-holder" @click="changeGeneratedMode(generateTypes.Form)">
-                <span class="bi bi-file-earmark-code" aria-hidden="true"></span>
-                <span class="ps-2">Form</span>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div class="fab-container mx-2">
-          <div class="fab fab-icon-holder">
-            <span class="bi bi-view-stacked" aria-hidden="true" v-if="layoutMode == layoutModes.Card"></span>
-            <span class="bi bi-text-indent-left" aria-hidden="true" v-if="layoutMode == layoutModes.Accordion"></span>
-            <span class="bi bi-table" aria-hidden="true" v-if="layoutMode == layoutModes.Table"></span>
-            <span class="ps-2">Layout</span>
-          </div>
-          <ul class="fab-options">
-            <li>
-              <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Card)">
-                <span class="bi bi-view-stacked" aria-hidden="true"></span>
-                <span class="ps-2">Card</span>
-              </div>
-            </li>
-            <li>
-              <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Accordion)">
-                <span class="bi bi-text-indent-left" aria-hidden="true"></span>
-                <span class="ps-2">Accordion</span>
-              </div>
-            </li>
-            <li>
-              <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Table)">
-                <span class="bi bi-table" aria-hidden="true"></span>
-                <span class="ps-2">Table</span>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div id="download-btn" class="fab fab-icon-holder pulse-download-btn" @click="showDownloadPanel = true">
-          <span class="bi bi-download" aria-hidden="true"></span>
-        </div>
-      </div>
-    </div>
+    <editor :showContent="showContent"></editor>
     <div class="col-12 d-flex align-items-center footer" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
     </div>
@@ -118,37 +42,17 @@
 </template>
 
 <script>
-import axios from 'axios';
-import { defineComponent, ref, watchEffect } from 'vue';
-import { getSchema } from './utils/Schema';
-import { debounce } from './utils/Helper';
-import CodeMirror from './components/CodeMirror.vue';
-import BrowserFrame from './components/BrowserFrame.vue'
+import { defineComponent, ref } from 'vue';
+//import { debounce } from './utils/Helper';
 import DownloadPanel from './components/DownloadPanel.vue'
-import Tab from './components/Tab.vue'
+import Editor from './components/Editor.vue'
 import Tip from './components/Tip.vue';
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { CodeMirror, BrowserFrame, DownloadPanel, Tab, Tip },
+  components: { DownloadPanel, Editor, Tip },
   setup() {
-    const json = ref('');
-    const jsonSchema = ref('');
-    const generateTypes = {
-      View: 'view',
-      Form: 'form',
-      Editor: 'editor',
-    }
-    const generateType = ref(generateTypes.Editor);
-    const layoutModes = {
-      Card: 'card',
-      Accordion: 'accordion',
-      Table: 'table'
-    }
-    const layoutMode = ref(layoutModes.Card);
     const showDownloadPanel = ref(false);
-    const inputError = ref(null);
-    const isFixable = ref(false);
     const tipMsg = ref(null);
     const vuecoonStates = {
       Default: 'default',
@@ -157,169 +61,46 @@ export default defineComponent({
     };
     const vuecoonState = ref(vuecoonStates.Default);
     
-    watchEffect(() => {
+    /*watchEffect(() => {
       if(inputError.value) {
         vuecoonState.value = vuecoonStates.Error;
       } else {
         vuecoonState.value = vuecoonStates.Default;
       }
-    });
-    if(localStorage.getItem('showTips') !== 'false') {
-      localStorage.setItem('showTips', true);
-    }
-    if (localStorage.getItem('showTips') === 'true' && localStorage.getItem('firstUse') === 'false' && localStorage.getItem('regeneratedTip') === 'true' && localStorage.getItem('buttonsTip') !== 'true') {
+    });*/
+    if (localStorage.getItem('firstUse') === 'false' && localStorage.getItem('regeneratedTip') === 'true' && localStorage.getItem('buttonsTip') !== 'true') {
       setTip('Try out multiple application types and layouts with the buttons in the bottom right corner');
-    } else if (localStorage.getItem('showTips') === 'true' && localStorage.getItem('firstUse') === 'false' && localStorage.getItem('regeneratedTip') !== 'true') {
+    } else if (localStorage.getItem('firstUse') === 'false' && localStorage.getItem('regeneratedTip') !== 'true') {
       setTip('If you make structural changes to the JSON data, the application is automatically regenerated.');
-    } else if (localStorage.getItem('firstUse') !== 'false' && localStorage.getItem('showTips') === 'true') {
+    } else if (localStorage.getItem('firstUse') !== 'false') {
       setTip('Try to edit the JSON data on the left side, and see the changes in the application on the right side');
     }
-    function setVuecoon (state, time){
+    /*function setVuecoon (state, time){
       vuecoonState.value = state;
       let debounceResetVuecoon = debounce(resetVuecoon, time*2);
       debounceResetVuecoon();
     }
     function resetVuecoon (){
       vuecoonState.value = vuecoonStates.Default;
-    }
+    }*/
     function setTip(msg) {
       tipMsg.value = msg;
     }
-    function setNextTip(msg, time){
+    /*function setNextTip(msg, time){
       setVuecoon(vuecoonStates.Success, time);
       setTip(null);
       if(msg) {
         let debouncedTip = debounce(setTip, time);
         debouncedTip(msg);
       }
-    }
-    function hideAllTip (){
-      localStorage.setItem('showTips', false);
-      setTip(null);
-    }
-    function saveToLocalStorage(newValue) {
-      let obj = JSON.parse(newValue);
-      let minimized = JSON.stringify(obj);
-      let oldValue = localStorage.getItem('json');
-      if (minimized != oldValue) {
-          localStorage.setItem('json', minimized);
-            if(showContent.value && localStorage.getItem('showTips') === 'true' && localStorage.getItem('regeneratedTip') !== 'true') {
-              setNextTip('If you make structural changes to the JSON data, the application is automatically regenerated.', 1000);
-              localStorage.setItem('firstUse', false);
-            }
-        }
-      document.getElementById('download-btn').classList.add('pulse-download-btn');
-      setTimeout(function(){ 
-        document.getElementById('download-btn').classList.remove('pulse-download-btn');
-      }, 2000);
-      } catch (e) {
-        console.log(e);
-    }
-    async function getProjectContentFromServer(name) {
-      const data = (await axios.get(`/${name}.json`, {responseType: 'text', ...config})).data;
-      if (typeof data === 'string')
-        return data;
-      return JSON.stringify(data);
-    }
-    getProjectContentFromServer('example_input').then( (content) => {
-      json.value = content;
-      jsonSchema.value = ref(getSchema(JSON.parse(json.value)));
-      let debouncedGenerate = debounce(generate, 1000);
-      watchEffect(() => {
-        try {
-          const newSchema = getSchema(JSON.parse(json.value));
-          if(JSON.stringify(newSchema) != JSON.stringify(jsonSchema.value)) {
-            jsonSchema.value = newSchema;
-            debouncedGenerate(json.value);
-          } else {
-            saveToLocalStorage(json.value);
-          }
-        } catch {
-          const nop = () => {};
-          nop()
-        }
-      })
-    })
+    }*/
+
     function setShowContentForUrl(){
-      showContent.value = window.location.pathname === '/editor' ? true : false;
+      showContent.value = window.location.pathname === '/editor';
     }
     window.addEventListener('popstate', setShowContentForUrl);
     window.addEventListener('load', setShowContentForUrl);
-    window.addEventListener('storage', () => {
-      json.value = localStorage.getItem('json').toString();
-    });
-    let idtoken = localStorage.getItem('idtoken');
-    if (!idtoken) {
-      idtoken = ''
-      while (idtoken.length < 16)
-        idtoken += Math.random().toString(36).substring(2);
-      idtoken = idtoken.substring(0, 16);
-      localStorage.setItem('idtoken', idtoken)
-    }
-
-    let config = {
-      headers: {
-        'idtoken': idtoken,
-        'citation': document.referrer
-      }
-    }
     const showContent = ref(false);
-    const appUrl = ref("");
-
-    async function generate(data) {
-      if(showContent.value && localStorage.getItem('showTips') === 'true' && localStorage.getItem('buttonsTip') !== 'true') {
-        setNextTip('Try out multiple application types and layouts with the buttons in the bottom right corner', 1000);
-        localStorage.setItem('regeneratedTip', true);
-      }
-      try {
-        const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(data), config);
-        saveToLocalStorage(data);
-        appUrl.value = `api/files/${resp.data.id}/index.html`;
-        inputError.value = null;
-        isFixable.value = false;
-      } catch (e) {
-        const response = e.response;
-        if (response) {
-          if(response.data.fixable){
-            isFixable.value = true;
-          } else {
-            isFixable.value = false;
-          }
-          inputError.value = response.data.error;
-        } 
-      }
-    }
-    async function fixData() {
-      const fixedJson = await axios.post('api/generate/fix', JSON.parse(json.value));
-      json.value = JSON.stringify(fixedJson.data);
-      generate(json.value);
-    }
-    function changeGeneratedMode(type) {
-      if(localStorage.getItem('showTips') === 'true' && localStorage.getItem('regeneratedTip') === 'true' && localStorage.getItem('buttonsTip') !== 'true'){
-        setNextTip(null, 1000);
-        localStorage.setItem('buttonsTip', true);
-      }
-      generateType.value = type
-      generate(json.value)
-    }
-    function changeLayoutMode(type) {
-      if(localStorage.getItem('showTips') === 'true' && localStorage.getItem('regeneratedTip') === 'true' && localStorage.getItem('buttonsTip') !== 'true'){
-        setNextTip(null, 1000);
-        localStorage.setItem('buttonsTip', true);
-      }
-      layoutMode.value = type
-      generate(json.value)
-    }
-    async function download() {
-      const response = await axios.post(`api/download/${generateType.value}/${layoutMode.value}`, JSON.parse(json.value), {responseType: 'blob', ...config});
-      const fileURL = window.URL.createObjectURL(new Blob([response.data]));
-      const fileLink = document.createElement('a');
-      fileLink.href = fileURL;
-      fileLink.target = '_blank';
-      fileLink.setAttribute('download', `${generateType.value}.zip`);
-      document.body.appendChild(fileLink);
-      fileLink.click();
-    }
     function openGithub (){
       window.open("https://github.com/BootGen/VueStart");
     }
@@ -332,7 +113,7 @@ export default defineComponent({
       }
     }
 
-    return { showContent, json, appUrl, download, generate, generateType, generateTypes, changeGeneratedMode, layoutMode, layoutModes, changeLayoutMode, showDownloadPanel, inputError, openGithub, tipMsg, isFixable, fixData, changeView, hideAllTip, vuecoonState }
+    return { showContent, showDownloadPanel, openGithub, tipMsg, changeView, vuecoonState }
   }
 });
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="alert m-2 alert-info d-flex align-items-center">
+  <div class="alert m-2 alert-info d-flex align-items-center" v-if="!hideTips">
     {{ tempTipMsg }}
     <button type="button" class="btn p-2" aria-label="Hide" @click="$emit('hide')"><span class="bi bi-bell-slash px-2" aria-hidden="true"></span></button>
   </div>
@@ -15,6 +15,7 @@ export default defineComponent({
   emits: ['hide'],
   setup(props) {
     const tempTipMsg = ref(null);
+    const hideTips = ref(localStorage.getItem("hideTips") === "true");
 
     watchEffect(() => {
       if(props.tipMsg) {
@@ -22,7 +23,12 @@ export default defineComponent({
       }
     });
 
-    return { tempTipMsg }
+    function hide() {
+      localStorage.setItem("hideTips", "true");
+      hideTips.value = true;
+    }
+
+    return { tempTipMsg, hide, hideTips }
   }
 });
 </script>
