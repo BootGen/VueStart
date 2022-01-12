@@ -2,7 +2,7 @@
   <div class="col-12 h-100 p-0">
     <div class="col-12 h-100" id="editor"></div>
     <alert class="alert-msg" :class="{ 'show': syntaxError, 'hide': !syntaxError }" :errorMessage="syntaxError" :isFixable="false" @close="clearError"></alert>
-    <alert class="alert-msg" :class="{ 'show': error, 'hide': !error }" :errorMessage="error" :isFixable="isFixable" @close="clearError" @fixData="$emit('fixData')" v-if="!syntaxError"></alert>
+    <alert class="alert-msg" :class="{ 'show': error && showError, 'hide': !error || !showError }" :errorMessage="error" :isFixable="isFixable" @close="clearError" @fixData="$emit('fixData')" v-if="!syntaxError"></alert>
   </div>
 </template>
 
@@ -14,7 +14,7 @@ import { json } from "@codemirror/lang-json"
 import {StateField, StateEffect} from "@codemirror/state"
 
 
-import { defineComponent, onMounted, watchEffect, ref } from 'vue';
+import {defineComponent, onMounted, watchEffect, ref, watch} from 'vue';
 import Alert from './Alert.vue';
 import { debounce } from '../utils/Helper';
 import { prettyPrint, validateJson } from '../utils/PrettyPrint';
@@ -31,6 +31,7 @@ export default defineComponent({
   setup(props, context) {
     let editor = null;
     let syntaxError = ref(null);
+    let showError = ref(true);
 
     const underlineMark = Decoration.mark({class: "cm-underline"})
     const addUnderline = StateEffect.define();
@@ -121,7 +122,7 @@ export default defineComponent({
         parent: document.getElementById('editor')
       })
       function setEditorValue() {
-        if (props.modelValue != editor.state.doc.toString()) {
+        if (props.modelValue !== editor.state.doc.toString()) {
           editor.dispatch({
             changes: {from: 0, to: editor.state.doc.length, insert: prettyPrint(props.modelValue)}
           })
@@ -177,10 +178,15 @@ export default defineComponent({
           }
         }
     }
+    watch(() => props.error, (newError) => {
+      if (newError)
+        showError.value = true;
+    });
     function clearError() {
       syntaxError.value = null;
+      showError.value = false;
     }
-    return { syntaxError, clearError }
+    return { syntaxError, clearError, showError }
   }
 });
 </script>

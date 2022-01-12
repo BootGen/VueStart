@@ -17,7 +17,6 @@ function getErrorPosition(str, err) {
   let userAgent = navigator.userAgent;
   let from = -1;
   let to = -1;
-  console.log(err.message);
   let match = err.message.match(/\d+/g);
   if (match === null || match.length === 0)
     return { from: -1, to: -1 };

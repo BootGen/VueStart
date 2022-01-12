@@ -13,7 +13,8 @@ export default defineComponent({
   props: {
     modified: Boolean,
     generated: Boolean,
-    typeChanged: Boolean
+    typeChanged: Boolean,
+    downloaded: Boolean
   },
   setup(props) {
     const hideTips = computed(() => {
@@ -28,7 +29,8 @@ export default defineComponent({
     const tips = [
       'Try to edit the JSON data on the left side, and see the changes in the application on the right side',
       'If you make structural changes to the JSON data, the application is automatically regenerated.',
-      'Try out multiple application types and layouts with the buttons in the bottom right corner'
+      'Try out multiple application types and layouts with the buttons in the bottom right corner.',
+      'When you are done, click the download button in the bottom right corner.'
     ];
     const tipMessage = ref('');
     if (tipIdx.value < tips.length)
@@ -39,8 +41,6 @@ export default defineComponent({
       showTip.value = false;
     }
 
-
-
     const showTipMessage = debounce(function() {
       tipMessage.value = tips[tipIdx.value];
       showTip.value = true;
@@ -50,22 +50,18 @@ export default defineComponent({
       const modified = props.modified;
       const generated = props.generated;
       const typeChanged = props.typeChanged;
-      switch (tipIdx.value) {
-        case 0:
-          if (modified) {
-            tipIdx.value = 1;
-          }
-          break;
-        case 1:
-          if (generated) {
-            tipIdx.value = 2;
-          }
-          break;
-        case 2:
-          if (typeChanged) {
-            tipIdx.value = 3;
-          }
-          break;
+      const downloaded = props.downloaded;
+      if (tipIdx.value === 0 && modified) {
+        tipIdx.value = 1;
+      }
+      if (tipIdx.value === 1 && generated) {
+        tipIdx.value = 2;
+      }
+      if (tipIdx.value === 2 && typeChanged) {
+        tipIdx.value = 3;
+      }
+      if (tipIdx.value === 3 && downloaded) {
+        tipIdx.value = 4;
       }
       localStorage.setItem('tipIdx', tipIdx.value.toString());
       showTip.value = false;

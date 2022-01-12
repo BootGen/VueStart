@@ -1,6 +1,6 @@
 <template>
   <div class="col-12">
-    <tip :modified="modified" :generated="generated" :typeChanged="typeChanged" v-if="showContent" ></tip>
+    <tip :modified="modified" :generated="generated" :typeChanged="typeChanged" :downloaded="downloaded" v-if="showContent" ></tip>
     <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
@@ -57,6 +57,7 @@ export default defineComponent({
     const modified = ref(false);
     const generated = ref(false);
     const typeChanged = ref(false);
+    const downloaded = ref(false);
     const vuecoonStates = {
       Default: 'default',
       Error: 'error',
@@ -143,10 +144,11 @@ export default defineComponent({
       downloadUrl = url;
       downloadedFileName = fileName;
       showDownloadPanel.value = true;
+      downloaded.value = true;
     }
 
     return { showContent, showDownloadPanel, openGithub, changeView, vuecoonState,
-      config, download, onDownloadClicked, modified, generated, typeChanged }
+      config, download, onDownloadClicked, modified, generated, typeChanged, downloaded }
   }
 });
 
