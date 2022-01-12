@@ -1,6 +1,6 @@
 <template>
   <div class="col-12">
-    <tip class="tip-msg" :tipMsg="tipMsg" :class="{ 'show': showContent && tipMsg, 'hide' : !showContent || !tipMsg }"></tip>
+    <tip :modified="modified" :generated="generated" :typeChanged="typeChanged" ></tip>
     <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
@@ -34,7 +34,7 @@
         <p class="small-text">Star this project on GitHub!</p>
       </div>
     </div>  
-    <editor :config="config" :showContent="showContent" @download="onDownloadClicked"></editor>
+    <editor :config="config" :showContent="showContent" @download="onDownloadClicked" @modified="modified = true" @generated="generated = true" @typeChanged="typeChanged = true" ></editor>
     <div class="col-12 d-flex align-items-center footer" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
     </div>
@@ -54,7 +54,9 @@ export default defineComponent({
   components: { DownloadPanel, Editor, Tip },
   setup() {
     const showDownloadPanel = ref(false);
-    const tipMsg = ref(null);
+    const modified = ref(false);
+    const generated = ref(false);
+    const typeChanged = ref(false);
     const vuecoonStates = {
       Default: 'default',
       Error: 'error',
@@ -88,13 +90,7 @@ export default defineComponent({
         vuecoonState.value = vuecoonStates.Default;
       }
     });*/
-    if (localStorage.getItem('firstUse') === 'false' && localStorage.getItem('regeneratedTip') === 'true' && localStorage.getItem('buttonsTip') !== 'true') {
-      setTip('Try out multiple application types and layouts with the buttons in the bottom right corner');
-    } else if (localStorage.getItem('firstUse') === 'false' && localStorage.getItem('regeneratedTip') !== 'true') {
-      setTip('If you make structural changes to the JSON data, the application is automatically regenerated.');
-    } else if (localStorage.getItem('firstUse') !== 'false') {
-      setTip('Try to edit the JSON data on the left side, and see the changes in the application on the right side');
-    }
+
     /*function setVuecoon (state, time){
       vuecoonState.value = state;
       let debounceResetVuecoon = debounce(resetVuecoon, time*2);
@@ -103,9 +99,7 @@ export default defineComponent({
     function resetVuecoon (){
       vuecoonState.value = vuecoonStates.Default;
     }*/
-    function setTip(msg) {
-      tipMsg.value = msg;
-    }
+
     /*function setNextTip(msg, time){
       setVuecoon(vuecoonStates.Success, time);
       setTip(null);
@@ -151,7 +145,8 @@ export default defineComponent({
       showDownloadPanel.value = true;
     }
 
-    return { showContent, showDownloadPanel, openGithub, tipMsg, changeView, vuecoonState, config, download, onDownloadClicked }
+    return { showContent, showDownloadPanel, openGithub, changeView, vuecoonState,
+      config, download, onDownloadClicked, modified, generated, typeChanged }
   }
 });
 
@@ -319,22 +314,6 @@ body {
 
 .shadow {
     box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
-  }
-
-.tip-msg{
-    bottom: 0;
-    justify-content: center!important;
-    position: fixed;
-    z-index: 999;
-    transition: all 1s ease-in-out;
-  }
-  .tip-msg.show{
-    opacity: 1;
-    visibility: visible;
-  }
-  .tip-msg.hide{
-    opacity: 0;
-    visibility: hidden;
   }
   .footer{
     position: absolute;

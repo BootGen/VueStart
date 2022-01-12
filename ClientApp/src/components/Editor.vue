@@ -91,7 +91,7 @@ export default defineComponent({
     showContent: Boolean,
     config: Object
   },
-  emits: ['download'],
+  emits: ['download', 'modified', 'generated', 'typeChanged'],
   setup(props, context) {
     const inputError = ref(null);
     const isFixable = ref(false);
@@ -119,11 +119,13 @@ export default defineComponent({
       await generate(json.value);
     }
     function changeGeneratedMode(type) {
-      generateType.value = type
+      generateType.value = type;
+      context.emit('typeChanged');
       generate(json.value)
     }
     function changeLayoutMode(type) {
-      layoutMode.value = type
+      layoutMode.value = type;
+      context.emit('typeChanged');
       generate(json.value)
     }
     async function generate(data) {
@@ -148,6 +150,7 @@ export default defineComponent({
       let oldValue = localStorage.getItem('json');
       if (minimized !== oldValue) {
         localStorage.setItem('json', minimized);
+        context.emit('modified');
       }
       const downloadButton = document.getElementById('download-btn');
       downloadButton.classList.add('pulse-download-btn');
@@ -166,7 +169,11 @@ export default defineComponent({
       json.value = content;
       jsonSchema.value = getSchema(JSON.parse(json.value));
       generate(json.value);
-      let debouncedGenerate = debounce(generate, 1000);
+      function generateAndEmit(data) {
+        generate(data);
+        context.emit('generated');
+      }
+      let debouncedGenerate = debounce(generateAndEmit, 1000);
       watchEffect(() => {
         try {
           const newSchema = getSchema(JSON.parse(json.value));
