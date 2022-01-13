@@ -238,7 +238,7 @@ body {
   list-style-type: none;
   margin: 0;
   position: absolute;
-  bottom: 70px;
+  bottom: 55px;
   padding: 0;
   opacity: 0;
   transition: all 0.3s ease;
@@ -405,7 +405,7 @@ a:hover {
     height: 40px;
   }
   .fab-options {
-    bottom: 50px;
+    bottom: 40px;
   }
 }
 
