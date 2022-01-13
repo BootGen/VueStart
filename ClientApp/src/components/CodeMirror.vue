@@ -104,7 +104,8 @@ export default defineComponent({
             }, {dark: true}),
             EditorView.updateListener.of((cm) => {
               if (cm.docChanged) {
-                  let validationResult = validateJson(editor.state.doc.toString());
+                  let json = editor.state.doc.toString().replaceAll('\'','"');
+                  let validationResult = validateJson(json);
                   if (!validationResult.error) {
                     indent();
                   }
