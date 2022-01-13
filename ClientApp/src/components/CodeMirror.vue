@@ -16,8 +16,9 @@ import {StateField, StateEffect} from "@codemirror/state"
 
 import {defineComponent, onMounted, watchEffect, ref, watch} from 'vue';
 import Alert from './Alert.vue';
-import { debounce } from '../utils/Helper';
-import { prettyPrint, validateJson } from '../utils/PrettyPrint';
+import { debounce } from '@/utils/Helper';
+import { prettyPrint } from '@/utils/PrettyPrint';
+import { validateJson } from '@/utils/Validate';
 
 export default defineComponent({
   name: 'CodeMirror',
