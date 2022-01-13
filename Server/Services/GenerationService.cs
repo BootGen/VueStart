@@ -72,21 +72,26 @@ namespace VueStart.Services
 
             return value;
         }
-
-        private static VirtualDisk Load(string path)
+        private struct TemplateCacheKey
         {
-            var templates = new VirtualDisk();
-            foreach (var file in Directory.EnumerateFiles(path))
-            {
-                templates.Files.Add(new VirtualFile
-                {
-                    Name = Path.GetFileName(file),
-                    Path = "",
-                    Content = System.IO.File.ReadAllText(file)
-                });
-            }
+            public string Path { get; init; }
+        }
 
-            return templates;
+        private VirtualDisk Load(string path)
+        {
+            return memoryCache.GetOrCreate(new TemplateCacheKey { Path = path }, entry =>{
+                var templates = new VirtualDisk();
+                foreach (var file in Directory.EnumerateFiles(path))
+                {
+                    templates.Files.Add(new VirtualFile
+                    {
+                        Name = Path.GetFileName(file),
+                        Path = "",
+                        Content = System.IO.File.ReadAllText(file)
+                    });
+                }
+                return templates;
+            });
         }
     }
 }
