@@ -84,7 +84,7 @@ app.component('{{ kebab_case class.name }}-view', {
   emits: ['edit',  'delete']
 });
 
-app.component('{{ kebab_case class.name }}-edit', {
+app.component('{{ kebab_case class.name }}-form', {
   template: `
   <li class="list-group-item text-start">
     <button type="button" class="btn btn-sm rounded-pill" @click="save">
@@ -135,6 +135,65 @@ app.component('{{ kebab_case class.name }}-edit', {
   },
 });
 
+app.component('{{ kebab_case class.name }}-editor', {
+  template: `
+  <div class="mt-3">
+    <div class="d-flex mb-1">
+      <h5>{{ class.name }}:</h5>
+    </div>
+    <div class="col-12 mb-2" :key="idx">
+      <div class="card shadow-sm">
+        <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @canceled="editing = false" v-if="editing"></{{ kebab_case class.name }}-form>
+        <{{ kebab_case class.name }}-view :value="modelValue" @edit="editing = true" v-else></{{ kebab_case class.name }}-view>
+      </div>
+      {{~ for property in class.properties
+        if property.class && !property.is_parent_reference  ~}}
+        <div class="card ms-5 mt-2">
+          {{~ if property.is_collection ~}}
+          <{{ kebab_case property.class.name }}-list :modelValue="modelValue.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}(idx, $event)"></{{ kebab_case property.class.name }}-list>
+          {{~ else ~}}
+          <{{ kebab_case property.class.name }}-editor :modelValue="modelValue.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}(idx, $event)"></{{ kebab_case property.class.name }}-editor>
+          {{~ end ~}}
+        </div>
+      {{~ end
+      end ~}}
+    </div>
+  </div>`,
+  name: '{{ class.name }}',
+  props: {
+    modelValue: Object
+  },
+  emits: ['update:modelValue'],
+  setup(props, context) {
+    const editing = ref(false);
+    {{~ for property in class.properties
+        if property.class && !property.is_parent_reference ~}}
+    function update{{ property.name }}(value) {
+      let newObject = {
+        ...props.modelValue,
+        {{ property.name }}: value
+      };
+      context.emit('update:modelValue', newObject);
+    }
+    {{~ end
+      end ~}}
+
+    function update(newValue) {
+      context.emit('update:modelValue', newValue);
+      editing.value = false;
+    }
+    return {
+      {{~ for property in class.properties
+        if property.class && !property.is_parent_reference ~}}
+      update{{ property.name }},
+      {{~ end 
+      end ~}}
+      editing,
+      update
+    };
+  }
+});
+
 app.component('{{ kebab_case class.name }}-list', {
   template: `
   <div class="mt-3">
@@ -144,13 +203,17 @@ app.component('{{ kebab_case class.name }}-list', {
     <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
     <div class="col-12 mb-2" v-for="(item, idx) in modelValue" :key="idx">
       <div class="card shadow-sm">
-        <{{ kebab_case class.name }}-edit :modelValue="item" @update:modelValue="updateItem(idx, $event)" @canceled="endEditing()" v-if="editedItemIdx === idx"></{{ kebab_case class.name }}-edit>
+        <{{ kebab_case class.name }}-form :modelValue="item" @update:modelValue="updateItem(idx, $event)" @canceled="endEditing()" v-if="editedItemIdx === idx"></{{ kebab_case class.name }}-form>
         <{{ kebab_case class.name }}-view :value="item" @delete="deleteItem(idx)" @edit="editItem(idx)" v-else></{{ kebab_case class.name }}-view>
       </div>
       {{~ for property in class.properties
-        if property.is_collection && property.class  ~}}
+        if property.class && !property.is_parent_reference  ~}}
         <div class="card ms-5 mt-2">
-          <{{ kebab_case property.class.name }}-list :modelValue="item.{{ camel_case property.class.name.plural }}" @update:modelValue="update{{ property.class.name.plural }}(idx, $event)"></{{ kebab_case property.class.name }}-list>
+          {{~ if property.is_collection ~}}
+          <{{ kebab_case property.class.name }}-list :modelValue="item.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}(idx, $event)"></{{ kebab_case property.class.name }}-list>
+          {{~ else ~}}
+          <{{ kebab_case property.class.name }}-editor :modelValue="item.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}(idx, $event)"></{{ kebab_case property.class.name }}-editor>
+          {{~ end ~}}
         </div>
       {{~ end
       end ~}}
@@ -162,7 +225,7 @@ app.component('{{ kebab_case class.name }}-list', {
     </div>
     <div class="col-12 mb-2" v-if="newItem != null">
       <div class="card">
-        <{{ kebab_case class.name }}-edit :modelValue="newItem" @update:modelValue="saveNewItem($event)" @canceled="cancelAdd"></{{ kebab_case class.name }}-edit>
+        <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem($event)" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
       </div>
     </div>
   </div>`,
@@ -190,12 +253,12 @@ app.component('{{ kebab_case class.name }}-list', {
       context.emit('update:modelValue', newList);
     }
     {{~ for property in class.properties
-        if property.is_collection && property.class ~}}
-    function update{{ property.class.name.plural }}(idx, list) {
+        if property.class && !property.is_parent_reference ~}}
+    function update{{ property.name }}(idx, value) {
       let newList = [...props.modelValue];
       newList[idx] = {
         ...newList[idx],
-        {{ camel_case property.class.name.plural }}: list
+        {{ camel_case property.name }}: value
       };
       context.emit('update:modelValue', newList);
     }
@@ -234,8 +297,8 @@ app.component('{{ kebab_case class.name }}-list', {
       saveNewItem,
       cancelAdd,
       {{~ for property in class.properties
-        if property.is_collection && property.class ~}}
-      update{{ property.class.name.plural }},
+        if property.class && !property.is_parent_reference ~}}
+      update{{ property.name }},
       {{~ end 
       end ~}}
     };
