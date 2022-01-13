@@ -87,12 +87,12 @@ app.component('{{ kebab_case class.name }}-list', {
   <div class="accordion" id="{{ class.name.plural }}">
     <div class="accordion-item">
       <h2 class="accordion-header" id="{{ class.name.plural }}-headingOne">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" :data-bs-target="'#'+accordionId+'_collapseOne'" aria-expanded="true" :aria-controls="accordionId+'_collapseOne'">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" :data-bs-target="'#'+accordionId" aria-expanded="true" :aria-controls="accordionId">
           <h5>{{ class.name.plural }}:</h5>
         </button>
       </h2>
       <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
-      <div :id="accordionId+'_collapseOne'" class="accordion-collapse collapse show" aria-labelledby="{{ class.name.plural }}-headingOne" v-for="(item, idx) in modelValue" :key="idx">
+      <div :id="accordionId" class="accordion-collapse collapse show" aria-labelledby="{{ class.name.plural }}-headingOne" v-for="(item, idx) in modelValue" :key="idx">
         <div class="accordion-body">
           <div>
             <{{ kebab_case class.name }}-edit :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(idx)"></{{ kebab_case class.name }}-edit>
@@ -177,9 +177,9 @@ app.component('{{ kebab_case class.name }}-list', {
 
 function randomToken() {
   let token = '';
-  while (token.length < 16)
+  while (token.length < 8)
     token += Math.random().toString(36).substring(2);
-  return token.substring(0, 16);
+  return token.substring(0, 8);
 }
 
 app.mount('#app');
