@@ -28,6 +28,7 @@ namespace VueStart
             services.AddMemoryCache();
             services.AddScoped<StatisticsService>();
             services.AddScoped<GenerationService>();
+            services.AddDbContext<ApplicationDbContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
