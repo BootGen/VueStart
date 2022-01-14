@@ -50,8 +50,12 @@ app.config.globalProperties.$filters = {
     return date.replace('T', '. ').replaceAll('-', '.');
   }
 };
-{{~ for class in classes ~}}
-app.component('{{ kebab_case class.name }}-view', {
+{{~ for class in classes
+      if class.is_root
+        continue
+      end
+     ~}}
+app.component('{{ kebab_case class.name }}-data', {
   template: `
   <li class="list-group-item text-start">
     <button type="button" class="btn btn-sm rounded-pill" @click="$emit('edit')">
@@ -144,7 +148,7 @@ app.component('{{ kebab_case class.name }}', {
     <div class="col-12 mb-2" :key="idx">
       <div class="card shadow-sm">
         <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @canceled="editing = false" v-if="editing"></{{ kebab_case class.name }}-form>
-        <{{ kebab_case class.name }}-view :value="modelValue" @edit="editing = true" :deletable="deletable" @delete="$emit('delete')" v-else></{{ kebab_case class.name }}-view>
+        <{{ kebab_case class.name }}-data :value="modelValue" @edit="editing = true" :deletable="deletable" @delete="$emit('delete')" v-else></{{ kebab_case class.name }}-data>
       </div>
       {{~ for property in class.properties
         if property.class && !property.is_parent_reference  ~}}
