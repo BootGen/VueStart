@@ -12,6 +12,9 @@ const  app = Vue.createApp({
   {{~ for property in root.properties
   if property.is_collection && property.class
   ~}}
+    <div class="d-flex mb-1">
+      <h5>{{ property.name }}:</h5>
+    </div>
     <{{ kebab_case property.class.name }}-list v-model="{{ camel_case root.name }}.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
 {{~ end
   end ~}}
@@ -54,7 +57,7 @@ app.component('{{ kebab_case class.name }}-view', {
     <button type="button" class="btn btn-sm rounded-pill" @click="$emit('edit')">
       <span class="bi bi-pencil" aria-hidden="true"></span> Edit
     </button>
-    <button type="button" class="btn btn-sm rounded-pill" @click="$emit('delete')">
+    <button type="button" class="btn btn-sm rounded-pill" @click="$emit('delete')" v-if="deletable">
       <span class="bi bi-trash" aria-hidden="true"></span> Delete
     </button>
   </li>
@@ -80,6 +83,7 @@ app.component('{{ kebab_case class.name }}-view', {
   name: '{{ class.name }}View',
   props: {
     value: Object,
+    deletable: Boolean
   },
   emits: ['edit',  'delete']
 });
@@ -115,7 +119,7 @@ app.component('{{ kebab_case class.name }}-form', {
   {{~ end
       end ~}}
   `,
-  name: '{{ class.name }}Edit',
+  name: '{{ class.name }}Form',
   props: {
     modelValue: Object,
   },
@@ -140,7 +144,7 @@ app.component('{{ kebab_case class.name }}', {
     <div class="col-12 mb-2" :key="idx">
       <div class="card shadow-sm">
         <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @canceled="editing = false" v-if="editing"></{{ kebab_case class.name }}-form>
-        <{{ kebab_case class.name }}-view :value="modelValue" @edit="editing = true" v-else></{{ kebab_case class.name }}-view>
+        <{{ kebab_case class.name }}-view :value="modelValue" @edit="editing = true" :deletable="deletable" @delete="$emit('delete')" v-else></{{ kebab_case class.name }}-view>
       </div>
       {{~ for property in class.properties
         if property.class && !property.is_parent_reference  ~}}
@@ -152,7 +156,7 @@ app.component('{{ kebab_case class.name }}', {
             {{~ if property.is_collection ~}}
             <{{ kebab_case property.class.name }}-list :modelValue="modelValue.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}"></{{ kebab_case property.class.name }}-list>
             {{~ else ~}}
-            <{{ kebab_case property.class.name }} :modelValue="modelValue.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}"></{{ kebab_case property.class.name }}>
+            <{{ kebab_case property.class.name }} :modelValue="modelValue.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}" :deletable="false" ></{{ kebab_case property.class.name }}>
             {{~ end ~}}
           </div>
         </div>
@@ -161,7 +165,8 @@ app.component('{{ kebab_case class.name }}', {
   </div>`,
   name: '{{ class.name }}',
   props: {
-    modelValue: Object
+    modelValue: Object,
+    deletable: Boolean
   },
   emits: ['update:modelValue'],
   setup(props, context) {
@@ -197,7 +202,7 @@ app.component('{{ kebab_case class.name }}', {
 app.component('{{ kebab_case class.name }}-list', {
   template: `
     <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
-    <{{ kebab_case class.name }} v-for="(item, idx) in modelValue" :key="idx"  :modelValue="item" @update:modelValue="updateItem(idx, $event)">
+    <{{ kebab_case class.name }} v-for="(item, idx) in modelValue" :key="idx"  :modelValue="item" @update:modelValue="updateItem(idx, $event)" :deletable="true" @delete="deleteItem(idx)">
     </{{ kebab_case class.name }}>
     <div class="d-flex" v-if="newItem == null">
       <button type="button" class="btn btn-sm rounded-pill mb-1" @click="addNewItem()">
