@@ -10,12 +10,12 @@ end ~}}
 const  app = Vue.createApp({
   template: `
   {{~ for property in root.properties
-  if property.is_collection && property.class
+  if property.class && !property.is_parent_reference
   ~}}
     <div class="d-flex mb-1">
       <h5>{{ property.name }}:</h5>
     </div>
-    <{{ kebab_case property.class.name }}-list v-model="{{ camel_case root.name }}.{{ camel_case property.class.name.plural }}"></{{ kebab_case property.class.name }}-list>
+    <{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }} v-model="{{ camel_case root.name }}.{{ camel_case property.name }}"></{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}>
 {{~ end
   end ~}}
   `,
