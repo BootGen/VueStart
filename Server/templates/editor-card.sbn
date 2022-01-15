@@ -172,7 +172,7 @@ app.component('{{ kebab_case class.name }}', {
     modelValue: Object,
     deletable: Boolean
   },
-  emits: ['update:modelValue'],
+  emits: ['update:modelValue', 'delete'],
   setup(props, context) {
     const editing = ref(false);
     {{~ for property in class.properties
