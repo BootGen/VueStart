@@ -61,6 +61,9 @@ namespace VueStart.Services
         }
 
         private string Minify(string value) {
+        #if DEBUG
+            return value;
+        #else
             value = value.Replace("\n", " ");
             value = value.Replace("\r", " ");
             value = value.Replace("\t", " ");
@@ -71,6 +74,7 @@ namespace VueStart.Services
             } while(value.Length != length);
 
             return value;
+        #endif
         }
         private struct TemplateCacheKey
         {
