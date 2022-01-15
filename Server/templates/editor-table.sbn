@@ -16,9 +16,7 @@ const  app = Vue.createApp({
     </div>
     <h5 class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
   </div>
-  {{~ for class in classes ~}}
-  <{{ kebab_case class.name }}-list v-model="activeElement.obj[activeElement.property]" @show="show" v-if="activeElement.name == '{{ class.name.plural }}'"></{{ kebab_case class.name }}-list>
-  {{~ end ~}}
+  <component :is="activeElement.component" v-model="activeElement.obj[activeElement.property]" @show="show"></component>
   `,
   name: 'App',
   setup: function () {
@@ -26,10 +24,10 @@ const  app = Vue.createApp({
     const breadcrumbs = ref([]);
     const activeElement = ref(null);
 
-    function show(name, property, obj) {
+    function show(name, component, property, obj) {
       if (activeElement.value)
         breadcrumbs.value.push(activeElement.value);
-      activeElement.value = { name: name, property: property, obj: obj };
+      activeElement.value = { name: name, component: component, property: property, obj: obj };
     }
 
     function sliceBreadcrumbs(idx){
@@ -50,7 +48,7 @@ const  app = Vue.createApp({
           {{ camel_case root.name }}.value = JSON.parse(json);
           {{~ for property in root.properties
           if property.is_collection && property.class ~}}
-          activeElement.value = { name: '{{ property.name }}', property: '{{ camel_case property.class.name.plural }}', obj: {{ camel_case root.name }}.value };
+          activeElement.value = { name: '{{ property.name }}', component: '{{ kebab_case property.class.name }}-list', property: '{{ camel_case property.class.name.plural }}', obj: {{ camel_case root.name }}.value };
           {{~ end
         end ~}}
       }
@@ -72,7 +70,10 @@ app.config.globalProperties.$filters = {
   }
 };
 
-{{~ for class in classes ~}}
+{{~ for class in classes
+      if class.is_root
+        continue
+      end ~}}
 app.component('{{ kebab_case class.name }}-view', {
   template: `
     {{~ for property in class.common_properties
@@ -89,7 +90,7 @@ app.component('{{ kebab_case class.name }}-view', {
     {{~ for property in class.properties
       if property.is_collection && property.class ~}}
     <td class="align-middle">
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ property.name }}', '{{ camel_case property.name }}', value)">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ property.name }}', '{{ kebab_case property.class.name }}-list', '{{ camel_case property.name }}', value)">
         <span class="bi bi-eye" aria-hidden="true"></span>
       </button>
     </td>
@@ -99,7 +100,7 @@ app.component('{{ kebab_case class.name }}-view', {
       <button type="button" class="btn btn-sm rounded-pill" @click="$emit('edit')">
         <span class="bi bi-pencil" aria-hidden="true"></span>
       </button>
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('delete')">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('delete')" v-if="deletable">
         <span class="bi bi-trash" aria-hidden="true"></span>
       </button>
     </td>
@@ -107,6 +108,7 @@ app.component('{{ kebab_case class.name }}-view', {
   name: '{{ class.name }}View',
   props: {
     value: Object,
+    deletable: Boolean
   },
   emits: ['edit',  'delete', 'show']
 });
@@ -135,7 +137,7 @@ app.component('{{ kebab_case class.name }}-edit', {
         {{~ for property in class.properties
     if property.is_collection && property.class ~}}
     <td class="align-middle">
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ property.name }}', '{{ camel_case property.name }}', modelValue)">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ property.name }}', '{{ kebab_case property.class.name }}-list', '{{ camel_case property.name }}', modelValue)">
         <span class="bi bi-eye" aria-hidden="true"></span>
       </button>
     </td>
@@ -216,8 +218,8 @@ app.component('{{ kebab_case class.name }}-list', {
     const editedItemIdx = ref(-1);
     const newItem = ref(null);
 
-    function show(name, property, obj) {
-      context.emit('show', name, property, obj);
+    function show(name, component, property, obj) {
+      context.emit('show', name, component, property, obj);
     }
 
     function editItem(idx) {
@@ -234,18 +236,6 @@ app.component('{{ kebab_case class.name }}-list', {
       endEditing();
       context.emit('update:modelValue', newList);
     }
-    {{~ for property in class.properties
-        if property.is_collection && property.class ~}}
-    function update{{ property.class.name.plural }}(idx, list) {
-      let newList = [...props.modelValue];
-      newList[idx] = {
-        ...newList[idx],
-        {{ camel_case property.class.name.plural }}: list
-      };
-      context.emit('update:modelValue', newList);
-    }
-    {{~ end
-      end ~}}
     function endEditing() {
       editedItemIdx.value = -1;
     }
@@ -285,12 +275,7 @@ app.component('{{ kebab_case class.name }}-list', {
       addNewItem,
       saveNewItem,
       cancelAdd,
-      show,
-      {{~ for property in class.properties
-        if property.is_collection && property.class ~}}
-      update{{ property.class.name.plural }},
-      {{~ end 
-      end ~}}
+      show
     };
   }
 });
