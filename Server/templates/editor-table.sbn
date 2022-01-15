@@ -48,7 +48,7 @@ const  app = Vue.createApp({
           {{ camel_case root.name }}.value = JSON.parse(json);
           {{~ for property in root.properties
           if property.class && !property.is_parent_reference ~}}
-          activeElement.value = { name: '{{ property.name }}', component: '{{ kebab_case property.class.name }}-list', property: '{{ camel_case property.class.name.plural }}', obj: {{ camel_case root.name }}.value };
+          activeElement.value = { name: '{{ property.name }}', component: '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', property: '{{ camel_case property.name }}', obj: {{ camel_case root.name }}.value };
           {{~ end
         end ~}}
       }

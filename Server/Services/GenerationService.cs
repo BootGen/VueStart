@@ -47,7 +47,11 @@ namespace VueStart.Services
                 };
                 dataModel.LoadRootObject("App", jObject);
             } catch (NamingException e) {
-                var jsonString = jObject.RenamingArrays(e.ActualName, e.SuggestedName).ToString();
+                string jsonString;
+                if (e.IsArray)
+                    jsonString = jObject.RenamingArrays(e.ActualName, e.SuggestedName).ToString();
+                 else
+                    jsonString = jObject.RenamingObjects(e.ActualName, e.SuggestedName).ToString();
                 return JsonDocument.Parse(jsonString).RootElement;
             }
             return json;

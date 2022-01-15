@@ -53,8 +53,8 @@ export function validateJson(text) {
         for (const prop in obj) {
             if (idx > 0)
                 return {error: true, message: 'The root element must only have a single property!'};
-            if (!Array.isArray(obj[prop]))
-                return {error: true, message: 'The root element must only have a single property with array type!'};
+            if (typeof obj[prop] !== 'object')
+                return {error: true, message: 'The root element must only have a single property with object or array type!'};
             idx += 1;
         }
         return {error: false, message: ''};
