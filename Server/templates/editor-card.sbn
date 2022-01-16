@@ -129,7 +129,7 @@ app.component('{{ kebab_case class.name }}-form', {
   },
   emits: ['update:modelValue', 'canceled'],
   setup(props, context) {
-    const editedItem = reactive({ ...props.modelValue });
+    const editedItem = { ...props.modelValue };
 
     function save() {
       context.emit('update:modelValue', editedItem);
