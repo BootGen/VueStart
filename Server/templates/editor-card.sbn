@@ -13,7 +13,7 @@ const  app = Vue.createApp({
   if property.class && !property.is_parent_reference
   ~}}
     <div class="d-flex mb-1">
-      <h5>{{ property.name }}:</h5>
+      <h5>{{ to_words property.name }}:</h5>
     </div>
     <{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }} v-model="{{ camel_case root.name }}.{{ camel_case property.name }}"></{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}>
 {{~ end
@@ -70,7 +70,7 @@ app.component('{{ kebab_case class.name }}-data', {
   <li class="list-group-item text-start">
     <div class="row">
       <div class="col-4 d-flex justify-content-start text-break text-start">
-        {{ property.name }}:
+        {{ to_words property.name }}:
       </div>
       <div class="col-8 d-flex justify-content-start text-break">
       {{~ if (get_type property) == "Date" ~}}
@@ -116,8 +116,8 @@ app.component('{{ kebab_case class.name }}-form', {
       {{~ end ~}} 
       class="form-control"
       v-model="editedItem.{{ camel_case property.name }}"
-      placeholder="{{ property.name }}">
-      <label for="floatingInput">{{ property.name }}</label>
+      placeholder="{{ to_words property.name }}">
+      <label for="floatingInput">{{ to_words property.name }}</label>
     </div>
   </li>
   {{~ end
@@ -155,7 +155,7 @@ app.component('{{ kebab_case class.name }}', {
         <div class="card ms-5 mt-2">
           <div class="mt-3">
             <div class="d-flex mb-1">
-              <h5>{{ property.name }}:</h5>
+              <h5>{{ to_words property.name }}:</h5>
             </div>
             {{~ if property.is_collection ~}}
             <{{ kebab_case property.class.name }}-list :modelValue="modelValue.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}"></{{ kebab_case property.class.name }}-list>

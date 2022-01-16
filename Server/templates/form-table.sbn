@@ -48,7 +48,7 @@ const  app = Vue.createApp({
           {{ camel_case root.name }}.value = JSON.parse(json);
           {{~ for property in root.properties
           if property.class && !property.is_parent_reference ~}}
-          activeElement.value = { name: '{{ property.name }}', component: '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', property: '{{ camel_case property.name }}', obj: {{ camel_case root.name }}.value };
+          activeElement.value = { name: '{{ to_words property.name }}', component: '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', property: '{{ camel_case property.name }}', obj: {{ camel_case root.name }}.value };
           {{~ end
         end ~}}
       }
@@ -94,7 +94,7 @@ app.component('{{ kebab_case class.name }}-form', {
         {{~ for property in class.properties
     if property.class && !property.is_parent_reference ~}}
     <td class="align-middle">
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', modelValue)">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', modelValue)">
         <span class="bi bi-eye" aria-hidden="true"></span>
       </button>
     </td>
@@ -153,7 +153,7 @@ app.component('{{ kebab_case class.name }}-table', {
         {{~ for property in class.common_properties
         if !property.is_key ~}}
         <th scope="col">
-          {{ property.name }}
+          {{ to_words property.name }}
         </th>
         {{~ end
             end ~}}
@@ -161,7 +161,7 @@ app.component('{{ kebab_case class.name }}-table', {
           if property.class && !property.is_parent_reference
           ~}}
           <th scope="col">
-          {{ property.name }}
+          {{ to_words property.name }}
           </th>
         {{~ end
           end ~}}
