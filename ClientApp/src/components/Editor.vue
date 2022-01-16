@@ -186,10 +186,14 @@ export default defineComponent({
             debouncedGenerate(json.value);
           } else {
             saveToLocalStorage(json.value);
+            inputError.value = null;
           }
-        } catch {
-          const nop = () => {};
-          nop()
+        } catch (e) {
+          if (e.schemaError) {
+            inputError.value = e.schemaError;
+          } else {
+            console.log(e)
+          }
         }
       })
     });
