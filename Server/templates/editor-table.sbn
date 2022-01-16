@@ -288,7 +288,6 @@ app.component('{{ kebab_case class.name }}-list', {
     function updateItem(idx, item) {
       let newList = [...props.modelValue];
       newList[idx] = item;
-      endEditing();
       context.emit('update:modelValue', newList);
     }
     function addNewItem() {
@@ -321,7 +320,6 @@ app.component('{{ kebab_case class.name }}-list', {
       newItem,
       deleteItem,
       updateItem,
-      endEditing,
       addNewItem,
       saveNewItem,
       cancelAdd,
