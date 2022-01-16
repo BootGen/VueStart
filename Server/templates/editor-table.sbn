@@ -274,16 +274,12 @@ app.component('{{ kebab_case class.name }}-list', {
   },
   emits: ['update:modelValue', 'show'],
   setup(props, context) {
-    const editedItemIdx = ref(-1);
     const newItem = ref(null);
 
     function show(name, component, property, obj) {
       context.emit('show', name, component, property, obj);
     }
 
-    function editItem(idx) {
-      editedItemIdx.value = idx;
-    }
     function deleteItem(idx) {
       if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
         context.emit('update:modelValue', props.modelValue.filter((item, i) => i !== idx));
@@ -294,9 +290,6 @@ app.component('{{ kebab_case class.name }}-list', {
       newList[idx] = item;
       endEditing();
       context.emit('update:modelValue', newList);
-    }
-    function endEditing() {
-      editedItemIdx.value = -1;
     }
     function addNewItem() {
       newItem.value = {
@@ -325,9 +318,7 @@ app.component('{{ kebab_case class.name }}-list', {
     }
 
     return {
-      editedItemIdx,
       newItem,
-      editItem,
       deleteItem,
       updateItem,
       endEditing,
