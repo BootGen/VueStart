@@ -74,7 +74,7 @@ app.config.globalProperties.$filters = {
       if class.is_root
         continue
       end ~}}
-app.component('{{ kebab_case class.name }}-view', {
+app.component('{{ kebab_case class.name }}-data', {
   template: `
     {{~ for property in class.common_properties
       if !property.is_key ~}}
@@ -113,7 +113,7 @@ app.component('{{ kebab_case class.name }}-view', {
   emits: ['edit',  'delete', 'show']
 });
 
-app.component('{{ kebab_case class.name }}-edit', {
+app.component('{{ kebab_case class.name }}-form', {
   template: `
   {{~ for property in class.common_properties
   if !property.is_key ~}}
@@ -173,8 +173,8 @@ app.component('{{ kebab_case class.name }}-edit', {
 app.component('{{ kebab_case class.name }}-row', {
   template: `
       <tr>
-        <{{ kebab_case class.name }}-edit :modelValue="modelValue" @update:modelValue="update" @canceled="editing = false" @show="show" v-if="editing"></{{ kebab_case class.name }}-edit>
-        <{{ kebab_case class.name }}-view :value="modelValue" :deletable="deletable" @delete="$emit('delete')" @edit="editing = true" @show="show" v-else></{{ kebab_case class.name }}-view>
+        <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @canceled="editing = false" @show="show" v-if="editing"></{{ kebab_case class.name }}-form>
+        <{{ kebab_case class.name }}-data :value="modelValue" :deletable="deletable" @delete="$emit('delete')" @edit="editing = true" @show="show" v-else></{{ kebab_case class.name }}-data>
       </tr>
   `,
   name: '{{ class.name }}Row',
@@ -260,7 +260,7 @@ app.component('{{ kebab_case class.name }}-list', {
       <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
       <{{ kebab_case class.name }}-row v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(idx)" :deletable="true" @show="show"></{{ kebab_case class.name }}-row>
       <tr v-if="newItem != null">
-        <{{ kebab_case class.name }}-edit :modelValue="newItem" @update:modelValue="saveNewItem($event)" @canceled="cancelAdd"></{{ kebab_case class.name }}-edit>
+        <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem($event)" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
       </tr>
       <tr>
         <button type="button" class="btn btn-sm rounded-pill m-1" @click="addNewItem()">
