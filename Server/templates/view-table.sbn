@@ -169,7 +169,7 @@ app.component('{{ kebab_case class.name }}-list', {
   template: `
     <{{ kebab_case class.name }}-table>
       <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
-      <{{ kebab_case class.name }}-row v-for="(item, idx) in value" :key="idx" :value="item" @show="show"></{{ kebab_case class.name }}-row>
+      <{{ kebab_case class.name }}-row v-for="(item, idx) in value" :key="idx" :value="item" @show="show" v-if="value"></{{ kebab_case class.name }}-row>
     </{{ kebab_case class.name }}-table>`,
   name: '{{ class.name }}List',
   props: {

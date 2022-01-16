@@ -258,7 +258,7 @@ app.component('{{ kebab_case class.name }}-list', {
   template: `
     <{{ kebab_case class.name }}-table>
       <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
-      <{{ kebab_case class.name }}-row v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(idx)" :deletable="true" @show="show"></{{ kebab_case class.name }}-row>
+      <{{ kebab_case class.name }}-row v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(idx)" :deletable="true" @show="show" v-if="modelValue"></{{ kebab_case class.name }}-row>
       <tr v-if="newItem != null">
         <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem($event)" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
       </tr>
@@ -300,10 +300,14 @@ app.component('{{ kebab_case class.name }}-list', {
       };
     }
     function saveNewItem(item) {
+      if (props.modelValue) {
         const items = [...props.modelValue];
         items.push(item);
-        context.emit('update:modelValue', items);
-        newItem.value = null;
+        context.emit('update:modelValue', items)
+      } else {
+        context.emit('update:modelValue', [item])
+      }
+      newItem.value = null
     }
     {{~ for property in class.properties
       if property.class && !property.is_parent_reference ~}}
