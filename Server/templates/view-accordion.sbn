@@ -129,6 +129,6 @@ function randomToken() {
   let token = '';
   while (token.length < 8)
     token += Math.random().toString(36).substring(2);
-  return token.substring(0, 8);
+  return `a${token.substring(0, 8)}`;
 }
 app.mount('#app');
