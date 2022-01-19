@@ -63,6 +63,15 @@ app.component('{{ kebab_case class.name }}-form', {
       if !property.is_key ~}}
   <li class="list-group-item text-start">
     <div class="col-12 d-flex justify-content-start form-floating">
+      {{~ if (get_type property) == "boolean" ~}}
+      <div class="form-check">
+        <label class="form-check-label">
+        <input class="form-check-input" type="checkbox" 
+        v-model="modelValue.{{ camel_case property.name }}">
+        {{ to_words property.name }}
+        </label>
+      </div>
+      {{~ else ~}}
       <input 
       {{~ if (get_type property) == "Date" ~}}
       type="datetime-local"
@@ -75,8 +84,9 @@ app.component('{{ kebab_case class.name }}-form', {
       v-model="modelValue.{{ camel_case property.name }}"
       @input="$emit('update:modelValue', { ...modelValue, {{ camel_case property.name }}: $event.target.value })"
       placeholder="{{ to_words property.name }}">
-      <label for="floatingInput">{{ to_words property.name }}</label>
+      <label>{{ to_words property.name }}</label>
     </div>
+    {{~ end ~}} 
   </li>
   {{~ end
       end ~}}
