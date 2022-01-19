@@ -231,6 +231,7 @@ app.component('{{ kebab_case class.name }}-list', {
   emits: ['update:modelValue'],
   setup(props, context) {
     const newItem = ref(null);
+    const accordionId = randomToken();
 
     function deleteItem(idx) {
       if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
@@ -271,7 +272,8 @@ app.component('{{ kebab_case class.name }}-list', {
       updateItem,
       addNewItem,
       saveNewItem,
-      cancelAdd
+      cancelAdd,
+      accordionId
     };
   }
 });
