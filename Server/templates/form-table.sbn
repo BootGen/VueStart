@@ -206,9 +206,6 @@ app.component('{{ kebab_case class.name }}-list', {
     <{{ kebab_case class.name }}-table>
       <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
       <{{ kebab_case class.name }}-row v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(idx)" :deletable="true" @show="show" v-if="modelValue"></{{ kebab_case class.name }}-row>
-      <tr v-if="newItem != null">
-        <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem($event)" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
-      </tr>
       <tr>
         <button type="button" class="btn btn-sm rounded-pill m-1" @click="addNewItem()">
           <span class="bi bi-plus" aria-hidden="true"></span> Add
@@ -221,7 +218,6 @@ app.component('{{ kebab_case class.name }}-list', {
   },
   emits: ['update:modelValue', 'show'],
   setup(props, context) {
-    const newItem = ref(null);
 
     function show(name, component, property, obj) {
       context.emit('show', name, component, property, obj);
@@ -237,13 +233,14 @@ app.component('{{ kebab_case class.name }}-list', {
       context.emit('update:modelValue', newList);
     }
     function addNewItem() {
-      newItem.value = {
+      const newItem = {
         {{~ for property in class.properties
             if !property.is_key && !property.is_parent_reference ~}}
         {{ camel_case property.name }}: {{ if property.is_collection }}[]{{else}}''{{end}}{{if !for.last}},{{end}}
         {{~ end
             end ~}}
       };
+      saveNewItem(newItem);
     }
     function saveNewItem(item) {
       if (props.modelValue) {
@@ -253,7 +250,6 @@ app.component('{{ kebab_case class.name }}-list', {
       } else {
         context.emit('update:modelValue', [item])
       }
-      newItem.value = null
     }
     {{~ for property in class.properties
       if property.class && !property.is_parent_reference ~}}
@@ -262,17 +258,11 @@ app.component('{{ kebab_case class.name }}-list', {
       }
     {{~ end
       end ~}}
-    function cancelAdd() {
-        newItem.value = null;
-    }
 
     return {
-      newItem,
       deleteItem,
       updateItem,
       addNewItem,
-      saveNewItem,
-      cancelAdd,
       show
     };
   }
