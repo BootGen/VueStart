@@ -51,11 +51,15 @@ function getArraySchema(val) {
 
 
 function getProperties(j) {
+  if (!j) {
+    throw { schemaError: "Null values are not supported."}
+  }
+  let r = {};
   let k = Object.keys(j);
   k.forEach(function(name) {
-    j[name] = getSchema(j[name]);
+    r[name] = getSchema(j[name]);
   })
-  return j;
+  return r;
 }
 
 function getType(val) {
@@ -88,7 +92,7 @@ export function getSchema(val) {
   if (type === 'object') {
     return {type: [type], properties: getProperties(val)};
   }
-  
+
   return { type: [type] };
 }
 

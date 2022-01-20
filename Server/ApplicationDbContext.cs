@@ -16,11 +16,7 @@ namespace VueStart
         public DbSet<Visit> Visits { get; set; }
         public IConfiguration Configuration { get; }
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
-        {
-        }
-
+        
         public ApplicationDbContext(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -31,13 +27,15 @@ namespace VueStart
             var connectionString = Configuration.GetConnectionString("MySQL");
             if (!string.IsNullOrWhiteSpace(connectionString))
             {
+                Console.WriteLine("Using MySQL");
                 optionsBuilder.UseMySql(connectionString, ServerVersion.Parse("8.0.23"));
             } else {
+                Console.WriteLine("Using Sqlite");
                 var connection = new SqliteConnection("DataSource=:memory:");
                 connection.Open();
                 optionsBuilder.UseSqlite(connection);
             }
-        }  
+        } 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

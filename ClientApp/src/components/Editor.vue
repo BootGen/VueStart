@@ -186,10 +186,14 @@ export default defineComponent({
             debouncedGenerate(json.value);
           } else {
             saveToLocalStorage(json.value);
+            inputError.value = null;
           }
-        } catch {
-          const nop = () => {};
-          nop()
+        } catch (e) {
+          if (e.schemaError) {
+            inputError.value = e.schemaError;
+          } else {
+            console.log(e)
+          }
         }
       })
     });
@@ -238,7 +242,7 @@ body {
   list-style-type: none;
   margin: 0;
   position: absolute;
-  bottom: 70px;
+  bottom: 55px;
   padding: 0;
   opacity: 0;
   transition: all 0.3s ease;
@@ -405,7 +409,7 @@ a:hover {
     height: 40px;
   }
   .fab-options {
-    bottom: 50px;
+    bottom: 40px;
   }
 }
 

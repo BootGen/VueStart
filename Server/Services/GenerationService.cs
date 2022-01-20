@@ -47,7 +47,11 @@ namespace VueStart.Services
                 };
                 dataModel.LoadRootObject("App", jObject);
             } catch (NamingException e) {
-                var jsonString = jObject.RenamingArrays(e.ActualName, e.SuggestedName).ToString();
+                string jsonString;
+                if (e.IsArray)
+                    jsonString = jObject.RenamingArrays(e.ActualName, e.SuggestedName).ToString();
+                 else
+                    jsonString = jObject.RenamingObjects(e.ActualName, e.SuggestedName).ToString();
                 return JsonDocument.Parse(jsonString).RootElement;
             }
             return json;
@@ -61,6 +65,9 @@ namespace VueStart.Services
         }
 
         private string Minify(string value) {
+        #if DEBUG
+            return value;
+        #else
             value = value.Replace("\n", " ");
             value = value.Replace("\r", " ");
             value = value.Replace("\t", " ");
@@ -71,22 +78,28 @@ namespace VueStart.Services
             } while(value.Length != length);
 
             return value;
+        #endif
+        }
+        private struct TemplateCacheKey
+        {
+            public string Path { get; init; }
         }
 
-        private static VirtualDisk Load(string path)
+        private VirtualDisk Load(string path)
         {
-            var templates = new VirtualDisk();
-            foreach (var file in Directory.EnumerateFiles(path))
-            {
-                templates.Files.Add(new VirtualFile
+            return memoryCache.GetOrCreate(new TemplateCacheKey { Path = path }, entry =>{
+                var templates = new VirtualDisk();
+                foreach (var file in Directory.EnumerateFiles(path))
                 {
-                    Name = Path.GetFileName(file),
-                    Path = "",
-                    Content = System.IO.File.ReadAllText(file)
-                });
-            }
-
-            return templates;
+                    templates.Files.Add(new VirtualFile
+                    {
+                        Name = Path.GetFileName(file),
+                        Path = "",
+                        Content = System.IO.File.ReadAllText(file)
+                    });
+                }
+                return templates;
+            });
         }
     }
 }

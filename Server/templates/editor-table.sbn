@@ -1,5 +1,10 @@
+{{~ func default_value(property)
+   if ((get_type property) == "Date")
+     ret "new Date().toISOString().split('.')[0]"
+    end
+   ret get_default_value property
+end ~}}
 const ref = Vue.ref;
-const reactive = Vue.reactive;
 const watchEffect = Vue.watchEffect;
 {{~ for class in classes
   if class.is_root
@@ -16,9 +21,7 @@ const  app = Vue.createApp({
     </div>
     <h5 class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
   </div>
-  {{~ for class in classes ~}}
-  <{{ kebab_case class.name }}-list v-model="activeElement.obj[activeElement.property]" @show="show" v-if="activeElement.name == '{{ class.name.plural }}'"></{{ kebab_case class.name }}-list>
-  {{~ end ~}}
+  <component :is="activeElement.component" v-model="activeElement.obj[activeElement.property]" @show="show"></component>
   `,
   name: 'App',
   setup: function () {
@@ -26,10 +29,10 @@ const  app = Vue.createApp({
     const breadcrumbs = ref([]);
     const activeElement = ref(null);
 
-    function show(name, property, obj) {
+    function show(name, component, property, obj) {
       if (activeElement.value)
         breadcrumbs.value.push(activeElement.value);
-      activeElement.value = { name: name, property: property, obj: obj };
+      activeElement.value = { name: name, component: component, property: property, obj: obj };
     }
 
     function sliceBreadcrumbs(idx){
@@ -49,8 +52,8 @@ const  app = Vue.createApp({
           breadcrumbs.value = [];
           {{ camel_case root.name }}.value = JSON.parse(json);
           {{~ for property in root.properties
-          if property.is_collection && property.class ~}}
-          activeElement.value = { name: '{{ property.name }}', property: '{{ camel_case property.class.name.plural }}', obj: {{ camel_case root.name }}.value };
+          if property.class && !property.is_parent_reference ~}}
+          activeElement.value = { name: '{{ to_words property.name }}', component: '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', property: '{{ camel_case property.name }}', obj: {{ camel_case root.name }}.value };
           {{~ end
         end ~}}
       }
@@ -68,12 +71,18 @@ const  app = Vue.createApp({
 
 app.config.globalProperties.$filters = {
   formatDatetime(date) {
-    return date.replace('T', '. ').replaceAll('-', '.');
+    if (date) {
+      return new Date(date).toLocaleString()
+    }
+    return '';
   }
 };
 
-{{~ for class in classes ~}}
-app.component('{{ kebab_case class.name }}-view', {
+{{~ for class in classes
+      if class.is_root
+        continue
+      end ~}}
+app.component('{{ kebab_case class.name }}-data', {
   template: `
     {{~ for property in class.common_properties
       if !property.is_key ~}}
@@ -87,9 +96,9 @@ app.component('{{ kebab_case class.name }}-view', {
     {{~ end
         end ~}}
     {{~ for property in class.properties
-      if property.is_collection && property.class ~}}
+      if property.class && !property.is_parent_reference ~}}
     <td class="align-middle">
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ property.name }}', '{{ camel_case property.name }}', value)">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', value)">
         <span class="bi bi-eye" aria-hidden="true"></span>
       </button>
     </td>
@@ -99,7 +108,7 @@ app.component('{{ kebab_case class.name }}-view', {
       <button type="button" class="btn btn-sm rounded-pill" @click="$emit('edit')">
         <span class="bi bi-pencil" aria-hidden="true"></span>
       </button>
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('delete')">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('delete')" v-if="deletable">
         <span class="bi bi-trash" aria-hidden="true"></span>
       </button>
     </td>
@@ -107,11 +116,12 @@ app.component('{{ kebab_case class.name }}-view', {
   name: '{{ class.name }}View',
   props: {
     value: Object,
+    deletable: Boolean
   },
   emits: ['edit',  'delete', 'show']
 });
 
-app.component('{{ kebab_case class.name }}-edit', {
+app.component('{{ kebab_case class.name }}-form', {
   template: `
   {{~ for property in class.common_properties
   if !property.is_key ~}}
@@ -127,20 +137,18 @@ app.component('{{ kebab_case class.name }}-edit', {
         {{~ end ~}} 
         class="form-control"
         v-model="editedItem.{{ camel_case property.name }}"
-        :placeholder="{{ property.name }}">
+        placeholder="{{ to_words property.name }}">
       </div>
     </td>
     {{~ end
         end ~}}
-        {{~ for property in class.properties
-    if property.is_collection && property.class ~}}
+    {{~ for property in class.child_references ~}}
     <td class="align-middle">
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ property.name }}', '{{ camel_case property.name }}', modelValue)">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', modelValue)">
         <span class="bi bi-eye" aria-hidden="true"></span>
       </button>
     </td>
-    {{~ end
-      end ~}}
+    {{~ end ~}}
     <td class="align-middle text-end">
       <button type="button" class="btn btn-sm rounded-pill" @click="save">
         <span class="bi bi-save" aria-hidden="true"></span>
@@ -150,13 +158,13 @@ app.component('{{ kebab_case class.name }}-edit', {
       </button>
     </td>
   `,
-  name: '{{ class.name }}Edit',
+  name: '{{ class.name }}Form',
   props: {
-    modelValue: Object,
+    modelValue: Object
   },
   emits: ['update:modelValue', 'canceled'],
   setup(props, context) {
-    const editedItem = reactive({ ...props.modelValue });
+    const editedItem = { ...props.modelValue };
     function save() {
       context.emit('update:modelValue', editedItem);
     }
@@ -168,7 +176,35 @@ app.component('{{ kebab_case class.name }}-edit', {
   },
 });
 
-app.component('{{ kebab_case class.name }}-list', {
+app.component('{{ kebab_case class.name }}-row', {
+  template: `
+      <tr>
+        <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @canceled="editing = false" @show="show" v-if="editing"></{{ kebab_case class.name }}-form>
+        <{{ kebab_case class.name }}-data :value="modelValue" :deletable="deletable" @delete="$emit('delete')" @edit="editing = true" @show="show" v-else></{{ kebab_case class.name }}-data>
+      </tr>
+  `,
+  name: '{{ class.name }}Row',
+  props: {
+    modelValue: Object,
+    deletable: Boolean
+  },
+  emits: ['update:modelValue', 'delete', 'show'],
+  setup(props, context) {
+    const editing = ref(false);
+
+    function update(newValue) {
+      context.emit('update:modelValue', newValue);
+      editing.value = false;
+    }
+
+    function show(name, component, property, obj) {
+      context.emit('show', name, component, property, obj);
+    }
+    return { editing, update, show }
+  }
+});
+
+app.component('{{ kebab_case class.name }}-table', {
   template: `
   <table class="table text-start">
     <thead>
@@ -176,15 +212,15 @@ app.component('{{ kebab_case class.name }}-list', {
         {{~ for property in class.common_properties
         if !property.is_key ~}}
         <th scope="col">
-          {{ property.name }}
+          {{ to_words property.name }}
         </th>
         {{~ end
             end ~}}
         {{~ for property in class.properties
-          if property.is_collection && property.class
+          if property.class && !property.is_parent_reference
           ~}}
           <th scope="col">
-          {{ property.name }}
+          {{ to_words property.name }}
           </th>
         {{~ end
           end ~}}
@@ -192,37 +228,64 @@ app.component('{{ kebab_case class.name }}-list', {
       </tr>
     </thead>
     <tbody>
+      <slot></slot>
+    </tbody>
+  </table>`,
+  name: '{{ class.name }}Table',
+  props: {
+    modelValue: Array
+  }
+});
+
+
+app.component('{{ kebab_case class.name }}', {
+  template: `
+      <{{ kebab_case class.name }}-table>
+        <{{ kebab_case class.name }}-row :modelValue="modelValue" @update:modelValue="update" :deletable="false" @show="show"></{{ kebab_case class.name }}-row>
+      </{{ kebab_case class.name }}-table>
+  `,
+  name: '{{ class.name }}',
+  props: {
+    modelValue: Object
+  },
+  emits: ['update:modelValue', 'show'],
+  setup(props, context) {
+    function update(newValue) {
+      context.emit('update:modelValue', newValue);
+    }
+    function show(name, component, property, obj) {
+      context.emit('show', name, component, property, obj);
+    }
+    return { update, show }
+  }
+});
+
+app.component('{{ kebab_case class.name }}-list', {
+  template: `
+    <{{ kebab_case class.name }}-table>
       <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
-      <tr v-for="(item, idx) in modelValue" :key="idx">
-        <{{ kebab_case class.name }}-edit :modelValue="item" @update:modelValue="updateItem(idx, $event)" @canceled="endEditing()" @show="show" v-if="editedItemIdx === idx"></{{ kebab_case class.name }}-edit>
-        <{{ kebab_case class.name }}-view :value="item" @delete="deleteItem(idx)" @edit="editItem(idx)" @show="show" v-else></{{ kebab_case class.name }}-view>
+      <{{ kebab_case class.name }}-row v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(idx)" :deletable="true" @show="show" v-if="modelValue"></{{ kebab_case class.name }}-row>
+      <tr v-if="newItem">
+        <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
       </tr>
-      <tr v-if="newItem != null">
-        <{{ kebab_case class.name }}-edit :modelValue="newItem" @update:modelValue="saveNewItem($event)" @canceled="cancelAdd"></{{ kebab_case class.name }}-edit>
-      </tr>
-      <tr>
-        <button type="button" class="btn btn-sm rounded-pill m-1" @click="addNewItem()">
+      <tr v-else>
+        <button type="button" class="btn btn-sm rounded-pill m-1" @click="addNewItem">
           <span class="bi bi-plus" aria-hidden="true"></span> Add
         </button>
       </tr>
-    </tbody>
-  </table>`,
+    </{{ kebab_case class.name }}-table>`,
   name: '{{ class.name }}List',
   props: {
     modelValue: Array
   },
   emits: ['update:modelValue', 'show'],
   setup(props, context) {
-    const editedItemIdx = ref(-1);
     const newItem = ref(null);
 
-    function show(name, property, obj) {
-      context.emit('show', name, property, obj);
+    function show(name, component, property, obj) {
+      context.emit('show', name, component, property, obj);
     }
 
-    function editItem(idx) {
-      editedItemIdx.value = idx;
-    }
     function deleteItem(idx) {
       if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
         context.emit('update:modelValue', props.modelValue.filter((item, i) => i !== idx));
@@ -231,41 +294,27 @@ app.component('{{ kebab_case class.name }}-list', {
     function updateItem(idx, item) {
       let newList = [...props.modelValue];
       newList[idx] = item;
-      endEditing();
       context.emit('update:modelValue', newList);
-    }
-    {{~ for property in class.properties
-        if property.is_collection && property.class ~}}
-    function update{{ property.class.name.plural }}(idx, list) {
-      let newList = [...props.modelValue];
-      newList[idx] = {
-        ...newList[idx],
-        {{ camel_case property.class.name.plural }}: list
-      };
-      context.emit('update:modelValue', newList);
-    }
-    {{~ end
-      end ~}}
-    function endEditing() {
-      editedItemIdx.value = -1;
     }
     function addNewItem() {
       newItem.value = {
-        {{~ for property in class.properties
-            if !property.is_key && !property.is_parent_reference ~}}
-        {{ camel_case property.name }}: {{ if property.is_collection }}[]{{else}}''{{end}}{{if !for.last}},{{end}}
-        {{~ end
-            end ~}}
+        {{~ for property in class.json_properties ~}}
+        {{ camel_case property.name }}: {{ default_value property }}{{if !for.last}},{{end}}
+        {{~ end ~}}
       };
     }
     function saveNewItem(item) {
+      if (props.modelValue) {
         const items = [...props.modelValue];
         items.push(item);
-        context.emit('update:modelValue', items);
-        newItem.value = null;
+        context.emit('update:modelValue', items)
+      } else {
+        context.emit('update:modelValue', [item])
+      }
+      newItem.value = null
     }
     {{~ for property in class.properties
-      if property.is_collection && property.class ~}}
+      if property.class && !property.is_parent_reference ~}}
       function show{{ property.name }}(item) {
         context.emit('update:modelValue', item.value.{{ camel_case property.name }});
       }
@@ -276,21 +325,13 @@ app.component('{{ kebab_case class.name }}-list', {
     }
 
     return {
-      editedItemIdx,
       newItem,
-      editItem,
       deleteItem,
       updateItem,
-      endEditing,
       addNewItem,
       saveNewItem,
       cancelAdd,
-      show,
-      {{~ for property in class.properties
-        if property.is_collection && property.class ~}}
-      update{{ property.class.name.plural }},
-      {{~ end 
-      end ~}}
+      show
     };
   }
 });

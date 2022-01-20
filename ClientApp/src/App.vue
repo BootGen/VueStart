@@ -15,7 +15,8 @@
           <div class="d-flex flex-column align-items-center">
             <p class="lead text-justify">
               Speed up frontend development, with this open source Vue.js component generator.
-              Generate forms, tables and data editors for any JSON data.
+              Generate forms, tables and data editors based on any JSON data, using well established
+              best practices, for Vue.js 3 and Bootstrap 5.
             </p>
             <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="changeView">Start!</button>
           </div>
@@ -43,7 +44,6 @@
 
 <script>
 import { defineComponent, ref } from 'vue';
-//import { debounce } from './utils/Helper';
 import DownloadPanel from './components/DownloadPanel.vue'
 import Editor from './components/Editor.vue'
 import Tip from './components/Tip.vue';
