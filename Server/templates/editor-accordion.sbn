@@ -1,3 +1,9 @@
+{{~ func default_value(property)
+   if ((get_type property) == "Date")
+     ret "new Date().toISOString().split('.')[0]"
+    end
+   ret get_default_value property
+end ~}}
 const ref = Vue.ref;
 const reactive = Vue.reactive;
 const watchEffect = Vue.watchEffect;
@@ -249,7 +255,7 @@ app.component('{{ kebab_case class.name }}-list', {
     function addNewItem() {
       newItem.value = {
         {{~ for property in class.json_properties ~}}
-        {{ camel_case property.name }}: {{ get_default_value property }}{{if !for.last}},{{end}}
+        {{ camel_case property.name }}: {{ default_value property }}{{if !for.last}},{{end}}
         {{~ end ~}}
       };
     }
