@@ -233,12 +233,10 @@ app.component('{{ kebab_case class.name }}-list', {
       context.emit('update:modelValue', newList);
     }
     function addNewItem() {
-      const newItem = {
-        {{~ for property in class.properties
-            if !property.is_key && !property.is_parent_reference ~}}
-        {{ camel_case property.name }}: {{ if property.is_collection }}[]{{else}}''{{end}}{{if !for.last}},{{end}}
-        {{~ end
-            end ~}}
+      let newItem = {
+        {{~ for property in class.json_properties ~}}
+        {{ camel_case property.name }}: {{ get_default_value property }}{{if !for.last}},{{end}}
+        {{~ end ~}}
       };
       saveNewItem(newItem);
     }
