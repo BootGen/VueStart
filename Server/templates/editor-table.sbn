@@ -1,5 +1,4 @@
 const ref = Vue.ref;
-const reactive = Vue.reactive;
 const watchEffect = Vue.watchEffect;
 {{~ for class in classes
   if class.is_root
@@ -129,20 +128,18 @@ app.component('{{ kebab_case class.name }}-form', {
         {{~ end ~}} 
         class="form-control"
         v-model="editedItem.{{ camel_case property.name }}"
-        :placeholder="{{ to_words property.name }}">
+        placeholder="{{ to_words property.name }}">
       </div>
     </td>
     {{~ end
         end ~}}
-        {{~ for property in class.properties
-    if property.class && !property.is_parent_reference ~}}
+    {{~ for property in class.child_references ~}}
     <td class="align-middle">
       <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', modelValue)">
         <span class="bi bi-eye" aria-hidden="true"></span>
       </button>
     </td>
-    {{~ end
-      end ~}}
+    {{~ end ~}}
     <td class="align-middle text-end">
       <button type="button" class="btn btn-sm rounded-pill" @click="save">
         <span class="bi bi-save" aria-hidden="true"></span>
@@ -152,13 +149,13 @@ app.component('{{ kebab_case class.name }}-form', {
       </button>
     </td>
   `,
-  name: '{{ class.name }}Edit',
+  name: '{{ class.name }}Form',
   props: {
-    modelValue: Object,
+    modelValue: Object
   },
   emits: ['update:modelValue', 'canceled'],
   setup(props, context) {
-    const editedItem = reactive({ ...props.modelValue });
+    const editedItem = { ...props.modelValue };
     function save() {
       context.emit('update:modelValue', editedItem);
     }
@@ -259,11 +256,11 @@ app.component('{{ kebab_case class.name }}-list', {
     <{{ kebab_case class.name }}-table>
       <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
       <{{ kebab_case class.name }}-row v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(idx)" :deletable="true" @show="show" v-if="modelValue"></{{ kebab_case class.name }}-row>
-      <tr v-if="newItem != null">
-        <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem($event)" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
+      <tr v-if="newItem">
+        <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
       </tr>
-      <tr>
-        <button type="button" class="btn btn-sm rounded-pill m-1" @click="addNewItem()">
+      <tr v-else>
+        <button type="button" class="btn btn-sm rounded-pill m-1" @click="addNewItem">
           <span class="bi bi-plus" aria-hidden="true"></span> Add
         </button>
       </tr>
@@ -292,11 +289,9 @@ app.component('{{ kebab_case class.name }}-list', {
     }
     function addNewItem() {
       newItem.value = {
-        {{~ for property in class.properties
-            if !property.is_key && !property.is_parent_reference ~}}
-        {{ camel_case property.name }}: {{ if property.is_collection }}[]{{else}}''{{end}}{{if !for.last}},{{end}}
-        {{~ end
-            end ~}}
+        {{~ for property in class.json_properties ~}}
+        {{ camel_case property.name }}: {{ get_default_value property }}{{if !for.last}},{{end}}
+        {{~ end ~}}
       };
     }
     function saveNewItem(item) {
