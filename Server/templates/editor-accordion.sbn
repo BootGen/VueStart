@@ -44,7 +44,10 @@ const  app = Vue.createApp({
 });
 app.config.globalProperties.$filters = {
   formatDatetime(date) {
-    return date.replace('T', '. ').replaceAll('-', '.');
+    if (date) {
+      return new Date(date).toLocaleString()
+    }
+    return '';
   }
 };
 {{~ for class in classes
