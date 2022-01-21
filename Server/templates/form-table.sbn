@@ -93,8 +93,8 @@ app.component('{{ kebab_case class.name }}-form', {
         type="text"
         {{~ end ~}}
         class="form-control"
-        v-model="editedItem.{{ camel_case property.name }}"
-        @input="update"
+        v-model="modelValue.{{ camel_case property.name }}"
+        @input="$emit('update:modelValue', { ...modelValue, {{ camel_case property.name }}: $event.target.value })"
         :placeholder="{{ property.name }}">
         {{~ end ~}}
       </div>
@@ -118,14 +118,7 @@ app.component('{{ kebab_case class.name }}-form', {
     modelValue: Object,
     deletable: Boolean
   },
-  emits: ['update:modelValue', 'delete'],
-  setup(props, context) {
-    const editedItem = { ...props.modelValue};
-    function update() {
-      context.emit('update:modelValue', editedItem)
-    };
-    return { editedItem, update }
-  }
+  emits: ['update:modelValue', 'delete']
 });
 
 app.component('{{ kebab_case class.name }}-row', {
