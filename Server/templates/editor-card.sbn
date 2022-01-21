@@ -71,8 +71,7 @@ app.component('{{ kebab_case class.name }}-data', {
       <span class="bi bi-trash" aria-hidden="true"></span> Delete
     </button>
   </li>
-  {{~ for property in class.common_properties
-  if !property.is_key ~}}
+  {{~ for property in class.base_properties ~}}
   <li class="list-group-item text-start">
     <div class="row">
       <div class="col-4 d-flex justify-content-start text-break text-start">
@@ -87,8 +86,7 @@ app.component('{{ kebab_case class.name }}-data', {
       </div>
     </div>
   </li>
-  {{~ end
-      end ~}}
+  {{~ end ~}}
   `,
   name: '{{ class.name }}View',
   props: {
@@ -108,8 +106,7 @@ app.component('{{ kebab_case class.name }}-form', {
       <span class="bi bi-backspace" aria-hidden="true"></span> Cancel
     </button>
   </li>
-  {{~ for property in class.common_properties
-      if !property.is_key ~}}
+  {{~ for property in class.base_properties ~}}
   <li class="list-group-item text-start">
     <div class="col-12 d-flex justify-content-start form-floating">
       <input 
@@ -126,8 +123,7 @@ app.component('{{ kebab_case class.name }}-form', {
       <label for="floatingInput">{{ to_words property.name }}</label>
     </div>
   </li>
-  {{~ end
-      end ~}}
+  {{~ end ~}}
   `,
   name: '{{ class.name }}Form',
   props: {

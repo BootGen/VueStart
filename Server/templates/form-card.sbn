@@ -62,8 +62,7 @@ app.component('{{ kebab_case class.name }}-form', {
       <span class="bi bi-trash" aria-hidden="true"></span> Delete
     </button>
   </li>
-  {{~ for property in class.common_properties
-      if !property.is_key ~}}
+  {{~ for property in class.base_properties ~}}
   <li class="list-group-item text-start">
     <div class="col-12 d-flex justify-content-start form-floating">
       {{~ if (get_type property) == "boolean" ~}}
@@ -91,8 +90,7 @@ app.component('{{ kebab_case class.name }}-form', {
     </div>
     {{~ end ~}} 
   </li>
-  {{~ end
-      end ~}}
+  {{~ end ~}}
   `,
   name: '{{ class.name }}Form',
   props: {

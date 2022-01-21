@@ -45,8 +45,7 @@ app.config.globalProperties.$filters = {
   ~}}
 app.component('{{ kebab_case class.name }}-data', {
   template: `
-  {{~ for property in class.common_properties
-  if !property.is_key ~}}
+  {{~ for property in class.base_properties ~}}
   <li class="list-group-item text-start">
     <div class="row">
       <div class="col-4 d-flex justify-content-start text-break text-start">
@@ -61,8 +60,7 @@ app.component('{{ kebab_case class.name }}-data', {
       </div>
     </div>
   </li>
-  {{~ end
-      end ~}}
+  {{~ end ~}}
   `,
   name: '{{ class.name }}View',
   props: {

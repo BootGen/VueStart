@@ -75,8 +75,7 @@ const  app = Vue.createApp({
 
 app.component('{{ kebab_case class.name }}-form', {
   template: `
-  {{~ for property in class.common_properties
-  if !property.is_key ~}}
+  {{~ for property in class.base_properties ~}}
     <td class="align-middle">
       <div class="col-12 d-flex justify-content-start">
         <input 
@@ -93,8 +92,7 @@ app.component('{{ kebab_case class.name }}-form', {
         :placeholder="{{ property.name }}">
       </div>
     </td>
-    {{~ end
-        end ~}}
+    {{~ end ~}}
     {{~ for property in class.child_references ~}}
     <td class="align-middle">
       <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', modelValue)">
@@ -152,13 +150,11 @@ app.component('{{ kebab_case class.name }}-table', {
   <table class="table text-start">
     <thead>
       <tr class="table-light">
-        {{~ for property in class.common_properties
-        if !property.is_key ~}}
+        {{~ for property in class.base_properties ~}}
         <th scope="col">
           {{ to_words property.name }}
         </th>
-        {{~ end
-            end ~}}
+        {{~ end ~}}
         {{~ for property in class.child_references ~}}
           <th scope="col">
           {{ to_words property.name }}
