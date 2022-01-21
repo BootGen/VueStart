@@ -217,7 +217,7 @@ app.component('{{ kebab_case class.name }}-list', {
     </{{ kebab_case class.name }}>
     <div class="d-flex" v-if="newItem == null">
       <button type="button" class="btn btn-sm rounded-pill mb-1" @click="addNewItem()">
-        <span class="bi bi-plus" aria-hidden="true"></span> Add {{ class.name }}
+        <span class="bi bi-plus" aria-hidden="true"></span> Add {{ to_words class.name }}
       </button>
     </div>
     <div class="col-12 mb-2" v-if="newItem != null">
