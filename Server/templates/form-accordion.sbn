@@ -60,19 +60,29 @@ app.component('{{ kebab_case class.name }}-form', {
   {{~ for property in class.base_properties ~}}
   <li class="list-group-item text-start">
     <div class="col-12 d-flex justify-content-start form-floating">
-      <input 
+      {{~ if (get_type property) == "boolean" ~}}
+      <div class="form-check">
+        <label class="form-check-label">
+        <input class="form-check-input" type="checkbox" 
+        v-model="modelValue.{{ camel_case property.name }}">
+        {{ to_words property.name }}
+        </label>
+      </div>
+      {{~ else ~}}
+      <input
       {{~ if (get_type property) == "Date" ~}}
       type="datetime-local"
       {{~ else if (get_type property) == "number" ~}}
       type="number"
       {{~ else ~}}
       type="text"
-      {{~ end ~}} 
+      {{~ end ~}}
       class="form-control"
       v-model="modelValue.{{ camel_case property.name }}"
       @input="$emit('update:modelValue', { ...modelValue, {{ camel_case property.name }}: $event.target.value })"
       placeholder="{{ to_words property.name }}">
       <label for="floatingInput">{{ to_words property.name }}</label>
+      {{~ end ~}}
     </div>
   </li>
   {{~ end ~}}
@@ -122,7 +132,6 @@ app.component('{{ kebab_case class.name }}', {
 
     function update(newValue) {
       context.emit('update:modelValue', newValue);
-      editing.value = false;
     }
     return {
       {{~ for property in class.child_references ~}}
