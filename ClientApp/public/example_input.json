@@ -2,6 +2,7 @@
 	"jediKnights": [
 		{
 			"name": "Anakin Skywalker",
+			"age": 22,
 			"fallenToDarkSide": true,
 			"droids": [
 				{
@@ -20,6 +21,7 @@
 		},
 		{
 			"name": "Obi-Wan Kenobi",
+			"age": 36,
 			"fallenToDarkSide": false,
 			"droids": [
 				{
