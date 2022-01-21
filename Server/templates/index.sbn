@@ -41,6 +41,10 @@
         color: #17a062;
         cursor: pointer;
       }
+      .form-check-input:checked {
+        background-color: #42b983;
+        border-color: #42b983;
+      }
       </style>
   </head>
   <body>
