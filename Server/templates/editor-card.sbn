@@ -25,6 +25,9 @@ const  app = Vue.createApp({
   name: 'App',
   setup: function () {
     const {{ camel_case root.name }} = ref(null);
+    {{~ if input ~}}
+    {{ camel_case root.name }}.value = {{input}};
+    {{~ else ~}}
     function saveToLocalStorage(newValue) {
         let minimized = JSON.stringify(newValue);
         let oldValue = localStorage.getItem('json');
@@ -45,6 +48,7 @@ const  app = Vue.createApp({
     });
 
     window.addEventListener('storage', loadFromLocalStorage);
+    {{~ end ~}}
     return { {{ camel_case root.name }}  }
   },
 });

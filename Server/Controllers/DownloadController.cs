@@ -47,7 +47,7 @@ namespace VueStart.Controllers
         private MemoryStream CreateZipStream(JsonElement json, string title, string templateFileName)
         {
             var memoryStream = new MemoryStream();
-            generateService.Generate(json, title, templateFileName, out string appjs, out string indexhtml);
+            generateService.Generate(json, title, templateFileName, true, out string appjs, out string indexhtml);
             using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
             {
                 AddEntry(archive, appjs, "app.js");
