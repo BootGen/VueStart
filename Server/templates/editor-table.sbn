@@ -51,11 +51,9 @@ const  app = Vue.createApp({
       if (json && json !== JSON.stringify({{ camel_case root.name }}.value)) {
           breadcrumbs.value = [];
           {{ camel_case root.name }}.value = JSON.parse(json);
-          {{~ for property in root.properties
-          if property.class && !property.is_parent_reference ~}}
+          {{~ for property in root.child_references ~}}
           activeElement.value = { name: '{{ to_words property.name }}', component: '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', property: '{{ camel_case property.name }}', obj: {{ camel_case root.name }}.value };
-          {{~ end
-        end ~}}
+          {{~ end ~}}
       }
     }
     loadFromLocalStorage();
@@ -95,15 +93,13 @@ app.component('{{ kebab_case class.name }}-data', {
     </td>
     {{~ end
         end ~}}
-    {{~ for property in class.properties
-      if property.class && !property.is_parent_reference ~}}
+    {{~ for property in class.child_references ~}}
     <td class="align-middle">
       <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', value)">
         <span class="bi bi-eye" aria-hidden="true"></span>
       </button>
     </td>
-    {{~ end
-      end ~}}
+    {{~ end ~}}
     <td class="align-middle text-end">
       <button type="button" class="btn btn-sm rounded-pill" @click="$emit('edit')">
         <span class="bi bi-pencil" aria-hidden="true"></span>
@@ -216,14 +212,12 @@ app.component('{{ kebab_case class.name }}-table', {
         </th>
         {{~ end
             end ~}}
-        {{~ for property in class.properties
-          if property.class && !property.is_parent_reference
+        {{~ for property in class.child_references
           ~}}
           <th scope="col">
           {{ to_words property.name }}
           </th>
-        {{~ end
-          end ~}}
+        {{~ end ~}}
         <th scope="col"></th>
       </tr>
     </thead>
@@ -313,13 +307,11 @@ app.component('{{ kebab_case class.name }}-list', {
       }
       newItem.value = null
     }
-    {{~ for property in class.properties
-      if property.class && !property.is_parent_reference ~}}
+    {{~ for property in class.child_references ~}}
       function show{{ property.name }}(item) {
         context.emit('update:modelValue', item.value.{{ camel_case property.name }});
       }
-    {{~ end
-      end ~}}
+    {{~ end ~}}
     function cancelAdd() {
         newItem.value = null;
     }

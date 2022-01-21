@@ -15,15 +15,12 @@ const watchEffect = Vue.watchEffect;
 end ~}}
 const  app = Vue.createApp({
   template: `
-  {{~ for property in root.properties
-  if property.class && !property.is_parent_reference
-  ~}}
+  {{~ for property in root.child_references ~}}
     <div class="d-flex mb-1">
       <h5>{{ to_words property.name }}:</h5>
     </div>
     <{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }} v-model="{{ camel_case root.name }}.{{ camel_case property.name }}"></{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}>
-{{~ end
-  end ~}}
+  {{~ end ~}}
   `,
   name: 'App',
   setup: function () {
@@ -159,8 +156,7 @@ app.component('{{ kebab_case class.name }}', {
         <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @canceled="editing = false" v-if="editing"></{{ kebab_case class.name }}-form>
         <{{ kebab_case class.name }}-data :value="modelValue" @edit="editing = true" :deletable="deletable" @delete="$emit('delete')" v-else></{{ kebab_case class.name }}-data>
       </div>
-      {{~ for property in class.properties
-        if property.class && !property.is_parent_reference  ~}}
+      {{~ for property in class.child_references ~}}
         <div class="card ms-5 mt-2">
           <div class="mt-3">
             <div class="d-flex mb-1">
@@ -173,8 +169,7 @@ app.component('{{ kebab_case class.name }}', {
             {{~ end ~}}
           </div>
         </div>
-      {{~ end
-      end ~}}
+      {{~ end ~}}
   </div>`,
   name: '{{ class.name }}',
   props: {
@@ -184,8 +179,7 @@ app.component('{{ kebab_case class.name }}', {
   emits: ['update:modelValue', 'delete'],
   setup(props, context) {
     const editing = ref(false);
-    {{~ for property in class.properties
-        if property.class && !property.is_parent_reference ~}}
+    {{~ for property in class.child_references ~}}
     function update{{ property.name }}(value) {
       let newObject = {
         ...props.modelValue,
@@ -193,19 +187,16 @@ app.component('{{ kebab_case class.name }}', {
       };
       context.emit('update:modelValue', newObject);
     }
-    {{~ end
-      end ~}}
+    {{~ end ~}}
 
     function update(newValue) {
       context.emit('update:modelValue', newValue);
       editing.value = false;
     }
     return {
-      {{~ for property in class.properties
-        if property.class && !property.is_parent_reference ~}}
+      {{~ for property in class.child_references ~}}
       update{{ property.name }},
-      {{~ end 
-      end ~}}
+      {{~ end ~}}
       editing,
       update
     };
