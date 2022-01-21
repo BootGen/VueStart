@@ -16,6 +16,9 @@ const  app = Vue.createApp({
   name: 'App',
   setup: function () {
     const {{ camel_case root.name }} = ref(null);
+    {{~ if input ~}}
+    {{ camel_case root.name }}.value = {{input}};
+    {{~ else ~}}
 
     function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
@@ -27,6 +30,7 @@ const  app = Vue.createApp({
     loadFromLocalStorage();
 
     window.addEventListener('storage', loadFromLocalStorage);
+    {{~ end ~}}
     return { {{ camel_case root.name }}  }
   },
 });

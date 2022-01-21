@@ -28,17 +28,9 @@ const  app = Vue.createApp({
     const {{ camel_case root.name }} = ref(null);
     const breadcrumbs = ref([]);
     const activeElement = ref(null);
-
-    function show(name, component, property, obj) {
-      if (activeElement.value)
-        breadcrumbs.value.push(activeElement.value);
-      activeElement.value = { name: name, component: component, property: property, obj: obj };
-    }
-
-    function sliceBreadcrumbs(idx){
-      activeElement.value = breadcrumbs.value[idx];
-      breadcrumbs.value = breadcrumbs.value.slice(0, idx);
-    }
+    {{~ if input ~}}
+    {{ camel_case root.name }}.value = {{input}};
+    {{~ else ~}}
     function saveToLocalStorage(newValue) {
         let minimized = JSON.stringify(newValue);
         let oldValue = localStorage.getItem('json');
@@ -63,6 +55,18 @@ const  app = Vue.createApp({
     });
 
     window.addEventListener('storage', loadFromLocalStorage);
+    {{~ end ~}}
+
+    function show(name, component, property, obj) {
+      if (activeElement.value)
+        breadcrumbs.value.push(activeElement.value);
+      activeElement.value = { name: name, component: component, property: property, obj: obj };
+    }
+
+    function sliceBreadcrumbs(idx){
+      activeElement.value = breadcrumbs.value[idx];
+      breadcrumbs.value = breadcrumbs.value.slice(0, idx);
+    }
     return { {{ camel_case root.name }}, show, breadcrumbs, sliceBreadcrumbs, activeElement }
   },
 });
