@@ -82,6 +82,9 @@ export default defineComponent({
               ".ͼc": {
                   color: "#8cd6b5"
               },
+              ".ͼb": {
+                color: "#66b6d0"
+              },
               ".cm-content": {
                 caretColor: "#42b983"
               },
