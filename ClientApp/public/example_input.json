@@ -16,7 +16,7 @@
 			],
 			"actor": {
 				"name": "Hayden Christensen",
-				"birthDate": "1981-04-19T12:00:00"
+				"birthDate": "1981-04-19T12:00"
 			}
 		},
 		{
@@ -31,7 +31,7 @@
 			],
 			"actor": {
 				"name": "Ewan McGregor",
-				"birthDate": "1971-03-31T12:00:00"
+				"birthDate": "1971-03-31T12:00"
 			}
 		}
 	]

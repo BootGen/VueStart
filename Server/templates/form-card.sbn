@@ -69,27 +69,31 @@ app.component('{{ kebab_case class.name }}-form', {
   {{~ for property in class.base_properties ~}}
   <li class="list-group-item text-start">
     <div class="col-12 d-flex justify-content-start form-floating">
-      {{~ if (get_type property) == "boolean" ~}}
+      {{~ if property.built_in_type == "Bool" ~}}
       <div class="form-check">
         <label class="form-check-label">
         <input class="form-check-input" type="checkbox" 
-        v-model="modelValue.{{ camel_case property.name }}">
+        :checked="modelValue.{{ camel_case property.name }}"
+        @change="update{{property.name}}">
         {{ to_words property.name }}
         </label>
       </div>
       {{~ else ~}}
       <input
-      {{~ if (get_type property) == "Date" ~}}
+      {{~ if property.built_in_type == "DateTime" ~}}
       type="datetime-local"
-      step="1"
-      {{~ else if (get_type property) == "number" ~}}
+      step="60"
+      {{~ else if property.built_in_type == "Int" ~}}
       type="number"
+      {{~ else if property.built_in_type == "Float" ~}}
+      type="number"
+      step="0.1"
       {{~ else ~}}
       type="text"
       {{~ end ~}}
       class="form-control"
-      v-model="modelValue.{{ camel_case property.name }}"
-      @input="$emit('update:modelValue', { ...modelValue, {{ camel_case property.name }}: $event.target.value })"
+      :value="modelValue.{{ camel_case property.name }}"
+      @input="update{{property.name}}"
       placeholder="{{ to_words property.name }}">
       <label>{{ to_words property.name }}</label>
     </div>
@@ -102,7 +106,28 @@ app.component('{{ kebab_case class.name }}-form', {
     modelValue: Object,
     deletable: Boolean
   },
-  emits: ['update:modelValue', 'delete']
+  emits: ['update:modelValue', 'delete'],
+  setup(props, context) {
+    {{~ for property in class.base_properties ~}}
+    function update{{property.name}}(event) {
+      {{~ if property.built_in_type == "Int" ~}}
+      const value = parseInt(event.target.value);
+      {{~ else if property.built_in_type == "Float" ~}}
+      const value = parseFloat(event.target.value);
+      {{~ else if property.built_in_type == "Bool" ~}}
+      const value = event.target.checked;
+      {{~ else ~}}
+      const value = event.target.value;
+      {{~ end ~}}
+      context.emit('update:modelValue', { ...props.modelValue, {{ camel_case property.name }}: value })
+    };
+    {{~ end ~}}
+    return {
+      {{~ for property in class.base_properties ~}}
+      update{{property.name}},
+      {{~ end ~}}
+    }
+  }
 });
 
 app.component('{{ kebab_case class.name }}', {

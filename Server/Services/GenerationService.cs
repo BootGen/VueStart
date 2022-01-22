@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.Json;
 using BootGen;
 using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace VueStart.Services
@@ -20,7 +21,9 @@ namespace VueStart.Services
             var dataModel = new DataModel {
               TypeToString = TypeScriptGenerator.ToTypeScriptType
             };
-            var jObject = JObject.Parse(json.ToString(), new JsonLoadSettings { CommentHandling = CommentHandling.Ignore, DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
+            var jObject = JsonConvert.DeserializeObject<JObject>(json.ToString(), new JsonSerializerSettings{
+                DateFormatString = "yyyy-MM-ddTHH:mm",
+            });
             dataModel.LoadRootObject("App", jObject);
             var collection = new ResourceCollection(dataModel);
             var seedStore = new SeedDataStore(collection);
@@ -45,7 +48,9 @@ namespace VueStart.Services
         }
 
         public JsonElement Fix(JsonElement json) {
-            var jObject = JObject.Parse(json.ToString(), new JsonLoadSettings { CommentHandling = CommentHandling.Ignore, DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
+            var jObject = JsonConvert.DeserializeObject<JObject>(json.ToString(), new JsonSerializerSettings{
+                DateFormatString = "yyyy-MM-ddTHH:mm",
+            });
             try {
                 var dataModel = new DataModel {
                 TypeToString = TypeScriptGenerator.ToTypeScriptType
