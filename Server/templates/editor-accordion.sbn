@@ -15,16 +15,16 @@ const watchEffect = Vue.watchEffect;
 end ~}}
 const  app = Vue.createApp({
   template: `
-  {{~ for property in root.properties
-  if property.class && !property.is_parent_reference
-  ~}}
+  {{~ for property in root.child_references ~}}
     <{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }} v-model="{{ camel_case root.name }}.{{ camel_case property.name }}"></{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}>
-{{~ end
-  end ~}}
+  {{~ end ~}}
   `,
   name: 'App',
   setup: function () {
     const {{ camel_case root.name }} = ref(null);
+    {{~ if input ~}}
+    {{ camel_case root.name }}.value = {{input}};
+    {{~ else ~}}
     function saveToLocalStorage(newValue) {
         let minimized = JSON.stringify(newValue);
         let oldValue = localStorage.getItem('json');
@@ -45,6 +45,7 @@ const  app = Vue.createApp({
     });
 
     window.addEventListener('storage', loadFromLocalStorage);
+    {{~ end ~}}
     return { {{ camel_case root.name }}  }
   },
 });
@@ -71,8 +72,7 @@ app.component('{{ kebab_case class.name }}-data', {
       <span class="bi bi-trash" aria-hidden="true"></span> Delete
     </button>
   </li>
-  {{~ for property in class.common_properties
-  if !property.is_key ~}}
+  {{~ for property in class.base_properties ~}}
   <li class="list-group-item text-start">
     <div class="row">
       <div class="col-4 d-flex justify-content-start text-break text-start">
@@ -87,8 +87,7 @@ app.component('{{ kebab_case class.name }}-data', {
       </div>
     </div>
   </li>
-  {{~ end
-      end ~}}
+  {{~ end ~}}
   `,
   name: '{{ class.name }}View',
   props: {
@@ -108,26 +107,40 @@ app.component('{{ kebab_case class.name }}-form', {
       <span class="bi bi-backspace" aria-hidden="true"></span> Cancel
     </button>
   </li>
-  {{~ for property in class.common_properties
-      if !property.is_key ~}}
+  {{~ for property in class.base_properties ~}}
   <li class="list-group-item text-start">
     <div class="col-12 d-flex justify-content-start form-floating">
-      <input 
-      {{~ if (get_type property) == "Date" ~}}
+      {{~ if property.built_in_type == "Bool" ~}}
+      <div class="form-check">
+        <label class="form-check-label">
+        <input class="form-check-input" type="checkbox" 
+        v-model="editedItem.{{ camel_case property.name }}">
+        {{ to_words property.name }}
+        </label>
+      </div>
+      {{~ else ~}}
+      <label>
+      <input
+      {{~ if property.built_in_type == "DateTime" ~}}
       type="datetime-local"
-      {{~ else if (get_type property) == "number" ~}}
+      step="60"
+      {{~ else if property.built_in_type == "Int" ~}}
       type="number"
+      {{~ else if property.built_in_type == "Float" ~}}
+      type="number"
+      step="0.1"
       {{~ else ~}}
       type="text"
-      {{~ end ~}} 
+      {{~ end ~}}
       class="form-control"
       v-model="editedItem.{{ camel_case property.name }}"
       placeholder="{{ to_words property.name }}">
-      <label for="floatingInput">{{ to_words property.name }}</label>
+      {{ to_words property.name }}
+      </label>
+      {{~ end ~}}
     </div>
   </li>
-  {{~ end
-      end ~}}
+  {{~ end ~}}
   `,
   name: '{{ class.name }}Form',
   props: {
@@ -155,8 +168,7 @@ app.component('{{ kebab_case class.name }}', {
         <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @canceled="editing = false" v-if="editing"></{{ kebab_case class.name }}-form>
         <{{ kebab_case class.name }}-data :value="modelValue" @edit="editing = true" :deletable="deletable" @delete="$emit('delete')" v-else></{{ kebab_case class.name }}-data>
       </div>
-      {{~ for property in class.properties
-        if property.class && !property.is_parent_reference ~}}
+      {{~ for property in class.child_references ~}}
         <div class="card ms-5 mt-2">
           <div class="mt-3">
             {{~ if property.is_collection ~}}
@@ -166,8 +178,7 @@ app.component('{{ kebab_case class.name }}', {
             {{~ end ~}}
           </div>
         </div>
-      {{~ end
-      end ~}}
+      {{~ end ~}}
   </div>`,
   name: '{{ class.name }}',
   props: {
@@ -177,8 +188,7 @@ app.component('{{ kebab_case class.name }}', {
   emits: ['update:modelValue', 'delete'],
   setup(props, context) {
     const editing = ref(false);
-    {{~ for property in class.properties
-        if property.class && !property.is_parent_reference ~}}
+    {{~ for property in class.child_references ~}}
     function update{{ property.name }}(value) {
       let newObject = {
         ...props.modelValue,
@@ -186,19 +196,16 @@ app.component('{{ kebab_case class.name }}', {
       };
       context.emit('update:modelValue', newObject);
     }
-    {{~ end
-      end ~}}
+    {{~ end ~}}
 
     function update(newValue) {
       context.emit('update:modelValue', newValue);
       editing.value = false;
     }
     return {
-      {{~ for property in class.properties
-        if property.class && !property.is_parent_reference ~}}
+      {{~ for property in class.child_references ~}}
       update{{ property.name }},
-      {{~ end 
-      end ~}}
+      {{~ end ~}}
       editing,
       update
     };
@@ -228,7 +235,7 @@ app.component('{{ kebab_case class.name }}-list', {
       </div>
       <div class="d-flex" v-if="newItem == null">
         <button type="button" class="btn btn-sm rounded-pill m-2" @click="addNewItem()">
-          <span class="bi bi-plus" aria-hidden="true"></span> Add {{ class.name }}
+          <span class="bi bi-plus" aria-hidden="true"></span> Add {{ to_words class.name }}
         </button>
       </div>
     </div>

@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.Json;
 using BootGen;
 using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace VueStart.Services
@@ -16,11 +17,13 @@ namespace VueStart.Services
         {
             this.memoryCache = memoryCache;
         }
-        public string Generate(JsonElement json, string title, string templateFileName, out string appjs, out string indexhtml) {
+        public string Generate(JsonElement json, string title, string templateFileName, bool forDownload, out string appjs, out string indexhtml) {
             var dataModel = new DataModel {
               TypeToString = TypeScriptGenerator.ToTypeScriptType
             };
-            var jObject = JObject.Parse(json.ToString(), new JsonLoadSettings { CommentHandling = CommentHandling.Ignore, DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
+            var jObject = JsonConvert.DeserializeObject<JObject>(json.ToString(), new JsonSerializerSettings{
+                DateFormatString = "yyyy-MM-ddTHH:mm",
+            });
             dataModel.LoadRootObject("App", jObject);
             var collection = new ResourceCollection(dataModel);
             var seedStore = new SeedDataStore(collection);
@@ -29,18 +32,25 @@ namespace VueStart.Services
             var id = Guid.NewGuid().ToString();
             var generator = new TypeScriptGenerator(null);
             generator.Templates = Load("templates");
-            appjs = generator.Render(templateFileName, new Dictionary<string, object> {
+            var jsParameters = new Dictionary<string, object> {
                 {"classes", dataModel.CommonClasses}
-            });
-            indexhtml = generator.Render("index.sbn", new Dictionary<string, object> {
-                {"base_url", $"/api/files/{id}/"},
+            };
+            if (forDownload)
+                jsParameters.Add("input", json.ToString());
+            appjs = generator.Render(templateFileName, jsParameters);
+            var indexParameters = new Dictionary<string, object> {
                 {"title", $"{title}"}
-            });
+            };
+            if (!forDownload)
+                indexParameters.Add("base_url", $"/api/files/{id}/");
+            indexhtml = generator.Render("index.sbn", indexParameters);
             return id;
         }
 
         public JsonElement Fix(JsonElement json) {
-            var jObject = JObject.Parse(json.ToString(), new JsonLoadSettings { CommentHandling = CommentHandling.Ignore, DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
+            var jObject = JsonConvert.DeserializeObject<JObject>(json.ToString(), new JsonSerializerSettings{
+                DateFormatString = "yyyy-MM-ddTHH:mm",
+            });
             try {
                 var dataModel = new DataModel {
                 TypeToString = TypeScriptGenerator.ToTypeScriptType
@@ -58,7 +68,7 @@ namespace VueStart.Services
         }
 
         public string GenerateToCache(JsonElement json, string title, string templateFileName) {
-            string id = Generate(json, title, templateFileName, out string appjs, out string indexhtml);
+            string id = Generate(json, title, templateFileName, false, out string appjs, out string indexhtml);
             memoryCache.Set($"{id}/app.js", Minify(appjs), TimeSpan.FromMinutes(3));
             memoryCache.Set($"{id}/index.html", Minify(indexhtml), TimeSpan.FromMinutes(3));
             return id;

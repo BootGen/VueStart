@@ -9,19 +9,19 @@ const watchEffect = Vue.watchEffect;
 end ~}}
 const  app = Vue.createApp({
   template: `
-  {{~ for property in root.properties
-  if property.class && !property.is_parent_reference
-  ~}}
+  {{~ for property in root.child_references ~}}
     <div class="d-flex mb-1">
       <h5>{{ to_words property.name }}:</h5>
     </div>
     <{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }} v-model="{{ camel_case root.name }}.{{ camel_case property.name }}"></{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}>
-{{~ end
-  end ~}}
+  {{~ end ~}}
   `,
   name: 'App',
   setup: function () {
     const {{ camel_case root.name }} = ref(null);
+    {{~ if input ~}}
+    {{ camel_case root.name }}.value = {{input}};
+    {{~ else ~}}
     function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
       if (json) {
@@ -30,6 +30,7 @@ const  app = Vue.createApp({
     }
     loadFromLocalStorage();
     window.addEventListener('storage', loadFromLocalStorage);
+    {{~ end ~}}
     return { {{ camel_case root.name }}  }
   },
 });
@@ -48,8 +49,7 @@ app.config.globalProperties.$filters = {
 ~}}
 app.component('{{ kebab_case class.name }}-data', {
   template: `
-  {{~ for property in class.common_properties
-  if !property.is_key ~}}
+  {{~ for property in class.base_properties ~}}
   <li class="list-group-item text-start">
     <div class="row">
       <div class="col-4 d-flex justify-content-start text-break text-start">
@@ -64,8 +64,7 @@ app.component('{{ kebab_case class.name }}-data', {
       </div>
     </div>
   </li>
-  {{~ end
-      end ~}}
+  {{~ end ~}}
   `,
   name: '{{ class.name }}View',
   props: {
@@ -79,8 +78,7 @@ app.component('{{ kebab_case class.name }}', {
       <div class="card shadow-sm">
         <{{ kebab_case class.name }}-data :value="modelValue"></{{ kebab_case class.name }}-data>
       </div>
-      {{~ for property in class.properties
-        if property.class && !property.is_parent_reference ~}}
+      {{~ for property in class.child_references ~}}
         <div class="card ms-5 mt-2">
           <div class="mt-3">
             <div class="d-flex mb-1">
@@ -93,8 +91,7 @@ app.component('{{ kebab_case class.name }}', {
             {{~ end ~}}
           </div>
         </div>
-      {{~ end
-      end ~}}
+      {{~ end ~}}
   </div>`,
   name: '{{ class.name }}',
   props: {

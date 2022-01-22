@@ -28,17 +28,9 @@ const  app = Vue.createApp({
     const {{ camel_case root.name }} = ref(null);
     const breadcrumbs = ref([]);
     const activeElement = ref(null);
-
-    function show(name, component, property, obj) {
-      if (activeElement.value)
-        breadcrumbs.value.push(activeElement.value);
-      activeElement.value = { name: name, component: component, property: property, obj: obj };
-    }
-
-    function sliceBreadcrumbs(idx){
-      activeElement.value = breadcrumbs.value[idx];
-      breadcrumbs.value = breadcrumbs.value.slice(0, idx);
-    }
+    {{~ if input ~}}
+    {{ camel_case root.name }}.value = {{input}};
+    {{~ else ~}}
     function saveToLocalStorage(newValue) {
         let minimized = JSON.stringify(newValue);
         let oldValue = localStorage.getItem('json');
@@ -51,11 +43,9 @@ const  app = Vue.createApp({
       if (json && json !== JSON.stringify({{ camel_case root.name }}.value)) {
           breadcrumbs.value = [];
           {{ camel_case root.name }}.value = JSON.parse(json);
-          {{~ for property in root.properties
-          if property.class && !property.is_parent_reference ~}}
+          {{~ for property in root.child_references ~}}
           activeElement.value = { name: '{{ to_words property.name }}', component: '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', property: '{{ camel_case property.name }}', obj: {{ camel_case root.name }}.value };
-          {{~ end
-        end ~}}
+          {{~ end ~}}
       }
     }
     loadFromLocalStorage();
@@ -65,6 +55,18 @@ const  app = Vue.createApp({
     });
 
     window.addEventListener('storage', loadFromLocalStorage);
+    {{~ end ~}}
+
+    function show(name, component, property, obj) {
+      if (activeElement.value)
+        breadcrumbs.value.push(activeElement.value);
+      activeElement.value = { name: name, component: component, property: property, obj: obj };
+    }
+
+    function sliceBreadcrumbs(idx){
+      activeElement.value = breadcrumbs.value[idx];
+      breadcrumbs.value = breadcrumbs.value.slice(0, idx);
+    }
     return { {{ camel_case root.name }}, show, breadcrumbs, sliceBreadcrumbs, activeElement }
   },
 });
@@ -84,8 +86,7 @@ app.config.globalProperties.$filters = {
       end ~}}
 app.component('{{ kebab_case class.name }}-data', {
   template: `
-    {{~ for property in class.common_properties
-      if !property.is_key ~}}
+    {{~ for property in class.base_properties ~}}
     <td class="align-middle">
     {{~ if (get_type property) == "Date" ~}}
       {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
@@ -93,17 +94,14 @@ app.component('{{ kebab_case class.name }}-data', {
       {{'{{'}} value.{{ camel_case property.name }} {{'}}'}}
     {{~ end ~}}
     </td>
-    {{~ end
-        end ~}}
-    {{~ for property in class.properties
-      if property.class && !property.is_parent_reference ~}}
+    {{~ end ~}}
+    {{~ for property in class.child_references ~}}
     <td class="align-middle">
       <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', value)">
         <span class="bi bi-eye" aria-hidden="true"></span>
       </button>
     </td>
-    {{~ end
-      end ~}}
+    {{~ end ~}}
     <td class="align-middle text-end">
       <button type="button" class="btn btn-sm rounded-pill" @click="$emit('edit')">
         <span class="bi bi-pencil" aria-hidden="true"></span>
@@ -123,25 +121,34 @@ app.component('{{ kebab_case class.name }}-data', {
 
 app.component('{{ kebab_case class.name }}-form', {
   template: `
-  {{~ for property in class.common_properties
-  if !property.is_key ~}}
+  {{~ for property in class.base_properties ~}}
     <td class="align-middle">
       <div class="col-12 d-flex justify-content-start">
-        <input 
-        {{~ if (get_type property) == "Date" ~}}
+        {{~ if property.built_in_type == "Bool" ~}}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" 
+          v-model="editedItem.{{ camel_case property.name }}">
+        </div>
+        {{~ else ~}}
+        <input
+        {{~ if property.built_in_type == "DateTime" ~}}
         type="datetime-local"
-        {{~ else if (get_type property) == "number" ~}}
+        step="60"
+        {{~ else if property.built_in_type == "Int" ~}}
         type="number"
+        {{~ else if property.built_in_type == "Float" ~}}
+        type="number"
+        step="0.1"
         {{~ else ~}}
         type="text"
-        {{~ end ~}} 
+        {{~ end ~}}
         class="form-control"
         v-model="editedItem.{{ camel_case property.name }}"
         placeholder="{{ to_words property.name }}">
+        {{~ end ~}}
       </div>
     </td>
-    {{~ end
-        end ~}}
+    {{~ end ~}}
     {{~ for property in class.child_references ~}}
     <td class="align-middle">
       <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', modelValue)">
@@ -209,21 +216,17 @@ app.component('{{ kebab_case class.name }}-table', {
   <table class="table text-start">
     <thead>
       <tr class="table-light">
-        {{~ for property in class.common_properties
-        if !property.is_key ~}}
+        {{~ for property in class.base_properties ~}}
         <th scope="col">
           {{ to_words property.name }}
         </th>
-        {{~ end
-            end ~}}
-        {{~ for property in class.properties
-          if property.class && !property.is_parent_reference
+        {{~ end ~}}
+        {{~ for property in class.child_references
           ~}}
           <th scope="col">
           {{ to_words property.name }}
           </th>
-        {{~ end
-          end ~}}
+        {{~ end ~}}
         <th scope="col"></th>
       </tr>
     </thead>
@@ -313,13 +316,11 @@ app.component('{{ kebab_case class.name }}-list', {
       }
       newItem.value = null
     }
-    {{~ for property in class.properties
-      if property.class && !property.is_parent_reference ~}}
+    {{~ for property in class.child_references ~}}
       function show{{ property.name }}(item) {
         context.emit('update:modelValue', item.value.{{ camel_case property.name }});
       }
-    {{~ end
-      end ~}}
+    {{~ end ~}}
     function cancelAdd() {
         newItem.value = null;
     }
