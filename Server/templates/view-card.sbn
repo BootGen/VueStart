@@ -55,12 +55,11 @@ app.component('{{ kebab_case class.name }}-data', {
       <div class="col-4 d-flex justify-content-start text-break text-start">
         {{ to_words property.name }}:
       </div>
-      <div class="col-8 d-flex justify-content-start text-break">
-      {{~ if (get_type property) == "Date" ~}}
+      <div class="col-8 d-flex justify-content-start text-break" v-if="checkDate(value.{{ camel_case property.name }})">
         {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
-      {{~ else ~}}
+      </div>
+      <div class="col-8 d-flex justify-content-start text-break" v-else>
         {{'{{'}} value.{{ camel_case property.name }} {{'}}'}}
-      {{~ end ~}}
       </div>
     </div>
   </li>
@@ -69,7 +68,15 @@ app.component('{{ kebab_case class.name }}-data', {
   name: '{{ class.name }}View',
   props: {
     value: Object
-  }
+  },
+  setup(props, context) {
+    function checkDate(str) {
+      const regexExp = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})$/gi;
+      return regexExp.test(str);
+    }
+
+    return { checkDate }
+  },
 });
 
 app.component('{{ kebab_case class.name }}', {

@@ -71,12 +71,11 @@ app.config.globalProperties.$filters = {
 app.component('{{ kebab_case class.name }}-data', {
   template: `
     {{~ for property in class.base_properties ~}}
-    <td class="align-middle">
-    {{~ if (get_type property) == "Date" ~}}
+    <td class="align-middle" v-if="checkDate(value.{{ camel_case property.name }})">
       {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
-    {{~ else ~}}
+    </td>
+    <td class="align-middle" v-else>
       {{'{{'}} value.{{ camel_case property.name }} {{'}}'}}
-    {{~ end ~}}
     </td>
     {{~ end ~}}
     {{~ for property in class.child_references ~}}
@@ -91,7 +90,15 @@ app.component('{{ kebab_case class.name }}-data', {
   props: {
     value: Object
   },
-  emits: ['show']
+  emits: ['show'],
+  setup(props, context) {
+    function checkDate(str) {
+      const regexExp = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})$/gi;
+      return regexExp.test(str);
+    }
+
+    return { checkDate }
+  },
 });
 
 app.component('{{ kebab_case class.name }}-row', {

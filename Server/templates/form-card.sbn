@@ -80,16 +80,13 @@ app.component('{{ kebab_case class.name }}-form', {
       </div>
       {{~ else ~}}
       <input
-      {{~ if property.built_in_type == "DateTime" ~}}
-      type="datetime-local"
-      step="60"
-      {{~ else if property.built_in_type == "Int" ~}}
+      {{~ if property.built_in_type == "Int" ~}}
       type="number"
       {{~ else if property.built_in_type == "Float" ~}}
       type="number"
       step="0.1"
       {{~ else ~}}
-      type="text"
+      :type="checkDate(modelValue.{{ camel_case property.name }}) ? 'datetime-local' : 'text'"
       {{~ end ~}}
       class="form-control"
       :value="modelValue.{{ camel_case property.name }}"
@@ -108,6 +105,11 @@ app.component('{{ kebab_case class.name }}-form', {
   },
   emits: ['update:modelValue', 'delete'],
   setup(props, context) {
+    
+    function checkDate(str) {
+      const regexExp = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})$/gi;
+      return regexExp.test(str);
+    }
     {{~ for property in class.base_properties ~}}
     function update{{property.name}}(event) {
       {{~ if property.built_in_type == "Int" ~}}
@@ -126,6 +128,7 @@ app.component('{{ kebab_case class.name }}-form', {
       {{~ for property in class.base_properties ~}}
       update{{property.name}},
       {{~ end ~}}
+      checkDate
     }
   }
 });

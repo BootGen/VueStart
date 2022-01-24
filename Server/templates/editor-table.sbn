@@ -87,12 +87,11 @@ app.config.globalProperties.$filters = {
 app.component('{{ kebab_case class.name }}-data', {
   template: `
     {{~ for property in class.base_properties ~}}
-    <td class="align-middle">
-    {{~ if (get_type property) == "Date" ~}}
+    <td class="align-middle" v-if="checkDate(value.{{ camel_case property.name }})">
       {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
-    {{~ else ~}}
+    </td>
+    <td class="align-middle" v-else>
       {{'{{'}} value.{{ camel_case property.name }} {{'}}'}}
-    {{~ end ~}}
     </td>
     {{~ end ~}}
     {{~ for property in class.child_references ~}}
@@ -116,7 +115,15 @@ app.component('{{ kebab_case class.name }}-data', {
     value: Object,
     deletable: Boolean
   },
-  emits: ['edit',  'delete', 'show']
+  emits: ['edit',  'delete', 'show'],
+  setup(props, context) {
+    function checkDate(str) {
+      const regexExp = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})$/gi;
+      return regexExp.test(str);
+    }
+
+    return { checkDate }
+  },
 });
 
 app.component('{{ kebab_case class.name }}-form', {
@@ -131,16 +138,13 @@ app.component('{{ kebab_case class.name }}-form', {
         </div>
         {{~ else ~}}
         <input
-        {{~ if property.built_in_type == "DateTime" ~}}
-        type="datetime-local"
-        step="60"
-        {{~ else if property.built_in_type == "Int" ~}}
+        {{~ if property.built_in_type == "Int" ~}}
         type="number"
         {{~ else if property.built_in_type == "Float" ~}}
         type="number"
         step="0.1"
         {{~ else ~}}
-        type="text"
+        :type="checkDate(editedItem.{{ camel_case property.name }}) ? 'datetime-local' : 'text'"
         {{~ end ~}}
         class="form-control"
         v-model="editedItem.{{ camel_case property.name }}"
@@ -172,6 +176,11 @@ app.component('{{ kebab_case class.name }}-form', {
   emits: ['update:modelValue', 'canceled'],
   setup(props, context) {
     const editedItem = { ...props.modelValue };
+
+    function checkDate(str) {
+      const regexExp = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})$/gi;
+      return regexExp.test(str);
+    }
     function save() {
       context.emit('update:modelValue', editedItem);
     }
@@ -179,7 +188,7 @@ app.component('{{ kebab_case class.name }}-form', {
       context.emit('canceled');
     }
 
-    return { editedItem, save, cancel }
+    return { editedItem, save, cancel, checkDate }
   },
 });
 
