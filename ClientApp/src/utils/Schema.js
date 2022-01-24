@@ -72,11 +72,17 @@ function getType(val) {
     return 'object';
   }
   
-  if (typeof val == 'number') {
+  if (typeof val === 'number') {
     if (Number.isInteger(val)) {
       return 'integer';
     }
     return 'float';
+  }
+
+  if (typeof val === 'string') {
+    const regexExp = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})$/gi;
+    if (regexExp.test(val))
+      return 'datetime'
   }
   
   return typeof val;
