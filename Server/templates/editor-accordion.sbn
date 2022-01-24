@@ -229,12 +229,12 @@ app.component('{{ kebab_case class.name }}-list', {
               <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem($event)" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
             </div>
           </div>
+          <div class="d-flex" v-if="newItem == null">
+            <button type="button" class="btn btn-sm rounded-pill" @click="addNewItem()">
+              <span class="bi bi-plus" aria-hidden="true"></span> Add {{ to_words class.name }}
+            </button>
+          </div>
         </div>
-      </div>
-      <div class="d-flex" v-if="newItem == null">
-        <button type="button" class="btn btn-sm rounded-pill m-2" @click="addNewItem()">
-          <span class="bi bi-plus" aria-hidden="true"></span> Add {{ to_words class.name }}
-        </button>
       </div>
     </div>
   </div>`,
