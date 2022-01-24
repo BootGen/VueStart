@@ -84,6 +84,7 @@ import Tab from "@/components/Tab";
 import axios from "axios";
 import {getSchema} from "@/utils/Schema";
 import {debounce} from "@/utils/Helper";
+import { validateJson } from '@/utils/Validate';
 
 export default defineComponent({
   components: { CodeMirror, BrowserFrame, Tab },
@@ -180,6 +181,8 @@ export default defineComponent({
       let debouncedGenerate = debounce(generateAndEmit, 1000);
       watchEffect(() => {
         try {
+          if (validateJson(json.value).error)
+            return;
           const newSchema = getSchema(JSON.parse(json.value));
           if(JSON.stringify(newSchema) !== JSON.stringify(jsonSchema.value)) {
             jsonSchema.value = newSchema;
