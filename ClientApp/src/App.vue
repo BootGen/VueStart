@@ -14,9 +14,9 @@
         <div class="d-flex align-items-center jumbo-text" :class="{ 'landing': !showContent, 'content' : showContent }">
           <div class="d-flex flex-column align-items-center">
             <p class="lead text-justify">
-              Speed up frontend development, with this open source Vue.js component generator.
-              Generate forms, tables and data editors based on any JSON data, using well established
-              best practices, for Vue.js 3 and Bootstrap 5.
+              This is an on-line productivity tool for Vue 3. It helps you to kickstart new projects,
+              prescribing best practices, by creating custom components for forms, tables and data editors
+              based on the JSON data you provide.
             </p>
             <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="changeView">Start!</button>
           </div>
