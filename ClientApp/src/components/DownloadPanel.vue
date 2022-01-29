@@ -7,15 +7,18 @@
     <div class="d-flex pt-1 flex-wrap btn-container">
       <div class="d-flex flex-column align-items-center p-2 px-4">
         <img class="logo img-fluid" alt="vue" src="../assets/html_css_js_logo.webp">
-        <button class="btn fill-btn rounded-pill m-1 btn" @click="$emit('download')">HTML / CSS / JS</button>
+        <button class="btn fill-btn rounded-pill m-1 btn" @click="$emit('download')">Tradition Webpage</button>
+        <p>With Vue 3 from CDN</p>
       </div>
       <div class="d-flex flex-column align-items-center p-2 px-4">
         <img class="logo img-fluid" alt="vue" src="../assets/vue_coming_soon.webp">
-        <button class="btn fill-btn rounded-pill m-1 btn" disabled>Vue SPA project</button>
+        <button class="btn fill-btn rounded-pill m-1 btn" disabled>NPM project</button>
+        <p>With standard Vue tooling</p>
       </div>
       <div class="d-flex flex-column align-items-center p-2 px-4">
         <img class="logo img-fluid" alt="vue" src="../assets/nuxt_coming_soon.webp">
-        <button class="btn fill-btn rounded-pill m-1 btn" disabled>Nuxt SPA project</button>
+        <button class="btn fill-btn rounded-pill m-1 btn" disabled>Nuxt project</button>
+        <p>The Intuitive Vue Framework</p>
       </div>
     </div>
   </div>
@@ -46,6 +49,9 @@ export default defineComponent({
   font-size: 1.5rem;
   color: #42b983!important;
   padding: 0;
+}
+p {
+  font-style: italic;
 }
 @media (max-width: 768px) {
   .btn-container {

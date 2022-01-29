@@ -5,7 +5,7 @@
   Vue Start
 </h1>
 <p align="center">
-  On-Line Productivity Tool for Vue 3
+  Online Productivity Tool for Vue 3
 </p>
 <p align="center">
   <a style="text-decoration:none" href="https://github.com/BootGen/VueStart/actions" target="_blank">
@@ -21,7 +21,7 @@
 
 ## Introduction
 
-Vue Start is an on-line productivity tool for Vue 3. It helps you to kickstart new projects, prescribing best practices, by creating custom components for forms, tables and data editors based on the JSON data you provide. Try it online at [vuestart.com](https://vuestart.com)!
+Vue Start is an online productivity tool for Vue 3. It helps you to kickstart new projects, prescribing best practices, by creating custom components for forms, tables and data editors based on the JSON data you provide. Try it online at [vuestart.com](https://vuestart.com)!
 
 
 ### What is Vue Start good for?

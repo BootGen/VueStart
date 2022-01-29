@@ -14,7 +14,7 @@
         <div class="d-flex align-items-center jumbo-text" :class="{ 'landing': !showContent, 'content' : showContent }">
           <div class="d-flex flex-column align-items-center">
             <p class="lead text-justify">
-              This is an on-line productivity tool for Vue 3. It helps you to kickstart new projects,
+              This is an online productivity tool for Vue 3. It helps you to kickstart new projects,
               prescribing best practices, by creating custom components for forms, tables and data editors
               based on the JSON data you provide.
             </p>
