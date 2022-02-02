@@ -1,33 +1,33 @@
 <template>
   <div class="col-12">
-    <tip :modified="modified" :generated="generated" :typeChanged="typeChanged" :downloaded="downloaded" @success="setSuccessVuecoon" v-if="showContent" ></tip>
+    <tip :modified="modified" :generated="generated" :typeChanged="typeChanged" :downloaded="downloaded" @success="setSuccessVuecoon" v-if="page === 'content'" ></tip>
     <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
-    <div class="d-flex justify-content-center align-items-center jumbotron" :class="{ 'landing': !showContent, 'content' : showContent }">
-      <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)" :class="{ 'landing': !showContent, 'content' : showContent, }">
-      <div class="jumbo-text-full" :class="{ 'landing': !showContent, 'content' : showContent }">
+    <div class="d-flex justify-content-center align-items-center jumbotron" :class="page">
+      <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)" :class="page">
+      <div class="jumbo-text-full" :class="page">
         <div class="d-flex align-items-center justify-content-center">
           <img class="vue_logo" alt="vue" :src="require(`./assets/vue_logo.webp`)">
           <p class="title">ue Start!</p>
         </div>
-        <div class="d-flex align-items-center jumbo-text" :class="{ 'landing': !showContent, 'content' : showContent }">
+        <div class="d-flex align-items-center jumbo-text" :class="page">
           <div class="d-flex flex-column align-items-center">
             <p class="lead text-justify">
               This is an online productivity tool for Vue 3. It helps you to kickstart new projects,
               prescribing best practices, by creating custom components for forms, tables and data editors
               based on the JSON data you provide.
             </p>
-            <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="changeView">Start!</button>
+            <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showEditor">Start!</button>
           </div>
         </div>
-        <div class="d-flex slogen-text" :class="{ 'landing': !showContent, 'content' : showContent }">
+        <div class="d-flex slogen-text" :class="page">
           <p class="text-center">
           Generate forms, tables and data editors!
           </p>
         </div>
       </div>
-      <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github" :class="{ 'landing': !showContent, 'content' : showContent }">
+      <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github" :class="page">
         <div class="d-flex align-items-center px-2">
           <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
           <span class="bi bi-star-fill star-icon px-2" aria-hidden="true"></span>
@@ -35,8 +35,8 @@
         <p class="small-text">Star this project on GitHub!</p>
       </div>
     </div>  
-    <editor :config="config" :showContent="showContent" @download="onDownloadClicked" @modified="modified = true" @generated="generated = true" @typeChanged="typeChanged = true" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
-    <div class="col-12 d-flex align-items-center footer" :class="{ 'landing': !showContent, 'content' : showContent, }">
+    <editor :config="config" :page="page" @download="onDownloadClicked" @modified="modified = true" @generated="generated = true" @typeChanged="typeChanged = true" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
+    <div class="col-12 d-flex align-items-center footer" :class="page">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
     </div>
   </div>
@@ -103,21 +103,17 @@ export default defineComponent({
     }
 
     function setShowContentForUrl(){
-      showContent.value = window.location.pathname === '/editor';
+      page.value = window.location.pathname === '/editor' ? 'content' : 'landing';
     }
     window.addEventListener('popstate', setShowContentForUrl);
     window.addEventListener('load', setShowContentForUrl);
-    const showContent = ref(false);
+    const page = ref('landing');
     function openGithub (){
       window.open("https://github.com/BootGen/VueStart");
     }
-    function changeView(){
-      showContent.value = !showContent.value;
-      if(showContent.value) {
-        history.pushState({}, '', 'editor');
-      } else {
-        history.back();
-      }
+    function showEditor(){
+      page.value = 'content';
+      history.pushState({}, '', 'editor');
     }
 
     async function download() {
@@ -143,7 +139,7 @@ export default defineComponent({
       vuecoonState.value = state;
     }
 
-    return { showContent, showDownloadPanel, openGithub, changeView, vuecoonState,
+    return { page, showDownloadPanel, openGithub, changeView, vuecoonState,
       config, download, onDownloadClicked, modified, generated, typeChanged,
       downloaded, hasError, setSuccessVuecoon, setVuecoon }
   }

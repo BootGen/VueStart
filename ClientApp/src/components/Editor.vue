@@ -1,8 +1,8 @@
 <template>
-    <div class="codemirror custom-card" :class="{ 'landing': !showContent, 'content' : showContent, }">
+    <div class="codemirror custom-card" :class="page">
       <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData" @hasSyntaxError="$emit('hasError', $event)"></code-mirror>
     </div>
-    <div class="browser-container" :class="{ 'landing': !showContent, 'content' : showContent, }">
+    <div class="browser-container" :class="page">
       <div class="browser custom-card shadow">
         <browser-frame v-model="appUrl" :borderRadius="generateType === generateTypes.Editor" @refresh="pageRefresh">
           <div class="d-flex w-100 h-auto">
@@ -93,7 +93,7 @@ import { validateJson } from '@/utils/Validate';
 export default defineComponent({
   components: { CodeMirror, BrowserFrame, Tab },
   props: {
-    showContent: Boolean,
+    page: String,
     config: Object
   },
   emits: ['download', 'modified', 'generated', 'typeChanged', 'hasError', 'setVuecoon'],
