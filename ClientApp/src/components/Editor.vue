@@ -71,7 +71,7 @@
           </ul>
         </div>
         <div id="color-picker-btn" class="fab fab-icon-holder mx-2" @click="triggerColorPicker">
-          <input type="color" class="form-control form-control-color position-absolute" id="colorInput" :value="selectedColor" title="Choose your color">
+          <input type="color" class="form-control form-control-color position-absolute" id="colorInput" v-model="selectedColor" title="Choose your color">
           <span class="bi bi-palette" aria-hidden="true"></span>
         </div>
         <div id="download-btn" class="fab fab-icon-holder pulse-download-btn" @click="onDownloadClicked">
@@ -115,7 +115,8 @@ export default defineComponent({
       Table: 'table'
     }
     const layoutMode = ref(layoutModes.Card);
-    const selectedColor = ref("#42b983");
+    const tempColor = ref('42b983');
+    const selectedColor = ref('#42b983');
 
     window.addEventListener('storage', () => {
       json.value = localStorage.getItem('json');
@@ -137,7 +138,7 @@ export default defineComponent({
     }
     async function generate(data) {
       try {
-        const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}`, JSON.parse(data), props.config);
+        const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}/${tempColor.value}`, JSON.parse(data), props.config);
         saveToLocalStorage(data);
         appUrl.value = `api/files/${resp.data.id}/index.html`;
         inputError.value = null;
@@ -186,6 +187,11 @@ export default defineComponent({
       }
       let debouncedGenerate = debounce(generateAndEmit, 1000);
       watchEffect(() => {
+        if('#' + tempColor.value !== selectedColor.value){
+          tempColor.value = selectedColor.value.slice(1, 7);
+          document.getElementById('color-picker-btn').style.backgroundColor = selectedColor.value;
+          debouncedGenerate(json.value);
+        }
         try {
           if (validateJson(json.value).error)
             return;
@@ -207,7 +213,7 @@ export default defineComponent({
       })
     });
     function onDownloadClicked() {
-      context.emit('download', `api/download/${generateType.value}/${layoutMode.value}`, `${generateType.value}.zip`)
+      context.emit('download', `api/download/${generateType.value}/${layoutMode.value}/${tempColor.value}`, `${generateType.value}.zip`)
     }
     function triggerColorPicker() {
       document.getElementById("colorInput").click();
