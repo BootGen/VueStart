@@ -36,8 +36,11 @@
       </div>
     </div>  
     <editor :config="config" :page="page" @download="onDownloadClicked" @modified="modified = true" @generated="generated = true" @typeChanged="typeChanged = true" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
+    <transition name="fade">
+      <supporters v-if="page === 'supporters'"></supporters>
+    </transition>
     <div class="col-12 d-flex align-items-center footer" :class="page">
-      <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp Kft.</a></p>
+      <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a></p>
     </div>
   </div>
 </template>
@@ -46,13 +49,14 @@
 import { defineComponent, ref } from 'vue';
 import DownloadPanel from './components/DownloadPanel.vue'
 import Editor from './components/Editor.vue'
+import Supporters from './components/Supporters.vue'
 import Tip from './components/Tip.vue';
 import axios from "axios";
 import {debounce} from "@/utils/Helper";
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { DownloadPanel, Editor, Tip },
+  components: { DownloadPanel, Editor, Tip, Supporters },
   setup() {
     const showDownloadPanel = ref(false);
     const modified = ref(false);
@@ -103,13 +107,18 @@ export default defineComponent({
     }
 
     function setShowContentForUrl(){
-      page.value = window.location.pathname === '/editor' ? 'content' : 'landing';
+      if (window.location.pathname === '/supporters')
+        page.value = 'supporters';
+      else
+        page.value = window.location.pathname === '/editor' ? 'content' : 'landing';
     }
     window.addEventListener('popstate', setShowContentForUrl);
     window.addEventListener('load', setShowContentForUrl);
     const page = ref('landing');
     function openGithub (){
-      window.open("https://github.com/BootGen/VueStart");
+      page.value = 'supporters';
+      history.pushState({}, '', 'supporters');
+      //window.open("https://github.com/BootGen/VueStart");
     }
     function showEditor(){
       page.value = 'content';
@@ -211,7 +220,7 @@ body {
     max-width: 300px;
     margin: 1%;
   }
-  .vuecoon.content {
+  .vuecoon.content, .vuecoon.supporters {
     max-width: min(15vh, 25vw);
   }
   .jumbotron {
@@ -224,14 +233,14 @@ body {
     transition-delay: 300ms;
     border-bottom-left-radius: 0;
   }
-  .jumbotron.content {
+  .jumbotron.content, .jumbotron.supporters {
     height: 15vh;
   }
   .jumbo-text{
     transition: all 1s ease-in-out;
     overflow: hidden;
   }
-  .jumbo-text.content{
+  .jumbo-text.content, .jumbo-text.supporters{
     opacity: 0;
     height: 0rem;
   }
@@ -243,7 +252,7 @@ body {
     transition: all 1s ease-in-out;
     overflow: hidden;
   }
-  .jumbo-text-full.content{
+  .jumbo-text-full.content, .jumbo-text-full.supporters{
     max-width: 50%;
     justify-content: center;
     display: flex;
@@ -257,7 +266,7 @@ body {
     transition: all 1s ease-in-out;
     overflow: hidden;
   }
-  .slogen-text.content{
+  .slogen-text.content, .slogen-text.supporters{
     opacity: 1;
     height: 100%;
     visibility: visible;
@@ -279,7 +288,7 @@ body {
     overflow: hidden;
     cursor: pointer;
   }
-  .github.content{
+  .github.content, .github.supporters{
     opacity: 1;
     height: 100%;
     width: auto;
@@ -325,7 +334,7 @@ body {
   a:hover {
     color: #17a062;
   }
-  .footer.content{
+  .footer.content, .footer.supporters{
     opacity: 1;
     height: 2.5rem;
     transition-delay: 500ms;
@@ -348,7 +357,7 @@ body {
       overflow: unset;
     }
 
-    .footer.content{
+    .footer.content, .footer.supporters{
       transition-delay: 700ms;
     }
 
@@ -356,7 +365,7 @@ body {
       font-size: 0.8rem;
       bottom: unset;
     }
-    .footer.content{
+    .footer.content, .footer.supporters{
       height: 2rem;
       top: calc(170vh + 1.5rem);
       padding-top: 5px;
@@ -380,7 +389,7 @@ body {
       height: unset;
       overflow: unset;
     }
-    .jumbotron.content {
+    .jumbotron.content, .jumbotron.supporters {
       height: min(15vh, 25vw);
     }
     .jumbo-text.landing{
@@ -390,7 +399,7 @@ body {
       width: 100vw;
       text-align: center;
     }
-    .jumbo-text-full.content{
+    .jumbo-text-full.content, .jumbo-text-full.supporters{
       margin: unset;
       max-width: 100%;
       text-align: center;
@@ -401,7 +410,7 @@ body {
     .text-justify{
       font-size: 1rem;
     }
-    .jumbo-text-full.content {
+    .jumbo-text-full.content, .jumbo-text-full.supporters {
       max-width: 50%;
     }
     .github-icon {
@@ -425,7 +434,7 @@ body {
       display: none!important;
     }
 
-    .footer.content{
+    .footer.content, .footer.supporters{
       top: calc(170vh + 1.5rem);
     }
   }
@@ -451,4 +460,10 @@ body {
     }
   }
 
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
 </style>

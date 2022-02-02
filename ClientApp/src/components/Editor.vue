@@ -345,7 +345,7 @@ input#colorInput {
   top: 14vh;
   visibility: visible;
 }
-.codemirror.landing{
+.codemirror.landing, .codemirror.supporters{
   opacity: 0;
   height: 0vh;
   top: 98vh;
@@ -361,7 +361,7 @@ input#colorInput {
   width: 100%;
   height: 80vh;
 }
-.browser.landing{
+.browser.landing, .browser.supporters{
   height: 0vh;
   top: 98vh;
   visibility: hidden;
@@ -386,7 +386,7 @@ input#colorInput {
   top: 12vh;
   visibility: visible;
 }
-.browser-container.landing{
+.browser-container.landing, .browser-container.supporters{
   opacity: 0;
   height: 0vh;
   top: 98vh;
