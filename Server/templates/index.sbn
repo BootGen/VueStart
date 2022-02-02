@@ -29,26 +29,26 @@
       }
       .btn {
         color: #ffffff;
-        background-color: #42b983!important;
+        background-color: #{{ color }}!important;
         padding: 0.25rem 1rem;
       }
       .btn:hover {
         color: #ffffff;
-        background-color: #17a062!important;
+        opacity: 0.8
       }
       h5 {
-        color: #42b983;
+        color: #{{ color }};
       }
       .disabled{
         color: #777!important;
       }
       .clickable:hover {
-        color: #17a062;
+        opacity: 0.8
         cursor: pointer;
       }
       .form-check-input:checked {
-        background-color: #42b983;
-        border-color: #42b983;
+        background-color: #{{ color }};
+        border-color: #{{ color }};
       }
       </style>
   </head>

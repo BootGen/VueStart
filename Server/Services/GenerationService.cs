@@ -17,7 +17,7 @@ namespace VueStart.Services
         {
             this.memoryCache = memoryCache;
         }
-        public string Generate(JsonElement json, string title, string templateFileName, bool forDownload, out string appjs, out string indexhtml) {
+        public string Generate(JsonElement json, string title, string templateFileName, string color, bool forDownload, out string appjs, out string indexhtml) {
             var dataModel = new DataModel {
               TypeToString = TypeScriptGenerator.ToTypeScriptType
             };
@@ -43,6 +43,7 @@ namespace VueStart.Services
             };
             if (!forDownload)
                 indexParameters.Add("base_url", $"/api/files/{id}/");
+                indexParameters.Add("color", color);
             indexhtml = generator.Render("index.sbn", indexParameters);
             return id;
         }
@@ -67,8 +68,8 @@ namespace VueStart.Services
             return json;
         }
 
-        public string GenerateToCache(JsonElement json, string title, string templateFileName) {
-            string id = Generate(json, title, templateFileName, false, out string appjs, out string indexhtml);
+        public string GenerateToCache(JsonElement json, string title, string templateFileName, string color) {
+            string id = Generate(json, title, templateFileName, color, false, out string appjs, out string indexhtml);
             memoryCache.Set($"{id}/app.js", Minify(appjs), TimeSpan.FromMinutes(3));
             memoryCache.Set($"{id}/index.html", Minify(indexhtml), TimeSpan.FromMinutes(3));
             return id;

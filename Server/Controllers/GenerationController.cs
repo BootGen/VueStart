@@ -25,9 +25,10 @@ namespace VueStart.Controllers
         }
 
         [HttpPost]
-        [Route("{type}/{layout}")]
-        public IActionResult Generates([FromBody] JsonElement json, string type, string layout)
+        [Route("{type}/{layout}/{color}")]
+        public IActionResult Generates([FromBody] JsonElement json, string type, string layout, string color)
         {
+            Console.WriteLine(color);
             if (json.ValueKind != JsonValueKind.Object) {
                 return BadRequest(new { error = "The root element must be an object!", fixable = false });
             }
@@ -36,7 +37,7 @@ namespace VueStart.Controllers
                 if (artifactType == ArtifactType.None)
                     return NotFound();
                 statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Generate, artifactType);
-                string artifactId = generationService.GenerateToCache(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn");
+                string artifactId = generationService.GenerateToCache(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn", color);
                 statisticsService.OnGenerateEnd();
                 return Ok(new { Id = artifactId });
             } catch (FormatException e) {
