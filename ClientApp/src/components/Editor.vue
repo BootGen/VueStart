@@ -14,7 +14,7 @@
         </browser-frame>
       </div>
       <div class="d-flex browser-buttons">
-        <div class="fab-container">
+        <div class="fab-container mx-2">
           <div class="fab fab-icon-holder">
             <span class="bi bi-pencil" aria-hidden="true" v-if="generateType === generateTypes.Editor"></span>
             <span class="bi bi-eye" aria-hidden="true" v-if="generateType === generateTypes.View"></span>
@@ -42,7 +42,7 @@
             </li>
           </ul>
         </div>
-        <div class="fab-container mx-2">
+        <div class="fab-container">
           <div class="fab fab-icon-holder">
             <span class="bi bi-view-stacked" aria-hidden="true" v-if="layoutMode === layoutModes.Card"></span>
             <span class="bi bi-text-indent-left" aria-hidden="true" v-if="layoutMode === layoutModes.Accordion"></span>
@@ -69,6 +69,10 @@
               </div>
             </li>
           </ul>
+        </div>
+        <div id="color-picker-btn" class="fab fab-icon-holder mx-2" @click="triggerColorPicker">
+          <input type="color" class="form-control form-control-color position-absolute" id="colorInput" :value="selectedColor" title="Choose your color">
+          <span class="bi bi-palette" aria-hidden="true"></span>
         </div>
         <div id="download-btn" class="fab fab-icon-holder pulse-download-btn" @click="onDownloadClicked">
           <span class="bi bi-download" aria-hidden="true"></span>
@@ -111,6 +115,8 @@ export default defineComponent({
       Table: 'table'
     }
     const layoutMode = ref(layoutModes.Card);
+    const selectedColor = ref("#42b983");
+
     window.addEventListener('storage', () => {
       json.value = localStorage.getItem('json');
     });
@@ -203,8 +209,11 @@ export default defineComponent({
     function onDownloadClicked() {
       context.emit('download', `api/download/${generateType.value}/${layoutMode.value}`, `${generateType.value}.zip`)
     }
-    return { json, inputError, appUrl, generateType, generateTypes, layoutMode, layoutModes,
-      changeGeneratedMode, changeLayoutMode, fixData, isFixable, onDownloadClicked }
+    function triggerColorPicker() {
+      document.getElementById("colorInput").click();
+    }
+    return { json, inputError, appUrl, generateType, generateTypes, layoutMode, layoutModes, selectedColor,
+      changeGeneratedMode, changeLayoutMode, fixData, isFixable, onDownloadClicked, triggerColorPicker }
   },
 })
 </script>
@@ -281,6 +290,12 @@ body {
   -moz-animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
   -ms-animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
   animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
+}
+
+input#colorInput {
+  width: 100px;
+  opacity: 0;
+  padding-top: 25px;
 }
 
 .codemirror{
