@@ -28,12 +28,12 @@
         border-radius: 0.5rem;
       }
       .btn {
-        color: #ffffff;
+        color: #{{ text_color }};
         background-color: #{{ color }}!important;
         padding: 0.25rem 1rem;
       }
       .btn:hover {
-        color: #ffffff;
+        color: #{{ text_color }};
         opacity: 0.8
       }
       h5 {
