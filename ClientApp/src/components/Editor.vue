@@ -190,6 +190,7 @@ export default defineComponent({
         if('#' + tempColor.value !== selectedColor.value){
           tempColor.value = selectedColor.value.slice(1, 7);
           document.getElementById('color-picker-btn').style.backgroundColor = selectedColor.value;
+          setTextColor();
           debouncedGenerate(json.value);
         }
         try {
@@ -218,6 +219,23 @@ export default defineComponent({
     function triggerColorPicker() {
       document.getElementById("colorInput").click();
     }
+
+    function setTextColor() {
+      let r = parseInt(tempColor.value.substr(0, 2), 16),
+          g = parseInt(tempColor.value.substr(2, 2), 16),
+          b = parseInt(tempColor.value.substr(4, 2), 16);
+      let brightness = Math.sqrt(
+        r * r * .241 + 
+        g * g * .691 + 
+        b * b * .068
+      );
+      if (brightness > 170) {
+        document.getElementById('color-picker-btn').style.color = '#2c3e50';
+      } else {
+        document.getElementById('color-picker-btn').style.color = '#ffffff';
+      }
+    }
+
     return { json, inputError, appUrl, generateType, generateTypes, layoutMode, layoutModes, selectedColor,
       changeGeneratedMode, changeLayoutMode, fixData, isFixable, onDownloadClicked, triggerColorPicker }
   },

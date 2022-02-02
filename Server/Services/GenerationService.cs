@@ -6,6 +6,7 @@ using BootGen;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Drawing;
 
 namespace VueStart.Services
 {
@@ -44,8 +45,20 @@ namespace VueStart.Services
             if (!forDownload)
                 indexParameters.Add("base_url", $"/api/files/{id}/");
                 indexParameters.Add("color", color);
+                if(Brightness(ColorTranslator.FromHtml($"#{color}")) > 170) {
+                    indexParameters.Add("text_color", "2c3e50");
+                } else {
+                    indexParameters.Add("text_color", "ffffff");
+                }
             indexhtml = generator.Render("index.sbn", indexParameters);
             return id;
+        }
+        private static int Brightness(Color c)
+        {
+            return (int)Math.Sqrt(
+                c.R * c.R * .241 + 
+                c.G * c.G * .691 + 
+                c.B * c.B * .068);
         }
 
         public JsonElement Fix(JsonElement json) {
