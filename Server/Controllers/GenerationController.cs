@@ -28,7 +28,6 @@ namespace VueStart.Controllers
         [Route("{type}/{layout}/{color}")]
         public IActionResult Generates([FromBody] JsonElement json, string type, string layout, string color)
         {
-            Console.WriteLine(color);
             if (json.ValueKind != JsonValueKind.Object) {
                 return BadRequest(new { error = "The root element must be an object!", fixable = false });
             }
