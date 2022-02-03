@@ -4,10 +4,6 @@
       <span :class="`bi bi-${icon}`" aria-hidden="true"></span>
       <span class="px-2">{{ title }}</span>
     </div>
-    <div class="d-flex align-items-center">
-      <span class="bi bi-x px-2" aria-hidden="true"></span>
-      <div class="vr" v-if="showVr"></div>
-    </div>
   </button>
 </template>
 
@@ -18,8 +14,7 @@ export default defineComponent({
   name: 'Tab',
   props: {
     icon: String,
-    title: String,
-    showVr: Boolean
+    title: String
   },
   setup() {}
 });
