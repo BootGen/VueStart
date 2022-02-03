@@ -4,12 +4,12 @@
     </div>
     <div class="browser-container" :class="page">
       <div class="browser custom-card shadow">
-        <browser-frame v-model="appUrl" :borderRadius="generateType === generateTypes.Editor" @refresh="pageRefresh">
+        <browser-frame v-model="appUrl" :borderRadius="true"  @refresh="pageRefresh">
           <div class="d-flex w-100 h-auto">
-            <tab :title="generateTypes.Editor" icon="pencil" :showVr="generateType !== generateTypes.Editor && generateType !== generateTypes.View" @select="changeGeneratedMode(generateTypes.Editor)" :class="{ 'inactive': generateType !== generateTypes.Editor, 'active' : generateType === generateTypes.Editor, 'border-bottom-right' : generateType === generateTypes.View }"></tab>
-            <tab :title="generateTypes.View" icon="eye" :showVr="generateType !== generateTypes.View && generateType !== generateTypes.Form" @select="changeGeneratedMode(generateTypes.View)" :class="{ 'inactive': generateType !== generateTypes.View, 'active' : generateType === generateTypes.View, 'border-bottom-right' : generateType === generateTypes.Form, 'border-bottom-left' : generateType === generateTypes.Editor }"></tab>
-            <tab :title="generateTypes.Form" icon="file-earmark-code" :showVr="generateType !== generateTypes.Form" @select="changeGeneratedMode(generateTypes.Form)" :class="{ 'inactive': generateType !== generateTypes.Form, 'active' : generateType === generateTypes.Form, 'border-bottom-left' : generateType === generateTypes.View }"></tab>
-            <button type="button" class="btn-site inactive" :class="{ 'border-bottom-left' : generateType === generateTypes.Form }"><span class="bi bi-plus" aria-hidden="true"></span></button>
+            <tab v-if="generateType === generateTypes.Editor" :title="generateTypes.Editor" icon="pencil" class="active border-bottom-right"></tab>
+            <tab v-if="generateType === generateTypes.View" :title="generateTypes.View" icon="eye" class="active border-bottom-right"></tab>
+            <tab v-if="generateType === generateTypes.Form" :title="generateTypes.Form" icon="file-earmark-code" class="active border-bottom-right"></tab>
+            <tab class="inactive border-bottom-left"></tab>
           </div>
         </browser-frame>
       </div>
