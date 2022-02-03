@@ -4,7 +4,7 @@
     </div>
     <div class="browser-container" :class="page">
       <div class="browser custom-card shadow">
-        <browser-frame v-model="appUrl" :borderRadius="true"  @refresh="pageRefresh">
+        <browser-frame v-model="appUrl"  @refresh="pageRefresh">
           <div class="d-flex w-100 h-auto">
             <tab v-if="generateType === generateTypes.Editor" :title="generateTypes.Editor" icon="pencil" class="active border-bottom-right"></tab>
             <tab v-if="generateType === generateTypes.View" :title="generateTypes.View" icon="eye" class="active border-bottom-right"></tab>
