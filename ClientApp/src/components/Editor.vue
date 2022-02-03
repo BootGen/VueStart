@@ -4,7 +4,7 @@
     </div>
     <div class="browser-container" :class="{ 'landing': !showContent, 'content' : showContent, }">
       <div class="browser custom-card shadow">
-        <browser-frame v-model="appUrl" :borderRadius="generateType === generateTypes.Editor">
+        <browser-frame v-model="appUrl" :borderRadius="generateType === generateTypes.Editor" @refresh="pageRefresh">
           <div class="d-flex w-100 h-auto">
             <tab :title="generateTypes.Editor" icon="pencil" :showVr="generateType !== generateTypes.Editor && generateType !== generateTypes.View" @select="changeGeneratedMode(generateTypes.Editor)" :class="{ 'inactive': generateType !== generateTypes.Editor, 'active' : generateType === generateTypes.Editor, 'border-bottom-right' : generateType === generateTypes.View }"></tab>
             <tab :title="generateTypes.View" icon="eye" :showVr="generateType !== generateTypes.View && generateType !== generateTypes.Form" @select="changeGeneratedMode(generateTypes.View)" :class="{ 'inactive': generateType !== generateTypes.View, 'active' : generateType === generateTypes.View, 'border-bottom-right' : generateType === generateTypes.Form, 'border-bottom-left' : generateType === generateTypes.Editor }"></tab>
@@ -96,7 +96,7 @@ export default defineComponent({
     showContent: Boolean,
     config: Object
   },
-  emits: ['download', 'modified', 'generated', 'typeChanged', 'hasError'],
+  emits: ['download', 'modified', 'generated', 'typeChanged', 'hasError', 'setVuecoon'],
   setup(props, context) {
     const inputError = ref(null);
     const isFixable = ref(false);
@@ -235,9 +235,18 @@ export default defineComponent({
         document.getElementById('color-picker-btn').style.color = '#ffffff';
       }
     }
+    function refresh() {
+      generate(json.value);
+      context.emit('setVuecoon', 'default');
+    }
+    function pageRefresh() {
+      let debouncedRefresh = debounce(refresh, 1000);
+      context.emit('setVuecoon', 'loading');
+      debouncedRefresh();
+    }
 
     return { json, inputError, appUrl, generateType, generateTypes, layoutMode, layoutModes, selectedColor,
-      changeGeneratedMode, changeLayoutMode, fixData, isFixable, onDownloadClicked, triggerColorPicker }
+      changeGeneratedMode, changeLayoutMode, fixData, isFixable, onDownloadClicked, triggerColorPicker, pageRefresh }
   },
 })
 </script>

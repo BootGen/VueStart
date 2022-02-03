@@ -12,14 +12,14 @@
     </div>
     <div class="d-flex justify-content-around align-items-center menu">
       <div class="d-flex">
-        <span class="bi bi-arrow-left px-2 icon" aria-hidden="true"></span>
-        <span class="bi bi-arrow-right px-2 icon" aria-hidden="true"></span>
-        <span class="bi bi-arrow-clockwise px-2 icon" aria-hidden="true"></span>
+        <span class="bi bi-arrow-left icon" aria-hidden="true"></span>
+        <span class="bi bi-arrow-right icon" aria-hidden="true"></span>
+        <span class="bi bi-arrow-clockwise icon clickable" aria-hidden="true" @click="$emit('refresh')"></span>
       </div>
-      <div class="middle">
+      <div class="middle mx-2">
         <input type="text" value="https://yourownwebsite.com">
       </div>
-      <span class="bi bi-three-dots-vertical px-2 icon" aria-hidden="true"></span>
+      <span class="bi bi-three-dots-vertical icon" aria-hidden="true"></span>
     </div>
     <div class="col-12 content">
       <iframe id="frameA" class="h-100 w-100" :class="{hidden: !frameA}" :src="urlA" title="CodeSharp"></iframe>
@@ -37,6 +37,7 @@ export default defineComponent({
     borderRadius: Boolean,
     modelValue: String,
   },
+  emits: ['refresh'],
   setup(props) {
     const frameA = ref(true);
     const urlA = ref(props.modelValue);
@@ -91,6 +92,18 @@ export default defineComponent({
 }
 .icon {
   color: #42b983;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+.clickable{
+  cursor: pointer;
+}
+.clickable:hover {
+  background-color: #eeeeee;
+  border-radius: 100%;
 }
 .middle {
   width: 100%;
