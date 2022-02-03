@@ -1,7 +1,7 @@
 <template>
   <div class="col-12 browser-frame">
     <div class="d-flex browser-nav py-1">
-      <button type="button" class="btn-site inactive w-auto" :class="{ 'border-bottom-right' : borderRadius }">
+      <button type="button" class="btn-site inactive w-auto border-bottom-right">
         <div class="d-flex align-items-center">
           <span class="dot" style="background:#ED594A;"></span>
           <span class="dot" style="background:#FDD800;"></span>
@@ -34,7 +34,6 @@ import { defineComponent, watch, ref, onMounted } from 'vue';
 export default defineComponent({
   name: 'BrowserFrame',
   props: {
-    borderRadius: Boolean,
     modelValue: String,
   },
   emits: ['refresh'],
