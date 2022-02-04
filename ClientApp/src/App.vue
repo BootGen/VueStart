@@ -27,13 +27,13 @@
         </div>
         <p class="small-text">Star this project on GitHub!</p>
       </div>
-    </div>  
-    <editor :config="config" :page="page" @download="onDownloadClicked" @modified="modified = true" @generated="generated = true" @typeChanged="typeChanged = true" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
+    </div>
     <transition name="fade">
       <supporters v-if="page === 'supporters'"></supporters>
     </transition>
+    <editor :config="config" :page="page" @download="onDownloadClicked" @modified="modified = true" @generated="generated = true" @typeChanged="typeChanged = true" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
     <div class="col-12 d-flex align-items-center footer" :class="page">
-      <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a></p>
+      <p><a href="javascript:void(0)" @click="showSupporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a></p>
     </div>
   </div>
 </template>
@@ -109,11 +109,15 @@ export default defineComponent({
     window.addEventListener('load', setShowContentForUrl);
     const page = ref('landing');
     function openGithub (){
+      window.open("https://github.com/BootGen/VueStart");
+    }
+    function showSupporters (){
+      window.scrollTo(0, 0);
       page.value = 'supporters';
       history.pushState({}, '', 'supporters');
-      //window.open("https://github.com/BootGen/VueStart");
     }
     function showEditor(){
+      window.scrollTo(0, 0);
       page.value = 'content';
       history.pushState({}, '', 'editor');
     }
@@ -143,7 +147,7 @@ export default defineComponent({
 
     return { page, showDownloadPanel, openGithub, showEditor, vuecoonState,
       config, download, onDownloadClicked, modified, generated, typeChanged,
-      downloaded, hasError, setSuccessVuecoon, setVuecoon }
+      downloaded, hasError, setSuccessVuecoon, setVuecoon, showSupporters }
   }
 });
 
