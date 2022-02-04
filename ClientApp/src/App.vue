@@ -19,11 +19,6 @@
             <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showEditor">Start!</button>
           </div>
         </div>
-        <div class="d-flex slogen-text" :class="page">
-          <p class="text-center">
-          Generate forms, tables and data editors!
-          </p>
-        </div>
       </div>
       <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github" :class="page">
         <div class="d-flex align-items-center px-2">
