@@ -5,7 +5,7 @@
   Vue Start
 </h1>
 <p align="center">
-  Online Productivity Tool for Vue 3
+  An online tool that generates UI components for Vue.js developers.
 </p>
 <p align="center">
   <a style="text-decoration:none" href="https://github.com/BootGen/VueStart/actions" target="_blank">
