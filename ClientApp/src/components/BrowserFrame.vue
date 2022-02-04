@@ -17,7 +17,7 @@
         <span class="bi bi-arrow-clockwise icon clickable" aria-hidden="true" @click="$emit('refresh')"></span>
       </div>
       <div class="middle mx-2">
-        <input type="text" value="https://yourownwebsite.com">
+        <input type="text" :value="'https://vuestart.com/' + modelValue" disabled>
       </div>
       <span class="bi bi-three-dots-vertical icon" aria-hidden="true"></span>
     </div>
