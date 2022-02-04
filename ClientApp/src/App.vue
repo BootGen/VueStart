@@ -148,7 +148,7 @@ export default defineComponent({
       vuecoonState.value = state;
     }
 
-    return { page, showDownloadPanel, openGithub, changeView, vuecoonState,
+    return { page, showDownloadPanel, openGithub, showEditor, vuecoonState,
       config, download, onDownloadClicked, modified, generated, typeChanged,
       downloaded, hasError, setSuccessVuecoon, setVuecoon }
   }
