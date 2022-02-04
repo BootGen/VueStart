@@ -21,7 +21,7 @@
 
 ## Introduction
 
-Vue Start is an online productivity tool for Vue 3. It helps you to kickstart new projects, prescribing best practices, by creating custom components for forms, tables and data editors based on the JSON data you provide. Try it online at [vuestart.com](https://vuestart.com)!
+An online tool that generates UI components for Vue.js developers. Input some JSON data, chose a template, download the code and use it in any project. Try it online at [vuestart.com](https://vuestart.com)!
 
 
 ### What is Vue Start good for?

@@ -14,9 +14,7 @@
         <div class="d-flex align-items-center jumbo-text" :class="page">
           <div class="d-flex flex-column align-items-center">
             <p class="lead text-justify">
-              This is an online productivity tool for Vue 3. It helps you to kickstart new projects,
-              prescribing best practices, by creating custom components for forms, tables and data editors
-              based on the JSON data you provide.
+              An online tool that generates UI components for Vue.js developers. Input some JSON data, chose a template, download the code and use it in any project.
             </p>
             <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showEditor">Start!</button>
           </div>
