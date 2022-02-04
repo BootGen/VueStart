@@ -28,7 +28,7 @@ export default defineComponent({
     background-color: #eee;
   }
   .btn-site {
-    width: 100%;
+    width: 30%;
     padding: unset;
     border: unset;
     display: flex;
@@ -36,6 +36,7 @@ export default defineComponent({
     padding: 5px;
     padding-left: 10px;
     align-items: center;
+    cursor: default!important;
   }
   .btn-site.active {
     background-color: #fff;
@@ -44,6 +45,7 @@ export default defineComponent({
     border-top-right-radius: 10px;
   }
   .btn-site.inactive {
+    width: 70%;
     background-color: #42b983;
     color: #fff!important;
   }
