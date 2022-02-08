@@ -1,8 +1,17 @@
 <template>
   <div class="col-lg-8 col-md-12 supporters-page">
-    <div class="d-flex flex-column align-items-center">
-      <p>Staring our project on  GitHub may seem like a small thing, but it really keeps us motivated. We thank you for your support!</p>
-      <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="back">Back</button>
+    <div class="d-flex align-items-center">
+      <div class="d-flex flex-column align-items-center">
+        <p>Staring our project on  GitHub may seem like a small thing, but it really keeps us motivated. We thank you for your support!</p>
+        <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="back">Back</button>
+      </div>
+      <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github" :class="page">
+        <div class="d-flex align-items-center px-2">
+          <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
+          <span class="bi bi-star-fill star-icon px-2" aria-hidden="true"></span>
+        </div>
+        <p class="small-text">Star this project on GitHub!</p>
+      </div>
     </div>
     <h3>The Team</h3>
     <div class="row">

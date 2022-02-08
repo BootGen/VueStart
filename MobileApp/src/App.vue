@@ -1,36 +1,11 @@
 <template>
-  <div class="col-12">
+  <div class="col-12 p-2">
     <tip :modified="modified" :generated="generated" :typeChanged="typeChanged" :downloaded="downloaded" @success="setSuccessVuecoon" v-if="page === 'content'" ></tip>
     <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
-    <div class="d-flex justify-content-center align-items-center jumbotron" :class="page">
-      <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)" :class="page">
-      <div class="jumbo-text-full" :class="page">
-        <div class="d-flex align-items-center justify-content-center">
-          <img class="vue_logo" alt="vue" :src="require(`./assets/vue_logo.webp`)">
-          <p class="title">ue Start!</p>
-        </div>
-        <div class="d-flex align-items-center jumbo-text" :class="page">
-          <div class="d-flex flex-column align-items-center">
-            <p class="lead text-justify">
-              An online tool that generates UI components for Vue.js developers. Input some JSON data, chose a template, download the code and use it in any project.
-            </p>
-            <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showEditor">Start!</button>
-          </div>
-        </div>
-      </div>
-      <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github" :class="page">
-        <div class="d-flex align-items-center px-2">
-          <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
-          <span class="bi bi-star-fill star-icon px-2" aria-hidden="true"></span>
-        </div>
-        <p class="small-text">Star this project on GitHub!</p>
-      </div>
-    </div>
-    <transition name="fade">
-      <supporters v-if="page === 'supporters'"></supporters>
-    </transition>
+    <landing :vuecoonState="vuecoonState"></landing>
+    <supporters v-if="page === 'supporters'"></supporters>
     <editor :config="config" :page="page" @download="onDownloadClicked" @modified="modified = true" @generated="generated = true" @typeChanged="typeChanged = true" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
     <div class="col-12 d-flex align-items-center footer" :class="page">
       <p><a href="javascript:void(0)" @click="showSupporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a></p>
@@ -40,16 +15,17 @@
 
 <script>
 import { defineComponent, ref } from 'vue';
-import DownloadPanel from './components/DownloadPanel.vue'
-import Editor from './components/Editor.vue'
-import Supporters from './components/Supporters.vue'
+import DownloadPanel from './components/DownloadPanel.vue';
+import Landing from './components/Landing.vue';
+import Editor from './components/Editor.vue';
+import Supporters from './components/Supporters.vue';
 import Tip from './components/Tip.vue';
 import axios from "axios";
 import {debounce} from "@/utils/Helper";
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { DownloadPanel, Editor, Tip, Supporters },
+  components: { DownloadPanel, Landing, Editor, Tip, Supporters },
   setup() {
     const showDownloadPanel = ref(false);
     const modified = ref(false);
@@ -154,47 +130,46 @@ export default defineComponent({
 </script>
 
 <style>
-body {
-  height: 100%;
-  overflow: hidden;
-}
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
+  .text-justify{
+    text-align: justify;
+  }
+  .download-panel{
+    transition: all 1s ease-in-out;
+    width: max-content;
+    margin: 1rem auto;
+  }
+  .download-panel.show{
+    opacity: 1;
+  }
+  .download-panel.hide{
+    opacity: 0;
+    visibility: hidden;
+    margin-top: 100%;
+  }
+  .download-panel-container {
+    transition: all 1s ease-in-out;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .download-panel-container.show{
+    opacity: 1;
+  }
+  .download-panel-container.hide{
+    opacity: 0;
+    visibility: hidden;
+  }
 
-.text-justify{
-  text-align: justify;
-}
-.download-panel{
-  transition: all 1s ease-in-out;
-  width: max-content;
-  margin: 1rem auto;
-}
-.download-panel.show{
-  opacity: 1;
-}
-.download-panel.hide{
-  opacity: 0;
-  visibility: hidden;
-  margin-top: 100%;
-}
-.download-panel-container {
-  transition: all 1s ease-in-out;
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.1);
-  z-index: 999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.download-panel-container.show{
-  opacity: 1;
-}
-.download-panel-container.hide{
-  opacity: 0;
-  visibility: hidden;
-}
-
-.fab-options li {
+  .fab-options li {
     display: flex;
     justify-content: flex-end;
     padding: 5px;
@@ -209,93 +184,12 @@ body {
     border-color: #17a062;
     background-color: #17a062;
   }
-
-.vuecoon {
-    transition: all 1s ease-in-out;
-  }
-  .vuecoon.landing {
-    max-width: 300px;
-    margin: 1%;
-  }
-  .vuecoon.content, .vuecoon.supporters {
-    max-width: min(15vh, 25vw);
-  }
-  .jumbotron {
-    transition: all 1s ease-in-out;
-    margin-left: 1%;
-    margin-right: 1%;
-  }
-  .jumbotron.landing {
-    height: calc( 100vh - 2.5rem );
-    transition-delay: 300ms;
-    border-bottom-left-radius: 0;
-  }
-  .jumbotron.content, .jumbotron.supporters {
-    height: 15vh;
-  }
-  .jumbo-text{
-    transition: all 1s ease-in-out;
-    overflow: hidden;
-  }
-  .jumbo-text.content, .jumbo-text.supporters{
-    opacity: 0;
-    height: 0rem;
-  }
-  .jumbo-text.landing{
-    opacity: 1;
-    height: 19rem;
-  }
-  .jumbo-text-full{
-    transition: all 1s ease-in-out;
-    overflow: hidden;
-  }
-  .jumbo-text-full.content, .jumbo-text-full.supporters{
-    max-width: 50%;
-    justify-content: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .jumbo-text-full.landing{
-    width: 50%;
-  }
-  .slogen-text{
-    transition: all 1s ease-in-out;
-    overflow: hidden;
-  }
-  .slogen-text.content, .slogen-text.supporters{
-    opacity: 1;
-    height: 100%;
-    visibility: visible;
-  }
-  .slogen-text.landing{
-    opacity: 0;
-    height: 0;
-    visibility: hidden;
-  }
-  .vue_logo {
-    width: 3rem;
-    height: 3rem;
-  }
   .small-text {
     font-size: 0.8rem;
   }
   .github {
-    transition: all 1s ease-in-out;
     overflow: hidden;
     cursor: pointer;
-  }
-  .github.content, .github.supporters{
-    opacity: 1;
-    height: 100%;
-    width: auto;
-    visibility: visible;
-  }
-  .github.landing{
-    opacity: 0;
-    height: 0;
-    width: 0;
-    visibility: hidden;
   }
   .github-icon {
     font-size: min(5vh, 5vw);
@@ -304,23 +198,8 @@ body {
     color: rgb(222, 169, 64);
     font-size: min(4vh, 4vw);
   }
-  .title {
-    margin-left: -3px;
-    font-size: 1.9rem;
-    margin-top: 0;
-    margin-bottom: .5rem;
-    font-weight: 500;
-    line-height: 1.2;
-  }
-
-.shadow {
+  .shadow {
     box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
-  }
-  .footer{
-    position: absolute;
-    transition: all 1s ease-in-out;
-    overflow: hidden;
-    bottom: 0;
   }
   .footer p {
     margin: auto;
@@ -330,110 +209,6 @@ body {
   }
   a:hover {
     color: #17a062;
-  }
-  .footer.content, .footer.supporters{
-    opacity: 1;
-    height: 2.5rem;
-    transition-delay: 500ms;
-    visibility: visible;
-  }
-  .footer.landing{
-    opacity: 0;
-    height: 0vh;
-    visibility: hidden;
-  }
-
-@media (max-width: 1200px) {
-    .jumbo-text.landing{
-      height: 23rem;
-    }
-  }
-  @media (max-width: 992px) {
-    body {
-      height: unset;
-      overflow: unset;
-    }
-
-    .footer.content, .footer.supporters{
-      transition-delay: 700ms;
-    }
-
-    .footer{
-      font-size: 0.8rem;
-      bottom: unset;
-    }
-    .footer.content, .footer.supporters{
-      height: 2rem;
-      top: calc(170vh + 1.5rem);
-      padding-top: 5px;
-    }
-  }
-  @media (max-width: 768px) {
-    body {
-      height: unset;
-      overflow: unset;
-    }
-
-    .jumbo-text.landing{
-      height: 29rem;
-    }
-    .github .small-text {
-      display: none!important;
-    }
-  }
-  @media (max-width: 576px) {
-    body {
-      height: unset;
-      overflow: unset;
-    }
-    .jumbotron.content, .jumbotron.supporters {
-      height: min(15vh, 25vw);
-    }
-    .jumbo-text.landing{
-      height: 26rem;
-    }
-    .jumbo-text-full.landing{
-      width: 100vw;
-      text-align: center;
-    }
-    .jumbo-text-full.content, .jumbo-text-full.supporters{
-      margin: unset;
-      max-width: 100%;
-      text-align: center;
-    }
-    .vuecoon.landing {
-      max-width: 35vw;
-    }
-    .text-justify{
-      font-size: 1rem;
-    }
-    .jumbo-text-full.content, .jumbo-text-full.supporters {
-      max-width: 50%;
-    }
-    .github-icon {
-        font-size: min(10vh, 10vw);
-    }
-    .vue_logo {
-      width: 2.5rem;
-      height: 2.5rem;
-    }
-    .title {
-      font-size: 1.5rem;
-      margin-right: min(2.5vh, 7.5vw);
-    }
-    .star-icon {
-      display: none!important;
-    }
-    .github > .small-text {
-      display: none!important;
-    }
-    .slogen-text {
-      display: none!important;
-    }
-
-    .footer.content, .footer.supporters{
-      top: calc(170vh + 1.5rem);
-    }
   }
 
   @-webkit-keyframes pulse {
@@ -456,11 +231,4 @@ body {
       box-shadow: 0 0 0 15px rgba(66, 185, 131, 0);
     }
   }
-
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
-}
-.fade-enter, .fade-leave-to {
-  opacity: 0;
-}
 </style>
