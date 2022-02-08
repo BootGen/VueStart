@@ -45,7 +45,6 @@ export default defineComponent({
     border-top-right-radius: 10px;
   }
   .btn-site.inactive {
-    width: 70%;
     background-color: #42b983;
     color: #fff!important;
   }

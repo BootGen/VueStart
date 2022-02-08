@@ -4,12 +4,12 @@
     </div>
     <div class="browser-container" :class="page">
       <div class="browser custom-card shadow">
-        <browser-frame v-model="appUrl"  @refresh="pageRefresh">
+        <browser-frame v-model="appUrl"  @refresh="pageRefresh" :borderRadius="selectedTab === 0">
           <div class="d-flex w-100 h-auto">
-            <tab v-if="generateType === generateTypes.Editor" :title="generateTypes.Editor" icon="pencil" class="active border-bottom-right"></tab>
-            <tab v-if="generateType === generateTypes.View" :title="generateTypes.View" icon="eye" class="active border-bottom-right"></tab>
-            <tab v-if="generateType === generateTypes.Form" :title="generateTypes.Form" icon="file-earmark-code" class="active border-bottom-right"></tab>
-            <tab class="inactive border-bottom-left"></tab>
+            <tab :title="generateType" :icon="generatedTypeIcon" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
+            <tab title="index.html" icon="code" :class="{'active': selectedTab === 1, 'inactive': selectedTab !== 1, 'border-bottom-left': selectedTab === 0, 'border-bottom-right': selectedTab === 2}" @select="selectedTab = 1"></tab>
+            <tab title="app.js" icon="code" :class="{'active': selectedTab === 2, 'inactive': selectedTab !== 2, 'border-bottom-left': selectedTab === 1}" @select="selectedTab = 2"></tab>
+            <tab class="inactive" :class="{'border-bottom-left': selectedTab === 2}"></tab>
           </div>
         </browser-frame>
       </div>
@@ -81,7 +81,7 @@
     </div>
 </template>
 <script>
-import { defineComponent, ref, watchEffect } from 'vue';
+import {computed, defineComponent, ref, watchEffect} from 'vue';
 import CodeMirror from './CodeMirror.vue';
 import BrowserFrame from './BrowserFrame.vue'
 import Tab from "@/components/Tab";
@@ -103,11 +103,23 @@ export default defineComponent({
     const json = ref('');
     const jsonSchema = ref(getSchema({}));
     const appUrl = ref("");
+    const selectedTab = ref(0);
     const generateTypes = {
       View: 'view',
       Form: 'form',
       Editor: 'editor',
     }
+    const generatedTypeIcon = computed(() =>{
+      switch (generateType.value) {
+        case generateTypes.Editor:
+          return 'pencil';
+        case generateTypes.View:
+          return 'eye';
+        case generateTypes.Form:
+          return 'file-earmark-code';
+      }
+      return 'pencil';
+    })
     const generateType = ref(generateTypes.Editor);
     const layoutModes = {
       Card: 'card',
@@ -246,7 +258,8 @@ export default defineComponent({
     }
 
     return { json, inputError, appUrl, generateType, generateTypes, layoutMode, layoutModes, selectedColor,
-      changeGeneratedMode, changeLayoutMode, fixData, isFixable, onDownloadClicked, triggerColorPicker, pageRefresh }
+      changeGeneratedMode, changeLayoutMode, fixData, isFixable, onDownloadClicked, triggerColorPicker, pageRefresh,
+      selectedTab, generatedTypeIcon}
   },
 })
 </script>
