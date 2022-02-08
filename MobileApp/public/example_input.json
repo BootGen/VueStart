@@ -1,0 +1,38 @@
+{
+	"jediKnights": [
+		{
+			"name": "Anakin Skywalker",
+			"age": 22,
+			"fallenToDarkSide": true,
+			"droids": [
+				{
+					"name": "C-3PO",
+					"type": "Protocol droid"
+				},
+				{
+					"name": "R2-D2",
+					"type": "Astromech droid"
+				}
+			],
+			"actor": {
+				"name": "Hayden Christensen",
+				"birthDate": "1981-04-19T12:00"
+			}
+		},
+		{
+			"name": "Obi-Wan Kenobi",
+			"age": 36,
+			"fallenToDarkSide": false,
+			"droids": [
+				{
+					"name": "R4-P17",
+					"type": "Astromech droid"
+				}
+			],
+			"actor": {
+				"name": "Ewan McGregor",
+				"birthDate": "1971-03-31T12:00"
+			}
+		}
+	]
+}
