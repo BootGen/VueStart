@@ -1,8 +1,8 @@
 <template>
-    <div class="codemirror custom-card" :class="page">
+    <div class="codemirror custom-card">
       <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData" @hasSyntaxError="$emit('hasError', $event)"></code-mirror>
     </div>
-    <div class="browser-container" :class="page">
+    <!--<div class="browser-container">
       <div class="browser custom-card shadow">
         <browser-frame v-model="appUrl"  @refresh="pageRefresh">
           <div class="d-flex w-100 h-auto">
@@ -78,7 +78,7 @@
           <span class="bi bi-download" aria-hidden="true"></span>
         </div>
       </div>
-    </div>
+    </div>-->
 </template>
 <script>
 import { defineComponent, ref, watchEffect } from 'vue';
@@ -86,14 +86,13 @@ import CodeMirror from './CodeMirror.vue';
 import BrowserFrame from './BrowserFrame.vue'
 import Tab from "@/components/Tab";
 import axios from "axios";
-import {getSchema} from "@/utils/Schema";
-import {debounce} from "@/utils/Helper";
+import { getSchema } from "@/utils/Schema";
+import { debounce } from "@/utils/Helper";
 import { validateJson } from '@/utils/Validate';
 
 export default defineComponent({
   components: { CodeMirror, BrowserFrame, Tab },
   props: {
-    page: String,
     config: Object
   },
   emits: ['download', 'modified', 'generated', 'typeChanged', 'hasError', 'setVuecoon'],
@@ -252,11 +251,12 @@ export default defineComponent({
 </script>
 
 <style>
-body {
-  height: 100%;
-  overflow: hidden;
+.codemirror{
+  width: 100%;
 }
-
+.browser-container{
+  width: 100%;
+}
 .fab-container {
   z-index: 999;
   cursor: pointer;
@@ -278,7 +278,6 @@ body {
 .fab-icon-holder:hover {
   background: #17a062;
 }
-
 .fab {
   height: 50px;
   background: #42b983;
@@ -308,14 +307,6 @@ body {
   padding: 5px;
 }
 
-.browser-buttons {
-  position: absolute;
-  bottom: -1rem;
-  right: 2rem;
-  font-size: 1rem!important;
-  z-index: 99;
-}
-
 .pulse-download-btn {
   z-index: 9;
   box-shadow: 0 0 0 0 rgba(66, 185, 131, 0.7);
@@ -324,75 +315,14 @@ body {
   -ms-animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
   animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
 }
-
 input#colorInput {
   width: 100px;
   opacity: 0;
   padding-top: 25px;
 }
-
-.codemirror{
-  position: absolute;
-  width: 47%;
-  margin: 1%;
-  transition: all 1s ease-in-out;
-  transition-delay: 150ms;
-  overflow: hidden;
-}
-.codemirror.content{
-  opacity: 1;
-  height: 76vh;
-  top: 14vh;
-  visibility: visible;
-}
-.codemirror.landing, .codemirror.supporters{
-  opacity: 0;
-  height: 0vh;
-  top: 98vh;
-  visibility: hidden;
-}
-.browser{
-  z-index: 9;
-  border-radius: 5px;
-  background-color: #42b983;
-  transition: all 1s ease-in-out;
-  overflow: hidden;
-  vertical-align: bottom;
-  width: 100%;
-  height: 80vh;
-}
-.browser.landing, .browser.supporters{
-  height: 0vh;
-  top: 98vh;
-  visibility: hidden;
-}
 .shadow {
   box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
 }
-.browser-container{
-  position: absolute;
-  width: 54%;
-  margin: 1%;
-  margin-left: 45%;
-  transition: all 1s ease-in-out;
-  vertical-align: bottom;
-  background-color: transparent;
-  box-shadow: 0rem -1.5rem 2rem rgb(0 0 0 / 10%);
-}
-.browser-container.content{
-  opacity: 1;
-  height: 80vh;
-  transition-delay: 300ms;
-  top: 12vh;
-  visibility: visible;
-}
-.browser-container.landing, .browser-container.supporters{
-  opacity: 0;
-  height: 0vh;
-  top: 98vh;
-  visibility: hidden;
-}
-
 .footer p {
   margin: auto;
 }
@@ -402,66 +332,11 @@ a {
 a:hover {
   color: #17a062;
 }
-
 .pulse-download-btn:hover {
   -webkit-animation: none;
   -moz-animation: none;
   -ms-animation: none;
   animation: none;
-}
-
-@media (max-width: 1200px) {
-}
-@media (max-width: 992px) {
-  body {
-    height: unset;
-    overflow: unset;
-  }
-
-  .codemirror{
-    position: unset;
-    width: 92%;
-    margin-left: 4%;
-    margin-right: 4%;
-  }
-
-  .browser-container{
-    width: 98%;
-    margin: 1%;
-  }
-
-  .browser-container.content{
-    top: calc(15vh + 76vh - 1vh);
-    transition-delay: 600ms;
-  }
-
-}
-@media (max-width: 768px) {
-  body {
-    height: unset;
-    overflow: unset;
-  }
-
-}
-@media (max-width: 576px) {
-  body {
-    height: unset;
-    overflow: unset;
-  }
-
-  .browser-container.content{
-    top: calc(min(15vh, 25vw) + 76vh - 1.5vh);
-  }
-
-  .fab-icon-holder .bi {
-    font-size: 1rem;
-  }
-  .fab-icon-holder {
-    height: 40px;
-  }
-  .fab-options {
-    bottom: 40px;
-  }
 }
 
 @-webkit-keyframes pulse {
