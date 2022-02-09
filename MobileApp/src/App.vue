@@ -7,9 +7,9 @@
     <landing :vuecoonState="vuecoonState"></landing>
     <options :generateType="generateType" :layoutMode="layoutMode" @layoutChanged="changeLayoutMode" @typeChanged="chengeGenType"></options>
     <editor :config="config" :generateType="generateType" :layoutMode="layoutMode" @download="onDownloadClicked" @modified="modified = true" @generated="generated = true" @typeChanged="typeChanged = true" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
-    <supporters v-if="page === 'supporters'"></supporters>
+    <supporters class="mt-4"></supporters>
     <div class="col-12 d-flex align-items-center footer" :class="page">
-      <p><a href="javascript:void(0)" @click="showSupporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a></p>
+      <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a></p>
     </div>
   </div>
 </template>
@@ -88,9 +88,7 @@ export default defineComponent({
     window.addEventListener('popstate', setShowContentForUrl);
     window.addEventListener('load', setShowContentForUrl);
     const page = ref('landing');
-    function openGithub (){
-      window.open("https://github.com/BootGen/VueStart");
-    }
+
     function showSupporters (){
       window.scrollTo(0, 0);
       page.value = 'supporters';
@@ -131,7 +129,7 @@ export default defineComponent({
       generateType.value = type;
     }
 
-    return { page, showDownloadPanel, openGithub, showEditor, vuecoonState,
+    return { page, showDownloadPanel, showEditor, vuecoonState,
       config, download, onDownloadClicked, modified, generated, typeChanged,
       downloaded, hasError, setSuccessVuecoon, setVuecoon, showSupporters,
       changeLayoutMode, chengeGenType, generateType, layoutMode }
@@ -197,13 +195,6 @@ export default defineComponent({
   .github {
     overflow: hidden;
     cursor: pointer;
-  }
-  .github-icon {
-    font-size: min(5vh, 5vw);
-  }
-  .star-icon {
-    color: rgb(222, 169, 64);
-    font-size: min(4vh, 4vw);
   }
   .shadow {
     box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;

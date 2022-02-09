@@ -1,10 +1,6 @@
 <template>
   <div class="col-lg-8 col-md-12 supporters-page">
-    <div class="d-flex align-items-center">
-      <div class="d-flex flex-column align-items-center">
-        <p>Staring our project on  GitHub may seem like a small thing, but it really keeps us motivated. We thank you for your support!</p>
-        <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="back">Back</button>
-      </div>
+    <div class="d-flex flex-column align-items-center">
       <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github" :class="page">
         <div class="d-flex align-items-center px-2">
           <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
@@ -12,13 +8,16 @@
         </div>
         <p class="small-text">Star this project on GitHub!</p>
       </div>
+      <div class="d-flex flex-column align-items-center">
+        <p>Staring our project on  GitHub may seem like a small thing, but it really keeps us motivated. We thank you for your support!</p>
+      </div>
     </div>
     <h3>The Team</h3>
     <div class="row">
-      <div class="col-lg-6 col-md-6 col-sm-12">
+      <div class="col-lg-6 col-md-6 py-1">
         <git-hub-user username="echopot"></git-hub-user>
       </div>
-      <div class="col-lg-6 col-md-6 col-sm-12">
+      <div class="col-lg-6 col-md-6 py-1">
         <git-hub-user username="agabor"></git-hub-user>
       </div>
     </div>
@@ -44,6 +43,7 @@
 import axios from "axios";
 import { defineComponent, reactive } from 'vue';
 import GitHubUser from "@/components/GitHubUser";
+
 export default defineComponent({
   name: "Supporters",
   components: {GitHubUser},
@@ -55,19 +55,20 @@ export default defineComponent({
         users.push({username: user.login, avatar: user.avatar_url})
       }
     });
-    function back() {
-      window.scrollTo(0, 0);
-      history.back()
+    
+    function openGithub (){
+      window.open("https://github.com/BootGen/VueStart");
     }
-    return {users, back}
+    
+    return { users, openGithub }
   }
 })
 </script>
 
 <style scoped>
 h3 {
-  margin-top: 30px;
-  margin-bottom: 30px;
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
 .avatar-user {
   border-radius: 50% !important;
@@ -112,5 +113,13 @@ h3 {
 
 .usertag:hover .usertagtext {
   visibility: visible;
+}
+
+.github-icon {
+  font-size: 9vw;
+}
+.star-icon {
+  color: rgb(222, 169, 64);
+  font-size: 6vw;
 }
 </style>
