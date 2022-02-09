@@ -5,7 +5,8 @@
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
     <landing :vuecoonState="vuecoonState"></landing>
-    <editor :config="config" @download="onDownloadClicked" @modified="modified = true" @generated="generated = true" @typeChanged="typeChanged = true" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
+    <options :generateType="generateType" :layoutMode="layoutMode" @layoutChanged="changeLayoutMode" @typeChanged="chengeGenType"></options>
+    <editor :config="config" :generateType="generateType" :layoutMode="layoutMode" @download="onDownloadClicked" @modified="modified = true" @generated="generated = true" @typeChanged="typeChanged = true" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
     <supporters v-if="page === 'supporters'"></supporters>
     <div class="col-12 d-flex align-items-center footer" :class="page">
       <p><a href="javascript:void(0)" @click="showSupporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a></p>
@@ -22,10 +23,11 @@ import Supporters from './components/Supporters.vue';
 import Tip from './components/Tip.vue';
 import axios from "axios";
 import {debounce} from "@/utils/Helper";
+import Options from './components/Options.vue';
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { DownloadPanel, Landing, Editor, Tip, Supporters },
+  components: { DownloadPanel, Landing, Editor, Tip, Supporters, Options, Options },
   setup() {
     const showDownloadPanel = ref(false);
     const modified = ref(false);
@@ -38,6 +40,8 @@ export default defineComponent({
       Success: 'success'
     };
     const vuecoonState = ref(vuecoonStates.Default);
+    const generateType = ref('editor');
+    const layoutMode = ref('card');
 
     let idtoken = localStorage.getItem('idtoken');
     if (!idtoken) {
@@ -120,10 +124,17 @@ export default defineComponent({
     function setVuecoon(state) {
       vuecoonState.value = state;
     }
+    function changeLayoutMode(mode) {
+      layoutMode.value = mode;
+    }
+    function chengeGenType(type) {
+      generateType.value = type;
+    }
 
     return { page, showDownloadPanel, openGithub, showEditor, vuecoonState,
       config, download, onDownloadClicked, modified, generated, typeChanged,
-      downloaded, hasError, setSuccessVuecoon, setVuecoon, showSupporters }
+      downloaded, hasError, setSuccessVuecoon, setVuecoon, showSupporters,
+      changeLayoutMode, chengeGenType, generateType, layoutMode }
   }
 });
 
@@ -206,7 +217,7 @@ export default defineComponent({
   a:hover {
     color: #17a062;
   }
-
+  
   @-webkit-keyframes pulse {
     to {
       box-shadow: 0 0 0 15px rgba(66, 185, 131, 0);
