@@ -1,17 +1,10 @@
 <template>
-    <div class="codemirror custom-card">
+    <div class="codemirror custom-card shadow">
       <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData" @hasSyntaxError="$emit('hasError', $event)"></code-mirror>
     </div>
-    <!--<div class="browser-container">
+    <div class="browser-container mt-4">
       <div class="browser custom-card shadow">
-        <browser-frame v-model="appUrl"  @refresh="pageRefresh">
-          <div class="d-flex w-100 h-auto">
-            <tab v-if="generateType === generateTypes.Editor" :title="generateTypes.Editor" icon="pencil" class="active border-bottom-right"></tab>
-            <tab v-if="generateType === generateTypes.View" :title="generateTypes.View" icon="eye" class="active border-bottom-right"></tab>
-            <tab v-if="generateType === generateTypes.Form" :title="generateTypes.Form" icon="file-earmark-code" class="active border-bottom-right"></tab>
-            <tab class="inactive border-bottom-left"></tab>
-          </div>
-        </browser-frame>
+        <browser-frame v-model="appUrl"></browser-frame>
       </div>
       <div class="d-flex browser-buttons">
         <div class="fab-container mx-2">
@@ -78,7 +71,7 @@
           <span class="bi bi-download" aria-hidden="true"></span>
         </div>
       </div>
-    </div>-->
+    </div>
 </template>
 <script>
 import { defineComponent, ref, watchEffect } from 'vue';
