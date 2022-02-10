@@ -1,7 +1,7 @@
 <template>
   <div class="col-lg-8 col-md-12 supporters-page">
     <div class="d-flex flex-column align-items-center">
-      <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github" :class="page">
+      <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github">
         <div class="d-flex align-items-center px-2">
           <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
           <span class="bi bi-star-fill star-icon px-2" aria-hidden="true"></span>

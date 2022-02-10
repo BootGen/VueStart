@@ -8,7 +8,7 @@
     <options :generateType="generateType" :layoutMode="layoutMode" @layoutChanged="changeLayoutMode" @typeChanged="chengeGenType"></options>
     <editor :config="config" :generateType="generateType" :layoutMode="layoutMode" @download="onDownloadClicked" @modified="modified = true" @generated="generated = true" @typeChanged="typeChanged = true" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
     <supporters class="mt-4"></supporters>
-    <div class="col-12 d-flex align-items-center footer" :class="page">
+    <div class="col-12 d-flex align-items-center footer">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a></p>
     </div>
   </div>
@@ -79,27 +79,6 @@ export default defineComponent({
       vuecoonState.value = vuecoonStates.Default;
     }
 
-    function setShowContentForUrl(){
-      if (window.location.pathname === '/supporters')
-        page.value = 'supporters';
-      else
-        page.value = window.location.pathname === '/editor' ? 'content' : 'landing';
-    }
-    window.addEventListener('popstate', setShowContentForUrl);
-    window.addEventListener('load', setShowContentForUrl);
-    const page = ref('landing');
-
-    function showSupporters (){
-      window.scrollTo(0, 0);
-      page.value = 'supporters';
-      history.pushState({}, '', 'supporters');
-    }
-    function showEditor(){
-      window.scrollTo(0, 0);
-      page.value = 'content';
-      history.pushState({}, '', 'editor');
-    }
-
     async function download() {
       const response = await axios.post(downloadUrl, JSON.parse(localStorage.getItem('json')), {responseType: 'blob', ...config});
       const fileURL = window.URL.createObjectURL(new Blob([response.data]));
@@ -129,9 +108,9 @@ export default defineComponent({
       generateType.value = type;
     }
 
-    return { page, showDownloadPanel, showEditor, vuecoonState,
+    return { showDownloadPanel, vuecoonState,
       config, download, onDownloadClicked, modified, generated, typeChanged,
-      downloaded, hasError, setSuccessVuecoon, setVuecoon, showSupporters,
+      downloaded, hasError, setSuccessVuecoon, setVuecoon,
       changeLayoutMode, chengeGenType, generateType, layoutMode }
   }
 });
