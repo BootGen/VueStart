@@ -1,38 +1,19 @@
 {
-	"jediKnights": [
+	"tasks": [
 		{
-			"name": "Anakin Skywalker",
-			"age": 22,
-			"fallenToDarkSide": true,
-			"droids": [
-				{
-					"name": "C-3PO",
-					"type": "Protocol droid"
-				},
-				{
-					"name": "R2-D2",
-					"type": "Astromech droid"
-				}
-			],
-			"actor": {
-				"name": "Hayden Christensen",
-				"birthDate": "1981-04-19T12:00"
-			}
+			"title": "Buy Sour Cream",
+			"done": true,
+			"due": "2022-04-19T10:00"
 		},
 		{
-			"name": "Obi-Wan Kenobi",
-			"age": 36,
-			"fallenToDarkSide": false,
-			"droids": [
-				{
-					"name": "R4-P17",
-					"type": "Astromech droid"
-				}
-			],
-			"actor": {
-				"name": "Ewan McGregor",
-				"birthDate": "1971-03-31T12:00"
-			}
+			"title": "Cook Goulash",
+			"done": true,
+			"due": "2022-04-19T12:00"
+		},
+		{
+			"title": "Start Dishwasher",
+			"done": false,
+			"due": "2022-04-19T16:00"
 		}
 	]
 }
