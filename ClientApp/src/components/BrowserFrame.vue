@@ -17,56 +17,83 @@
         <span class="bi bi-arrow-clockwise icon clickable" aria-hidden="true" @click="$emit('refresh')"></span>
       </div>
       <div class="middle mx-2">
-        <input type="text" :value="'https://vuestart.com/' + modelValue" disabled>
+        <input type="text" :value="displayUrl" disabled>
       </div>
       <span class="bi bi-three-dots-vertical icon" aria-hidden="true"></span>
     </div>
     <div class="col-12 content">
-      <iframe id="frameA" class="h-100 w-100" :class="{hidden: !frameA}" :src="urlA" title="CodeSharp"></iframe>
-      <iframe id="frameB" class="h-100 w-100" :class="{hidden: frameA}" :src="urlB" title="CodeSharp"></iframe>
+      <iframe id="frameA" class="h-100 w-100" :class="{hidden: !frameA || !modelValue.page_url}" :src="urlA" title="CodeSharp"></iframe>
+      <iframe id="frameB" class="h-100 w-100" :class="{hidden: frameA || !modelValue.page_url}" :src="urlB" title="CodeSharp"></iframe>
+      <div class="col-12 h-100" id="source"></div>
     </div>
   </div>
 </template>
 
 <script>
-import { defineComponent, watch, ref, onMounted } from 'vue';
+import {defineComponent, ref, onMounted, watchEffect} from 'vue';
+import axios from "axios";
+import {EditorView} from "@codemirror/view";
+import {basicSetup, EditorState} from "@codemirror/basic-setup";
+import {html} from "@codemirror/lang-html";
 
 export default defineComponent({
   name: 'BrowserFrame',
   props: {
-    modelValue: String,
+    modelValue: Object,
+    config: Object,
     borderRadius: Boolean
   },
   emits: ['refresh'],
   setup(props) {
     const frameA = ref(true);
-    const urlA = ref(props.modelValue);
-    const urlB = ref("");
-    onMounted(function(){
-      watch(props, function(){
-        if (frameA.value) {
-          if (urlA.value === props.modelValue)
-            return;
-          urlB.value = props.modelValue
-          const onLoad = function() {
+    const urlA = ref(props.modelValue.page_url);
+    const urlB = ref('');
+    const displayUrl = ref('');
+    onMounted(function() {
+      watchEffect(function () {
+        if (props.modelValue.page_url) {
+          displayUrl.value = `https://vuestart.com/${props.modelValue.page_url}`
+          if (frameA.value) {
+            if (urlA.value === props.modelValue.page_url)
+              return;
+            urlB.value = props.modelValue.page_url
+            const onLoad = function () {
               document.getElementById('frameB').onload = undefined;
               frameA.value = false;
-          }
-          document.getElementById('frameB').onload = onLoad;
-        } else {
-          if (urlB.value === props.modelValue)
-            return;
-          urlA.value = props.modelValue
-          const onLoad = function() {
+            }
+            document.getElementById('frameB').onload = onLoad;
+          } else {
+            if (urlB.value === props.modelValue.page_url)
+              return;
+            urlA.value = props.modelValue.page_url
+            const onLoad = function () {
               document.getElementById('frameA').onload = undefined;
               frameA.value = true;
+            }
+            document.getElementById('frameA').onload = onLoad;
           }
-          document.getElementById('frameA').onload = onLoad;
+        }
+        if (props.modelValue.source_url) {
+          displayUrl.value = `view-source:https://vuestart.com/${props.modelValue.source_url}`
+          axios.get(props.modelValue.source_url, {responseType: 'text', ...props.config}).then(resp => {
+            editor.dispatch({
+              changes: {from: 0, to: editor.state.doc.length, insert: resp.data}
+            })
+          });
         }
       })
-    })
 
-    return {frameA, urlA, urlB}
+      const editor = new EditorView({
+        state: EditorState.create({
+          extensions: [
+            basicSetup,
+            html()
+          ]
+        }),
+        parent: document.getElementById('source')
+      })
+    });
+    return {frameA, urlA, urlB, displayUrl}
   }
 });
 </script>
@@ -79,6 +106,9 @@ export default defineComponent({
 }
 .browser-frame{
   height: calc( 100% - 3rem);
+}
+#source {
+  background-color: #fff;
 }
 .menu {    
   background-color: #fff;

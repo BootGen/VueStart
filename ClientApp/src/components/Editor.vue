@@ -4,7 +4,7 @@
     </div>
     <div class="browser-container" :class="page">
       <div class="browser custom-card shadow">
-        <browser-frame v-model="appUrl"  @refresh="pageRefresh" :borderRadius="selectedTab === 0">
+        <browser-frame v-model="browserData" :config="config"  @refresh="pageRefresh" :borderRadius="selectedTab === 0">
           <div class="d-flex w-100 h-auto">
             <tab :title="generateType" :icon="generatedTypeIcon" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
             <tab title="index.html" icon="code" :class="{'active': selectedTab === 1, 'inactive': selectedTab !== 1, 'border-bottom-left': selectedTab === 0, 'border-bottom-right': selectedTab === 2}" @select="selectedTab = 1"></tab>
@@ -81,7 +81,7 @@
     </div>
 </template>
 <script>
-import {computed, defineComponent, ref, watchEffect} from 'vue';
+import {computed, defineComponent, ref, watch, watchEffect} from 'vue';
 import CodeMirror from './CodeMirror.vue';
 import BrowserFrame from './BrowserFrame.vue'
 import Tab from "@/components/Tab";
@@ -102,13 +102,33 @@ export default defineComponent({
     const isFixable = ref(false);
     const json = ref('');
     const jsonSchema = ref(getSchema({}));
-    const appUrl = ref("");
     const selectedTab = ref(0);
+    const browserData = ref({ page_url: "" });
+    const generatedId = ref('');
     const generateTypes = {
       View: 'view',
       Form: 'form',
       Editor: 'editor',
     }
+    watch(selectedTab,function () {
+      switch (selectedTab.value) {
+        case 0:
+          browserData.value = {
+            page_url: `api/files/${generatedId.value}/index.html`
+          };
+          break;
+        case 1:
+          browserData.value = {
+            source_url: `api/files/${generatedId.value}/index.html`
+          };
+          break;
+        case 2:
+          browserData.value = {
+            source_url: `api/files/${generatedId.value}/app.js`
+          };
+          break;
+      }
+    })
     const generatedTypeIcon = computed(() =>{
       switch (generateType.value) {
         case generateTypes.Editor:
@@ -150,9 +170,19 @@ export default defineComponent({
     }
     async function generate(data) {
       try {
+        console.log(`api/generate/${generateType.value}/${layoutMode.value}/${tempColor.value}`);
         const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}/${tempColor.value}`, JSON.parse(data), props.config);
         saveToLocalStorage(data);
-        appUrl.value = `api/files/${resp.data.id}/index.html`;
+        generatedId.value = resp.data.id;
+        if (selectedTab.value === 0) {
+          browserData.value = {
+            page_url: `api/files/${resp.data.id}/index.html`
+          };
+        } else {
+          browserData.value = {
+            source_url: `api/files/${resp.data.id}/index.html`
+          };
+        }
         inputError.value = null;
         isFixable.value = false;
         context.emit('hasError', false);
@@ -198,13 +228,16 @@ export default defineComponent({
         context.emit('generated');
       }
       let debouncedGenerate = debounce(generateAndEmit, 1000);
-      watchEffect(() => {
-        if('#' + tempColor.value !== selectedColor.value){
+      watch([tempColor, selectedColor],() => {
+        if ('#' + tempColor.value !== selectedColor.value) {
           tempColor.value = selectedColor.value.slice(1, 7);
           document.getElementById('color-picker-btn').style.backgroundColor = selectedColor.value;
           setTextColor();
           debouncedGenerate(json.value);
         }
+      });
+      watch(json, () => {
+        console.log(json.value);
         try {
           if (validateJson(json.value).error)
             return;
@@ -257,9 +290,9 @@ export default defineComponent({
       debouncedRefresh();
     }
 
-    return { json, inputError, appUrl, generateType, generateTypes, layoutMode, layoutModes, selectedColor,
+    return { json, inputError, generateType, generateTypes, layoutMode, layoutModes, selectedColor,
       changeGeneratedMode, changeLayoutMode, fixData, isFixable, onDownloadClicked, triggerColorPicker, pageRefresh,
-      selectedTab, generatedTypeIcon}
+      selectedTab, generatedTypeIcon, browserData}
   },
 })
 </script>
