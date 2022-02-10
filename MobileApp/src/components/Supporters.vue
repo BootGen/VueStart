@@ -116,10 +116,10 @@ h3 {
 }
 
 .github-icon {
-  font-size: 9vw;
+  font-size: min(9vw, 5rem);
 }
 .star-icon {
   color: rgb(222, 169, 64);
-  font-size: 6vw;
+  font-size: min(6vw, 3.5rem);
 }
 </style>

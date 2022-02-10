@@ -26,7 +26,7 @@ export default defineComponent({
 
 <style scoped>
   .vuecoon {
-    width: 30vw;
+    width: min(29vw, 12rem);
   }
   .vue_logo {
     width: 3rem;
