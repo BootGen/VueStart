@@ -1,5 +1,5 @@
 <template>
-  <div class="alert m-2 alert-info d-flex align-items-center tip-msg" :class="{ 'show': !hideTips, 'hide' : hideTips }">
+  <div class="alert alert-info d-flex align-items-center tip-msg m-2" :class="{ 'show': !hideTips, 'hide' : hideTips }">
     {{ tipMessage }}
     <button type="button" class="btn p-2" aria-label="Hide" @click="hide"><span class="bi bi-bell-slash px-2" aria-hidden="true"></span></button>
   </div>
@@ -93,16 +93,5 @@ export default defineComponent({
   .tip-msg.hide{
     opacity: 0;
     visibility: hidden;
-  }
-  .alert {
-    left: 50%!important;
-    transform: translate(-50%,-40%)!important;
-  }
-  @media (max-width: 992px) {
-    .alert {
-      left: unset!important;
-      transform: unset!important;
-      width: -webkit-fill-available;
-    }
   }
 </style>

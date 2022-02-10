@@ -4,18 +4,18 @@
       <h5>Download</h5>
       <button type="button" class="m-1 btn close-btn" @click="$emit('close')"><span class="bi bi-x px-2" aria-hidden="true"></span></button>
     </div>
-    <div class="d-flex pt-1 flex-wrap btn-container">
-      <div class="d-flex flex-column align-items-center p-2 px-4">
+    <div class="d-flex pt-1 flex-wrap flex-column btn-container">
+      <div class="d-flex flex-column align-items-center p-2">
         <img class="logo img-fluid" alt="vue" src="../assets/html_css_js_logo.webp">
         <button class="btn fill-btn rounded-pill m-1 btn" @click="$emit('download')">Tradition Webpage</button>
         <p>With Vue 3 from CDN</p>
       </div>
-      <div class="d-flex flex-column align-items-center p-2 px-4">
+      <div class="d-flex flex-column align-items-center p-2">
         <img class="logo img-fluid" alt="vue" src="../assets/vue_coming_soon.webp">
         <button class="btn fill-btn rounded-pill m-1 btn" disabled>NPM project</button>
         <p>With standard Vue tooling</p>
       </div>
-      <div class="d-flex flex-column align-items-center p-2 px-4">
+      <div class="d-flex flex-column align-items-center p-2">
         <img class="logo img-fluid" alt="vue" src="../assets/nuxt_coming_soon.webp">
         <button class="btn fill-btn rounded-pill m-1 btn" disabled>Nuxt project</button>
         <p>The Intuitive Vue Framework</p>
@@ -40,10 +40,9 @@ export default defineComponent({
   border-radius: 5px;
 }
 .logo {
-  height: 150px;
-  width: 150px;
+  height: 90px;
+  width: 90px;
   object-fit: contain;
-  margin: 1rem;
 }
 .close-btn {
   font-size: 1.5rem;
@@ -52,14 +51,6 @@ export default defineComponent({
 }
 p {
   font-style: italic;
-}
-@media (max-width: 768px) {
-  .btn-container {
-    flex-direction: column;
-  }
-  .logo {
-    height: 90px;
-  }
 }
     
 </style>

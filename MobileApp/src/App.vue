@@ -1,6 +1,6 @@
 <template>
-  <div class="col-12 p-2">
-    <tip :modified="modified" :generated="generated" :typeChanged="typeChanged" :downloaded="downloaded" @success="setSuccessVuecoon" v-if="page === 'content'" ></tip>
+  <div class="col-12 d-flex flex-column align-items-center p-2">
+    <tip :modified="modified" :generated="generated" :typeChanged="typeChanged" :downloaded="downloaded" @success="setSuccessVuecoon"></tip>
     <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
@@ -22,7 +22,7 @@ import Editor from './components/Editor.vue';
 import Supporters from './components/Supporters.vue';
 import Tip from './components/Tip.vue';
 import axios from "axios";
-import {debounce} from "@/utils/Helper";
+import { debounce } from "@/utils/Helper";
 import Options from './components/Options.vue';
 
 export default defineComponent({
@@ -192,10 +192,6 @@ export default defineComponent({
   .small-text {
     font-size: 0.8rem;
   }
-  .github {
-    overflow: hidden;
-    cursor: pointer;
-  }
   .shadow {
     box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
   }
@@ -207,26 +203,5 @@ export default defineComponent({
   }
   a:hover {
     color: #17a062;
-  }
-  
-  @-webkit-keyframes pulse {
-    to {
-      box-shadow: 0 0 0 15px rgba(66, 185, 131, 0);
-    }
-  }
-  @-moz-keyframes pulse {
-    to {
-      box-shadow: 0 0 0 15px rgba(66, 185, 131, 0);
-    }
-  }
-  @-ms-keyframes pulse {
-    to {
-      box-shadow: 0 0 0 15px rgba(66, 185, 131, 0);
-    }
-  }
-  @keyframes pulse {
-    to {
-      box-shadow: 0 0 0 15px rgba(66, 185, 131, 0);
-    }
   }
 </style>

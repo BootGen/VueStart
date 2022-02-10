@@ -11,10 +11,9 @@ import { EditorState, basicSetup } from "@codemirror/basic-setup"
 import { EditorView, keymap, Decoration } from "@codemirror/view"
 import { indentWithTab } from "@codemirror/commands"
 import { json } from "@codemirror/lang-json"
-import {StateField, StateEffect} from "@codemirror/state"
+import { StateField, StateEffect } from "@codemirror/state"
 
-
-import {defineComponent, onMounted, watchEffect, ref, watch} from 'vue';
+import { defineComponent, onMounted, watchEffect, ref, watch } from 'vue';
 import Alert from './Alert.vue';
 import { debounce } from '@/utils/Helper';
 import { prettyPrint } from '@/utils/PrettyPrint';
@@ -215,9 +214,9 @@ export default defineComponent({
   }
 
   .alert-msg{
-    margin-left: 20px;
     transition: all 0.5s;
     margin-right: unset;
+    justify-content: center;
   }
   .alert-msg.show{
     opacity: 1;
@@ -227,15 +226,7 @@ export default defineComponent({
     opacity: 0;
     visibility: hidden;
   }
-  @media (max-width: 992px) {
-    .alert-msg {
-      margin-left: unset;
-      justify-content: center;
-    }
-  }
-  @media (max-width: 576px) {
-    .cm-line {
-      tab-size: 2;
-    }
+  .cm-line {
+    tab-size: 2;
   }
 </style>
