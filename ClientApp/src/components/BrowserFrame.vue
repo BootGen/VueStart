@@ -24,7 +24,8 @@
     <div class="col-12 content">
       <iframe id="frameA" class="h-100 w-100" :class="{hidden: !frameA || !modelValue.page_url}" :src="urlA" title="CodeSharp"></iframe>
       <iframe id="frameB" class="h-100 w-100" :class="{hidden: frameA || !modelValue.page_url}" :src="urlB" title="CodeSharp"></iframe>
-      <div class="col-12 h-100" id="source"></div>
+      <div class="col-12 h-100" id="js_source" :class="{hidden: !js || !modelValue.source_url}"></div>
+      <div class="col-12 h-100" id="html_source" :class="{hidden: js || !modelValue.source_url}"></div>
     </div>
   </div>
 </template>
@@ -34,6 +35,7 @@ import {defineComponent, ref, onMounted, watchEffect} from 'vue';
 import axios from "axios";
 import {EditorView} from "@codemirror/view";
 import {basicSetup, EditorState} from "@codemirror/basic-setup";
+import {javascript} from "@codemirror/lang-javascript";
 import {html} from "@codemirror/lang-html";
 
 export default defineComponent({
@@ -45,6 +47,7 @@ export default defineComponent({
   },
   emits: ['refresh'],
   setup(props) {
+    const js = ref(true);
     const frameA = ref(true);
     const urlA = ref(props.modelValue.page_url);
     const urlB = ref('');
@@ -76,24 +79,41 @@ export default defineComponent({
         if (props.modelValue.source_url) {
           displayUrl.value = `view-source:https://vuestart.com/${props.modelValue.source_url}`
           axios.get(props.modelValue.source_url, {responseType: 'text', ...props.config}).then(resp => {
-            editor.dispatch({
-              changes: {from: 0, to: editor.state.doc.length, insert: resp.data}
-            })
+            if (props.modelValue.source_url.endsWith('js')) {
+              js.value = true;
+              jsEditor.dispatch({
+                changes: {from: 0, to: jsEditor.state.doc.length, insert: resp.data}
+              })
+            } else {
+              js.value = false;
+              htmlEditor.dispatch({
+                changes: {from: 0, to: htmlEditor.state.doc.length, insert: resp.data}
+              })
+            }
           });
         }
       })
 
-      const editor = new EditorView({
+      const htmlEditor = new EditorView({
         state: EditorState.create({
           extensions: [
             basicSetup,
             html()
           ]
         }),
-        parent: document.getElementById('source')
-      })
+        parent: document.getElementById('html_source')
+      });
+      const jsEditor = new EditorView({
+        state: EditorState.create({
+          extensions: [
+            basicSetup,
+            javascript()
+          ]
+        }),
+        parent: document.getElementById('js_source')
+      });
     });
-    return {frameA, urlA, urlB, displayUrl}
+    return {frameA, urlA, urlB, displayUrl, js}
   }
 });
 </script>
@@ -107,7 +127,7 @@ export default defineComponent({
 .browser-frame{
   height: calc( 100% - 3rem);
 }
-#source {
+#js_source, #html_source {
   background-color: #fff;
 }
 .menu {    
