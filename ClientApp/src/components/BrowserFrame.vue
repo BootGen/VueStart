@@ -98,7 +98,8 @@ export default defineComponent({
         state: EditorState.create({
           extensions: [
             basicSetup,
-            html()
+            html(),
+            EditorView.editable.of(false)
           ]
         }),
         parent: document.getElementById('html_source')
@@ -107,7 +108,8 @@ export default defineComponent({
         state: EditorState.create({
           extensions: [
             basicSetup,
-            javascript()
+            javascript(),
+            EditorView.editable.of(false)
           ]
         }),
         parent: document.getElementById('js_source')
