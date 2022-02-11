@@ -1,6 +1,6 @@
 <template>
-  <iframe id="frameA" class="h-100 w-100" :class="{hidden: !frameA}" :src="urlA" title="CodeSharp"></iframe>
-  <iframe id="frameB" class="h-100 w-100" :class="{hidden: frameA}" :src="urlB" title="CodeSharp"></iframe>
+  <iframe id="frameA" class="w-100" :class="{hidden: !frameA}" :src="urlA" title="CodeSharp"></iframe>
+  <iframe id="frameB" class="w-100" :class="{hidden: frameA}" :src="urlB" title="CodeSharp"></iframe>
 </template>
 
 <script>
@@ -16,6 +16,9 @@ export default defineComponent({
     const urlA = ref(props.modelValue);
     const urlB = ref("");
     onMounted(function(){
+      let iframeA = document.querySelector('#frameA');
+      let iframeB = document.querySelector('#frameB');
+      
       watch(props, function(){
         if (frameA.value) {
           if (urlA.value === props.modelValue)
@@ -24,6 +27,9 @@ export default defineComponent({
           const onLoad = function() {
               document.getElementById('frameB').onload = undefined;
               frameA.value = false;
+              setTimeout(()=> {
+              iframeB.style.height = iframeB.contentDocument.body.scrollHeight + 40 + 'px';
+              }, 1000);
           }
           document.getElementById('frameB').onload = onLoad;
         } else {
@@ -33,6 +39,9 @@ export default defineComponent({
           const onLoad = function() {
               document.getElementById('frameA').onload = undefined;
               frameA.value = true;
+              setTimeout(()=> {
+              iframeA.style.height = iframeA.contentDocument.body.scrollHeight + 40 + 'px';
+              }, 1000);
           }
           document.getElementById('frameA').onload = onLoad;
         }
