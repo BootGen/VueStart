@@ -16,6 +16,26 @@
       <div class="d-flex browser-buttons">
         <div class="fab-container mx-2">
           <div class="fab fab-icon-holder">
+            <span class="bi bi-lightbulb" aria-hidden="true"></span>
+            <span class="ps-2">Example</span>
+          </div>
+          <ul class="fab-options">
+            <li>
+              <div class="fab-icon-holder" @click="loadSimpleExample">
+                <span class="bi bi-balloon" aria-hidden="true"></span>
+                <span class="ps-2">Simple</span>
+              </div>
+            </li>
+            <li>
+              <div class="fab-icon-holder" @click="loadAdvancedExample">
+                <span class="bi bi-robot" aria-hidden="true"></span>
+                <span class="ps-2">Advanced</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="fab-container">
+          <div class="fab fab-icon-holder">
             <span class="bi bi-pencil" aria-hidden="true" v-if="generateType === generateTypes.Editor"></span>
             <span class="bi bi-eye" aria-hidden="true" v-if="generateType === generateTypes.View"></span>
             <span class="bi bi-file-earmark-code" aria-hidden="true" v-if="generateType === generateTypes.Form"></span>
@@ -42,7 +62,7 @@
             </li>
           </ul>
         </div>
-        <div class="fab-container">
+        <div class="fab-container mx-2">
           <div class="fab fab-icon-holder">
             <span class="bi bi-view-stacked" aria-hidden="true" v-if="layoutMode === layoutModes.Card"></span>
             <span class="bi bi-text-indent-left" aria-hidden="true" v-if="layoutMode === layoutModes.Accordion"></span>
@@ -70,11 +90,11 @@
             </li>
           </ul>
         </div>
-        <div id="color-picker-btn" class="fab fab-icon-holder mx-2" @click="triggerColorPicker">
+        <div id="color-picker-btn" class="fab fab-icon-holder" @click="triggerColorPicker">
           <input type="color" class="form-control form-control-color position-absolute" id="colorInput" v-model="selectedColor" title="Choose your color">
           <span class="bi bi-palette" aria-hidden="true"></span>
         </div>
-        <div id="download-btn" class="fab fab-icon-holder pulse-download-btn" @click="onDownloadClicked">
+        <div id="download-btn" class="fab fab-icon-holder pulse-download-btn mx-2" @click="onDownloadClicked">
           <span class="bi bi-download" aria-hidden="true"></span>
         </div>
       </div>
@@ -211,6 +231,16 @@ export default defineComponent({
     }
 
     localStorage.removeItem('json');
+    function loadSimpleExample() {
+      getProjectContentFromServer('example_input').then( (content) => {
+        json.value = content;
+      })
+    }
+    function loadAdvancedExample() {
+      getProjectContentFromServer('advanced_example_input').then( (content) => {
+        json.value = content;
+      })
+    }
     getProjectContentFromServer('example_input').then( (content) => {
       json.value = content;
       jsonSchema.value = getSchema(JSON.parse(json.value));
@@ -284,7 +314,7 @@ export default defineComponent({
 
     return { json, inputError, generateType, generateTypes, layoutMode, layoutModes, selectedColor,
       changeGeneratedMode, changeLayoutMode, fixData, isFixable, onDownloadClicked, triggerColorPicker, pageRefresh,
-      selectedTab, generatedTypeIcon, browserData}
+      selectedTab, generatedTypeIcon, browserData, loadSimpleExample, loadAdvancedExample}
   },
 })
 </script>
