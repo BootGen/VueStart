@@ -103,7 +103,7 @@ export default defineComponent({
     const json = ref('');
     const jsonSchema = ref(getSchema({}));
     const selectedTab = ref(0);
-    const browserData = ref({ page_url: "" });
+    const browserData = ref({ page_url: '', source_url: '' });
     const generatedId = ref('');
     const generateTypes = {
       View: 'view',
@@ -119,12 +119,12 @@ export default defineComponent({
           break;
         case 1:
           browserData.value = {
-            source_url: `api/files/${generatedId.value}/index.html`
+            source_url: `api/files/${generatedId.value}/index.html?display=true`
           };
           break;
         case 2:
           browserData.value = {
-            source_url: `api/files/${generatedId.value}/app.js`
+            source_url: `api/files/${generatedId.value}/app.js?display=true`
           };
           break;
       }

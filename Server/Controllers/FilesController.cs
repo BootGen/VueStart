@@ -19,10 +19,12 @@ namespace VueStart.Controllers
 
         [HttpGet]
         [Route("{id}/{filename}")]
-        public IActionResult ServeFile([FromRoute] string id, [FromRoute] string filename) {
+        public IActionResult ServeFile([FromRoute] string id, [FromRoute] string filename, [FromQuery] bool display) {
             if (string.IsNullOrWhiteSpace(filename))
                 filename = "index.html";
             string key = $"{id}/{filename}";
+            if (display)
+                key += "_display";
             string content;
             if (!memoryCache.TryGetValue(key, out content))
                 return NotFound();

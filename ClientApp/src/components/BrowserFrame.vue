@@ -77,9 +77,9 @@ export default defineComponent({
           }
         }
         if (props.modelValue.source_url) {
-          displayUrl.value = `view-source:https://vuestart.com/${props.modelValue.source_url}`
+          displayUrl.value = `view-source:https://vuestart.com/${props.modelValue.source_url.split('?')[0]}`
           axios.get(props.modelValue.source_url, {responseType: 'text', ...props.config}).then(resp => {
-            if (props.modelValue.source_url.endsWith('js')) {
+            if (displayUrl.value.endsWith('js')) {
               js.value = true;
               jsEditor.dispatch({
                 changes: {from: 0, to: jsEditor.state.doc.length, insert: resp.data}
