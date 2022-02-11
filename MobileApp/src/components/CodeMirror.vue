@@ -1,6 +1,6 @@
 <template>
   <div class="col-12 h-100 p-0">
-    <div class="col-12 h-100" id="editor"></div>
+    <div class="col-12 h-100 p-0" id="editor"></div>
     <alert class="alert-msg" :class="{ 'show': syntaxError, 'hide': !syntaxError }" :errorMessage="syntaxError" :isFixable="false" @close="clearError"></alert>
     <alert class="alert-msg" :class="{ 'show': error && showError, 'hide': !error || !showError }" :errorMessage="error" :isFixable="isFixable" @close="clearError" @fixData="$emit('fixData')" v-if="!syntaxError"></alert>
   </div>

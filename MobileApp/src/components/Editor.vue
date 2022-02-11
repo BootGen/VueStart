@@ -1,12 +1,12 @@
 <template>
-    <div class="custom-card shadow w-100 mt-4">
+    <div class="custom-card shadow w-100 mt-5">
       <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData" @hasSyntaxError="$emit('hasError', $event)"></code-mirror>
     </div>
-    <div class="w-100 mt-4">
+    <div class="w-100 mt-5">
       <div class="browser custom-card shadow">
         <browser-frame v-model="appUrl"></browser-frame>
       </div>
-      <div class="d-flex mt-2">
+      <div class="d-flex mt-4">
         <div id="color-picker-btn" class="fab-icon-holder" @click="triggerColorPicker">
           <input type="color" class="form-control form-control-color position-absolute" id="colorInput" v-model="selectedColor" title="Choose your color">
           <span class="bi bi-palette" aria-hidden="true"></span>

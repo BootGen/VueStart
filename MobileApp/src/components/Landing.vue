@@ -1,13 +1,13 @@
 <template>
-  <div class="d-flex flex-column align-items-center">
+  <div class="d-flex flex-column align-items-center mt-3">
     <div class="d-flex align-items-center justify-content-center">
       <img class="vue_logo" alt="vue" :src="require(`../assets/vue_logo.webp`)">
       <p class="title">ue Start!</p>
     </div>
-    <img class="vuecoon img-fluid px-3" alt="Vuecoon" :src="require(`../assets/vuecoon_${vuecoonState}.webp`)">
-    <p class="lead text-center">
+    <img class="vuecoon img-fluid px-3 mt-4" alt="Vuecoon" :src="require(`../assets/vuecoon_${vuecoonState}.webp`)">
+    <span class="lead text-center mt-4">
       An online tool that generates UI components for Vue.js developers. Input some JSON data, chose a template, download the code and use it in any project.
-    </p>
+    </span>
   </div>
 </template>
 

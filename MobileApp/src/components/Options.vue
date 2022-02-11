@@ -1,6 +1,6 @@
 <template>
   <div class="col-lg-8 col-md-12 d-flex flex-column justify-content-center align-items-center browser-buttons">
-    <span class="mt-2">Generate type:</span>
+    <span>Generate type:</span>
     <div class="row w-100 justify-content-center">
       <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="generateType === generateTypes.Editor ? 'active' : 'inactive'" @click="$emit('typeChanged', generateTypes.Editor)">
         <span class="bi bi-pencil" aria-hidden="true"></span>

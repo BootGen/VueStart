@@ -1,5 +1,5 @@
 <template>
-  <div class="col-lg-8 col-md-12 supporters-page">
+  <div class="col-lg-11 col-md-12 supporters-page">
     <div class="d-flex flex-column align-items-center">
       <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github">
         <div class="d-flex align-items-center px-2">
@@ -25,7 +25,7 @@
     <div class="row">
       <div class="col-xxl-10 col-xl-12">
         <div class="row">
-          <div class="col-lg-1 col-md-2 col-sm-2 col-3" v-for="user in users" :key="user.username">
+          <div class="col-lg-1 col-md-2 col-sm-2 col-3 d-flex justify-content-center" v-for="user in users" :key="user.username">
             <div class="usertag">
               <a :href="`https://github.com/${user.username}`" target="_blank">
                 <img class="avatar avatar-user" :src="user.avatar" width="48" height="48" :alt="user.username">
@@ -78,7 +78,6 @@ h3 {
   margin-top: 30px;
   margin-left: auto;
   margin-right: auto;
-  padding: 20px;
 }
 .usertag {
   position: relative;
