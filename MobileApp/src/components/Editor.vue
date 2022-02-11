@@ -6,10 +6,13 @@
       <div class="browser custom-card shadow">
         <browser-frame v-model="appUrl"></browser-frame>
       </div>
-      <div class="d-flex">
-        <div id="color-picker-btn" class="fab-icon-holder mx-2" @click="triggerColorPicker">
+      <div class="d-flex mt-2">
+        <div id="color-picker-btn" class="fab-icon-holder" @click="triggerColorPicker">
           <input type="color" class="form-control form-control-color position-absolute" id="colorInput" v-model="selectedColor" title="Choose your color">
           <span class="bi bi-palette" aria-hidden="true"></span>
+        </div>
+        <div id="generate-btn" class="fab-icon-holder mx-2" @click="generate(json)">
+          <span class="bi bi-play-fill" aria-hidden="true"></span>
         </div>
         <div id="download-btn" class="fab-icon-holder pulse-download-btn" @click="onDownloadClicked">
           <span class="bi bi-download" aria-hidden="true"></span>
@@ -24,7 +27,6 @@ import BrowserFrame from './BrowserFrame.vue'
 import axios from "axios";
 import { getSchema } from "@/utils/Schema";
 import { debounce } from "@/utils/Helper";
-import { validateJson } from '@/utils/Validate';
 
 export default defineComponent({
   components: { CodeMirror, BrowserFrame },
@@ -113,25 +115,6 @@ export default defineComponent({
           tempColor.value = selectedColor.value.slice(1, 7);
           document.getElementById('color-picker-btn').style.backgroundColor = selectedColor.value;
           setTextColor();
-          debouncedGenerate(json.value);
-        }
-        try {
-          if (validateJson(json.value).error)
-            return;
-          const newSchema = getSchema(JSON.parse(json.value));
-          if(JSON.stringify(newSchema) !== JSON.stringify(jsonSchema.value)) {
-            jsonSchema.value = newSchema;
-            debouncedGenerate(json.value);
-          } else {
-            saveToLocalStorage(json.value);
-            inputError.value = null;
-          }
-        } catch (e) {
-          if (e.schemaError) {
-            inputError.value = e.schemaError;
-          } else {
-            console.log(e)
-          }
         }
       })
     });
@@ -157,18 +140,9 @@ export default defineComponent({
         document.getElementById('color-picker-btn').style.color = '#ffffff';
       }
     }
-    function refresh() {
-      generate(json.value);
-      context.emit('setVuecoon', 'default');
-    }
-    function pageRefresh() {
-      let debouncedRefresh = debounce(refresh, 1000);
-      context.emit('setVuecoon', 'loading');
-      debouncedRefresh();
-    }
 
     return { json, inputError, appUrl, selectedColor,
-      fixData, isFixable, onDownloadClicked, triggerColorPicker, pageRefresh }
+      fixData, isFixable, onDownloadClicked, triggerColorPicker, generate }
   },
 })
 </script>
