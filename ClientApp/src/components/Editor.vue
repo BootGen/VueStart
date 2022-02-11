@@ -110,7 +110,7 @@ export default defineComponent({
       Form: 'form',
       Editor: 'editor',
     }
-    watch(selectedTab,function () {
+    function seturl() {
       switch (selectedTab.value) {
         case 0:
           browserData.value = {
@@ -128,7 +128,8 @@ export default defineComponent({
           };
           break;
       }
-    })
+    }
+    watch(selectedTab, seturl);
     const generatedTypeIcon = computed(() =>{
       switch (generateType.value) {
         case generateTypes.Editor:
@@ -170,19 +171,10 @@ export default defineComponent({
     }
     async function generate(data) {
       try {
-        console.log(`api/generate/${generateType.value}/${layoutMode.value}/${tempColor.value}`);
         const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}/${tempColor.value}`, JSON.parse(data), props.config);
         saveToLocalStorage(data);
         generatedId.value = resp.data.id;
-        if (selectedTab.value === 0) {
-          browserData.value = {
-            page_url: `api/files/${resp.data.id}/index.html`
-          };
-        } else {
-          browserData.value = {
-            source_url: `api/files/${resp.data.id}/index.html`
-          };
-        }
+        seturl();
         inputError.value = null;
         isFixable.value = false;
         context.emit('hasError', false);
