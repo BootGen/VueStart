@@ -59,6 +59,7 @@ export default defineComponent({
     const vuecoonStates = {
       Default: 'default',
       Error: 'error',
+      Loading: 'loading',
       Success: 'success'
     };
     const vuecoonState = ref(vuecoonStates.Default);
@@ -85,7 +86,7 @@ export default defineComponent({
       if(value) {
         vuecoonState.value = vuecoonStates.Error;
       } else {
-        if (vuecoonState.value === vuecoonStates.Error)
+        if (vuecoonState.value !== vuecoonStates.Success)
           vuecoonState.value = vuecoonStates.Default;
       }
     }

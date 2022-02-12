@@ -232,11 +232,13 @@ export default defineComponent({
 
     localStorage.removeItem('json');
     function loadSimpleExample() {
+      context.emit('setVuecoon', 'loading');
       getProjectContentFromServer('example_input').then( (content) => {
         json.value = content;
       })
     }
     function loadAdvancedExample() {
+      context.emit('setVuecoon', 'loading');
       getProjectContentFromServer('advanced_example_input').then( (content) => {
         json.value = content;
       })
