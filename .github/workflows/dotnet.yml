@@ -31,17 +31,29 @@ jobs:
       with:
         name: server
         path: Server/bin/Release/net6.0/publish
-    - name: Install dependencies (npm)
+    - name: Install dependencies (npm, desktop)
       run: npm ci
       working-directory: ./ClientApp
-    - name: Build Client
+    - name: Build Client (desktop)
       run: npm run build
       working-directory: ./ClientApp
-    - name: Archive built client application
+    - name: Archive built client application (desktop)
       uses: actions/upload-artifact@v2
       with:
         name: client
         path: ClientApp/dist
+    - name: Install dependencies (npm, mobile)
+      run: npm ci
+      working-directory: ./MobileApp
+    - name: Build Client (mobile)
+      run: npm run build
+      working-directory: ./MobileApp
+    - name: Archive built client application (mobile)
+      uses: actions/upload-artifact@v2
+      with:
+        name: mobile
+        path: MobileApp/dist
+
 
   deploy:
     needs: build
