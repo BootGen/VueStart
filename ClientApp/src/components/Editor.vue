@@ -167,7 +167,7 @@ export default defineComponent({
       Accordion: 'accordion',
       Table: 'table'
     }
-    const layoutMode = ref(layoutModes.Card);
+    const layoutMode = ref(layoutModes.Table);
     const tempColor = ref('42b983');
     const selectedColor = ref('#42b983');
 
