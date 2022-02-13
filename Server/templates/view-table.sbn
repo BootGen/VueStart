@@ -81,7 +81,7 @@ app.component('{{ kebab_case class.name }}-data', {
     {{~ end ~}}
     {{~ for property in class.child_references ~}}
     <td class="align-middle">
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', value)">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', value)" v-if="value.{{ camel_case property.name }}">
         <span class="bi bi-eye" aria-hidden="true"></span>
       </button>
     </td>

@@ -161,7 +161,7 @@ app.component('{{ kebab_case class.name }}-form', {
 
 app.component('{{ kebab_case class.name }}', {
   template: `
-    <div class="col-12 mb-2" :key="idx">
+    <div class="col-12 mb-2" v-if="modelValue">
       <div class="card"> 
         <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @canceled="editing = false" v-if="editing"></{{ kebab_case class.name }}-form>
         <{{ kebab_case class.name }}-data :value="modelValue" @edit="editing = true" :deletable="deletable" @delete="$emit('delete')" v-else></{{ kebab_case class.name }}-data>
@@ -177,6 +177,11 @@ app.component('{{ kebab_case class.name }}', {
           </div>
         </div>
       {{~ end ~}}
+  </div>
+  <div class="col-12 mb-2" v-else>
+  <button type="button" class="btn btn-sm rounded-pill mb-1" @click="$emit('update:modelValue', {})">
+    <span class="bi bi-plus" aria-hidden="true"></span> Add {{ to_words class.name }}
+  </button>
   </div>`,
   name: '{{ class.name }}',
   props: {
