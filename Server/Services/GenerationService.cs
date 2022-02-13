@@ -127,6 +127,7 @@ class VueStartGenerator
     private IMemoryCache memoryCache;
     public VueStartGenerator(JsonElement json, IMemoryCache memoryCache)
     {
+        ClassModel.IdName = "$ID$";
         this.memoryCache = memoryCache;
         DataModel = new DataModel
         {
