@@ -38,6 +38,7 @@ export default defineComponent({
     const addUnderline = StateEffect.define();
     let emptyField = null;
     let underlineChanged = false;
+    let underLineEndIdx = -1;
     const underlineField = StateField.define({
       create() {
         return Decoration.none
@@ -45,14 +46,17 @@ export default defineComponent({
       update(underlines, tr) {
         if (!emptyField)
           emptyField = underlines;
-        if (underlineChanged) {
+        if (underlineChanged || tr.state.doc.length <= underLineEndIdx) {
+          underLineEndIdx = -1;
           underlineChanged = false;
           underlines = emptyField.map(tr.changes);
           for (let e of tr.effects)
             if (e.is(addUnderline)) {
               underlines = underlines.update({
                 add: [underlineMark.range(e.value.from, e.value.to)]
-              })
+              });
+              underLineEndIdx = e.value.to;
+              break
             }
         }
         return underlines
@@ -114,7 +118,7 @@ export default defineComponent({
                   }
                   debouncedSetErrorState(validationResult);
                   const value = editor.state.doc.toString();
-                  if (props.modelValue != value) {
+                  if (props.modelValue !== value) {
                     context.emit('update:modelValue', value);
                   }
               }

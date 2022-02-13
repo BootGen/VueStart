@@ -261,7 +261,6 @@ export default defineComponent({
         }
       });
       watch(json, () => {
-        console.log(json.value);
         try {
           if (validateJson(json.value).error)
             return;
