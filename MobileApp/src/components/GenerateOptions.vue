@@ -1,7 +1,11 @@
 <template>
-  <div class="col-lg-8 col-md-12 d-flex flex-column justify-content-center align-items-center browser-buttons">
-    <span>Generate type:</span>
-    <div class="row w-100 justify-content-center">
+  <div class="container">
+    <div class="row">
+      <div class="col text-center">
+        <span>Generate type:</span>
+      </div>
+    </div>
+    <div class="row flex-colum justify-content-center">
       <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="generateType === generateTypes.Editor ? 'active' : 'inactive'" @click="$emit('typeChanged', generateTypes.Editor)">
         <span class="bi bi-pencil" aria-hidden="true"></span>
         <span class="ps-2">Editor</span>
@@ -15,8 +19,12 @@
         <span class="ps-2">Form</span>
       </div>
     </div>
-    <span class="mt-4">Layout mode:</span>
-    <div class="row w-100 justify-content-center">
+    <div class="row">
+      <div class="col text-center">
+        <span>Layout mode:</span>
+      </div>
+    </div>
+    <div class="row flex-colum justify-content-center">
       <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="layoutMode === layoutModes.Card ? 'active' : 'inactive'" @click="$emit('layoutChanged', layoutModes.Card)">
         <span class="bi bi-view-stacked" aria-hidden="true"></span>
         <span class="ps-2">Card</span>
@@ -25,7 +33,7 @@
         <span class="bi bi-text-indent-left" aria-hidden="true"></span>
         <span class="ps-2">Accordion</span>
       </div>
-      <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="layoutMode === layoutModes.Table ? 'active' : 'inactive'" @click="$emit('layoutChanged', layoutModes.Table)">
+     <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="layoutMode === layoutModes.Table ? 'active' : 'inactive'" @click="$emit('layoutChanged', layoutModes.Table)">
         <span class="bi bi-table" aria-hidden="true"></span>
         <span class="ps-2">Table</span>
       </div>
@@ -36,7 +44,7 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'Options',
+  name: 'GenerateOptions',
   props: {
     generateType: String,
     layoutMode: String

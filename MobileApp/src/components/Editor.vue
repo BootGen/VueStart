@@ -1,35 +1,45 @@
 <template>
-    <div class="custom-card shadow w-100 mt-5">
+    <div class="custom-card shadow w-100 mt-4">
       <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData" @hasSyntaxError="$emit('hasError', $event)"></code-mirror>
     </div>
-    <div class="w-100 mt-5">
-      <div class="browser custom-card shadow">
-        <browser-frame v-model="appUrl"></browser-frame>
+    <div class="container mt-4">
+      <div class="row">
+        <div class="col text-center">
+          <span>Actions:</span>
+        </div>
       </div>
-      <div class="d-flex mt-4">
-        <div id="color-picker-btn" class="fab-icon-holder" @click="triggerColorPicker">
+      <div class="row flex-colum justify-content-center">
+        <div id="color-picker-btn" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" @click="triggerColorPicker">
           <input type="color" class="form-control form-control-color position-absolute" id="colorInput" v-model="selectedColor" title="Choose your color">
           <span class="bi bi-palette" aria-hidden="true"></span>
+          <span class="ps-2">Color</span>
         </div>
-        <div id="generate-btn" class="fab-icon-holder mx-2" @click="generate(json)">
-          <span class="bi bi-play-fill" aria-hidden="true"></span>
+        <div id="generate-btn" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" @click="generate(json)">
+          <span class="bi bi-arrow-right" aria-hidden="true"></span>
+          <span class="ps-2">Generate</span>
         </div>
-        <div id="download-btn" class="fab-icon-holder pulse-download-btn" @click="onDownloadClicked">
+        <div id="download-btn" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" @click="onDownloadClicked">
           <span class="bi bi-download" aria-hidden="true"></span>
+          <span class="ps-2">Download</span>
         </div>
       </div>
+    </div>
+    <browser-options :selected="selectedTab" :generateType="generateType" @select="selectTab"></browser-options>
+    <div class="browser custom-card shadow mt-2">
+      <browser-frame v-model="browserData"></browser-frame>
     </div>
 </template>
 <script>
 import { defineComponent, ref, watchEffect } from 'vue';
 import CodeMirror from './CodeMirror.vue';
-import BrowserFrame from './BrowserFrame.vue'
+import BrowserFrame from './BrowserFrame.vue';
+import BrowserOptions from './BrowserOptions.vue';
 import axios from "axios";
 import { getSchema } from "@/utils/Schema";
 import { debounce } from "@/utils/Helper";
 
 export default defineComponent({
-  components: { CodeMirror, BrowserFrame },
+  components: { CodeMirror, BrowserFrame, BrowserOptions },
   props: {
     config: Object,
     generateType: String,
@@ -46,6 +56,16 @@ export default defineComponent({
     const selectedColor = ref('#42b983');
     const generateType = ref(props.generateType);
     const layoutMode = ref(props.layoutMode);
+    const selectedTab = ref(0);
+    const browserData = ref({ page_url: '', source_url: '' });
+    const generatedId = ref('');
+
+    const views = {
+      View: 'view',
+      App: 'app.js',
+      Index: 'index.html'
+    }
+    const selectedView = ref(views.View);
 
     window.addEventListener('storage', () => {
       json.value = localStorage.getItem('json');
@@ -57,9 +77,19 @@ export default defineComponent({
     }
     async function generate(data) {
       try {
-        const resp = await axios.post(`api/generate/${props.generateType}/${props.layoutMode}/${tempColor.value}`, JSON.parse(data), props.config);
-        saveToLocalStorage(data);
+        const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}/${tempColor.value}`, JSON.parse(data), props.config);
         appUrl.value = `api/files/${resp.data.id}/index.html`;
+        saveToLocalStorage(data);
+        generatedId.value = resp.data.id;
+        if (selectedTab.value === 0) {
+          browserData.value = {
+            page_url: `api/files/${resp.data.id}/index.html`
+          };
+        } else {
+          browserData.value = {
+            source_url: `api/files/${resp.data.id}/index.html`
+          };
+        }
         inputError.value = null;
         isFixable.value = false;
         context.emit('hasError', false);
@@ -141,8 +171,29 @@ export default defineComponent({
       }
     }
 
+    function selectTab(mode) {
+      selectedTab.value = mode;
+      switch (selectedTab.value) {
+        case 0:
+          browserData.value = {
+            page_url: `api/files/${generatedId.value}/index.html`
+          };
+          break;
+        case 1:
+          browserData.value = {
+            source_url: `api/files/${generatedId.value}/index.html?display=true`
+          };
+          break;
+        case 2:
+          browserData.value = {
+            source_url: `api/files/${generatedId.value}/app.js?display=true`
+          };
+          break;
+      }
+    }
+
     return { json, inputError, appUrl, selectedColor,
-      fixData, isFixable, onDownloadClicked, triggerColorPicker, generate }
+      fixData, isFixable, onDownloadClicked, triggerColorPicker, generate, views, selectedView, selectedTab, selectTab, browserData }
   },
 })
 </script>
@@ -162,6 +213,7 @@ export default defineComponent({
   color: #ffffff;
   padding: 1rem;
   box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
+  margin: 0.25rem;
 }
 .fab-icon-holder .bi{
   font-size: 1.2rem;

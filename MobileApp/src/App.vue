@@ -1,11 +1,11 @@
 <template>
-  <div class="col-12 d-flex flex-column align-items-center p-2">
+  <div class="col-12 p-2">
     <tip :modified="modified" :generated="generated" :typeChanged="typeChanged" :downloaded="downloaded" @success="setSuccessVuecoon"></tip>
     <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
     <landing :vuecoonState="vuecoonState"></landing>
-    <options class="mt-5" :generateType="generateType" :layoutMode="layoutMode" @layoutChanged="changeLayoutMode" @typeChanged="chengeGenType"></options>
+    <generate-options class="mt-5" :generateType="generateType" :layoutMode="layoutMode" @layoutChanged="changeLayoutMode" @typeChanged="chengeGenType"></generate-options>
     <editor :config="config" :generateType="generateType" :layoutMode="layoutMode" @download="onDownloadClicked" @modified="modified = true" @generated="generated = true" @typeChanged="typeChanged = true" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
     <supporters class="mt-5"></supporters>
     <div class="col-12 d-flex align-items-center footer mt-3">
@@ -23,11 +23,11 @@ import Supporters from './components/Supporters.vue';
 import Tip from './components/Tip.vue';
 import axios from "axios";
 import { debounce } from "@/utils/Helper";
-import Options from './components/Options.vue';
+import GenerateOptions from './components/GenerateOptions.vue';
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { DownloadPanel, Landing, Editor, Tip, Supporters, Options, Options },
+  components: { DownloadPanel, Landing, Editor, Tip, Supporters, GenerateOptions },
   setup() {
     const showDownloadPanel = ref(false);
     const modified = ref(false);
