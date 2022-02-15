@@ -13,24 +13,28 @@
       </div>
     </div>
     <h3>The Team</h3>
-    <div class="row">
-      <div class="col-lg-6 col-md-6 py-1">
-        <git-hub-user username="echopot"></git-hub-user>
-      </div>
-      <div class="col-lg-6 col-md-6 py-1">
-        <git-hub-user username="agabor"></git-hub-user>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6 col-md-6 py-1">
+          <git-hub-user username="echopot"></git-hub-user>
+        </div>
+        <div class="col-lg-6 col-md-6 py-1">
+          <git-hub-user username="agabor"></git-hub-user>
+        </div>
       </div>
     </div>
     <h3>Supporters</h3>
-    <div class="row">
-      <div class="col-xxl-10 col-xl-12">
-        <div class="row">
-          <div class="col-lg-1 col-md-2 col-sm-2 col-3 d-flex justify-content-center" v-for="user in users" :key="user.username">
-            <div class="usertag">
-              <a :href="`https://github.com/${user.username}`" target="_blank">
-                <img class="avatar avatar-user" :src="user.avatar" width="48" height="48" :alt="user.username">
-              </a>
-              <span class="usertagtext">{{user.username}}</span>
+    <div class="container">
+      <div class="row">
+        <div class="col-xxl-10 col-xl-12">
+          <div class="row">
+            <div class="col-lg-1 col-md-2 col-sm-2 col-3 d-flex justify-content-center" v-for="user in users" :key="user.username">
+              <div class="usertag">
+                <a :href="`https://github.com/${user.username}`" target="_blank">
+                  <img class="avatar avatar-user" :src="user.avatar" width="48" height="48" :alt="user.username">
+                </a>
+                <span class="usertagtext">{{user.username}}</span>
+              </div>
             </div>
           </div>
         </div>

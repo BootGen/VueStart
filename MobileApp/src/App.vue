@@ -1,5 +1,5 @@
 <template>
-  <div class="col-12 p-2">
+  <div class="container-fluid m-0">
     <tip :modified="modified" :generated="generated" :typeChanged="typeChanged" :downloaded="downloaded" @success="setSuccessVuecoon"></tip>
     <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
@@ -118,6 +118,9 @@ export default defineComponent({
 </script>
 
 <style>
+.container-fluid{
+  width: auto!important;
+}
   .text-justify{
     text-align: justify;
   }

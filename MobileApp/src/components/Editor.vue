@@ -1,5 +1,5 @@
 <template>
-    <div class="custom-card shadow w-100 mt-4">
+    <div class="custom-card shadow mt-4">
       <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData" @hasSyntaxError="$emit('hasError', $event)"></code-mirror>
     </div>
     <div class="container mt-4">
