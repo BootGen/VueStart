@@ -8,6 +8,7 @@
     <span class="lead text-center mt-4">
       An online tool that generates UI components for Vue.js developers. Input some JSON data, chose a template, download the code and use it in any project.
     </span>
+    <p class="text-center small-text"><em>For the full feature set please visit this page from a desktop browser.</em></p>
   </div>
 </template>
 
