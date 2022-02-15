@@ -51,7 +51,6 @@ export default defineComponent({
     const isFixable = ref(false);
     const json = ref('');
     const jsonSchema = ref(getSchema({}));
-    const appUrl = ref("");
     const tempColor = ref('42b983');
     const selectedColor = ref('#42b983');
     const generateType = ref(props.generateType);
@@ -78,7 +77,6 @@ export default defineComponent({
     async function generate(data) {
       try {
         const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}/${tempColor.value}`, JSON.parse(data), props.config);
-        appUrl.value = `api/files/${resp.data.id}/index.html`;
         saveToLocalStorage(data);
         generatedId.value = resp.data.id;
         if (selectedTab.value === 0) {
@@ -130,11 +128,6 @@ export default defineComponent({
       json.value = content;
       jsonSchema.value = getSchema(JSON.parse(json.value));
       generate(json.value);
-      function generateAndEmit(data) {
-        generate(data);
-        context.emit('generated');
-      }
-      let debouncedGenerate = debounce(generateAndEmit, 1000);
       watchEffect(() => {
         if(props.generateType !== generateType.value || props.layoutMode !== layoutMode.value) {
           generateType.value = props.generateType;
@@ -192,7 +185,7 @@ export default defineComponent({
       }
     }
 
-    return { json, inputError, appUrl, selectedColor,
+    return { json, inputError, selectedColor,
       fixData, isFixable, onDownloadClicked, triggerColorPicker, generate, views, selectedView, selectedTab, selectTab, browserData }
   },
 })

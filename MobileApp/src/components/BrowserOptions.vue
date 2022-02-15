@@ -20,11 +20,11 @@
       </div>
       <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="selected === 1 ? 'active' : 'inactive'" @click="$emit('select', 1)">
         <span class="bi bi-code" aria-hidden="true"></span>
-        <span class="ps-2">app.js</span>
+        <span class="ps-2">index.html</span>
       </div>
       <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="selected === 2 ? 'active' : 'inactive'" @click="$emit('select', 2)">
         <span class="bi bi-code" aria-hidden="true"></span>
-        <span class="ps-2">index.html</span>
+        <span class="ps-2">app.js</span>
       </div>
     </div>
   </div>
