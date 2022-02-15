@@ -1,10 +1,9 @@
 <template>
   <div class="container-fluid m-0">
-    <tip :modified="modified" :generated="generated" :typeChanged="typeChanged" :downloaded="downloaded" @success="setSuccessVuecoon"></tip>
     <download-panel :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     <landing :vuecoonState="vuecoonState"></landing>
     <generate-options class="mt-5" :generateType="generateType" :layoutMode="layoutMode" @layoutChanged="changeLayoutMode" @typeChanged="chengeGenType"></generate-options>
-    <editor :config="config" :generateType="generateType" :layoutMode="layoutMode" @download="onDownloadClicked" @modified="modified = true" @generated="generated = true" @typeChanged="typeChanged = true" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
+    <editor :config="config" :generateType="generateType" :layoutMode="layoutMode" @download="onDownloadClicked" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
     <supporters class="mt-5"></supporters>
     <div class="col-12 d-flex align-items-center footer mt-3">
       <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a></p>
@@ -18,20 +17,14 @@ import DownloadPanel from './components/DownloadPanel.vue';
 import Landing from './components/Landing.vue';
 import Editor from './components/Editor.vue';
 import Supporters from './components/Supporters.vue';
-import Tip from './components/Tip.vue';
 import axios from "axios";
-import { debounce } from "@/utils/Helper";
 import GenerateOptions from './components/GenerateOptions.vue';
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { DownloadPanel, Landing, Editor, Tip, Supporters, GenerateOptions },
+  components: { DownloadPanel, Landing, Editor, Supporters, GenerateOptions },
   setup() {
     const showDownloadPanel = ref(false);
-    const modified = ref(false);
-    const generated = ref(false);
-    const typeChanged = ref(false);
-    const downloaded = ref(false);
     const vuecoonStates = {
       Default: 'default',
       Error: 'error',
@@ -68,15 +61,6 @@ export default defineComponent({
       }
     }
 
-    let debounceResetVuecoon = debounce(resetVuecoon, 2000);
-    function setSuccessVuecoon(){
-      vuecoonState.value = vuecoonStates.Success;
-      debounceResetVuecoon();
-    }
-    function resetVuecoon (){
-      vuecoonState.value = vuecoonStates.Default;
-    }
-
     async function download() {
       const response = await axios.post(downloadUrl, JSON.parse(localStorage.getItem('json')), {responseType: 'blob', ...config});
       const fileURL = window.URL.createObjectURL(new Blob([response.data]));
@@ -93,7 +77,6 @@ export default defineComponent({
       downloadUrl = url;
       downloadedFileName = fileName;
       showDownloadPanel.value = true;
-      downloaded.value = true;
     }
 
     function setVuecoon(state) {
@@ -107,8 +90,8 @@ export default defineComponent({
     }
 
     return { showDownloadPanel, vuecoonState,
-      config, download, onDownloadClicked, modified, generated, typeChanged,
-      downloaded, hasError, setSuccessVuecoon, setVuecoon,
+      config, download, onDownloadClicked,
+      hasError, setVuecoon,
       changeLayoutMode, chengeGenType, generateType, layoutMode }
   }
 });

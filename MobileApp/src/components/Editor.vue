@@ -45,7 +45,7 @@ export default defineComponent({
     generateType: String,
     layoutMode: String
   },
-  emits: ['download', 'modified', 'generated', 'typeChanged', 'hasError', 'setVuecoon'],
+  emits: ['download', 'hasError', 'setVuecoon'],
   setup(props, context) {
     const inputError = ref(null);
     const isFixable = ref(false);
@@ -107,8 +107,6 @@ export default defineComponent({
       let oldValue = localStorage.getItem('json');
       if (minimized !== oldValue) {
         localStorage.setItem('json', minimized);
-        if (oldValue)
-          context.emit('modified');
       }
       const downloadButton = document.getElementById('download-btn');
       downloadButton.classList.add('pulse-download-btn');
