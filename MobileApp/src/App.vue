@@ -5,8 +5,10 @@
     <generate-options class="mt-5" :generateType="generateType" :layoutMode="layoutMode" @layoutChanged="changeLayoutMode" @typeChanged="chengeGenType"></generate-options>
     <editor :config="config" :generateType="generateType" :layoutMode="layoutMode" @download="onDownloadClicked" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
     <supporters class="mt-5"></supporters>
-    <div class="col-12 d-flex align-items-center footer mt-3">
-      <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a></p>
+    <div class="row">
+      <div class="col-12 d-flex align-items-center footer mt-3">
+        <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a></p>
+      </div>
     </div>
   </div>
 </template>
