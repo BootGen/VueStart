@@ -1,8 +1,8 @@
 <template>
   <div class="col-12 h-100 p-0">
     <div class="col-12 h-100 p-0" id="editor"></div>
-    <alert class="fixed-bottom alert-msg m-2" :class="{ 'show': syntaxError, 'hide': !syntaxError }" :errorMessage="syntaxError" :isFixable="false" @close="clearError"></alert>
-    <alert class="fixed-bottom alert-msg m-2" :class="{ 'show': error && showError, 'hide': !error || !showError }" :errorMessage="error" :isFixable="isFixable" @close="clearError" @fixData="$emit('fixData')" v-if="!syntaxError"></alert>
+    <alert class="alert-msg" :class="{ 'show': syntaxError, 'hide': !syntaxError }" :errorMessage="syntaxError" :isFixable="false" @close="clearError"></alert>
+    <alert class="alert-msg" :class="{ 'show': error && showError, 'hide': !error || !showError }" :errorMessage="error" :isFixable="isFixable" @close="clearError" @fixData="$emit('fixData')" v-if="!syntaxError"></alert>
   </div>
 </template>
 
@@ -215,8 +215,6 @@ export default defineComponent({
 
   .alert-msg{
     transition: all 0.5s;
-    margin-right: unset;
-    justify-content: center;
   }
   .alert-msg.show{
     opacity: 1;

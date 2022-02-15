@@ -1,9 +1,7 @@
 <template>
   <div class="container-fluid m-0">
     <tip :modified="modified" :generated="generated" :typeChanged="typeChanged" :downloaded="downloaded" @success="setSuccessVuecoon"></tip>
-    <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
-      <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
-    </div>
+    <download-panel :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     <landing :vuecoonState="vuecoonState"></landing>
     <generate-options class="mt-5" :generateType="generateType" :layoutMode="layoutMode" @layoutChanged="changeLayoutMode" @typeChanged="chengeGenType"></generate-options>
     <editor :config="config" :generateType="generateType" :layoutMode="layoutMode" @download="onDownloadClicked" @modified="modified = true" @generated="generated = true" @typeChanged="typeChanged = true" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
@@ -118,16 +116,14 @@ export default defineComponent({
 </script>
 
 <style>
-.container-fluid{
-  width: auto!important;
-}
+  .container-fluid{
+    width: auto!important;
+  }
   .text-justify{
     text-align: justify;
   }
   .download-panel{
     transition: all 1s ease-in-out;
-    width: max-content;
-    margin: 1rem auto;
   }
   .download-panel.show{
     opacity: 1;
@@ -136,24 +132,6 @@ export default defineComponent({
     opacity: 0;
     visibility: hidden;
     margin-top: 100%;
-  }
-  .download-panel-container {
-    transition: all 1s ease-in-out;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.1);
-    z-index: 999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .download-panel-container.show{
-    opacity: 1;
-  }
-  .download-panel-container.hide{
-    opacity: 0;
-    visibility: hidden;
   }
 
   .fab-options li {
