@@ -1,5 +1,5 @@
 <template>
-  <div class="alert alert-info d-flex align-items-center tip-msg m-2" :class="{ 'show': !hideTips, 'hide' : hideTips }">
+  <div class="alert alert-info d-flex fixed-bottom tip-msg mx-2" :class="{ 'show': !hideTips, 'hide' : hideTips }">
     {{ tipMessage }}
     <button type="button" class="btn p-2" aria-label="Hide" @click="hide"><span class="bi bi-bell-slash px-2" aria-hidden="true"></span></button>
   </div>
@@ -80,9 +80,6 @@ export default defineComponent({
 
 <style scoped>
   .tip-msg{
-    bottom: 0;
-    justify-content: center!important;
-    position: fixed;
     z-index: 999;
     transition: all 1s ease-in-out;
   }
