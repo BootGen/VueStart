@@ -1,5 +1,5 @@
 <template>
-  <div class="alert alert-info d-flex fixed-bottom tip-msg mx-2" :class="{ 'show': !hideTips, 'hide' : hideTips }">
+  <div class="alert alert-info d-flex fixed-bottom tip-msg justify-content-center align-items-center mx-2" :class="{ 'show': !hideTips, 'hide' : hideTips }">
     {{ tipMessage }}
     <button type="button" class="btn p-2" aria-label="Hide" @click="hide"><span class="bi bi-bell-slash px-2" aria-hidden="true"></span></button>
   </div>

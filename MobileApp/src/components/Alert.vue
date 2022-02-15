@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex alert alert-warning error-alert-container align-items-center m-2">
+  <div class="alert alert-warning d-flex fixed-bottom error-alert-container justify-content-center align-items-center mx-2">
     <div class="text-center">
       {{ lastErrorMessage }} <br>
       <button type="button" class="btn btn-warning" aria-label="Fix" @click="$emit('fixData')" v-if="isFixable">Fix it!</button>
@@ -31,9 +31,6 @@ export default defineComponent({
 
 <style>
   .error-alert-container {
-    position: fixed;
-    bottom: 0;
-    justify-content: center!important;
     z-index: 999;
   }
 </style>
