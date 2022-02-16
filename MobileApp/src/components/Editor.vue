@@ -85,7 +85,7 @@ export default defineComponent({
           };
         } else {
           browserData.value = {
-            source_url: `api/files/${resp.data.id}/index.html`
+            source_url: `api/files/${resp.data.id}/index.html?display=true`
           };
         }
         inputError.value = null;
