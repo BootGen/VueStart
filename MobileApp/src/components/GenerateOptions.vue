@@ -29,9 +29,9 @@
         <span class="bi bi-view-stacked" aria-hidden="true"></span>
         <span class="ps-2">Card</span>
       </div>
-      <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="layoutMode === layoutModes.Accordion ? 'active' : 'inactive'" @click="$emit('layoutChanged', layoutModes.Accordion)">
+      <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="layoutMode === layoutModes.Wizard ? 'active' : 'inactive'" @click="$emit('layoutChanged', layoutModes.Wizard)">
         <span class="bi bi-text-indent-left" aria-hidden="true"></span>
-        <span class="ps-2">Accordion</span>
+        <span class="ps-2">Wizard</span>
       </div>
      <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="layoutMode === layoutModes.Table ? 'active' : 'inactive'" @click="$emit('layoutChanged', layoutModes.Table)">
         <span class="bi bi-table" aria-hidden="true"></span>
@@ -58,7 +58,7 @@ export default defineComponent({
     }
     const layoutModes = {
       Card: 'card',
-      Accordion: 'accordion',
+      Wizard: 'wizard',
       Table: 'table'
     }
 

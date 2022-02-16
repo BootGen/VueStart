@@ -65,7 +65,7 @@
         <div class="fab-container mx-2">
           <div class="fab fab-icon-holder">
             <span class="bi bi-view-stacked" aria-hidden="true" v-if="layoutMode === layoutModes.Card"></span>
-            <span class="bi bi-text-indent-left" aria-hidden="true" v-if="layoutMode === layoutModes.Accordion"></span>
+            <span class="bi bi-text-indent-left" aria-hidden="true" v-if="layoutMode === layoutModes.Wizard"></span>
             <span class="bi bi-table" aria-hidden="true" v-if="layoutMode === layoutModes.Table"></span>
             <span class="ps-2">Layout</span>
           </div>
@@ -77,9 +77,9 @@
               </div>
             </li>
             <li>
-              <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Accordion)">
+              <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Wizard)">
                 <span class="bi bi-text-indent-left" aria-hidden="true"></span>
-                <span class="ps-2">Accordion</span>
+                <span class="ps-2">Wizard</span>
               </div>
             </li>
             <li>
@@ -164,7 +164,7 @@ export default defineComponent({
     const generateType = ref(generateTypes.Editor);
     const layoutModes = {
       Card: 'card',
-      Accordion: 'accordion',
+      Wizard: 'wizard',
       Table: 'table'
     }
     const layoutMode = ref(layoutModes.Table);
