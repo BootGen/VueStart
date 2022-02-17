@@ -177,11 +177,6 @@ app.component('{{ kebab_case class.name }}', {
           </div>
         </div>
       {{~ end ~}}
-  </div>
-  <div class="col-12 mb-2" v-else>
-  <button type="button" class="btn btn-sm rounded-pill mb-1" @click="$emit('update:modelValue', {})">
-    <span class="bi bi-plus" aria-hidden="true"></span> Add {{ to_words class.name }}
-  </button>
   </div>`,
   name: '{{ class.name }}',
   props: {
@@ -217,30 +212,26 @@ app.component('{{ kebab_case class.name }}', {
 
 app.component('{{ kebab_case class.name }}-list', {
   template: `
-  <div class="accordion" id="{{ class.name.plural }}">
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="{{ class.name.plural }}-headingOne">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" :data-bs-target="'#'+accordionId" aria-expanded="true" :aria-controls="accordionId">
-          <h5>{{ class.name.plural }}:</h5>
-        </button>
-      </h2>
-      <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
-      <div :id="accordionId" class="accordion-collapse collapse show" aria-labelledby="{{ class.name.plural }}-headingOne">
-        <div class="accordion-body">
-          <{{ kebab_case class.name }} v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" :deletable="true" @delete="deleteItem(idx)" v-if="modelValue">
-          </{{ kebab_case class.name }}>
-          <div v-if="newItem != null">
-            <div class="card">
-              <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem($event)" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
-            </div>
-          </div>
-          <div class="d-flex" v-if="newItem == null">
-            <button type="button" class="btn btn-sm rounded-pill" @click="addNewItem()">
-              <span class="bi bi-plus" aria-hidden="true"></span> Add {{ to_words class.name }}
-            </button>
-          </div>
-        </div>
-      </div>
+  <h5>{{ class.name.plural }}:</h5>
+  <{{ kebab_case class.name }} :modelValue="modelValue[tabIdx]" @update:modelValue="updateItem(tabIdx, $event)" :deletable="true" @delete="deleteItem(tabIdx)" v-if="modelValue"></{{ kebab_case class.name }}>
+  <div v-if="newItem != null">
+    <div class="card">
+      <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem($event)" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
+    </div>
+  </div>
+  <div class="d-flex justify-content-between mt-2">
+    <div>
+      <button type="button" class="btn btn-sm rounded-pill" @click="addNewItem()" v-if="newItem == null">
+        <span class="bi bi-plus" aria-hidden="true"></span> Add {{ to_words class.name }}
+      </button>
+    </div>
+    <div class="d-flex">
+      <button type="button" class="btn btn-sm rounded-pill" @click="tabIdx = tabIdx -1" :disabled="tabIdx <= 0">
+        <span class="bi bi-arrow-left" aria-hidden="true"></span> Previous
+      </button>
+      <button type="button" class="btn btn-sm rounded-pill" @click="tabIdx = tabIdx + 1" :disabled="tabIdx > modelValue.length-2">
+        Next <span class="bi bi-arrow-right" aria-hidden="true"></span>
+      </button>
     </div>
   </div>`,
   name: '{{ class.name }}List',
@@ -251,6 +242,7 @@ app.component('{{ kebab_case class.name }}-list', {
   setup(props, context) {
     const newItem = ref(null);
     const accordionId = randomToken();
+    const tabIdx = ref(0);
 
     function deleteItem(idx) {
       if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
@@ -290,7 +282,8 @@ app.component('{{ kebab_case class.name }}-list', {
       addNewItem,
       saveNewItem,
       cancelAdd,
-      accordionId
+      accordionId,
+      tabIdx
     };
   }
 });
