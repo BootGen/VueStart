@@ -32,11 +32,11 @@ namespace VueStart.Controllers
                 return BadRequest(new { error = "The root element must be an object!", fixable = false });
             }
             try {
-                var artifactType = type.ToArtifactType();
+                var artifactType = layout.ToArtifactType();
                 if (artifactType == ArtifactType.None)
                     return NotFound();
                 statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Generate, artifactType);
-                string artifactId = generationService.GenerateToCache(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn", color);
+                string artifactId = generationService.GenerateToCache(json, $"Data {ToUpperFirst(layout)}", $"{type}-{layout}.sbn", color);
                 statisticsService.OnGenerateEnd();
                 return Ok(new { Id = artifactId });
             } catch (FormatException e) {

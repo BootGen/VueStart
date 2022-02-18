@@ -2,8 +2,8 @@
   <div class="container-fluid m-0">
     <download-panel :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     <landing :vuecoonState="vuecoonState"></landing>
-    <generate-options class="mt-5" :generateType="generateType" :layoutMode="layoutMode" @layoutChanged="changeLayoutMode" @typeChanged="chengeGenType"></generate-options>
-    <editor :config="config" :generateType="generateType" :layoutMode="layoutMode" @download="onDownloadClicked" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
+    <generate-options class="mt-5" :layoutMode="layoutMode" @layoutChanged="changeLayoutMode"></generate-options>
+    <editor :config="config" :layoutMode="layoutMode" @download="onDownloadClicked" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
     <supporters class="mt-5"></supporters>
     <div class="row">
       <div class="col-12 d-flex align-items-center footer mt-3">
@@ -33,7 +33,6 @@ export default defineComponent({
       Success: 'success'
     };
     const vuecoonState = ref(vuecoonStates.Default);
-    const generateType = ref('editor');
     const layoutMode = ref('card');
 
     let idtoken = localStorage.getItem('idtoken');
@@ -87,14 +86,11 @@ export default defineComponent({
     function changeLayoutMode(mode) {
       layoutMode.value = mode;
     }
-    function chengeGenType(type) {
-      generateType.value = type;
-    }
 
     return { showDownloadPanel, vuecoonState,
       config, download, onDownloadClicked,
       hasError, setVuecoon,
-      changeLayoutMode, chengeGenType, generateType, layoutMode }
+      changeLayoutMode, layoutMode }
   }
 });
 

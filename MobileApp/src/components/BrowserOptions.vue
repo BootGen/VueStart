@@ -6,15 +6,15 @@
       </div>
     </div>
     <div class="row flex-colum justify-content-center">
-      <div v-if="generateType === 'editor'" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
+      <div v-if="layoutMode === 'editor'" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
         <span class="bi bi-pencil" aria-hidden="true"></span>
         <span class="ps-2">Editor</span>
       </div>
-      <div v-else-if="generateType === 'view'" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
+      <div v-else-if="layoutMode === 'card'" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
         <span class="bi bi-eye" aria-hidden="true"></span>
         <span class="ps-2">View</span>
       </div>
-      <div v-else class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
+      <div v-else-if="layoutMode === 'wizard'" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
         <span class="bi bi-file-earmark-code" aria-hidden="true"></span>
         <span class="ps-2">Form</span>
       </div>
@@ -36,7 +36,7 @@ export default defineComponent({
   name: 'GenerateOptions',
   props: {
     selected: Number,
-    generateType: String,
+    layoutMode: String,
   },
   emits: ['select'],
   setup() {

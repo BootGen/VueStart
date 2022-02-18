@@ -71,28 +71,28 @@ namespace VueStart.Services
                 case ActionType.Download:
                 switch (artifactType)
                 {
-                    case ArtifactType.View:
-                    record.ViewDownloadedCount += 1;
+                    case ArtifactType.Card:
+                    record.CardDownloadedCount += 1;
                     break;
-                    case ArtifactType.Form:
-                    record.FormDownloadedCount += 1;
+                    case ArtifactType.Table:
+                    record.TableDownloadedCount += 1;
                     break;
-                    case ArtifactType.Editor:
-                    record.EditorDownloadedCount += 1;
+                    case ArtifactType.Wizard:
+                    record.WizardDownloadedCount += 1;
                     break;
                 }
                 break;
                 case ActionType.Generate:
                 switch (artifactType)
                 {
-                    case ArtifactType.View:
-                    record.ViewGeneratedCount += 1;
+                    case ArtifactType.Card:
+                    record.CardGeneratedCount += 1;
                     break;
-                    case ArtifactType.Form:
-                    record.FormGeneratedCount += 1;
+                    case ArtifactType.Table:
+                    record.TableGeneratedCount += 1;
                     break;
-                    case ArtifactType.Editor:
-                    record.EditorGeneratedCount += 1;
+                    case ArtifactType.Wizard:
+                    record.WizardGeneratedCount += 1;
                     break;
                 }
                 break;
@@ -216,12 +216,12 @@ namespace VueStart.Services
                 var existingRecord = dbContext.StatisticRecords.FirstOrDefault(r => r.Hash == record.Hash);
                 if (existingRecord != null)
                 {
-                    existingRecord.ViewGeneratedCount += record.ViewGeneratedCount;
-                    existingRecord.ViewDownloadedCount += record.ViewDownloadedCount;
-                    existingRecord.FormGeneratedCount += record.FormGeneratedCount;
-                    existingRecord.FormDownloadedCount += record.FormDownloadedCount;
-                    existingRecord.EditorGeneratedCount += record.EditorGeneratedCount;
-                    existingRecord.EditorDownloadedCount += record.EditorDownloadedCount;
+                    existingRecord.CardGeneratedCount += record.CardGeneratedCount;
+                    existingRecord.CardDownloadedCount += record.CardDownloadedCount;
+                    existingRecord.TableGeneratedCount += record.TableGeneratedCount;
+                    existingRecord.TableDownloadedCount += record.TableDownloadedCount;
+                    existingRecord.WizardGeneratedCount += record.WizardGeneratedCount;
+                    existingRecord.WizardDownloadedCount += record.WizardDownloadedCount;
                     existingRecord.LastUse = record.LastUse;
                 }
                 else
