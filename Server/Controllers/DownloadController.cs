@@ -32,13 +32,13 @@ namespace VueStart.Controllers
         public IActionResult DownloadEditor([FromBody] JsonElement json, string type, string layout, string color)
         {
             try {
-                var artifactType = type.ToArtifactType();
+                var artifactType = layout.ToArtifactType();
                 if (artifactType == ArtifactType.None)
                     return NotFound();
                 statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Download, artifactType);
-                var memoryStream = CreateZipStream(json, $"Data {ToUpperFirst(type)}", $"{type}-{layout}.sbn", color);
+                var memoryStream = CreateZipStream(json, $"Data {ToUpperFirst(layout)}", $"{type}-{layout}.sbn", color);
                 statisticsService.OnDownloadEnd();
-                return File(memoryStream, "application/zip", $"{type}.zip");
+                return File(memoryStream, "application/zip", $"{layout}.zip");
             } catch (FormatException e) {
                 return BadRequest(new { error = e.Message });
             }

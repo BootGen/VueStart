@@ -24,7 +24,7 @@
         </div>
       </div>
     </div>
-    <browser-options :selected="selectedTab" :generateType="generateType" @select="selectTab"></browser-options>
+    <browser-options :selected="selectedTab" :layoutMode="layoutMode" @select="selectTab"></browser-options>
     <div class="browser custom-card shadow mt-2">
       <browser-frame v-model="browserData"></browser-frame>
     </div>
@@ -42,7 +42,6 @@ export default defineComponent({
   components: { CodeMirror, BrowserFrame, BrowserOptions },
   props: {
     config: Object,
-    generateType: String,
     layoutMode: String
   },
   emits: ['download', 'hasError', 'setVuecoon'],
@@ -53,7 +52,6 @@ export default defineComponent({
     const jsonSchema = ref(getSchema({}));
     const tempColor = ref('42b983');
     const selectedColor = ref('#42b983');
-    const generateType = ref(props.generateType);
     const layoutMode = ref(props.layoutMode);
     const selectedTab = ref(0);
     const browserData = ref({ page_url: '', source_url: '' });
@@ -76,7 +74,7 @@ export default defineComponent({
     }
     async function generate(data) {
       try {
-        const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}/${tempColor.value}`, JSON.parse(data), props.config);
+        const resp = await axios.post(`api/generate/bootstrap/${layoutMode.value}/${tempColor.value}`, JSON.parse(data), props.config);
         saveToLocalStorage(data);
         generatedId.value = resp.data.id;
         if (selectedTab.value === 0) {
@@ -127,8 +125,7 @@ export default defineComponent({
       jsonSchema.value = getSchema(JSON.parse(json.value));
       generate(json.value);
       watchEffect(() => {
-        if(props.generateType !== generateType.value || props.layoutMode !== layoutMode.value) {
-          generateType.value = props.generateType;
+        if(props.layoutMode !== layoutMode.value) {
           layoutMode.value = props.layoutMode;
           generate(json.value);
         }
@@ -140,7 +137,7 @@ export default defineComponent({
       })
     });
     function onDownloadClicked() {
-      context.emit('download', `api/download/${props.generateType}/${props.layoutMode}/${tempColor.value}`, `${props.generateType}.zip`)
+      context.emit('download', `api/download/bootstrap/${props.layoutMode}/${tempColor.value}`, `${props.layoutMode}.zip`)
     }
     function triggerColorPicker() {
       document.getElementById("colorInput").click();

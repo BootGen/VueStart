@@ -2,26 +2,7 @@
   <div class="container">
     <div class="row">
       <div class="col text-center">
-        <span>Generate type:</span>
-      </div>
-    </div>
-    <div class="row flex-colum justify-content-center">
-      <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="generateType === generateTypes.Editor ? 'active' : 'inactive'" @click="$emit('typeChanged', generateTypes.Editor)">
-        <span class="bi bi-pencil" aria-hidden="true"></span>
-        <span class="ps-2">Editor</span>
-      </div>
-      <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="generateType === generateTypes.View ? 'active' : 'inactive'" @click="$emit('typeChanged', generateTypes.View)">
-        <span class="bi bi-eye" aria-hidden="true"></span>
-        <span class="ps-2">View</span>
-      </div>
-      <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="generateType === generateTypes.Form ? 'active' : 'inactive'" @click="$emit('typeChanged', generateTypes.Form)">
-        <span class="bi bi-file-earmark-code" aria-hidden="true"></span>
-        <span class="ps-2">Form</span>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col text-center">
-        <span>Layout mode:</span>
+        <span>Templates:</span>
       </div>
     </div>
     <div class="row flex-colum justify-content-center">
@@ -46,23 +27,17 @@ import { defineComponent } from 'vue';
 export default defineComponent({
   name: 'GenerateOptions',
   props: {
-    generateType: String,
     layoutMode: String
   },
-  emits: ['layoutChanged', 'typeChanged'],
+  emits: ['layoutChanged',],
   setup() {
-    const generateTypes = {
-      View: 'view',
-      Form: 'form',
-      Editor: 'editor',
-    }
     const layoutModes = {
+      Table: 'table',
       Card: 'card',
-      Wizard: 'wizard',
-      Table: 'table'
+      Wizard: 'wizard'
     }
 
-    return { generateTypes, layoutModes }
+    return { layoutModes }
   },
 })
 </script>
