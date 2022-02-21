@@ -6,12 +6,12 @@
       </div>
     </div>
     <div class="row flex-colum justify-content-center">
-      <div class="btn-group col-lg-3 col-md-3 col-12 p-0" role="group" aria-label="Basic example">
-        <button type="button" class="btn btn-secondary toggle_left" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
+      <div class="btn-group col-lg-5 col-md-5 col-12 p-0" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-secondary toggle_left p-2" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
           <span :class="`bi bi-${layoutModeIcon}`" aria-hidden="true"></span>
           <span class="ps-2">View</span>
         </button>
-        <button type="button" class="btn btn-secondary toggle_right" :class="selected === 1 ? 'active' : 'inactive'" @click="$emit('select', 1)">
+        <button type="button" class="btn btn-secondary toggle_right p-2" :class="selected === 1 ? 'active' : 'inactive'" @click="$emit('select', 1)">
           <span class="bi bi-code" aria-hidden="true"></span>
           <span class="ps-2">app.js</span>
         </button>
@@ -78,14 +78,14 @@ export default defineComponent({
   color: #42b983;
 }
 .toggle_left {
-  border-bottom-left-radius: 20px;
-  border-top-left-radius: 20px;
+  border-bottom-left-radius: 25px;
+  border-top-left-radius: 25px;
   border: none;
   box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
 }
 .toggle_right {
-  border-bottom-right-radius: 20px;
-  border-top-right-radius: 20px;
+  border-bottom-right-radius: 25px;
+  border-top-right-radius: 25px;
   border: none;
   box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
 }
