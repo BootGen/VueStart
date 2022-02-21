@@ -2,7 +2,7 @@
   <div class="container-fluid m-0">
     <download-panel :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     <landing :vuecoonState="vuecoonState"></landing>
-    <generate-options class="mt-5" :layoutMode="layoutMode" @layoutChanged="changeLayoutMode"></generate-options>
+    <generate-options class="mt-3" :layoutMode="layoutMode" @layoutChanged="changeLayoutMode"></generate-options>
     <editor :config="config" :layoutMode="layoutMode" @download="onDownloadClicked" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
     <supporters class="mt-5"></supporters>
     <div class="row">

@@ -6,7 +6,7 @@
       <div class="browser custom-card shadow">
         <browser-frame v-model="browserData" :config="config"  @refresh="pageRefresh" :borderRadius="selectedTab === 0">
           <div class="d-flex w-100 h-auto">
-            <tab :title="generateType" :icon="generatedTypeIcon" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
+            <tab :title="layoutMode" :icon="layoutModeIcon" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
             <tab title="index.html" icon="code" :class="{'active': selectedTab === 1, 'inactive': selectedTab !== 1, 'border-bottom-left': selectedTab === 0, 'border-bottom-right': selectedTab === 2}" @select="selectedTab = 1"></tab>
             <tab title="app.js" icon="code" :class="{'active': selectedTab === 2, 'inactive': selectedTab !== 2, 'border-bottom-left': selectedTab === 1}" @select="selectedTab = 2"></tab>
             <tab class="inactive" :class="{'border-bottom-left': selectedTab === 2}"></tab>
@@ -30,34 +30,6 @@
               <div class="fab-icon-holder" @click="loadAdvancedExample">
                 <span class="bi bi-robot" aria-hidden="true"></span>
                 <span class="ps-2">Advanced</span>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div class="fab-container">
-          <div class="fab fab-icon-holder">
-            <span class="bi bi-pencil" aria-hidden="true" v-if="generateType === generateTypes.Editor"></span>
-            <span class="bi bi-eye" aria-hidden="true" v-if="generateType === generateTypes.View"></span>
-            <span class="bi bi-file-earmark-code" aria-hidden="true" v-if="generateType === generateTypes.Form"></span>
-            <span class="ps-2">Mode</span>
-          </div>
-          <ul class="fab-options">
-            <li>
-              <div class="fab-icon-holder" @click="changeGeneratedMode(generateTypes.Editor)">
-                <span class="bi bi-pencil" aria-hidden="true"></span>
-                <span class="ps-2">Editor</span>
-              </div>
-            </li>
-            <li>
-              <div class="fab-icon-holder" @click="changeGeneratedMode(generateTypes.View)">
-                <span class="bi bi-eye" aria-hidden="true"></span>
-                <span class="ps-2">View</span>
-              </div>
-            </li>
-            <li>
-              <div class="fab-icon-holder" @click="changeGeneratedMode(generateTypes.Form)">
-                <span class="bi bi-file-earmark-code" aria-hidden="true"></span>
-                <span class="ps-2">Form</span>
               </div>
             </li>
           </ul>
@@ -101,13 +73,13 @@
     </div>
 </template>
 <script>
-import {computed, defineComponent, ref, watch, watchEffect} from 'vue';
+import { computed, defineComponent, ref, watch } from 'vue';
 import CodeMirror from './CodeMirror.vue';
 import BrowserFrame from './BrowserFrame.vue'
 import Tab from "@/components/Tab";
 import axios from "axios";
-import {getSchema} from "@/utils/Schema";
-import {debounce} from "@/utils/Helper";
+import { getSchema } from "@/utils/Schema";
+import { debounce } from "@/utils/Helper";
 import { validateJson } from '@/utils/Validate';
 
 export default defineComponent({
@@ -125,11 +97,6 @@ export default defineComponent({
     const selectedTab = ref(0);
     const browserData = ref({ page_url: '', source_url: '' });
     const generatedId = ref('');
-    const generateTypes = {
-      View: 'view',
-      Form: 'form',
-      Editor: 'editor',
-    }
     function seturl() {
       switch (selectedTab.value) {
         case 0:
@@ -150,22 +117,21 @@ export default defineComponent({
       }
     }
     watch(selectedTab, seturl);
-    const generatedTypeIcon = computed(() =>{
-      switch (generateType.value) {
-        case generateTypes.Editor:
+    const layoutModeIcon = computed(() =>{
+      switch (layoutMode.value) {
+        case layoutMode.Table:
           return 'pencil';
-        case generateTypes.View:
+        case layoutMode.Card:
           return 'eye';
-        case generateTypes.Form:
+        case layoutMode.Wizard:
           return 'file-earmark-code';
       }
       return 'pencil';
     })
-    const generateType = ref(generateTypes.Editor);
     const layoutModes = {
+      Table: 'table',
       Card: 'card',
-      Wizard: 'wizard',
-      Table: 'table'
+      Wizard: 'wizard'
     }
     const layoutMode = ref(layoutModes.Table);
     const tempColor = ref('42b983');
@@ -179,11 +145,6 @@ export default defineComponent({
       json.value = JSON.stringify(fixedJson.data);
       await generate(json.value);
     }
-    function changeGeneratedMode(type) {
-      generateType.value = type;
-      context.emit('typeChanged');
-      generate(json.value)
-    }
     function changeLayoutMode(type) {
       layoutMode.value = type;
       context.emit('typeChanged');
@@ -191,7 +152,7 @@ export default defineComponent({
     }
     async function generate(data) {
       try {
-        const resp = await axios.post(`api/generate/${generateType.value}/${layoutMode.value}/${tempColor.value}`, JSON.parse(data), props.config);
+        const resp = await axios.post(`api/generate/bootstrap/${layoutMode.value}/${tempColor.value}`, JSON.parse(data), props.config);
         saveToLocalStorage(data);
         generatedId.value = resp.data.id;
         seturl();
@@ -282,7 +243,7 @@ export default defineComponent({
       })
     });
     function onDownloadClicked() {
-      context.emit('download', `api/download/${generateType.value}/${layoutMode.value}/${tempColor.value}`, `${generateType.value}.zip`)
+      context.emit('download', `api/download/bootstrap/${layoutMode.value}/${tempColor.value}`, `${layoutMode.value}.zip`)
     }
     function triggerColorPicker() {
       document.getElementById("colorInput").click();
@@ -313,9 +274,9 @@ export default defineComponent({
       debouncedRefresh();
     }
 
-    return { json, inputError, generateType, generateTypes, layoutMode, layoutModes, selectedColor,
-      changeGeneratedMode, changeLayoutMode, fixData, isFixable, onDownloadClicked, triggerColorPicker, pageRefresh,
-      selectedTab, generatedTypeIcon, browserData, loadSimpleExample, loadAdvancedExample}
+    return { json, inputError, layoutMode, layoutModes, selectedColor,
+      changeLayoutMode, fixData, isFixable, onDownloadClicked, triggerColorPicker, pageRefresh,
+      selectedTab, layoutModeIcon, browserData, loadSimpleExample, loadAdvancedExample }
   },
 })
 </script>
