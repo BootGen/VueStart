@@ -15,6 +15,13 @@ end ~}}
 const  app = Vue.createApp({
   template: `
   <div class="d-flex breadcrumb mb-1">
+    <div class="d-flex" v-for="(item, index) in rootBreadcrumbs" :key="item">
+      <h5 v-if="activeElement.name === item.name && activeElement.component === item.component" class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
+      <h5 v-else class="px-2 clickable" @click="sliceRootBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
+      <h5 v-if="index < rootBreadcrumbs.length-1">/</h5>
+    </div>
+  </div>
+  <div class="d-flex breadcrumb mb-1">
     <div class="d-flex" v-for="(item, index) in breadcrumbs" :key="item">
       <h5 class="px-2 clickable" @click="sliceBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
       <h5>/</h5>
@@ -22,12 +29,22 @@ const  app = Vue.createApp({
     <h5 class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
   </div>
   <component :is="activeElement.component" v-model="activeElement.obj[activeElement.property]" @show="show"></component>
+  <div class="d-flex justify-content-end">
+    <button type="button" class="btn btn-sm rounded-pill" @click="sliceRootBreadcrumbs(tabIdx - 1)" :disabled="tabIdx < 1">
+      <span class="bi bi-arrow-left" aria-hidden="true"></span> Previous
+    </button>
+    <button type="button" class="btn btn-sm rounded-pill" @click="sliceRootBreadcrumbs(tabIdx + 1)" :disabled="tabIdx > rootBreadcrumbs.length-2">
+      Next <span class="bi bi-arrow-right" aria-hidden="true"></span>
+    </button>
+  </div>
   `,
   name: 'App',
   setup: function () {
     const {{ camel_case root.name }} = ref(null);
+    const rootBreadcrumbs = ref([]);
     const breadcrumbs = ref([]);
     const activeElement = ref(null);
+    const tabIdx = ref(0);
     {{~ if input ~}}
     {{ camel_case root.name }}.value = {{input}};
     {{~ else ~}}
@@ -41,8 +58,9 @@ const  app = Vue.createApp({
     function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
       if (json && json !== JSON.stringify({{ camel_case root.name }}.value)) {
-          {{ camel_case root.name }}.value = JSON.parse(json);
-          show('{{ to_words root.child_references[0].name }}', '{{ kebab_case root.child_references[0].class.name }}{{ if root.child_references[0].is_collection }}-list{{ end }}', '{{ camel_case root.child_references[0].name }}', {{ camel_case root.name }}.value);
+        {{ camel_case root.name }}.value = JSON.parse(json);
+        show('{{ to_words root.child_references[0].name }}', '{{ kebab_case root.child_references[0].class.name }}{{ if root.child_references[0].is_collection }}-list{{ end }}', '{{ camel_case root.child_references[0].name }}', {{ camel_case root.name }}.value);
+        rootShow('{{ to_words root.child_references[0].name }}', '{{ kebab_case root.child_references[0].class.name }}{{ if root.child_references[0].is_collection }}-list{{ end }}', '{{ camel_case root.child_references[0].name }}', {{ camel_case root.name }}.value);
       }
     }
     loadFromLocalStorage();
@@ -53,6 +71,14 @@ const  app = Vue.createApp({
 
     window.addEventListener('storage', loadFromLocalStorage);
     {{~ end ~}}
+
+    {{~ for property in root.child_references ~}}
+    rootBreadcrumbs.value.push({ name: '{{ to_words property.name }}', component: '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', property: '{{ camel_case property.name }}', obj: {{ camel_case root.name }}.value });
+    {{~ end ~}}
+    function rootShow(name, component, property, obj) {
+      activeElement.value = { name: name, component: component, property: property, obj: obj };
+    }
+    rootShow('{{ to_words root.child_references[0].name }}', '{{ kebab_case root.child_references[0].class.name }}{{ if root.child_references[0].is_collection }}-list{{ end }}', '{{ camel_case root.child_references[0].name }}', {{ camel_case root.name }}.value);
 
     function show(name, component, property, obj) {
       if (activeElement.value && name !== '{{ to_words root.child_references[0].name }}') {
@@ -66,7 +92,13 @@ const  app = Vue.createApp({
       activeElement.value = breadcrumbs.value[idx];
       breadcrumbs.value = breadcrumbs.value.slice(0, idx);
     }
-    return { {{ camel_case root.name }}, show, breadcrumbs, sliceBreadcrumbs, activeElement }
+
+    function sliceRootBreadcrumbs(idx){
+      activeElement.value = rootBreadcrumbs.value[idx];
+      tabIdx.value = idx; 
+    }
+
+    return { {{ camel_case root.name }}, show, breadcrumbs, sliceBreadcrumbs, activeElement, tabIdx, rootBreadcrumbs, sliceRootBreadcrumbs }
   },
 });
 
