@@ -119,14 +119,14 @@ export default defineComponent({
     watch(selectedTab, seturl);
     const layoutModeIcon = computed(() =>{
       switch (layoutMode.value) {
-        case layoutMode.Table:
-          return 'pencil';
-        case layoutMode.Card:
-          return 'eye';
-        case layoutMode.Wizard:
+        case layoutModes.Table:
+          return 'table';
+        case layoutModes.Card:
+          return 'view-stacked';
+        case layoutModes.Wizard:
           return 'input-cursor';
       }
-      return 'pencil';
+      return 'table';
     })
     const layoutModes = {
       Table: 'table',

@@ -21,9 +21,9 @@
       </div>
       <span class="bi bi-three-dots-vertical icon" aria-hidden="true"></span>
     </div>
-    <div class="col-12 content">
-      <iframe id="frameA" class="h-100 w-100" :class="{hidden: !frameA || !modelValue.page_url}" :src="urlA" title="CodeSharp"></iframe>
-      <iframe id="frameB" class="h-100 w-100" :class="{hidden: frameA || !modelValue.page_url}" :src="urlB" title="CodeSharp"></iframe>
+    <div class="col-12 content bg-white">
+      <iframe id="frameA" class="h-95 w-100" :class="{hidden: !frameA || !modelValue.page_url}" :src="urlA" title="CodeSharp"></iframe>
+      <iframe id="frameB" class="h-95 w-100" :class="{hidden: frameA || !modelValue.page_url}" :src="urlB" title="CodeSharp"></iframe>
       <div class="col-12 h-100" id="js_source" :class="{hidden: !js || !modelValue.source_url}"></div>
       <div class="col-12 h-100" id="html_source" :class="{hidden: js || !modelValue.source_url}"></div>
     </div>
@@ -121,6 +121,9 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.h-95 {
+  height: 95%;
+}
 .browser-nav {
   position: relative;
   margin-bottom: 5px;

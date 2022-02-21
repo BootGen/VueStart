@@ -48,13 +48,11 @@ export function validateJson(text) {
     try {
         const obj = JSON.parse(text);
         if (typeof obj !== 'object' || Array.isArray(obj))
-            return {error: true, message: 'The root element must be an object!'};
+            return {error: true, message: 'The root elements must be an object!'};
         let idx = 0;
         for (const prop in obj) {
-            if (idx > 0)
-                return {error: true, message: 'The root element must only have a single property!'};
             if (typeof obj[prop] !== 'object')
-                return {error: true, message: 'The root element must only have a single property with object or array type!'};
+                return {error: true, message: 'The root elements must only have a single property with object or array type!'};
             idx += 1;
         }
         return {error: false, message: ''};
