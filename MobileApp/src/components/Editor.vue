@@ -63,7 +63,7 @@ export default defineComponent({
       Index: 'index.html'
     }
     const selectedView = ref(views.View);
-
+    
     window.addEventListener('storage', () => {
       json.value = localStorage.getItem('json');
     });
@@ -83,7 +83,7 @@ export default defineComponent({
           };
         } else {
           browserData.value = {
-            source_url: `api/files/${resp.data.id}/index.html?display=true`
+            source_url: `api/files/${resp.data.id}/app.js?display=true`
           };
         }
         inputError.value = null;
@@ -168,11 +168,6 @@ export default defineComponent({
           };
           break;
         case 1:
-          browserData.value = {
-            source_url: `api/files/${generatedId.value}/index.html?display=true`
-          };
-          break;
-        case 2:
           browserData.value = {
             source_url: `api/files/${generatedId.value}/app.js?display=true`
           };

@@ -6,31 +6,21 @@
       </div>
     </div>
     <div class="row flex-colum justify-content-center">
-      <div v-if="layoutMode === 'editor'" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
-        <span class="bi bi-pencil" aria-hidden="true"></span>
-        <span class="ps-2">Editor</span>
-      </div>
-      <div v-else-if="layoutMode === 'card'" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
-        <span class="bi bi-eye" aria-hidden="true"></span>
-        <span class="ps-2">View</span>
-      </div>
-      <div v-else-if="layoutMode === 'wizard'" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
-        <span class="bi bi-file-earmark-code" aria-hidden="true"></span>
-        <span class="ps-2">Form</span>
-      </div>
-      <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="selected === 1 ? 'active' : 'inactive'" @click="$emit('select', 1)">
-        <span class="bi bi-code" aria-hidden="true"></span>
-        <span class="ps-2">index.html</span>
-      </div>
-      <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="selected === 2 ? 'active' : 'inactive'" @click="$emit('select', 2)">
-        <span class="bi bi-code" aria-hidden="true"></span>
-        <span class="ps-2">app.js</span>
+      <div class="btn-group col-lg-3 col-md-3 col-12 p-0" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-secondary toggle_left" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
+          <span :class="`bi bi-${layoutModeIcon}`" aria-hidden="true"></span>
+          <span class="ps-2">View</span>
+        </button>
+        <button type="button" class="btn btn-secondary toggle_right" :class="selected === 1 ? 'active' : 'inactive'" @click="$emit('select', 1)">
+          <span class="bi bi-code" aria-hidden="true"></span>
+          <span class="ps-2">app.js</span>
+        </button>
       </div>
     </div>
   </div>
 </template>
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent, computed } from 'vue';
 
 export default defineComponent({
   name: 'GenerateOptions',
@@ -39,8 +29,21 @@ export default defineComponent({
     layoutMode: String,
   },
   emits: ['select'],
-  setup() {
-    return { }
+  setup(props) {
+
+    const layoutModeIcon = computed(() =>{
+      switch (props.layoutMode) {
+        case 'table':
+          return 'table';
+        case 'card':
+          return 'view-stacked';
+        case 'wizard':
+          return 'file-earmark-code';
+      }
+      return 'pencil';
+    })
+
+    return { layoutModeIcon }
   },
 })
 </script>
@@ -73,5 +76,17 @@ export default defineComponent({
 .inactive {
   background: #ffffff;
   color: #42b983;
+}
+.toggle_left {
+  border-bottom-left-radius: 20px;
+  border-top-left-radius: 20px;
+  border: none;
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
+}
+.toggle_right {
+  border-bottom-right-radius: 20px;
+  border-top-right-radius: 20px;
+  border: none;
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
 }
 </style>
