@@ -13,10 +13,6 @@
           <span class="bi bi-arrow-right" aria-hidden="true"></span>
           <span class="ps-2">Generate</span>
         </div>
-        <div id="download-btn" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" @click="onDownloadClicked">
-          <span class="bi bi-download" aria-hidden="true"></span>
-          <span class="ps-2">Download</span>
-        </div>
       </div>
     </div>
     <browser-options :selected="selectedTab" :layoutMode="layoutMode" @select="selectTab"></browser-options>
@@ -31,7 +27,6 @@ import BrowserFrame from './BrowserFrame.vue';
 import BrowserOptions from './BrowserOptions.vue';
 import axios from "axios";
 import { getSchema } from "@/utils/Schema";
-import { debounce } from "@/utils/Helper";
 
 export default defineComponent({
   components: { CodeMirror, BrowserFrame, BrowserOptions },
@@ -39,7 +34,7 @@ export default defineComponent({
     config: Object,
     layoutMode: String
   },
-  emits: ['download', 'hasError', 'setVuecoon'],
+  emits: ['hasError', 'setVuecoon'],
   setup(props, context) {
     const inputError = ref(null);
     const isFixable = ref(false);
@@ -101,11 +96,6 @@ export default defineComponent({
       if (minimized !== oldValue) {
         localStorage.setItem('json', minimized);
       }
-      const downloadButton = document.getElementById('download-btn');
-      downloadButton.classList.add('pulse-download-btn');
-      setTimeout(function(){
-        downloadButton.classList.remove('pulse-download-btn');
-      }, 2000);
     }
     async function getProjectContentFromServer(name) {
       const data = (await axios.get(`/${name}.json`, {responseType: 'text', ...props.config})).data;
@@ -131,9 +121,6 @@ export default defineComponent({
         }
       })
     });
-    function onDownloadClicked() {
-      context.emit('download', `api/download/bootstrap/${props.layoutMode}/${tempColor.value}`, `${props.layoutMode}.zip`)
-    }
     function triggerColorPicker() {
       document.getElementById("colorInput").click();
     }
@@ -171,7 +158,7 @@ export default defineComponent({
     }
 
     return { json, inputError, selectedColor,
-      fixData, isFixable, onDownloadClicked, triggerColorPicker, generate, views, selectedView, selectedTab, selectTab, browserData }
+      fixData, isFixable, triggerColorPicker, generate, views, selectedView, selectedTab, selectTab, browserData }
   },
 })
 </script>
@@ -206,20 +193,6 @@ input#colorInput {
 }
 .shadow {
   box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
-}
-.pulse-download-btn {
-  z-index: 9;
-  box-shadow: 0 0 0 0 rgba(66, 185, 131, 0.7);
-  -webkit-animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
-  -moz-animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
-  -ms-animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
-  animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
-}
-.pulse-download-btn:hover {
-  -webkit-animation: none;
-  -moz-animation: none;
-  -ms-animation: none;
-  animation: none;
 }
 
 @-webkit-keyframes pulse {

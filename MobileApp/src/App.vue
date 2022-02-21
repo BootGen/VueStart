@@ -1,9 +1,8 @@
 <template>
   <div class="container-fluid m-0">
-    <download-panel :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     <landing :vuecoonState="vuecoonState"></landing>
     <generate-options class="mt-3" :layoutMode="layoutMode" @layoutChanged="changeLayoutMode"></generate-options>
-    <editor :config="config" :layoutMode="layoutMode" @download="onDownloadClicked" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
+    <editor :config="config" :layoutMode="layoutMode" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
     <supporters class="mt-5"></supporters>
     <div class="row">
       <div class="col-12 d-flex align-items-center footer mt-3">
@@ -15,7 +14,6 @@
 
 <script>
 import { defineComponent, ref } from 'vue';
-import DownloadPanel from './components/DownloadPanel.vue';
 import Landing from './components/Landing.vue';
 import Editor from './components/Editor.vue';
 import Supporters from './components/Supporters.vue';
@@ -24,9 +22,8 @@ import GenerateOptions from './components/GenerateOptions.vue';
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { DownloadPanel, Landing, Editor, Supporters, GenerateOptions },
+  components: { Landing, Editor, Supporters, GenerateOptions },
   setup() {
-    const showDownloadPanel = ref(false);
     const vuecoonStates = {
       Default: 'default',
       Error: 'error',
@@ -51,8 +48,6 @@ export default defineComponent({
       }
     }
 
-    let downloadUrl = "";
-    let downloadedFileName = "";
     function hasError(value) {
       if(value) {
         vuecoonState.value = vuecoonStates.Error;
@@ -61,25 +56,6 @@ export default defineComponent({
           vuecoonState.value = vuecoonStates.Default;
       }
     }
-
-    async function download() {
-      const response = await axios.post(downloadUrl, JSON.parse(localStorage.getItem('json')), {responseType: 'blob', ...config});
-      const fileURL = window.URL.createObjectURL(new Blob([response.data]));
-      const fileLink = document.createElement('a');
-      fileLink.href = fileURL;
-      fileLink.target = '_blank';
-      fileLink.setAttribute('download', downloadedFileName);
-      document.body.appendChild(fileLink);
-      fileLink.click();
-      showDownloadPanel.value = false;
-    }
-
-    function onDownloadClicked(url, fileName) {
-      downloadUrl = url;
-      downloadedFileName = fileName;
-      showDownloadPanel.value = true;
-    }
-
     function setVuecoon(state) {
       vuecoonState.value = state;
     }
@@ -87,8 +63,7 @@ export default defineComponent({
       layoutMode.value = mode;
     }
 
-    return { showDownloadPanel, vuecoonState,
-      config, download, onDownloadClicked,
+    return { vuecoonState, config,
       hasError, setVuecoon,
       changeLayoutMode, layoutMode }
   }
@@ -103,18 +78,7 @@ export default defineComponent({
   .text-justify{
     text-align: justify;
   }
-  .download-panel{
-    transition: all 1s ease-in-out;
-  }
-  .download-panel.show{
-    opacity: 1;
-  }
-  .download-panel.hide{
-    opacity: 0;
-    visibility: hidden;
-    margin-top: 100%;
-  }
-
+  
   .fab-options li {
     display: flex;
     justify-content: flex-end;
