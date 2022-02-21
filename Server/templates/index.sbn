@@ -34,7 +34,7 @@
       }
       .btn:hover {
         color: #{{ text_color }};
-        opacity: 0.8
+        opacity: 0.8;
       }
       h5 {
         color: #{{ color }};
@@ -42,9 +42,11 @@
       .disabled{
         color: #777!important;
       }
-      .clickable:hover {
-        opacity: 0.8
+      .clickable {
         cursor: pointer;
+      }
+      .clickable:hover {
+        opacity: 0.8;
       }
       .form-check-input:checked {
         background-color: #{{ color }};
