@@ -11,7 +11,7 @@
         <span class="ps-2">Card</span>
       </div>
       <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="layoutMode === layoutModes.Wizard ? 'active' : 'inactive'" @click="$emit('layoutChanged', layoutModes.Wizard)">
-        <span class="bi bi-text-indent-left" aria-hidden="true"></span>
+        <span class="bi bi-input-cursor" aria-hidden="true"></span>
         <span class="ps-2">Wizard</span>
       </div>
      <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="layoutMode === layoutModes.Table ? 'active' : 'inactive'" @click="$emit('layoutChanged', layoutModes.Table)">

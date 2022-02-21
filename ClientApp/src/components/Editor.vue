@@ -37,7 +37,7 @@
         <div class="fab-container mx-2">
           <div class="fab fab-icon-holder">
             <span class="bi bi-view-stacked" aria-hidden="true" v-if="layoutMode === layoutModes.Card"></span>
-            <span class="bi bi-text-indent-left" aria-hidden="true" v-if="layoutMode === layoutModes.Wizard"></span>
+            <span class="bi bi-input-cursor" aria-hidden="true" v-if="layoutMode === layoutModes.Wizard"></span>
             <span class="bi bi-table" aria-hidden="true" v-if="layoutMode === layoutModes.Table"></span>
             <span class="ps-2">Layout</span>
           </div>
@@ -50,7 +50,7 @@
             </li>
             <li>
               <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Wizard)">
-                <span class="bi bi-text-indent-left" aria-hidden="true"></span>
+                <span class="bi bi-input-cursor" aria-hidden="true"></span>
                 <span class="ps-2">Wizard</span>
               </div>
             </li>
@@ -124,7 +124,7 @@ export default defineComponent({
         case layoutMode.Card:
           return 'eye';
         case layoutMode.Wizard:
-          return 'file-earmark-code';
+          return 'input-cursor';
       }
       return 'pencil';
     })
