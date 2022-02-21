@@ -1,6 +1,6 @@
 <template>
     <div class="codemirror custom-card" :class="page">
-      <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData" @hasSyntaxError="$emit('hasError', $event)"></code-mirror>
+      <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData" @hasSyntaxError="syntaxError"></code-mirror>
     </div>
     <div class="browser-container" :class="page">
       <div class="browser custom-card shadow">
@@ -97,6 +97,7 @@ export default defineComponent({
     const selectedTab = ref(0);
     const browserData = ref({ page_url: '', source_url: '' });
     const generatedId = ref('');
+    const syntaxErr = ref(false);
     function seturl() {
       switch (selectedTab.value) {
         case 0:
@@ -213,12 +214,15 @@ export default defineComponent({
         context.emit('generated');
       }
       let debouncedGenerate = debounce(generateAndEmit, 1000);
-      watch([tempColor, selectedColor],() => {
+      watch([tempColor, selectedColor, syntaxErr],() => {
         if ('#' + tempColor.value !== selectedColor.value) {
-          tempColor.value = selectedColor.value.slice(1, 7);
-          document.getElementById('color-picker-btn').style.backgroundColor = selectedColor.value;
-          setTextColor();
-          debouncedGenerate(json.value);
+            document.getElementById('color-picker-btn').style.backgroundColor = selectedColor.value;
+          if (!syntaxErr.value) {
+            document.getElementById('color-picker-btn').style.backgroundColor = selectedColor.value;
+            tempColor.value = selectedColor.value.slice(1, 7);
+            setTextColor();
+            debouncedGenerate(json.value);
+          }
         }
       });
       watch(json, () => {
@@ -273,10 +277,14 @@ export default defineComponent({
       context.emit('setVuecoon', 'loading');
       debouncedRefresh();
     }
+    function syntaxError (hasError) {
+      syntaxErr.value = hasError;
+      context.emit('hasError', hasError);
+    }
 
     return { json, inputError, layoutMode, layoutModes, selectedColor,
       changeLayoutMode, fixData, isFixable, onDownloadClicked, triggerColorPicker, pageRefresh,
-      selectedTab, layoutModeIcon, browserData, loadSimpleExample, loadAdvancedExample }
+      selectedTab, layoutModeIcon, browserData, loadSimpleExample, loadAdvancedExample, syntaxError }
   },
 })
 </script>
