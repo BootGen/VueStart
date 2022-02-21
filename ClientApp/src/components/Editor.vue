@@ -21,13 +21,19 @@
           </div>
           <ul class="fab-options">
             <li>
-              <div class="fab-icon-holder" @click="loadSimpleExample">
+              <div class="fab-icon-holder" @click="loadExample('example_input')">
                 <span class="bi bi-balloon" aria-hidden="true"></span>
                 <span class="ps-2">Simple</span>
               </div>
             </li>
             <li>
-              <div class="fab-icon-holder" @click="loadAdvancedExample">
+              <div class="fab-icon-holder" @click="loadExample('booking_example_input')">
+                <span class="bi bi-book-half" aria-hidden="true"></span>
+                <span class="ps-2">Booking</span>
+              </div>
+            </li>
+            <li>
+              <div class="fab-icon-holder" @click="loadExample('advanced_example_input')">
                 <span class="bi bi-robot" aria-hidden="true"></span>
                 <span class="ps-2">Advanced</span>
               </div>
@@ -193,15 +199,9 @@ export default defineComponent({
     }
 
     localStorage.removeItem('json');
-    function loadSimpleExample() {
+    function loadExample(example) {
       context.emit('setVuecoon', 'loading');
-      getProjectContentFromServer('example_input').then( (content) => {
-        json.value = content;
-      })
-    }
-    function loadAdvancedExample() {
-      context.emit('setVuecoon', 'loading');
-      getProjectContentFromServer('advanced_example_input').then( (content) => {
+      getProjectContentFromServer(example).then( (content) => {
         json.value = content;
       })
     }
@@ -284,7 +284,7 @@ export default defineComponent({
 
     return { json, inputError, layoutMode, layoutModes, selectedColor,
       changeLayoutMode, fixData, isFixable, onDownloadClicked, triggerColorPicker, pageRefresh,
-      selectedTab, layoutModeIcon, browserData, loadSimpleExample, loadAdvancedExample, syntaxError }
+      selectedTab, layoutModeIcon, browserData, loadExample, syntaxError }
   },
 })
 </script>
