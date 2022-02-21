@@ -38,7 +38,7 @@ export default defineComponent({
         case 'card':
           return 'view-stacked';
         case 'wizard':
-          return 'file-earmark-code';
+          return 'input-cursor';
       }
       return 'pencil';
     })
