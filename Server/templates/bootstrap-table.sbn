@@ -14,7 +14,7 @@ const watchEffect = Vue.watchEffect;
 end ~}}
 const  app = Vue.createApp({
   template: `
-  <div class="d-flex breadcrumb mb-1">
+  <div class="d-flex breadcrumb mb-1" v-if="rootBreadcrumbs.length > 1">
     <div class="d-flex" v-for="(item, index) in rootBreadcrumbs" :key="item">
       <h5 v-if="activeElement.name === item.name && activeElement.component === item.component" class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
       <h5 v-else class="px-2 clickable" @click="sliceRootBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
@@ -29,14 +29,6 @@ const  app = Vue.createApp({
     <h5 class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
   </div>
   <component :is="activeElement.component" v-model="activeElement.obj[activeElement.property]" @show="show"></component>
-  <div class="d-flex justify-content-end" v-if="rootBreadcrumbs.length > 1">
-    <button type="button" class="btn btn-sm rounded-pill" @click="sliceRootBreadcrumbs(tabIdx - 1)" :disabled="tabIdx < 1">
-      <span class="bi bi-arrow-left" aria-hidden="true"></span> Previous
-    </button>
-    <button type="button" class="btn btn-sm rounded-pill" @click="sliceRootBreadcrumbs(tabIdx + 1)" :disabled="tabIdx > rootBreadcrumbs.length-2">
-      Next <span class="bi bi-arrow-right" aria-hidden="true"></span>
-    </button>
-  </div>
   `,
   name: 'App',
   setup: function () {

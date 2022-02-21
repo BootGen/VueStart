@@ -23,14 +23,6 @@ const  app = Vue.createApp({
     </div>
   </div>
   <component :is="activeElement.component" v-model="activeElement.obj[activeElement.property]"></component>
-  <div class="d-flex justify-content-end" v-if="rootBreadcrumbs.length > 1">
-    <button type="button" class="btn btn-sm rounded-pill" @click="sliceRootBreadcrumbs(tabIdx - 1)" :disabled="tabIdx < 1">
-      <span class="bi bi-arrow-left" aria-hidden="true"></span> Previous
-    </button>
-    <button type="button" class="btn btn-sm rounded-pill" @click="sliceRootBreadcrumbs(tabIdx + 1)" :disabled="tabIdx > rootBreadcrumbs.length-2">
-      Next <span class="bi bi-arrow-right" aria-hidden="true"></span>
-    </button>
-  </div>
   `,
   name: 'App',
   setup: function () {
