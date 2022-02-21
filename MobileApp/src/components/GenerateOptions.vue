@@ -1,10 +1,5 @@
 <template>
   <div class="container">
-    <div class="row">
-      <div class="col text-center">
-        <span>Templates:</span>
-      </div>
-    </div>
     <div class="row flex-colum justify-content-center">
       <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="layoutMode === layoutModes.Card ? 'active' : 'inactive'" @click="$emit('layoutChanged', layoutModes.Card)">
         <span class="bi bi-view-stacked" aria-hidden="true"></span>
