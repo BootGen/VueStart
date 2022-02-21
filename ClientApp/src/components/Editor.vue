@@ -14,7 +14,7 @@
         </browser-frame>
       </div>
       <div class="d-flex browser-buttons">
-        <div class="fab-container mx-2">
+        <div class="fab-container">
           <div class="fab fab-icon-holder">
             <span class="bi bi-lightbulb" aria-hidden="true"></span>
             <span class="ps-2">Example</span>
