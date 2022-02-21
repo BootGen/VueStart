@@ -29,7 +29,7 @@ const  app = Vue.createApp({
     <h5 class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
   </div>
   <component :is="activeElement.component" v-model="activeElement.obj[activeElement.property]" @show="show"></component>
-  <div class="d-flex justify-content-end">
+  <div class="d-flex justify-content-end" v-if="rootBreadcrumbs.length > 1">
     <button type="button" class="btn btn-sm rounded-pill" @click="sliceRootBreadcrumbs(tabIdx - 1)" :disabled="tabIdx < 1">
       <span class="bi bi-arrow-left" aria-hidden="true"></span> Previous
     </button>
