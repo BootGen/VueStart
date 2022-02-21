@@ -1,11 +1,6 @@
 <template>
   <div class="container">
-    <div class="row">
-      <div class="col text-center">
-        <span>Display:</span>
-      </div>
-    </div>
-    <div class="row flex-colum justify-content-center">
+    <div class="row flex-colum justify-content-center mt-4">
       <div class="btn-group col-lg-5 col-md-5 col-12 p-0" role="group" aria-label="Basic example">
         <button type="button" class="btn btn-secondary toggle_left p-2" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
           <span :class="`bi bi-${layoutModeIcon}`" aria-hidden="true"></span>

@@ -3,11 +3,6 @@
       <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData" @hasSyntaxError="$emit('hasError', $event)"></code-mirror>
     </div>
     <div class="container mt-4">
-      <div class="row">
-        <div class="col text-center">
-          <span>Actions:</span>
-        </div>
-      </div>
       <div class="row flex-colum justify-content-center">
         <div id="color-picker-btn" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" @click="triggerColorPicker">
           <input type="color" class="form-control form-control-color position-absolute" id="colorInput" v-model="selectedColor" title="Choose your color">
