@@ -202,10 +202,21 @@ export default defineComponent({
     function loadExample(example) {
       context.emit('setVuecoon', 'loading');
       getProjectContentFromServer(example).then( (content) => {
+        switch (example) {
+          case 'example_input':
+            changeLayoutMode(layoutModes.Card);
+            break;
+          case 'booking_example_input':
+            changeLayoutMode(layoutModes.Wizard);
+            break;
+          case 'advanced_example_input':
+            changeLayoutMode(layoutModes.Table);       
+            break;
+        }
         json.value = content;
       })
     }
-    getProjectContentFromServer('example_input').then( (content) => {
+    getProjectContentFromServer('advanced_example_input').then( (content) => {
       json.value = content;
       jsonSchema.value = getSchema(JSON.parse(json.value));
       generate(json.value);
