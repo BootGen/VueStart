@@ -11,20 +11,20 @@
     "@codemirror/basic-setup": "^0.19.1",
     "@codemirror/lang-html": "^0.19.4",
     "@codemirror/lang-javascript": "^0.19.7",
-    "@codemirror/lang-json": "^0.19.1",
+    "@codemirror/lang-json": "^0.19.2",
     "@codemirror/next": "^0.16.0",
-    "@codemirror/view": "^0.19.40",
+    "@codemirror/view": "^0.19.44",
     "axios": "^0.25.0",
-    "core-js": "^3.20.3",
-    "vue": "^3.2.27"
+    "core-js": "^3.21.1",
+    "vue": "^3.2.31"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.16.5",
+    "@babel/eslint-parser": "^7.17.0",
     "@vue/cli-plugin-babel": "^4.5.15",
     "@vue/cli-service": "^4.5.15",
-    "@vue/compiler-sfc": "^3.2.27",
-    "eslint": "^8.7.0",
-    "eslint-plugin-vue": "^8.3.0"
+    "@vue/compiler-sfc": "^3.2.31",
+    "eslint": "^8.9.0",
+    "eslint-plugin-vue": "^8.4.1"
   },
   "browserslist": [
     "> 1%",
