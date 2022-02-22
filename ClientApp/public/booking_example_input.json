@@ -3,7 +3,7 @@
 		"name": "John",
 		"email": "aa@bb.cc"
 	},
-	"accomodation": {
+	"accommodation": {
 		"arrival": "2022-03-01T12:00",
 		"departure": "2022-10-01T12:00",
 		"rooms": 1,

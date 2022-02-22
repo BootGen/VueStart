@@ -21,21 +21,21 @@
           </div>
           <ul class="fab-options">
             <li>
-              <div class="fab-icon-holder" @click="loadExample('example_input')">
-                <span class="bi bi-balloon" aria-hidden="true"></span>
-                <span class="ps-2">Simple</span>
+              <div class="fab-icon-holder" @click="loadTasksExample">
+                <span class="bi bi-card-checklist" aria-hidden="true"></span>
+                <span class="ps-2">Tasks</span>
               </div>
             </li>
             <li>
-              <div class="fab-icon-holder" @click="loadExample('booking_example_input')">
+              <div class="fab-icon-holder" @click="loadBookingExample">
                 <span class="bi bi-book-half" aria-hidden="true"></span>
                 <span class="ps-2">Booking</span>
               </div>
             </li>
             <li>
-              <div class="fab-icon-holder" @click="loadExample('advanced_example_input')">
-                <span class="bi bi-robot" aria-hidden="true"></span>
-                <span class="ps-2">Advanced</span>
+              <div class="fab-icon-holder" @click="loadOrdersExample">
+                <span class="bi bi-cart-check" aria-hidden="true"></span>
+                <span class="ps-2">Orders</span>
               </div>
             </li>
           </ul>
@@ -199,24 +199,25 @@ export default defineComponent({
     }
 
     localStorage.removeItem('json');
-    function loadExample(example) {
+    async function loadTasksExample() {
       context.emit('setVuecoon', 'loading');
-      getProjectContentFromServer(example).then( (content) => {
-        switch (example) {
-          case 'example_input':
-            changeLayoutMode(layoutModes.Card);
-            break;
-          case 'booking_example_input':
-            changeLayoutMode(layoutModes.Wizard);
-            break;
-          case 'advanced_example_input':
-            changeLayoutMode(layoutModes.Table);       
-            break;
-        }
-        json.value = content;
-      })
+      let content = await getProjectContentFromServer('tasks_example_input');
+      json.value = content;
+      changeLayoutMode(layoutModes.Card);
     }
-    getProjectContentFromServer('advanced_example_input').then( (content) => {
+    async function loadOrdersExample() {
+      context.emit('setVuecoon', 'loading');
+      let content = await getProjectContentFromServer('orders_example_input');
+      json.value = content;
+      changeLayoutMode(layoutModes.Table);
+    }
+    async function loadBookingExample() {
+      context.emit('setVuecoon', 'loading');
+      let content = await getProjectContentFromServer('booking_example_input');
+      json.value = content;
+      changeLayoutMode(layoutModes.Wizard);
+    }
+    getProjectContentFromServer('orders_example_input').then( (content) => {
       json.value = content;
       jsonSchema.value = getSchema(JSON.parse(json.value));
       generate(json.value);
@@ -295,7 +296,7 @@ export default defineComponent({
 
     return { json, inputError, layoutMode, layoutModes, selectedColor,
       changeLayoutMode, fixData, isFixable, onDownloadClicked, triggerColorPicker, pageRefresh,
-      selectedTab, layoutModeIcon, browserData, loadExample, syntaxError }
+      selectedTab, layoutModeIcon, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError }
   },
 })
 </script>
