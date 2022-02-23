@@ -1,6 +1,5 @@
 <template>
   <div class="col-12">
-    <tip :modified="modified" :generated="generated" :typeChanged="typeChanged" :downloaded="downloaded" @success="setSuccessVuecoon" v-if="page === 'content'" ></tip>
     <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
       <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
     </div>
@@ -31,7 +30,7 @@
     <transition name="fade">
       <supporters v-if="page === 'supporters'"></supporters>
     </transition>
-    <editor :config="config" :page="page" @download="onDownloadClicked" @modified="modified = true" @generated="generated = true" @typeChanged="typeChanged = true" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
+    <editor :config="config" :page="page" @download="onDownloadClicked" @hasError="hasError" @setVuecoon="setVuecoon"  @success="setSuccessVuecoon"></editor>
     <div class="col-12 d-flex align-items-center footer" :class="page">
       <p><a href="javascript:void(0)" @click="showSupporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a></p>
     </div>
@@ -43,18 +42,14 @@ import { defineComponent, ref } from 'vue';
 import DownloadPanel from './components/DownloadPanel.vue'
 import Editor from './components/Editor.vue'
 import Supporters from './components/Supporters.vue'
-import Tip from './components/Tip.vue';
 import axios from "axios";
 import {debounce} from "@/utils/Helper";
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { DownloadPanel, Editor, Tip, Supporters },
+  components: { DownloadPanel, Editor, Supporters },
   setup() {
     const showDownloadPanel = ref(false);
-    const modified = ref(false);
-    const generated = ref(false);
-    const typeChanged = ref(false);
     const downloaded = ref(false);
     const vuecoonStates = {
       Default: 'default',
@@ -147,8 +142,8 @@ export default defineComponent({
     }
 
     return { page, showDownloadPanel, openGithub, showEditor, vuecoonState,
-      config, download, onDownloadClicked, modified, generated, typeChanged,
-      downloaded, hasError, setSuccessVuecoon, setVuecoon, showSupporters }
+      config, download, onDownloadClicked,
+      hasError, setSuccessVuecoon, setVuecoon, showSupporters }
   }
 });
 

@@ -1,10 +1,11 @@
 <template>
   <div class="codemirror custom-card" :class="page">
-    <code-mirror v-model="json"  @hasSyntaxError="syntaxError" :class="{'h-80': alertShown && isFixable, 'h-90': alertShown && !isFixable, 'h-100': !alertShown}"></code-mirror>
-    <div class="my-1 mx-1 col-12 alert alert-warning alert-dismissible fade show" role="alert" v-if="alertShown">
+    <code-mirror v-model="json"  @hasSyntaxError="syntaxError" :class="{'h-80': alertShown && isActionable, 'h-90': alertShown && !isActionable, 'h-100': !alertShown}"></code-mirror>
+    <div class="my-1 col-12 alert alert-dismissible fade" :class="{'show': alertShown, 'alert-warning': alertWarning, 'alert-primary': !alertWarning}" role="alert" v-if="alertShown">
       <div class="text-center">
         {{ alertMessage }} <br>
-        <button type="button" class="btn btn-warning" aria-label="Fix" @click="fixData" v-if="isFixable">Fix it!</button>
+        <button type="button" class="btn btn-sm btn-warning" aria-label="Fix" @click="fixData" v-if="isActionable && alertWarning"><i class="bi bi-hammer"></i> Fix it!</button>
+        <a type="button" href="https://github.com/BootGen/VueStart" target="_blank" class="btn btn-sm btn-primary" aria-label="GitHub" @click="alertShown=false" v-if="isActionable && !alertWarning"><i class="bi bi-github"></i> Go To GitHub</a>
       </div>
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="alertShown=false"></button>
     </div>
@@ -94,6 +95,7 @@ import axios from "axios";
 import { getSchema } from "@/utils/Schema";
 import { debounce } from "@/utils/Helper";
 import { validateJson } from '@/utils/Validate';
+import Tip from '@/utils/Tip'
 
 export default defineComponent({
   components: { CodeMirror, BrowserFrame, Tab },
@@ -101,10 +103,10 @@ export default defineComponent({
     page: String,
     config: Object
   },
-  emits: ['download', 'modified', 'generated', 'typeChanged', 'hasError', 'setVuecoon'],
+  emits: ['download', 'hasError', 'setVuecoon'],
   setup(props, context) {
     const inputError = ref(null);
-    const isFixable = ref(false);
+    const isActionable = ref(false);
     const json = ref('');
     const jsonSchema = ref(getSchema({}));
     const selectedTab = ref(0);
@@ -113,6 +115,8 @@ export default defineComponent({
     const syntaxErr = ref(false);
     const alertShown = ref(false);
     const alertMessage = ref('');
+    const alertWarning = ref(true);
+    const tip = new Tip()
     function seturl() {
       switch (selectedTab.value) {
         case 0:
@@ -164,7 +168,10 @@ export default defineComponent({
     }
     function changeLayoutMode(type) {
       layoutMode.value = type;
-      context.emit('typeChanged');
+      tip.typeChanged()
+      alertShown.value = true
+      alertMessage.value = tip.getTip()
+      alertWarning.value = false;
       generate(json.value)
     }
     async function generate(data) {
@@ -174,14 +181,15 @@ export default defineComponent({
         generatedId.value = resp.data.id;
         seturl();
         inputError.value = null;
-        isFixable.value = false;
+        isActionable.value = false;
         context.emit('hasError', false);
       } catch (e) {
         const response = e.response;
         if (response) {
-          isFixable.value = !!response.data.fixable;
+          isActionable.value = !!response.data.fixable;
           inputError.value = response.data.error;
           alertMessage.value = response.data.error;
+          alertWarning.value = true;
           alertShown.value = true;
         }
         context.emit('hasError', true);
@@ -194,8 +202,12 @@ export default defineComponent({
       let oldValue = localStorage.getItem('json');
       if (minimized !== oldValue) {
         localStorage.setItem('json', minimized);
-        if (oldValue)
-          context.emit('modified');
+        if (oldValue) {
+          tip.modified()
+          alertShown.value = true
+          alertMessage.value = tip.getTip()
+          alertWarning.value = false;
+        }
       }
       const downloadButton = document.getElementById('download-btn');
       downloadButton.classList.add('pulse-download-btn');
@@ -235,7 +247,10 @@ export default defineComponent({
       generate(json.value);
       function generateAndEmit(data) {
         generate(data);
-        context.emit('generated');
+        tip.generated();
+        alertShown.value = true;
+        alertMessage.value = tip.getTip()
+        alertWarning.value = false;
       }
       let debouncedGenerate = debounce(generateAndEmit, 1000);
       watch([tempColor, selectedColor, syntaxErr],() => {
@@ -271,7 +286,12 @@ export default defineComponent({
       })
     });
     function onDownloadClicked() {
-      context.emit('download', `api/download/bootstrap/${layoutMode.value}/${tempColor.value}`, `${layoutMode.value}.zip`)
+      tip.downloaded();
+      alertShown.value = true;
+      alertMessage.value = tip.getTip()
+      alertWarning.value = false;
+      isActionable.value = true;
+      context.emit('download', `api/download/bootstrap/${layoutMode.value}/${tempColor.value}`, `${layoutMode.value}.zip`);
     }
     function triggerColorPicker() {
       document.getElementById("colorInput").click();
@@ -305,14 +325,25 @@ export default defineComponent({
       syntaxErr.value = hasError;
       if (hasError) {
         alertShown.value = true;
-        alertMessage.value = message
+        alertMessage.value = message;
+        alertWarning.value = true;
+      } else {
+        const msg = tip.getTip();
+        if (msg) {
+          alertShown.value = true;
+          alertMessage.value = msg;
+          alertWarning.value = false;
+        } else {
+          alertShown.value = false;
+        }
       }
       context.emit('hasError', hasError);
     }
 
     return { json, inputError, layoutMode, layoutModes, selectedColor,
-      changeLayoutMode, fixData, isFixable, onDownloadClicked, triggerColorPicker, pageRefresh,
-      selectedTab, layoutModeIcon, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError, alertShown, alertMessage}
+      changeLayoutMode, fixData, isActionable, onDownloadClicked, triggerColorPicker, pageRefresh,
+      selectedTab, layoutModeIcon, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError,
+      alertShown, alertMessage, alertWarning}
   },
 })
 </script>
@@ -323,7 +354,7 @@ body {
   overflow: hidden;
 }
 .h-80 {
-  height: 80%;
+  height: 85%;
 }
 .h-90 {
   height: 90%;
