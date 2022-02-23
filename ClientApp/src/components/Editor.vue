@@ -512,7 +512,13 @@ a:hover {
   animation: none;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1255px) {
+  .h-85 {
+    height: 80%;
+  }
+  .h-90 {
+    height: 88%;
+  }
 }
 @media (max-width: 992px) {
   body {
@@ -537,13 +543,21 @@ a:hover {
     transition-delay: 600ms;
   }
 
+  .h-85 {
+    height: 75%;
+  }
+  .h-90 {
+    height: 83%;
+  }
 }
 @media (max-width: 768px) {
   body {
     height: unset;
     overflow: unset;
   }
-
+  .h-90 {
+    height: 80%;
+  }
 }
 @media (max-width: 576px) {
   body {
@@ -563,6 +577,9 @@ a:hover {
   }
   .fab-options {
     bottom: 40px;
+  }
+  .h-85 {
+    height: 72%;
   }
 }
 
