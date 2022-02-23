@@ -1,8 +1,6 @@
 <template>
-  <div class="col-12 h-100 p-0">
+  <div class="col-12 p-0">
     <div class="col-12 h-100" id="editor"></div>
-    <alert class="alert-msg" :class="{ 'show': syntaxError, 'hide': !syntaxError }" :errorMessage="syntaxError" :isFixable="false" @close="clearError"></alert>
-    <alert class="alert-msg" :class="{ 'show': error && showError, 'hide': !error || !showError }" :errorMessage="error" :isFixable="isFixable" @close="clearError" @fixData="$emit('fixData')" v-if="!syntaxError"></alert>
   </div>
 </template>
 
@@ -15,20 +13,16 @@ import {StateField, StateEffect} from "@codemirror/state"
 
 
 import {defineComponent, onMounted, watchEffect, ref, watch} from 'vue';
-import Alert from './Alert.vue';
 import { debounce } from '@/utils/Helper';
 import { prettyPrint } from '@/utils/PrettyPrint';
 import { validateJson } from '@/utils/Validate';
 
 export default defineComponent({
   name: 'CodeMirror',
-  components: { Alert },
   props: {
-    modelValue: String,
-    error: String,
-    isFixable: Boolean
+    modelValue: String
   },
-  emits: ['update:modelValue',  'fixData', 'hasSyntaxError'],
+  emits: ['update:modelValue', 'hasSyntaxError'],
   setup(props, context) {
     let editor = null;
     let syntaxError = ref(null);
@@ -147,7 +141,7 @@ export default defineComponent({
         if (validationResult.from > 0 && validationResult.to > 0 && validationResult.to > validationResult.from)
           editor.dispatch({effects: [addUnderline.of({ from: validationResult.from, to: validationResult.to })]});
         syntaxError.value = validationResult.message;
-        context.emit('hasSyntaxError', true);
+        context.emit('hasSyntaxError', true, validationResult.message);
       } else {
         syntaxError.value = null;
         context.emit('hasSyntaxError', false);
