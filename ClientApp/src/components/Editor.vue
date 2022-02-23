@@ -1,8 +1,15 @@
 <template>
-    <div class="codemirror custom-card" :class="page">
-      <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData" @hasSyntaxError="syntaxError"></code-mirror>
+  <div class="codemirror custom-card" :class="page">
+    <code-mirror v-model="json"  @hasSyntaxError="syntaxError" :class="{'h-80': alertShown && isFixable, 'h-90': alertShown && !isFixable, 'h-100': !alertShown}"></code-mirror>
+    <div class="my-1 mx-1 col-12 alert alert-warning alert-dismissible fade show" role="alert" v-if="alertShown">
+      <div class="text-center">
+        {{ alertMessage }} <br>
+        <button type="button" class="btn btn-warning" aria-label="Fix" @click="fixData" v-if="isFixable">Fix it!</button>
+      </div>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="alertShown=false"></button>
     </div>
-    <div class="browser-container" :class="page">
+  </div>
+  <div class="browser-container" :class="page">
       <div class="browser custom-card shadow">
         <browser-frame v-model="browserData" :config="config"  @refresh="pageRefresh" :borderRadius="selectedTab === 0">
           <div class="d-flex w-100 h-auto">
@@ -104,6 +111,8 @@ export default defineComponent({
     const browserData = ref({ page_url: '', source_url: '' });
     const generatedId = ref('');
     const syntaxErr = ref(false);
+    const alertShown = ref(false);
+    const alertMessage = ref('');
     function seturl() {
       switch (selectedTab.value) {
         case 0:
@@ -150,6 +159,7 @@ export default defineComponent({
     async function fixData() {
       const fixedJson = await axios.post('api/generate/fix', JSON.parse(json.value));
       json.value = JSON.stringify(fixedJson.data);
+      alertShown.value = false;
       await generate(json.value);
     }
     function changeLayoutMode(type) {
@@ -171,6 +181,8 @@ export default defineComponent({
         if (response) {
           isFixable.value = !!response.data.fixable;
           inputError.value = response.data.error;
+          alertMessage.value = response.data.error;
+          alertShown.value = true;
         }
         context.emit('hasError', true);
       }
@@ -289,14 +301,18 @@ export default defineComponent({
       context.emit('setVuecoon', 'loading');
       debouncedRefresh();
     }
-    function syntaxError (hasError) {
+    function syntaxError (hasError, message) {
       syntaxErr.value = hasError;
+      if (hasError) {
+        alertShown.value = true;
+        alertMessage.value = message
+      }
       context.emit('hasError', hasError);
     }
 
     return { json, inputError, layoutMode, layoutModes, selectedColor,
       changeLayoutMode, fixData, isFixable, onDownloadClicked, triggerColorPicker, pageRefresh,
-      selectedTab, layoutModeIcon, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError }
+      selectedTab, layoutModeIcon, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError, alertShown, alertMessage}
   },
 })
 </script>
@@ -305,6 +321,12 @@ export default defineComponent({
 body {
   height: 100%;
   overflow: hidden;
+}
+.h-80 {
+  height: 80%;
+}
+.h-90 {
+  height: 90%;
 }
 
 .fab-container {
@@ -383,7 +405,7 @@ input#colorInput {
 
 .codemirror{
   position: absolute;
-  width: 47%;
+  width: 45%;
   margin: 1%;
   transition: all 1s ease-in-out;
   transition-delay: 150ms;
@@ -391,8 +413,8 @@ input#colorInput {
 }
 .codemirror.content{
   opacity: 1;
-  height: 76vh;
-  top: 14vh;
+  height: 80vh;
+  top: 12vh;
   visibility: visible;
 }
 .codemirror.landing, .codemirror.supporters{
@@ -421,9 +443,8 @@ input#colorInput {
 }
 .browser-container{
   position: absolute;
-  width: 54%;
-  margin: 1%;
-  margin-left: 45%;
+  width: 52%;
+  margin: 1% 1% 1% 47%;
   transition: all 1s ease-in-out;
   vertical-align: bottom;
   background-color: transparent;

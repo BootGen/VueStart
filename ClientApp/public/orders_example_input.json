@@ -7,16 +7,12 @@
 				{
 					"date": "2010-05-23T12:00",
 					"product": "printer paper",
-					"unit": "package",
-					"quantity": 13,
-					"unitPrice": 5.3
+					"quantity": 13
 				},
 				{
 					"date": "2010-06-23T12:00",
 					"product": "printer paper",
-					"unit": "package",
-					"quantity": 20,
-					"unitPrice": 4.39
+					"quantity": 24
 				}
 			]
 		},
@@ -26,10 +22,8 @@
 			"orders": [
 				{
 					"date": "2010-07-29T12:00",
-					"product": "ink cartidge",
-					"unit": "pieces",
-					"quantity": 3,
-					"unitPrice": 35
+					"product": "ink cartridge",
+					"quantity": 3
 				}
 			]
 		}

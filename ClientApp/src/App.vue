@@ -219,7 +219,7 @@ body {
     margin: 1%;
   }
   .vuecoon.content, .vuecoon.supporters {
-    max-width: min(15vh, 25vw);
+    max-width: min(12vh, 22vw);
   }
   .jumbotron {
     transition: all 1s ease-in-out;
