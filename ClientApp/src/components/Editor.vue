@@ -1,6 +1,6 @@
 <template>
   <div class="codemirror custom-card" :class="page">
-    <code-mirror v-model="json"  @hasSyntaxError="syntaxError" :class="{'h-80': alertShown && isActionable, 'h-90': alertShown && !isActionable, 'h-100': !alertShown}"></code-mirror>
+    <code-mirror v-model="json"  @hasSyntaxError="syntaxError" :class="{'h-85': alertShown && isActionable, 'h-90': alertShown && !isActionable, 'h-100': !alertShown}"></code-mirror>
     <div class="my-1 col-12 alert alert-dismissible fade" :class="{'show': alertShown, 'alert-warning': alertWarning, 'alert-primary': !alertWarning}" role="alert" v-if="alertShown">
       <div class="text-center">
         {{ alertMessage }} <br>
@@ -161,9 +161,9 @@ export default defineComponent({
       json.value = localStorage.getItem('json');
     });
     async function fixData() {
+      alertShown.value = false;
       const fixedJson = await axios.post('api/generate/fix', JSON.parse(json.value));
       json.value = JSON.stringify(fixedJson.data);
-      alertShown.value = false;
       await generate(json.value);
     }
     function changeLayoutMode(type) {
@@ -353,7 +353,7 @@ body {
   height: 100%;
   overflow: hidden;
 }
-.h-80 {
+.h-85 {
   height: 85%;
 }
 .h-90 {
