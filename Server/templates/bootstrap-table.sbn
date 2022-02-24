@@ -14,20 +14,15 @@ const watchEffect = Vue.watchEffect;
 end ~}}
 const  app = Vue.createApp({
   template: `
-  <div class="d-flex breadcrumb mb-1">
-    <div class="d-flex" v-for="(item, index) in breadcrumbs" :key="item">
-      <h5 class="px-2 clickable" @click="sliceBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
-      <h5>/</h5>
-    </div>
-    <h5 class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
-  </div>
-  <component :is="activeElement.component" v-model="activeElement.obj[activeElement.property]" @show="show"></component>
+  {{~ for ref in root.child_references
+  class = ref.class
+  ~}}
+  <{{ kebab_case class.name }}-tables v-model="{{ camel_case root.name }}.{{ camel_case ref.name }}"></{{ kebab_case class.name }}-tables>
+  {{~ end ~}}
   `,
   name: 'App',
   setup: function () {
     const {{ camel_case root.name }} = ref(null);
-    const breadcrumbs = ref([]);
-    const activeElement = ref(null);
     {{~ if input ~}}
     {{ camel_case root.name }}.value = {{input}};
     {{~ else ~}}
@@ -41,7 +36,6 @@ const  app = Vue.createApp({
     function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
       if (json && json !== JSON.stringify({{ camel_case root.name }}.value)) {
-          breadcrumbs.value = [];
           {{ camel_case root.name }}.value = JSON.parse(json);
       }
     }
@@ -53,19 +47,7 @@ const  app = Vue.createApp({
 
     window.addEventListener('storage', loadFromLocalStorage);
     {{~ end ~}}
-
-    function show(name, component, property, obj) {
-      if (activeElement.value)
-        breadcrumbs.value.push(activeElement.value);
-      activeElement.value = { name: name, component: component, property: property, obj: obj };
-    }
-    show('{{ to_words root.child_references[0].name }}', '{{ kebab_case root.child_references[0].class.name }}{{ if root.child_references[0].is_collection }}-list{{ end }}', '{{ camel_case root.child_references[0].name }}', {{ camel_case root.name }}.value);
-
-    function sliceBreadcrumbs(idx){
-      activeElement.value = breadcrumbs.value[idx];
-      breadcrumbs.value = breadcrumbs.value.slice(0, idx);
-    }
-    return { {{ camel_case root.name }}, show, breadcrumbs, sliceBreadcrumbs, activeElement }
+    return { {{ camel_case root.name }} }
   },
 });
 
@@ -78,6 +60,44 @@ app.config.globalProperties.$filters = {
   }
 };
 
+{{~ for ref in root.child_references
+      class = ref.class
+~}}
+app.component('{{ kebab_case class.name }}-tables', {
+  template: `
+  <div class="d-flex breadcrumb mb-1">
+    <div class="d-flex" v-for="(item, index) in breadcrumbs" :key="item">
+      <h5 class="px-2 clickable" @click="sliceBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
+      <h5>/</h5>
+    </div>
+    <h5 class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
+  </div>
+  <component :is="activeElement.component" v-model="activeElement.obj[activeElement.property]" @show="show"></component>
+  `,
+  name: '{{ class.name }}Tables',
+  props: {
+    modelValue: Object
+  },
+  emits: ['update:modelValue'],
+  setup: function(props, context) {
+    const breadcrumbs = ref([]);
+    const activeElement = ref(null);
+
+    function show(name, component, property, obj) {
+      if (activeElement.value)
+        breadcrumbs.value.push(activeElement.value);
+      activeElement.value = { name: name, component: component, property: property, obj: obj };
+    }
+    show('{{ to_words ref.name }}', '{{ kebab_case class.name }}{{ if ref.is_collection }}-list{{ end }}', '{{ camel_case class.name }}', { {{ camel_case class.name }}: props.modelValue });
+
+    function sliceBreadcrumbs(idx){
+      activeElement.value = breadcrumbs.value[idx];
+      breadcrumbs.value = breadcrumbs.value.slice(0, idx);
+    }
+    return {  show, breadcrumbs, sliceBreadcrumbs, activeElement }
+  }
+});
+{{~ end ~}}
 {{~ for class in classes
       if class.is_root
         continue
