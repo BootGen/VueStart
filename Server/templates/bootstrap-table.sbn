@@ -15,34 +15,26 @@ end ~}}
 const  app = Vue.createApp({
   template: `
   {{~ for property in root.child_references ~}}
-    {{'{{'}} {{ camel_case property.name }} {{'}}'}}
-    <{{ kebab_case property.name }}-root :modelValue="{{ camel_case property.name }}"></{{ kebab_case property.name }}-root>
+    <{{ kebab_case property.name }}-root :modelValue="{{ camel_case root.name }}['{{ camel_case property.name }}']" @update:modelValue="update"></{{ kebab_case property.name }}-root>
   {{~ end ~}}
   `,
   name: 'App',
   setup: function () {
     const {{ camel_case root.name }} = ref(null);
-    {{~ for property in root.child_references ~}}
-    const {{ camel_case property.name }} = ref(null);
-    {{~ end ~}}
     {{~ if input ~}}
     {{ camel_case root.name }}.value = {{input}};
     {{~ else ~}}
     function saveToLocalStorage(newValue) {
-        let minimized = JSON.stringify(newValue);
-        let oldValue = localStorage.getItem('json');
-        if (minimized != oldValue) {
-          localStorage.setItem('json', minimized);
-        }
+      let minimized = JSON.stringify(newValue);
+      let oldValue = localStorage.getItem('json');
+      if (minimized != oldValue) {
+        localStorage.setItem('json', minimized);
+      }
     }
     function loadFromLocalStorage() {
-      console.log('loadfromlocal');
       let json = localStorage.getItem('json');
       if (json && json !== JSON.stringify({{ camel_case root.name }}.value)) {
         {{ camel_case root.name }}.value = JSON.parse(json);
-        {{~ for property in root.child_references ~}}
-        {{ camel_case property.name }}.value = { name: '{{ to_words property.name }}', component: '{{ kebab_case property.name }}{{ if property.is_collection }}-list{{ end }}', property: '{{ camel_case property.name }}', obj: {{ camel_case root.name }}.value.{{ camel_case property.name }} };
-        {{~ end ~}}
       }
     }
     loadFromLocalStorage();
@@ -54,15 +46,10 @@ const  app = Vue.createApp({
     window.addEventListener('storage', loadFromLocalStorage);
     {{~ end ~}}
 
-    {{~ for property in root.child_references ~}}
-    {{ camel_case property.name }}.value = { name: '{{ to_words property.name }}', component: '{{ kebab_case property.name }}{{ if property.is_collection }}-list{{ end }}', property: '{{ camel_case property.name }}', obj: {{ camel_case root.name }}.value.{{ camel_case property.name }} };
-    {{~ end ~}}
-
-    return { 
-      {{~ for property in root.child_references ~}}
-        {{ camel_case property.name }},
-      {{~ end ~}}
-     }
+    function update(data, newValue) {
+      {{ camel_case root.name }}.value[data] = newValue;
+    }
+    return { {{ camel_case root.name }}, update }
   },
 });
 
@@ -85,32 +72,41 @@ app.component('{{ kebab_case property.name }}-root', {
       </div>    
       <h5 class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
     </div>
-    {{'{{'}} activeElement.obj {{'}}'}}
-    <component :is="activeElement.component" v-model="activeElement.obj" @show="show"></component>
+    <component :is="activeElement.component" v-model="activeElement.obj" @show="show" @update:modelValue="update"></component>
   `,
   name: '{{ property.name }}Root',
   props: {
     modelValue: Object
   },
   emits: ['update:modelValue'],
-  setup(props) {
+  setup(props, context) {
     const breadcrumbs = ref([]);
-    const activeElement = { ...props.modelValue };
+    const activeElement = ref(null);
+    
+    show('{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', props.modelValue);
 
+    watchEffect(() => {
+      if(activeElement.value !== props.modelValue){
+        show('{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', props.modelValue);
+      }
+    });
+    
     function show(name, component, property, obj) {
-      if (activeElement.value && name !== '{{ to_words root.child_references[0].name }}') {
+      if (activeElement.value && name !== '{{ to_words property.name }}') {
         breadcrumbs.value.push(activeElement.value);
       }
       activeElement.value = { name: name, component: component, property: property, obj: obj };
     }
-    show('{{ to_words root.child_references[0].name }}', '{{ kebab_case root.child_references[0].class.name }}{{ if root.child_references[0].is_collection }}-list{{ end }}', '{{ camel_case root.child_references[0].name }}', {{ camel_case root.name }}.value);
 
     function sliceBreadcrumbs(idx){
       activeElement.value = breadcrumbs.value[idx];
       breadcrumbs.value = breadcrumbs.value.slice(0, idx);
     }
 
-    return { {{ camel_case root.name }}, show, breadcrumbs, sliceBreadcrumbs, activeElement }
+    function update(newValue){
+      context.emit('update:modelValue', '{{ camel_case property.name }}', newValue);
+    }
+    return { {{ camel_case root.name }}, show, breadcrumbs, sliceBreadcrumbs, activeElement, update }
   },
 });
 {{~ end ~}}
@@ -205,7 +201,7 @@ app.component('{{ kebab_case class.name }}-form', {
   props: {
     modelValue: Object
   },
-  emits: ['update:modelValue', 'canceled'],
+  emits: ['update:modelValue', 'canceled', 'show' ],
   setup(props, context) {
     const editedItem = { ...props.modelValue };
     function save() {
