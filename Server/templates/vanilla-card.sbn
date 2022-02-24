@@ -1,0 +1,309 @@
+{{~ func default_value(property)
+   if ((get_type property) == "Date")
+     ret "new Date().toISOString().split('.')[0]"
+    end
+   ret get_default_value property
+end ~}}
+const ref = Vue.ref;
+const reactive = Vue.reactive;
+const watchEffect = Vue.watchEffect;
+{{~ for class in classes
+  if class.is_root
+    root = class
+    break
+  end 
+end ~}}
+const  app = Vue.createApp({
+  template: `
+  <div class="d-flex breadcrumb mb-1">
+    <div class="d-flex" v-for="(item, index) in rootBreadcrumbs" :key="item">
+      <h5 v-if="activeElement.name === item.name && activeElement.component === item.component" class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
+      <h5 v-else class="px-2 clickable" @click="sliceRootBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
+      <h5 v-if="index < rootBreadcrumbs.length-1">/</h5>
+    </div>
+  </div>
+  <component :is="activeElement.component" v-model="activeElement.obj[activeElement.property]"></component>
+  `,
+  name: 'App',
+  setup: function () {
+    const {{ camel_case root.name }} = ref(null);
+    const rootBreadcrumbs = ref([]);
+    const activeElement = ref(null);
+    const tabIdx = ref(0);
+    {{~ if input ~}}
+    {{ camel_case root.name }}.value = {{input}};
+    {{~ else ~}}
+    function saveToLocalStorage(newValue) {
+        let minimized = JSON.stringify(newValue);
+        let oldValue = localStorage.getItem('json');
+        if (minimized != oldValue) {
+          localStorage.setItem('json', minimized);
+        }
+    }
+    function loadFromLocalStorage() {
+      let json = localStorage.getItem('json');
+      if (json) {
+        {{ camel_case root.name }}.value = JSON.parse(json);
+      }
+    }
+    loadFromLocalStorage();
+
+    watchEffect(() => {
+      saveToLocalStorage({{ camel_case root.name }}.value);
+    });
+
+    window.addEventListener('storage', loadFromLocalStorage);
+    {{~ end ~}}
+
+    {{~ for property in root.child_references ~}}
+    rootBreadcrumbs.value.push({ name: '{{ to_words property.name }}', component: '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', property: '{{ camel_case property.name }}', obj: {{ camel_case root.name }}.value });
+    {{~ end ~}}
+    function rootShow(name, component, property, obj) {
+      activeElement.value = { name: name, component: component, property: property, obj: obj };
+    }
+    rootShow('{{ to_words root.child_references[0].name }}', '{{ kebab_case root.child_references[0].class.name }}{{ if root.child_references[0].is_collection }}-list{{ end }}', '{{ camel_case root.child_references[0].name }}', {{ camel_case root.name }}.value);
+
+    function sliceRootBreadcrumbs(idx){
+      activeElement.value = rootBreadcrumbs.value[idx];
+      tabIdx.value = idx; 
+    }
+    return { {{ camel_case root.name }}, tabIdx, rootBreadcrumbs, sliceRootBreadcrumbs, activeElement }
+  },
+});
+app.config.globalProperties.$filters = {
+  formatDatetime(date) {
+    if (date) {
+      return new Date(date).toLocaleString()
+    }
+    return '';
+  }
+};
+{{~ for class in classes
+      if class.is_root
+        continue
+      end
+     ~}}
+app.component('{{ kebab_case class.name }}-data', {
+  template: `
+  <li class="list-group-item text-start">
+    <button type="button" class="btn btn-sm rounded-pill" @click="$emit('edit')">
+      <span class="bi bi-pencil" aria-hidden="true"></span> Edit
+    </button>
+    <button type="button" class="btn btn-sm rounded-pill" @click="$emit('delete')" v-if="deletable">
+      <span class="bi bi-trash" aria-hidden="true"></span> Delete
+    </button>
+  </li>
+  {{~ for property in class.base_properties ~}}
+  <li class="list-group-item text-start">
+    <div class="row">
+      <div class="col-4 d-flex justify-content-start text-break text-start">
+        {{ to_words property.name }}:
+      </div>
+      <div class="col-8 d-flex justify-content-start text-break">
+      {{~ if (get_type property) == "Date" ~}}
+        {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
+      {{~ else ~}}
+        {{'{{'}} value.{{ camel_case property.name }} {{'}}'}}
+      {{~ end ~}}
+      </div>
+    </div>
+  </li>
+  {{~ end ~}}
+  `,
+  name: '{{ class.name }}Data',
+  props: {
+    value: Object,
+    deletable: Boolean
+  },
+  emits: ['edit',  'delete']
+});
+
+app.component('{{ kebab_case class.name }}-form', {
+  template: `
+  <li class="list-group-item text-start">
+    <button type="button" class="btn btn-sm rounded-pill" @click="save">
+      <span class="bi bi-save" aria-hidden="true"></span> Save
+    </button>
+    <button type="button" class="btn btn-sm rounded-pill" @click="cancel">
+      <span class="bi bi-backspace" aria-hidden="true"></span> Cancel
+    </button>
+  </li>
+  {{~ for property in class.base_properties ~}}
+  <li class="list-group-item text-start">
+    <div class="col-12 d-flex justify-content-start form-floating">
+      {{~ if property.built_in_type == "Bool" ~}}
+      <div class="form-check">
+        <label class="form-check-label">
+        <input class="form-check-input" type="checkbox" 
+        v-model="editedItem.{{ camel_case property.name }}">
+        {{ to_words property.name }}
+        </label>
+      </div>
+      {{~ else ~}}
+      <input
+      {{~ if property.built_in_type == "DateTime" ~}}
+      type="datetime-local"
+      step="60"
+      {{~ else if property.built_in_type == "Int" ~}}
+      type="number"
+      {{~ else if property.built_in_type == "Float" ~}}
+      type="number"
+      step="0.1"
+      {{~ else ~}}
+      type="text"
+      {{~ end ~}}
+      class="form-control"
+      v-model="editedItem.{{ camel_case property.name }}"
+      placeholder="{{ to_words property.name }}">
+      <label>{{ to_words property.name }}</label>
+      {{~ end ~}}
+    </div>
+  </li>
+  {{~ end ~}}
+  `,
+  name: '{{ class.name }}Form',
+  props: {
+    modelValue: Object,
+  },
+  emits: ['update:modelValue', 'canceled'],
+  setup(props, context) {
+    const editedItem = { ...props.modelValue };
+
+    function save() {
+      context.emit('update:modelValue', editedItem);
+    }
+    
+    function cancel() {
+      context.emit('canceled');
+    }
+
+    return { editedItem, save, cancel }
+  },
+});
+
+app.component('{{ kebab_case class.name }}', {
+  template: `
+    <div class="col-12 mb-2" v-if="modelValue">
+      <div class="card shadow-sm">
+        <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @canceled="editing = false" v-if="editing"></{{ kebab_case class.name }}-form>
+        <{{ kebab_case class.name }}-data :value="modelValue" @edit="editing = true" :deletable="deletable" @delete="$emit('delete')" v-else></{{ kebab_case class.name }}-data>
+      </div>
+      {{~ for property in class.child_references ~}}
+        <div class="card ms-5 mt-2">
+          <div class="mt-3">
+            <div class="d-flex mb-1">
+              <h5>{{ to_words property.name }}:</h5>
+            </div>
+            {{~ if property.is_collection ~}}
+            <{{ kebab_case property.class.name }}-list :modelValue="modelValue.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}"></{{ kebab_case property.class.name }}-list>
+            {{~ else ~}}
+            <{{ kebab_case property.class.name }} :modelValue="modelValue.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}" :deletable="false" ></{{ kebab_case property.class.name }}>
+            {{~ end ~}}
+          </div>
+        </div>
+      {{~ end ~}}
+  </div>
+  <div class="col-12 mb-2" v-else>
+  <button type="button" class="btn btn-sm rounded-pill mb-1" @click="$emit('update:modelValue', {})">
+    <span class="bi bi-plus" aria-hidden="true"></span> Add {{ to_words class.name }}
+  </button>
+  </div>`,
+  name: '{{ class.name }}',
+  props: {
+    modelValue: Object,
+    deletable: Boolean
+  },
+  emits: ['update:modelValue', 'delete'],
+  setup(props, context) {
+    const editing = ref(false);
+    {{~ for property in class.child_references ~}}
+    function update{{ property.name }}(value) {
+      let newObject = {
+        ...props.modelValue,
+        {{ camel_case property.name }}: value
+      };
+      context.emit('update:modelValue', newObject);
+    }
+    {{~ end ~}}
+
+    function update(newValue) {
+      context.emit('update:modelValue', newValue);
+      editing.value = false;
+    }
+    return {
+      {{~ for property in class.child_references ~}}
+      update{{ property.name }},
+      {{~ end ~}}
+      editing,
+      update
+    };
+  }
+});
+
+app.component('{{ kebab_case class.name }}-list', {
+  template: `
+    <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
+    <{{ kebab_case class.name }} v-for="(item, idx) in modelValue" :key="idx"  :modelValue="item" @update:modelValue="updateItem(idx, $event)" :deletable="true" @delete="deleteItem(idx)" v-if="modelValue">
+    </{{ kebab_case class.name }}>
+    <div class="d-flex" v-if="newItem == null">
+      <button type="button" class="btn btn-sm rounded-pill mb-1" @click="addNewItem()">
+        <span class="bi bi-plus" aria-hidden="true"></span> Add {{ to_words class.name }}
+      </button>
+    </div>
+    <div class="col-12 mb-2" v-if="newItem != null">
+      <div class="card">
+        <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem($event)" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
+      </div>
+  </div>`,
+  name: '{{ class.name }}List',
+  props: {
+    modelValue: Array
+  },
+  emits: ['update:modelValue'],
+  setup(props, context) {
+    const newItem = ref(null);
+
+    function deleteItem(idx) {
+      if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
+        context.emit('update:modelValue', props.modelValue.filter((item, i) => i !== idx));
+      }
+    }
+    function updateItem(idx, item) {
+      let newList = [...props.modelValue];
+      newList[idx] = item;
+      context.emit('update:modelValue', newList);
+    }
+    function addNewItem() {
+      newItem.value = {
+        {{~ for property in class.json_properties ~}}
+        {{ camel_case property.name }}: {{ default_value property }}{{if !for.last}},{{end}}
+        {{~ end ~}}
+      };
+    }
+    function saveNewItem(item) {
+      if (props.modelValue) {
+        const items = [...props.modelValue];
+        items.push(item);
+        context.emit('update:modelValue', items)
+      } else {
+        context.emit('update:modelValue', [item])
+      }
+      newItem.value = null
+    }
+    function cancelAdd() {
+        newItem.value = null;
+    }
+
+    return {
+      newItem,
+      deleteItem,
+      updateItem,
+      addNewItem,
+      saveNewItem,
+      cancelAdd
+    };
+  }
+});
+{{~ end ~}}
+
+app.mount('#app');

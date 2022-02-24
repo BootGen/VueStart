@@ -1,0 +1,369 @@
+{{~ func default_value(property)
+   if ((get_type property) == "Date")
+     ret "new Date().toISOString().split('.')[0]"
+    end
+   ret get_default_value property
+end ~}}
+const ref = Vue.ref;
+const watchEffect = Vue.watchEffect;
+{{~ for class in classes
+  if class.is_root
+    root = class
+    break
+  end 
+end ~}}
+const  app = Vue.createApp({
+  template: `
+  <div class="d-flex breadcrumb mb-1" v-if="rootBreadcrumbs.length > 1">
+    <div class="d-flex" v-for="(item, index) in rootBreadcrumbs" :key="item">
+      <h5 v-if="activeElement.name === item.name && activeElement.component === item.component" class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
+      <h5 v-else class="px-2 clickable" @click="sliceRootBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
+      <h5 v-if="index < rootBreadcrumbs.length-1">/</h5>
+    </div>
+  </div>
+  <div class="d-flex breadcrumb mb-1">
+    <div class="d-flex" v-for="(item, index) in breadcrumbs" :key="item">
+      <h5 class="px-2 clickable" @click="sliceBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
+      <h5>/</h5>
+    </div>    
+    <h5 class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
+  </div>
+  <component :is="activeElement.component" v-model="activeElement.obj[activeElement.property]" @show="show"></component>
+  `,
+  name: 'App',
+  setup: function () {
+    const {{ camel_case root.name }} = ref(null);
+    const rootBreadcrumbs = ref([]);
+    const breadcrumbs = ref([]);
+    const activeElement = ref(null);
+    const tabIdx = ref(0);
+    {{~ if input ~}}
+    {{ camel_case root.name }}.value = {{input}};
+    {{~ else ~}}
+    function saveToLocalStorage(newValue) {
+        let minimized = JSON.stringify(newValue);
+        let oldValue = localStorage.getItem('json');
+        if (minimized != oldValue) {
+          localStorage.setItem('json', minimized);
+        }
+    }
+    function loadFromLocalStorage() {
+      let json = localStorage.getItem('json');
+      if (json && json !== JSON.stringify({{ camel_case root.name }}.value)) {
+        {{ camel_case root.name }}.value = JSON.parse(json);
+        show('{{ to_words root.child_references[0].name }}', '{{ kebab_case root.child_references[0].class.name }}{{ if root.child_references[0].is_collection }}-list{{ end }}', '{{ camel_case root.child_references[0].name }}', {{ camel_case root.name }}.value);
+        rootShow('{{ to_words root.child_references[0].name }}', '{{ kebab_case root.child_references[0].class.name }}{{ if root.child_references[0].is_collection }}-list{{ end }}', '{{ camel_case root.child_references[0].name }}', {{ camel_case root.name }}.value);
+      }
+    }
+    loadFromLocalStorage();
+
+    watchEffect(() => {
+      saveToLocalStorage({{ camel_case root.name }}.value);
+    });
+
+    window.addEventListener('storage', loadFromLocalStorage);
+    {{~ end ~}}
+
+    {{~ for property in root.child_references ~}}
+    rootBreadcrumbs.value.push({ name: '{{ to_words property.name }}', component: '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', property: '{{ camel_case property.name }}', obj: {{ camel_case root.name }}.value });
+    {{~ end ~}}
+    function rootShow(name, component, property, obj) {
+      activeElement.value = { name: name, component: component, property: property, obj: obj };
+    }
+    rootShow('{{ to_words root.child_references[0].name }}', '{{ kebab_case root.child_references[0].class.name }}{{ if root.child_references[0].is_collection }}-list{{ end }}', '{{ camel_case root.child_references[0].name }}', {{ camel_case root.name }}.value);
+
+    function show(name, component, property, obj) {
+      if (activeElement.value && name !== '{{ to_words root.child_references[0].name }}') {
+        breadcrumbs.value.push(activeElement.value);
+      }
+      activeElement.value = { name: name, component: component, property: property, obj: obj };
+    }
+    show('{{ to_words root.child_references[0].name }}', '{{ kebab_case root.child_references[0].class.name }}{{ if root.child_references[0].is_collection }}-list{{ end }}', '{{ camel_case root.child_references[0].name }}', {{ camel_case root.name }}.value);
+
+    function sliceBreadcrumbs(idx){
+      activeElement.value = breadcrumbs.value[idx];
+      breadcrumbs.value = breadcrumbs.value.slice(0, idx);
+    }
+
+    function sliceRootBreadcrumbs(idx){
+      activeElement.value = rootBreadcrumbs.value[idx];
+      tabIdx.value = idx; 
+    }
+
+    return { {{ camel_case root.name }}, show, breadcrumbs, sliceBreadcrumbs, activeElement, tabIdx, rootBreadcrumbs, sliceRootBreadcrumbs }
+  },
+});
+
+app.config.globalProperties.$filters = {
+  formatDatetime(date) {
+    if (date) {
+      return new Date(date).toLocaleString()
+    }
+    return '';
+  }
+};
+
+{{~ for class in classes
+      if class.is_root
+        continue
+      end ~}}
+app.component('{{ kebab_case class.name }}-data', {
+  template: `
+    {{~ for property in class.base_properties ~}}
+    <td class="align-middle">
+    {{~ if (get_type property) == "Date" ~}}
+      {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
+    {{~ else ~}}
+      {{'{{'}} value.{{ camel_case property.name }} {{'}}'}}
+    {{~ end ~}}
+    </td>
+    {{~ end ~}}
+    {{~ for property in class.child_references ~}}
+    <td class="align-middle">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', value)">
+        <span class="bi bi-eye" aria-hidden="true"></span>
+      </button>
+    </td>
+    {{~ end ~}}
+    <td class="align-middle text-end">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('edit')">
+        <span class="bi bi-pencil" aria-hidden="true"></span>
+      </button>
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('delete')" v-if="deletable">
+        <span class="bi bi-trash" aria-hidden="true"></span>
+      </button>
+    </td>
+  `,
+  name: '{{ class.name }}View',
+  props: {
+    value: Object,
+    deletable: Boolean
+  },
+  emits: ['edit',  'delete', 'show']
+});
+
+app.component('{{ kebab_case class.name }}-form', {
+  template: `
+  {{~ for property in class.base_properties ~}}
+    <td class="align-middle">
+      <div class="col-12 d-flex justify-content-start">
+        {{~ if property.built_in_type == "Bool" ~}}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" 
+          v-model="editedItem.{{ camel_case property.name }}">
+        </div>
+        {{~ else ~}}
+        <input
+        {{~ if property.built_in_type == "DateTime" ~}}
+        type="datetime-local"
+        step="60"
+        {{~ else if property.built_in_type == "Int" ~}}
+        type="number"
+        {{~ else if property.built_in_type == "Float" ~}}
+        type="number"
+        step="0.1"
+        {{~ else ~}}
+        type="text"
+        {{~ end ~}}
+        class="form-control"
+        v-model="editedItem.{{ camel_case property.name }}"
+        placeholder="{{ to_words property.name }}">
+        {{~ end ~}}
+      </div>
+    </td>
+    {{~ end ~}}
+    {{~ for property in class.child_references ~}}
+    <td class="align-middle">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', modelValue)">
+        <span class="bi bi-eye" aria-hidden="true"></span>
+      </button>
+    </td>
+    {{~ end ~}}
+    <td class="align-middle text-end">
+      <button type="button" class="btn btn-sm rounded-pill" @click="save">
+        <span class="bi bi-save" aria-hidden="true"></span>
+      </button>
+      <button type="button" class="btn btn-sm rounded-pill" @click="cancel">
+        <span class="bi bi-backspace" aria-hidden="true"></span>
+      </button>
+    </td>
+  `,
+  name: '{{ class.name }}Form',
+  props: {
+    modelValue: Object
+  },
+  emits: ['update:modelValue', 'canceled'],
+  setup(props, context) {
+    const editedItem = { ...props.modelValue };
+    function save() {
+      context.emit('update:modelValue', editedItem);
+    }
+    function cancel() {
+      context.emit('canceled');
+    }
+
+    return { editedItem, save, cancel }
+  },
+});
+
+app.component('{{ kebab_case class.name }}-row', {
+  template: `
+      <tr>
+        <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @canceled="editing = false" @show="show" v-if="editing"></{{ kebab_case class.name }}-form>
+        <{{ kebab_case class.name }}-data :value="modelValue" :deletable="deletable" @delete="$emit('delete')" @edit="editing = true" @show="show" v-else></{{ kebab_case class.name }}-data>
+      </tr>
+  `,
+  name: '{{ class.name }}Row',
+  props: {
+    modelValue: Object,
+    deletable: Boolean
+  },
+  emits: ['update:modelValue', 'delete', 'show'],
+  setup(props, context) {
+    const editing = ref(false);
+
+    function update(newValue) {
+      context.emit('update:modelValue', newValue);
+      editing.value = false;
+    }
+
+    function show(name, component, property, obj) {
+      context.emit('show', name, component, property, obj);
+    }
+    return { editing, update, show }
+  }
+});
+
+app.component('{{ kebab_case class.name }}-table', {
+  template: `
+  <table class="table text-start">
+    <thead>
+      <tr class="table-light">
+        {{~ for property in class.base_properties ~}}
+        <th scope="col">
+          {{ to_words property.name }}
+        </th>
+        {{~ end ~}}
+        {{~ for property in class.child_references
+          ~}}
+          <th scope="col">
+          {{ to_words property.name }}
+          </th>
+        {{~ end ~}}
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <slot></slot>
+    </tbody>
+  </table>`,
+  name: '{{ class.name }}Table',
+  props: {
+    modelValue: Array
+  }
+});
+
+
+app.component('{{ kebab_case class.name }}', {
+  template: `
+      <{{ kebab_case class.name }}-table>
+        <{{ kebab_case class.name }}-row :modelValue="modelValue" @update:modelValue="update" :deletable="false" @show="show" v-if="modelValue"></{{ kebab_case class.name }}-row>
+        <tr v-else>
+          <button type="button" class="btn btn-sm rounded-pill m-1" @click="$emit('update:modelValue', {})">
+            <span class="bi bi-plus" aria-hidden="true"></span> Add
+          </button>
+        </tr>
+      </{{ kebab_case class.name }}-table>
+  `,
+  name: '{{ class.name }}',
+  props: {
+    modelValue: Object
+  },
+  emits: ['update:modelValue', 'show'],
+  setup(props, context) {
+    function update(newValue) {
+      context.emit('update:modelValue', newValue);
+    }
+    function show(name, component, property, obj) {
+      context.emit('show', name, component, property, obj);
+    }
+    return { update, show }
+  }
+});
+
+app.component('{{ kebab_case class.name }}-list', {
+  template: `
+    <{{ kebab_case class.name }}-table>
+      <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
+      <{{ kebab_case class.name }}-row v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(idx)" :deletable="true" @show="show" v-if="modelValue"></{{ kebab_case class.name }}-row>
+      <tr v-if="newItem">
+        <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
+      </tr>
+      <tr v-else>
+        <button type="button" class="btn btn-sm rounded-pill m-1" @click="addNewItem">
+          <span class="bi bi-plus" aria-hidden="true"></span> Add
+        </button>
+      </tr>
+    </{{ kebab_case class.name }}-table>`,
+  name: '{{ class.name }}List',
+  props: {
+    modelValue: Array
+  },
+  emits: ['update:modelValue', 'show'],
+  setup(props, context) {
+    const newItem = ref(null);
+
+    function show(name, component, property, obj) {
+      context.emit('show', name, component, property, obj);
+    }
+
+    function deleteItem(idx) {
+      if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
+        context.emit('update:modelValue', props.modelValue.filter((item, i) => i !== idx));
+      }
+    }
+    function updateItem(idx, item) {
+      let newList = [...props.modelValue];
+      newList[idx] = item;
+      context.emit('update:modelValue', newList);
+    }
+    function addNewItem() {
+      newItem.value = {
+        {{~ for property in class.json_properties ~}}
+        {{ camel_case property.name }}: {{ default_value property }}{{if !for.last}},{{end}}
+        {{~ end ~}}
+      };
+    }
+    function saveNewItem(item) {
+      if (props.modelValue) {
+        const items = [...props.modelValue];
+        items.push(item);
+        context.emit('update:modelValue', items)
+      } else {
+        context.emit('update:modelValue', [item])
+      }
+      newItem.value = null
+    }
+    {{~ for property in class.child_references ~}}
+      function show{{ property.name }}(item) {
+        context.emit('update:modelValue', item.value.{{ camel_case property.name }});
+      }
+    {{~ end ~}}
+    function cancelAdd() {
+        newItem.value = null;
+    }
+
+    return {
+      newItem,
+      deleteItem,
+      updateItem,
+      addNewItem,
+      saveNewItem,
+      cancelAdd,
+      show
+    };
+  }
+});
+{{~ end ~}}
+
+app.mount('#app');
