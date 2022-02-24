@@ -72,29 +72,30 @@ app.component('{{ kebab_case class.name }}-tables', {
     </div>
     <h5 class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
   </div>
-  <component :is="activeElement.component" v-model="activeElement.obj[activeElement.property]" @show="show"></component>
+  <component :is="activeElement.component" :modelValue="activeElement.obj[activeElement.property]" @update:modelValue="$emit('update:modelValue', editedObject)" @show="show"></component>
   `,
   name: '{{ class.name }}Tables',
   props: {
-    modelValue: Object
+    modelValue: Array
   },
   emits: ['update:modelValue'],
   setup: function(props, context) {
     const breadcrumbs = ref([]);
     const activeElement = ref(null);
+    const editedObject = ref([...props.modelValue])
 
     function show(name, component, property, obj) {
       if (activeElement.value)
         breadcrumbs.value.push(activeElement.value);
       activeElement.value = { name: name, component: component, property: property, obj: obj };
     }
-    show('{{ to_words ref.name }}', '{{ kebab_case class.name }}{{ if ref.is_collection }}-list{{ end }}', '{{ camel_case class.name }}', { {{ camel_case class.name }}: props.modelValue });
+    show('{{ to_words ref.name }}', '{{ kebab_case class.name }}{{ if ref.is_collection }}-list{{ end }}', '{{ camel_case ref.name }}', { {{ camel_case ref.name }}: editedObject });
 
     function sliceBreadcrumbs(idx){
       activeElement.value = breadcrumbs.value[idx];
       breadcrumbs.value = breadcrumbs.value.slice(0, idx);
     }
-    return {  show, breadcrumbs, sliceBreadcrumbs, activeElement }
+    return {  show, breadcrumbs, sliceBreadcrumbs, activeElement, editedObject }
   }
 });
 {{~ end ~}}
