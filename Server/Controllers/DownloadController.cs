@@ -36,7 +36,7 @@ namespace VueStart.Controllers
                 if (artifactType == ArtifactType.None)
                     return NotFound();
                 statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Download, artifactType);
-                var memoryStream = CreateZipStream(json, $"Data {ToUpperFirst(layout)}", $"{type}-{layout}.sbn", color);
+                var memoryStream = CreateZipStream(json, $"Data {ToUpperFirst(layout)}", $"{type}-{layout}.sbn", type, color);
                 statisticsService.OnDownloadEnd();
                 return File(memoryStream, "application/zip", $"{layout}.zip");
             } catch (FormatException e) {
@@ -44,10 +44,10 @@ namespace VueStart.Controllers
             }
         }
 
-        private MemoryStream CreateZipStream(JsonElement json, string title, string templateFileName, string color)
+        private MemoryStream CreateZipStream(JsonElement json, string title, string templateFileName, string type, string color)
         {
             var memoryStream = new MemoryStream();
-            generateService.Generate(json, title, templateFileName, color, true, out string appjs, out string indexhtml);
+            generateService.Generate(json, title, templateFileName, type, color, true, out string appjs, out string indexhtml);
             using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
             {
                 AddEntry(archive, appjs, "app.js");
