@@ -87,14 +87,14 @@
     </div>
 </template>
 <script>
-import { computed, defineComponent, ref, watch } from 'vue';
+import {computed, defineComponent, ref, watch} from 'vue';
 import CodeMirror from './CodeMirror.vue';
 import BrowserFrame from './BrowserFrame.vue'
 import Tab from "@/components/Tab";
 import axios from "axios";
-import { getSchema } from "@/utils/Schema";
-import { debounce } from "@/utils/Helper";
-import { validateJson } from '@/utils/Validate';
+import {getSchema} from "@/utils/Schema";
+import {debounce} from "@/utils/Helper";
+import {validateJson} from '@/utils/Validate';
 import Tip from '@/utils/Tip'
 
 export default defineComponent({
@@ -103,7 +103,7 @@ export default defineComponent({
     page: String,
     config: Object
   },
-  emits: ['download', 'hasError', 'setVuecoon'],
+  emits: ['download', 'hasError', 'setVuecoon', 'success'],
   setup(props, context) {
     const inputError = ref(null);
     const isActionable = ref(false);
@@ -168,7 +168,8 @@ export default defineComponent({
     }
     function changeLayoutMode(type) {
       layoutMode.value = type;
-      tip.typeChanged()
+      if (tip.typeChanged())
+        context.emit('success')
       alertShown.value = true
       alertMessage.value = tip.getTip()
       alertWarning.value = false;
@@ -203,7 +204,8 @@ export default defineComponent({
       if (minimized !== oldValue) {
         localStorage.setItem('json', minimized);
         if (oldValue) {
-          tip.modified()
+          if (tip.modified())
+            context.emit('success')
           alertShown.value = true
           alertMessage.value = tip.getTip()
           alertWarning.value = false;
@@ -225,20 +227,17 @@ export default defineComponent({
     localStorage.removeItem('json');
     async function loadTasksExample() {
       context.emit('setVuecoon', 'loading');
-      let content = await getProjectContentFromServer('tasks_example_input');
-      json.value = content;
+      json.value = await getProjectContentFromServer('tasks_example_input');
       changeLayoutMode(layoutModes.Card);
     }
     async function loadOrdersExample() {
       context.emit('setVuecoon', 'loading');
-      let content = await getProjectContentFromServer('orders_example_input');
-      json.value = content;
+      json.value = await getProjectContentFromServer('orders_example_input');
       changeLayoutMode(layoutModes.Table);
     }
     async function loadBookingExample() {
       context.emit('setVuecoon', 'loading');
-      let content = await getProjectContentFromServer('booking_example_input');
-      json.value = content;
+      json.value = await getProjectContentFromServer('booking_example_input');
       changeLayoutMode(layoutModes.Wizard);
     }
     getProjectContentFromServer('orders_example_input').then( (content) => {
@@ -247,7 +246,8 @@ export default defineComponent({
       generate(json.value);
       function generateAndEmit(data) {
         generate(data);
-        tip.generated();
+        if (tip.generated())
+          context.emit('success')
         alertShown.value = true;
         alertMessage.value = tip.getTip()
         alertWarning.value = false;
@@ -286,7 +286,8 @@ export default defineComponent({
       })
     });
     function onDownloadClicked() {
-      tip.downloaded();
+      if (tip.downloaded())
+        context.emit('success')
       alertShown.value = true;
       alertMessage.value = tip.getTip()
       alertWarning.value = false;

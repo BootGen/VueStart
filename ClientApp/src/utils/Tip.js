@@ -15,25 +15,33 @@ export default class Tip {
         if (this.tipIdx === 0) {
             this.tipIdx = 1;
             localStorage.setItem('tipIdx', this.tipIdx.toString());
+            return true
         }
+        return false
     }
     generated() {
         if (this.tipIdx === 1) {
             this.tipIdx = 2;
             localStorage.setItem('tipIdx', this.tipIdx.toString());
+            return true
         }
+        return false
     }
     typeChanged() {
         if (this.tipIdx === 2) {
             this.tipIdx = 3;
             localStorage.setItem('tipIdx', this.tipIdx.toString());
+            return true
         }
+        return false
     }
     downloaded() {
         if (this.tipIdx === 3) {
             this.tipIdx = 4;
             localStorage.setItem('tipIdx', this.tipIdx.toString());
+            return true
         }
+        return false
     }
     getTip() {
         let msg = this.tips[this.tipIdx];
