@@ -206,9 +206,12 @@ export default defineComponent({
         if (oldValue) {
           if (tip.modified())
             context.emit('success')
-          alertShown.value = true
-          alertMessage.value = tip.getTip()
-          alertWarning.value = false;
+          let msg = tip.getTip();
+          if (msg) {
+            alertShown.value = true;
+            alertMessage.value = msg;
+            alertWarning.value = false
+          }
         }
       }
       const downloadButton = document.getElementById('download-btn');
@@ -248,9 +251,12 @@ export default defineComponent({
         generate(data);
         if (tip.generated())
           context.emit('success')
-        alertShown.value = true;
-        alertMessage.value = tip.getTip()
-        alertWarning.value = false;
+        let msg = tip.getTip();
+        if (msg) {
+          alertShown.value = true;
+          alertMessage.value = msg;
+          alertWarning.value = false
+        }
       }
       let debouncedGenerate = debounce(generateAndEmit, 1000);
       watch([tempColor, selectedColor, syntaxErr],() => {
