@@ -72,7 +72,7 @@ app.component('{{ kebab_case class.name }}-tables', {
     </div>
     <h5 class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
   </div>
-  <component :is="activeElement.component" :modelValue="activeElement.obj[activeElement.property]" @update:modelValue="$emit('update:modelValue', editedObject)" @show="show"></component>
+  <component :is="activeElement.component" :modelValue="activeElement.obj[activeElement.property]" @update:modelValue="update" @show="show"></component>
   `,
   name: '{{ class.name }}Tables',
   props: {
@@ -91,11 +91,16 @@ app.component('{{ kebab_case class.name }}-tables', {
     }
     show('{{ to_words ref.name }}', '{{ kebab_case class.name }}{{ if ref.is_collection }}-list{{ end }}', '{{ camel_case ref.name }}', { {{ camel_case ref.name }}: editedObject });
 
+    function update(newValue) {
+      activeElement.value.obj[activeElement.value.property] = newValue;
+      context.emit('update:modelValue', editedObject);
+    }
+
     function sliceBreadcrumbs(idx){
       activeElement.value = breadcrumbs.value[idx];
       breadcrumbs.value = breadcrumbs.value.slice(0, idx);
     }
-    return {  show, breadcrumbs, sliceBreadcrumbs, activeElement, editedObject }
+    return {  show, breadcrumbs, sliceBreadcrumbs, activeElement, editedObject, update }
   }
 });
 {{~ end ~}}
