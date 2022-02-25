@@ -170,9 +170,12 @@ export default defineComponent({
       layoutMode.value = type;
       if (tip.typeChanged())
         context.emit('success')
-      alertShown.value = true
-      alertMessage.value = tip.getTip()
-      alertWarning.value = false;
+      let msg = tip.getTip();
+      if (msg) {
+        alertShown.value = true;
+        alertMessage.value = msg;
+        alertWarning.value = false
+      }
       generate(json.value)
     }
     async function generate(data) {
