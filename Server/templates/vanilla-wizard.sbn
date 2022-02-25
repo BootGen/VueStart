@@ -15,12 +15,12 @@ const watchEffect = Vue.watchEffect;
 end ~}}
 const  app = Vue.createApp({
   template: `
-  <div class="d-flex breadcrumb mb-1">
-    <div class="d-flex" v-for="(item, index) in rootBreadcrumbs" :key="item">
+  <div class="breadcrumb">
+    <template v-for="(item, index) in rootBreadcrumbs" :key="item">
       <h5 v-if="activeElement.name === item.name && activeElement.component === item.component" class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
       <h5 v-else class="px-2 clickable" @click="sliceRootBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
       <h5 v-if="index < rootBreadcrumbs.length-1">/</h5>
-    </div>
+    </template>
   </div>
   <component :is="activeElement.component" v-model="activeElement.obj[activeElement.property]"></component>
   <div class="d-flex justify-content-end" v-if="rootBreadcrumbs.length > 1">
