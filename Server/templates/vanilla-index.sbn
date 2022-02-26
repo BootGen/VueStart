@@ -61,8 +61,6 @@
       .btn {
         color: #{{ text_color }};
         background-color: #{{ color }};
-        /*display: flex;
-        align-items: center;*/
         padding: 0.25rem 1rem;
         border-radius: 50rem;
         border: 1px solid transparent;
@@ -79,6 +77,10 @@
         border-radius: 0.5rem;
         word-wrap: break-word;
         text-align: left!important;
+      }
+      .child-card {
+        margin-left: 3rem;
+        margin-top: 0.5rem;
       }
       .breadcrumb {
         display: flex;
