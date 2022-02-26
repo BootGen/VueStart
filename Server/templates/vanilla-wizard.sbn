@@ -208,14 +208,13 @@ app.component('{{ kebab_case class.name }}', {
 
 app.component('{{ kebab_case class.name }}-list', {
   template: `
-    <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
-    <{{ kebab_case class.name }} v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(idx)" :deletable="true" v-if="modelValue">
-    </{{ kebab_case class.name }}>
-    <div class="d-flex">
-      <button type="button" class="btn" @click="addNewItem()">
-        <i class="bi-plus"></i> Add {{ to_words class.name }}
-      </button>
-    </div>`,
+  <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
+  <{{ kebab_case class.name }} v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(idx)" :deletable="true" v-if="modelValue"></{{ kebab_case class.name }}>
+  <div class="d-flex">
+    <button type="button" class="btn" @click="addNewItem()">
+      <i class="bi-plus"></i> Add {{ to_words class.name }}
+    </button>
+  </div>`,
   name: '{{ class.name }}List',
   props: {
     modelValue: Array
