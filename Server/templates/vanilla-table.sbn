@@ -147,11 +147,14 @@ app.component('{{ kebab_case class.name }}-form', {
   template: `
   {{~ for property in class.base_properties ~}}
     <td>
-      <div class="col-12 d-flex justify-content-start">
+      <div class="field">
         {{~ if property.built_in_type == "Bool" ~}}
         <div class="form-check">
+          <label class="form-check-label">
           <input class="form-check-input" type="checkbox" 
           v-model="editedItem.{{ camel_case property.name }}">
+          {{ to_words property.name }}
+          </label>
         </div>
         {{~ else ~}}
         <input
@@ -166,7 +169,6 @@ app.component('{{ kebab_case class.name }}-form', {
         {{~ else ~}}
         type="text"
         {{~ end ~}}
-        class="form-control"
         v-model="editedItem.{{ camel_case property.name }}"
         placeholder="{{ to_words property.name }}">
         {{~ end ~}}

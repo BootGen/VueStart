@@ -119,6 +119,7 @@
       .field {
         display: flex;
         flex-flow: column-reverse;
+        width: 100%
       }
       label, input {
         transition: all 0.2s;
