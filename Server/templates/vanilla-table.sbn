@@ -110,30 +110,30 @@ app.component('{{ kebab_case class.name }}-tables', {
       end ~}}
 app.component('{{ kebab_case class.name }}-data', {
   template: `
-    {{~ for property in class.base_properties ~}}
-    <td class="align-middle">
-    {{~ if (get_type property) == "Date" ~}}
-      {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
-    {{~ else ~}}
-      {{'{{'}} value.{{ camel_case property.name }} {{'}}'}}
-    {{~ end ~}}
-    </td>
-    {{~ end ~}}
-    {{~ for property in class.child_references ~}}
-    <td class="align-middle">
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', value)">
-        <span class="bi bi-eye" aria-hidden="true"></span>
-      </button>
-    </td>
-    {{~ end ~}}
-    <td class="align-middle text-end">
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('edit')">
-        <span class="bi bi-pencil" aria-hidden="true"></span>
-      </button>
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('delete')" v-if="deletable">
-        <span class="bi bi-trash" aria-hidden="true"></span>
-      </button>
-    </td>
+      {{~ for property in class.base_properties ~}}
+      <td>
+      {{~ if (get_type property) == "Date" ~}}
+        {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
+      {{~ else ~}}
+        {{'{{'}} value.{{ camel_case property.name }} {{'}}'}}
+      {{~ end ~}}
+      </td>
+      {{~ end ~}}
+      {{~ for property in class.child_references ~}}
+      <td>
+        <button type="button" class="btn" @click="$emit('show', '{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', value)">
+          <i class="bi-eye"></i>
+        </button>
+      </td>
+      {{~ end ~}}
+      <td>
+        <button type="button" class="btn" @click="$emit('edit')">
+          <i class="bi-pencil"></i>
+        </button>
+        <button type="button" class="btn" @click="$emit('delete')" v-if="deletable">
+          <i class="bi-trash"></i>
+        </button>
+      </td>
   `,
   name: '{{ class.name }}View',
   props: {
@@ -146,7 +146,7 @@ app.component('{{ kebab_case class.name }}-data', {
 app.component('{{ kebab_case class.name }}-form', {
   template: `
   {{~ for property in class.base_properties ~}}
-    <td class="align-middle">
+    <td>
       <div class="col-12 d-flex justify-content-start">
         {{~ if property.built_in_type == "Bool" ~}}
         <div class="form-check">
@@ -174,18 +174,18 @@ app.component('{{ kebab_case class.name }}-form', {
     </td>
     {{~ end ~}}
     {{~ for property in class.child_references ~}}
-    <td class="align-middle">
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', modelValue)">
-        <span class="bi bi-eye" aria-hidden="true"></span>
+    <td>
+      <button type="button" class="btn" @click="$emit('show', '{{ to_words property.name }}', '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', '{{ camel_case property.name }}', modelValue)">
+        <i class="bi-eye"></i>
       </button>
     </td>
     {{~ end ~}}
-    <td class="align-middle text-end">
-      <button type="button" class="btn btn-sm rounded-pill" @click="save">
-        <span class="bi bi-save" aria-hidden="true"></span>
+    <td>
+      <button type="button" class="btn" @click="save">
+        <i class="bi-save"></i>
       </button>
-      <button type="button" class="btn btn-sm rounded-pill" @click="cancel">
-        <span class="bi bi-backspace" aria-hidden="true"></span>
+      <button type="button" class="btn" @click="cancel">
+        <i class="bi-backspace"></i>
       </button>
     </td>
   `,
@@ -237,9 +237,9 @@ app.component('{{ kebab_case class.name }}-row', {
 
 app.component('{{ kebab_case class.name }}-table', {
   template: `
-  <table class="table text-start">
+  <table class="table">
     <thead>
-      <tr class="table-light">
+      <tr>
         {{~ for property in class.base_properties ~}}
         <th scope="col">
           {{ to_words property.name }}
@@ -270,8 +270,8 @@ app.component('{{ kebab_case class.name }}', {
       <{{ kebab_case class.name }}-table>
         <{{ kebab_case class.name }}-row :modelValue="modelValue" @update:modelValue="update" :deletable="false" @show="show" v-if="modelValue"></{{ kebab_case class.name }}-row>
         <tr v-else>
-          <button type="button" class="btn btn-sm rounded-pill m-1" @click="$emit('update:modelValue', {})">
-            <span class="bi bi-plus" aria-hidden="true"></span> Add
+          <button type="button" class="btn m-1" @click="$emit('update:modelValue', {})">
+          <i class="bi-plus"></i> Add
           </button>
         </tr>
       </{{ kebab_case class.name }}-table>
@@ -301,9 +301,11 @@ app.component('{{ kebab_case class.name }}-list', {
         <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
       </tr>
       <tr v-else>
-        <button type="button" class="btn btn-sm rounded-pill m-1" @click="addNewItem">
-          <span class="bi bi-plus" aria-hidden="true"></span> Add
-        </button>
+        <td class="new-item-button">
+          <button type="button" class="btn m-1" @click="addNewItem">
+            <i class="bi-plus"></i> Add
+          </button>
+        <td/>
       </tr>
     </{{ kebab_case class.name }}-table>`,
   name: '{{ class.name }}List',

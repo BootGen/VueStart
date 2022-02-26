@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <title>{{ title }}</title>
     {{~ if base_url ~}}
     <base href="{{ base_url }}">
@@ -24,7 +25,7 @@
         font-weight: 500;
         line-height: 1.2;
       }
-      .d-flex: {
+      .d-flex {
         display: flex;
       }
       .mb-2 {
@@ -51,21 +52,17 @@
       .clickable:hover {
         opacity: 0.8;
       }
-      .row {
-        display: flex;
-        flex-wrap: wrap;
+      .w-35 {
+        width: 35%;
       }
-      .col-4 {
-        flex: 0 0 auto;
-        width: 33.33333333%;
-      }
-      .col-8 {
-        flex: 0 0 auto;
-        width: 66.66666667%;
+      .w-65 {
+        width: 65%;
       }
       .btn {
         color: #{{ text_color }};
         background-color: #{{ color }};
+        /*display: flex;
+        align-items: center;*/
         padding: 0.25rem 1rem;
         border-radius: 50rem;
         border: 1px solid transparent;
@@ -88,17 +85,17 @@
         text-align: left;
         margin-bottom: 0.5rem;
       }
-      .list-group-item {
-        display: block;
+      .list-item {
+        display: flex;
         padding: 0.5rem 1rem;
         border: 1px solid rgba(0,0,0,.125);
         border-bottom: unset;
       }
-      .list-group-item:first-child {
+      .list-item:first-child {
         border-top-left-radius: 0.5rem;
         border-top-right-radius: 0.5rem;
       }
-      .list-group-item:last-child {
+      .list-item:last-child {
         border-bottom-left-radius: 0.5rem;
         border-bottom-right-radius: 0.5rem;
         border-bottom: 1px solid rgba(0,0,0,.125);
@@ -166,6 +163,26 @@
       input:focus + label {
         transform: translate(0, 0);
         cursor: pointer;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      td, th {
+        border-bottom: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+      }
+      th {
+        background-color: #f8f9fa;
+        border-bottom: solid 1px #000000;
+      }
+      td:last-child {
+        text-align: right;
+      }
+      .new-item-button {
+        display: flex;
+        border-bottom: unset;
       }
       </style>
   </head>
