@@ -37,9 +37,6 @@
       .mt-2 {
         margin-top: 0.5rem;
       }
-      .text-left {
-        text-align: left;
-      }
       .disabled{
         color: #777!important;
       }
