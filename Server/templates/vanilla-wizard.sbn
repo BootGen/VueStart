@@ -94,7 +94,7 @@ const  app = Vue.createApp({
     </li>
     {{~ for property in class.base_properties ~}}
     <li class="list-item">
-      <div class="col-12 d-flex justify-content-start form-floating">
+      <div class="field">
         {{~ if property.built_in_type == "Bool" ~}}
         <div class="form-check">
           <label class="form-check-label">
@@ -105,7 +105,7 @@ const  app = Vue.createApp({
           </label>
         </div>
         {{~ else ~}}
-        <input
+        <input id="{{ camel_case property.name }}"
         {{~ if property.built_in_type == "DateTime" ~}}
         type="datetime-local"
         step="60"
@@ -117,13 +117,12 @@ const  app = Vue.createApp({
         {{~ else ~}}
         type="text"
         {{~ end ~}}
-        class="form-control"
         :value="modelValue.{{ camel_case property.name }}"
         @input="update{{property.name}}"
         placeholder="{{ to_words property.name }}">
-        <label>{{ to_words property.name }}</label>
+        <label for="{{ camel_case property.name }}">{{ to_words property.name }}</label>
+        {{~ end ~}}
       </div>
-      {{~ end ~}} 
     </li>
     {{~ end ~}}
     `,
