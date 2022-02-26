@@ -85,27 +85,25 @@ app.config.globalProperties.$filters = {
      ~}}
 app.component('{{ kebab_case class.name }}-data', {
   template: `
-  <li class="list-group-item text-start">
+  <li class="list-item">
     <button type="button" class="btn" @click="$emit('edit')">
-      <span class="bi bi-pencil" aria-hidden="true"></span> Edit
+      <i class="bi-pencil"></i> Edit
     </button>
     <button type="button" class="btn" @click="$emit('delete')" v-if="deletable">
-      <span class="bi bi-trash" aria-hidden="true"></span> Delete
+      <i class="bi-trash"></i> Delete
     </button>
   </li>
   {{~ for property in class.base_properties ~}}
-  <li class="list-group-item text-start">
-    <div class="row">
-      <div class="col-4 d-flex justify-content-start text-break text-start">
-        {{ to_words property.name }}:
-      </div>
-      <div class="col-8 d-flex justify-content-start text-break">
-      {{~ if (get_type property) == "Date" ~}}
-        {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
-      {{~ else ~}}
-        {{'{{'}} value.{{ camel_case property.name }} {{'}}'}}
-      {{~ end ~}}
-      </div>
+  <li class="list-item">
+    <div class="w-35">
+      {{ to_words property.name }}:
+    </div>
+    <div class="w-65">
+    {{~ if (get_type property) == "Date" ~}}
+      {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
+    {{~ else ~}}
+      {{'{{'}} value.{{ camel_case property.name }} {{'}}'}}
+    {{~ end ~}}
     </div>
   </li>
   {{~ end ~}}
@@ -120,16 +118,16 @@ app.component('{{ kebab_case class.name }}-data', {
 
 app.component('{{ kebab_case class.name }}-form', {
   template: `
-  <li class="list-group-item text-start">
+  <li class="list-item">
     <button type="button" class="btn" @click="save">
-      <span class="bi bi-save" aria-hidden="true"></span> Save
+      <i class="bi-save"></i> Save
     </button>
     <button type="button" class="btn" @click="cancel">
-      <span class="bi bi-backspace" aria-hidden="true"></span> Cancel
+      <i class="bi-backspace"></i> Cancel
     </button>
   </li>
   {{~ for property in class.base_properties ~}}
-  <li class="list-group-item text-start">
+  <li class="list-item">
     <div class="field">
       {{~ if property.built_in_type == "Bool" ~}}
       <div class="form-check">
@@ -205,7 +203,7 @@ app.component('{{ kebab_case class.name }}', {
   </div>
   <div class="col-12 mb-2" v-else>
   <button type="button" class="btn mb-1" @click="$emit('update:modelValue', {})">
-    <span class="bi bi-plus" aria-hidden="true"></span> Add {{ to_words class.name }}
+    <i class="bi-plus"></i> Add {{ to_words class.name }}
   </button>
   </div>`,
   name: '{{ class.name }}',
@@ -247,7 +245,7 @@ app.component('{{ kebab_case class.name }}-list', {
     </{{ kebab_case class.name }}>
     <div class="d-flex text-left" v-if="newItem == null">
       <button type="button" class="btn mb-1" @click="addNewItem()">
-        <span class="bi bi-plus" aria-hidden="true"></span> Add {{ to_words class.name }}
+        <i class="bi-plus"></i> Add {{ to_words class.name }}
       </button>
     </div>
     <div class="col-12 mb-2" v-if="newItem != null">
