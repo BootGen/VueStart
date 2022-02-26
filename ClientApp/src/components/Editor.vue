@@ -1,11 +1,11 @@
 <template>
   <div class="codemirror custom-card" :class="page">
-    <code-mirror v-model="json"  @hasSyntaxError="syntaxError" :class="{'h-85': alertShown && isActionable, 'h-90': alertShown && !isActionable, 'h-100': !alertShown}"></code-mirror>
+    <code-mirror v-model="json"  @hasSyntaxError="syntaxError" :class="{'h-90': alertShown, 'h-100': !alertShown}"></code-mirror>
     <div class="my-1 col-12 alert alert-dismissible fade" :class="{'show': alertShown, 'alert-warning': alertWarning, 'alert-primary': !alertWarning}" role="alert" v-if="alertShown">
       <div class="text-center">
-        {{ alertMessage }} <br>
-        <button type="button" class="btn btn-sm btn-warning" aria-label="Fix" @click="fixData" v-if="isActionable && alertWarning"><i class="bi bi-hammer"></i> Fix it!</button>
-        <a type="button" href="https://github.com/BootGen/VueStart" target="_blank" class="btn btn-sm btn-primary" aria-label="GitHub" @click="alertShown=false" v-if="isActionable && !alertWarning"><i class="bi bi-github"></i> Go To GitHub</a>
+        {{ alertMessage }}
+        <a href="javascript:" class="alert-link"  @click="fixData"  v-if="isActionable && alertWarning">Fix it!</a>
+        <a href="https://github.com/BootGen/VueStart" target="_blank" class="alert-link" @click="alertShown=false" v-if="isActionable && !alertWarning">GitHub!</a>
       </div>
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="alertShown=false"></button>
     </div>
@@ -337,6 +337,7 @@ export default defineComponent({
         alertShown.value = true;
         alertMessage.value = message;
         alertWarning.value = true;
+        isActionable.value = false;
       } else {
         const msg = tip.getTip();
         if (msg) {
@@ -362,9 +363,6 @@ export default defineComponent({
 body {
   height: 100%;
   overflow: hidden;
-}
-.h-85 {
-  height: 85%;
 }
 .h-90 {
   height: 90%;
@@ -523,9 +521,6 @@ a:hover {
 }
 
 @media (max-width: 1255px) {
-  .h-85 {
-    height: 80%;
-  }
   .h-90 {
     height: 88%;
   }
@@ -553,9 +548,6 @@ a:hover {
     transition-delay: 600ms;
   }
 
-  .h-85 {
-    height: 75%;
-  }
   .h-90 {
     height: 83%;
   }
@@ -587,9 +579,6 @@ a:hover {
   }
   .fab-options {
     bottom: 40px;
-  }
-  .h-85 {
-    height: 72%;
   }
 }
 
