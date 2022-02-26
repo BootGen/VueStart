@@ -17,9 +17,9 @@ const  app = Vue.createApp({
   template: `
   <div class="breadcrumb">
     <template v-for="(item, index) in rootBreadcrumbs" :key="item">
-      <h5 v-if="activeElement.name === item.name && activeElement.component === item.component" class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
-      <h5 v-else class="px-2 clickable" @click="sliceRootBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
-      <h5 v-if="index < rootBreadcrumbs.length-1">/</h5>
+      <h5 v-if="activeElement.name === item.name && activeElement.component === item.component" class="disabled">{{'{{'}} activeElement.name {{'}}'}}</h5>
+      <h5 v-else class="clickable" @click="sliceRootBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
+      <h5 v-if="index < rootBreadcrumbs.length-1" class="breadcrumb-separator">/</h5>
     </template>
   </div>
   <component :is="activeElement.component" v-model="activeElement.obj[activeElement.property]"></component>
@@ -130,13 +130,11 @@ app.component('{{ kebab_case class.name }}-form', {
   <li class="list-item">
     <div class="field">
       {{~ if property.built_in_type == "Bool" ~}}
-      <div class="form-check">
-        <label class="form-check-label">
-        <input class="form-check-input" type="checkbox" 
-        v-model="editedItem.{{ camel_case property.name }}">
-        {{ to_words property.name }}
-        </label>
-      </div>
+      <label>
+      <input class="check-input" type="checkbox" 
+      v-model="editedItem.{{ camel_case property.name }}">
+      {{ to_words property.name }}
+      </label>
       {{~ else ~}}
       <input id="{{ camel_case property.name }}"
       {{~ if property.built_in_type == "DateTime" ~}}

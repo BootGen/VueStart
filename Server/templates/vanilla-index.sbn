@@ -25,35 +25,14 @@
         font-weight: 500;
         line-height: 1.2;
       }
-      .d-flex {
-        display: flex;
-      }
-      .mb-2 {
-        margin-bottom: 1rem;
-      }
-      .ms-5 {
-        margin-left: 3rem;
-      }
-      .mt-2 {
-        margin-top: 0.5rem;
-      }
-      .disabled{
+      .disabled {
         color: #777!important;
-      }
-      .shadow {
-        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
       }
       .clickable {
         cursor: pointer;
       }
       .clickable:hover {
         opacity: 0.8;
-      }
-      .w-35 {
-        width: 35%;
-      }
-      .w-65 {
-        width: 65%;
       }
       .btn {
         color: #{{ text_color }};
@@ -68,43 +47,20 @@
         color: #{{ text_color }};
         opacity: 0.8;
       }
-      .card {
-        background-color: unset;
-        border: unset;
-        border-radius: 0.5rem;
-        word-wrap: break-word;
-        text-align: left!important;
-      }
-      .child-card {
-        margin-left: 3rem;
-        margin-top: 0.5rem;
-      }
       .breadcrumb {
         display: flex;
         text-align: left;
         margin-bottom: 0.5rem;
       }
-      .list-item {
-        display: flex;
-        padding: 0.5rem 1rem;
-        border: 1px solid rgba(0,0,0,.125);
-        border-bottom: unset;
+      .breadcrumb-separator {
+        padding-left: 0.3rem;
+        padding-right: 0.3rem;
       }
-      .list-item:first-child {
-        border-top-left-radius: 0.5rem;
-        border-top-right-radius: 0.5rem;
-      }
-      .list-item:last-child {
-        border-bottom-left-radius: 0.5rem;
-        border-bottom-right-radius: 0.5rem;
-        border-bottom: 1px solid rgba(0,0,0,.125);
-      }
-      .form-check-input:checked {
+      .check-input:checked {
         background-color: #{{ color }};
         border-color: #{{ color }};
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
       }
-      
       input[type="checkbox"] {
         -webkit-appearance: none;
         -moz-appearance: none;
@@ -114,7 +70,6 @@
         height: 1em;
         cursor: pointer;
       }
-      
       .field {
         display: flex;
         flex-flow: column-reverse;
@@ -138,7 +93,6 @@
         padding: 0;
         cursor: text;
       }
-
       input:focus {
         outline: 0;
         border-bottom: 1px solid #666;
@@ -159,11 +113,56 @@
       t:focus::-webkit-input-placeholder {
         opacity: 1;
       }
-
       input:focus + label {
         transform: translate(0, 0);
         cursor: pointer;
       }
+      {{~ if title == 'Data Card' ~}}
+      .w-35 {
+        width: 35%;
+      }
+      .w-65 {
+        width: 65%;
+      }
+      {{~ end ~}}
+      {{~ if title != 'Data Table' ~}}
+      .d-flex {
+        display: flex;
+      }
+      .mb-2 {
+        margin-bottom: 1rem;
+      }
+      .shadow {
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+      }
+      .card {
+        background-color: unset;
+        border: unset;
+        border-radius: 0.5rem;
+        word-wrap: break-word;
+        text-align: left!important;
+      }
+      .child-card {
+        margin-left: 3rem;
+        margin-top: 0.5rem;
+      }
+      .list-item {
+        display: flex;
+        padding: 0.5rem 1rem;
+        border: 1px solid rgba(0,0,0,.125);
+        border-bottom: unset;
+      }
+      .list-item:first-child {
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+      }
+      .list-item:last-child {
+        border-bottom-left-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+        border-bottom: 1px solid rgba(0,0,0,.125);
+      }
+      {{~ end ~}}
+      {{~ if title == 'Data Table' ~}}
       table {
         width: 100%;
         border-collapse: collapse;
@@ -184,6 +183,7 @@
         display: flex;
         border-bottom: unset;
       }
+      {{~ end ~}}
       </style>
   </head>
   <body>

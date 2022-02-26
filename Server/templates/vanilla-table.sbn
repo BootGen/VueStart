@@ -67,10 +67,10 @@ app.component('{{ kebab_case class.name }}-tables', {
   template: `
   <div class="breadcrumb">
     <template v-for="(item, index) in breadcrumbs" :key="item">
-      <h5 class="px-2 clickable" @click="sliceBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
-      <h5>/</h5>
+      <h5 class="clickable" @click="sliceBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
+      <h5 class="breadcrumb-separator">/</h5>
     </template>
-    <h5 class="disabled px-2">{{'{{'}} activeElement.name {{'}}'}}</h5>
+    <h5 class="disabled">{{'{{'}} activeElement.name {{'}}'}}</h5>
   </div>
   <component :is="activeElement.component" :modelValue="activeElement.obj[activeElement.property]" @update:modelValue="update" @show="show"></component>
   `,
@@ -149,13 +149,11 @@ app.component('{{ kebab_case class.name }}-form', {
     <td>
       <div class="field">
         {{~ if property.built_in_type == "Bool" ~}}
-        <div class="form-check">
-          <label class="form-check-label">
-          <input class="form-check-input" type="checkbox" 
-          v-model="editedItem.{{ camel_case property.name }}">
-          {{ to_words property.name }}
-          </label>
-        </div>
+        <label>
+        <input class="check-input" type="checkbox" 
+        v-model="editedItem.{{ camel_case property.name }}">
+        {{ to_words property.name }}
+        </label>
         {{~ else ~}}
         <input
         {{~ if property.built_in_type == "DateTime" ~}}
@@ -303,7 +301,7 @@ app.component('{{ kebab_case class.name }}-list', {
       </tr>
       <tr v-else>
         <td class="new-item-button">
-          <button type="button" class="btn m-1" @click="addNewItem">
+          <button type="button" class="btn" @click="addNewItem">
             <i class="bi-plus"></i> Add
           </button>
         <td/>
