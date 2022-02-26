@@ -157,27 +157,23 @@ const  app = Vue.createApp({
   
   app.component('{{ kebab_case class.name }}', {
     template: `
-      <div class="col-12 mb-2" v-if="modelValue">
-        <div class="card shadow-sm">
-          <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @delete="$emit('delete')" :deletable="deletable"></{{ kebab_case class.name }}-form>
+    <div class="mb-2" v-if="modelValue">
+      <div class="card shadow">
+        <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @delete="$emit('delete')" :deletable="deletable"></{{ kebab_case class.name }}-form>
+      </div>
+      {{~ for property in class.child_references ~}}
+        <div class="card child-card">
+          <h5>{{ to_words property.name }}:</h5>
+          {{~ if property.is_collection ~}}
+          <{{ kebab_case property.class.name }}-list :modelValue="modelValue.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}"></{{ kebab_case property.class.name }}-list>
+          {{~ else ~}}
+          <{{ kebab_case property.class.name }} :modelValue="modelValue.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}" :deletable="false"></{{ kebab_case property.class.name }}>
+          {{~ end ~}}
         </div>
-        {{~ for property in class.child_references ~}}
-          <div class="card ms-5 mt-2">
-            <div class="mt-3">
-              <div class="d-flex mb-1">
-                <h5>{{ to_words property.name }}:</h5>
-              </div>
-              {{~ if property.is_collection ~}}
-              <{{ kebab_case property.class.name }}-list :modelValue="modelValue.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}"></{{ kebab_case property.class.name }}-list>
-              {{~ else ~}}
-              <{{ kebab_case property.class.name }} :modelValue="modelValue.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}" :deletable="false"></{{ kebab_case property.class.name }}>
-              {{~ end ~}}
-            </div>
-          </div>
-        {{~ end ~}}
+      {{~ end ~}}
     </div>
-    <div class="col-12 mb-2" v-else>
-      <button type="button" class="btn mb-1" @click="$emit('update:modelValue', {})">
+    <div class="mb-2" v-else>
+      <button type="button" class="btn" @click="$emit('update:modelValue', {})">
         <i class="bi-plus"></i> Add {{ to_words class.name }}
       </button>
     </div>`,
@@ -216,7 +212,7 @@ const  app = Vue.createApp({
       <{{ kebab_case class.name }} v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(idx)" :deletable="true" v-if="modelValue">
       </{{ kebab_case class.name }}>
       <div class="d-flex">
-        <button type="button" class="btn mb-1" @click="addNewItem()">
+        <button type="button" class="btn" @click="addNewItem()">
           <i class="bi-plus"></i> Add {{ to_words class.name }}
         </button>
       </div>`,

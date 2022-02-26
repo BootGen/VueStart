@@ -266,17 +266,16 @@ app.component('{{ kebab_case class.name }}-table', {
   }
 });
 
-
 app.component('{{ kebab_case class.name }}', {
   template: `
-      <{{ kebab_case class.name }}-table>
-        <{{ kebab_case class.name }}-row :modelValue="modelValue" @update:modelValue="update" :deletable="false" @show="show" v-if="modelValue"></{{ kebab_case class.name }}-row>
-        <tr v-else>
-          <button type="button" class="btn m-1" @click="$emit('update:modelValue', {})">
-          <i class="bi-plus"></i> Add
-          </button>
-        </tr>
-      </{{ kebab_case class.name }}-table>
+  <{{ kebab_case class.name }}-table>
+    <{{ kebab_case class.name }}-row :modelValue="modelValue" @update:modelValue="update" :deletable="false" @show="show" v-if="modelValue"></{{ kebab_case class.name }}-row>
+    <tr v-else>
+      <button type="button" class="btn" @click="$emit('update:modelValue', {})">
+        <i class="bi-plus"></i> Add
+      </button>
+    </tr>
+  </{{ kebab_case class.name }}-table>
   `,
   name: '{{ class.name }}',
   props: {
