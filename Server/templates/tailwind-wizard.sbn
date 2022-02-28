@@ -15,19 +15,19 @@ const watchEffect = Vue.watchEffect;
 end ~}}
 const  app = Vue.createApp({
   template: `
-  <div class="breadcrumb">
+  <div class="flex justify-start mb-1">
     <template v-for="(item, index) in rootBreadcrumbs" :key="item">
-      <h5 v-if="activeElement.name === item.name && activeElement.component === item.component" class="disabled">{{'{{'}} activeElement.name {{'}}'}}</h5>
-      <h5 v-else class="clickable" @click="sliceRootBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
-      <h5 v-if="index < rootBreadcrumbs.length-1" class="breadcrumb-separator">/</h5>
+      <h5 v-if="activeElement.name === item.name && activeElement.component === item.component" class="text-disabled">{{'{{'}} activeElement.name {{'}}'}}</h5>
+      <h5 v-else class="text-primary hover:text-primaryHover cursor-pointer" @click="sliceRootBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
+      <h5 v-if="index < rootBreadcrumbs.length-1" class="text-primary px-2">/</h5>
     </template>
   </div>
   <component :is="activeElement.component" v-model="activeElement.obj[activeElement.property]"></component>
-  <div class="d-flex" v-if="rootBreadcrumbs.length > 1">
-    <button type="button" class="btn" @click="sliceRootBreadcrumbs(tabIdx - 1)" :disabled="tabIdx < 1">
+  <div class="flex" v-if="rootBreadcrumbs.length > 1">
+    <button class="bg-primary hover:bg-primaryHover text-white font-bold py-2 px-4 rounded-full" @click="sliceRootBreadcrumbs(tabIdx - 1)" :class="{'opacity-30 cursor-not-allowed' : tabIdx < 1}" :disabled="tabIdx < 1">
       <i class="bi-arrow-left"></i> Previous
     </button>
-    <button type="button" class="btn" @click="sliceRootBreadcrumbs(tabIdx + 1)" :disabled="tabIdx > rootBreadcrumbs.length-2">
+    <button class="bg-primary hover:bg-primaryHover text-white font-bold py-2 px-4 rounded-full" @click="sliceRootBreadcrumbs(tabIdx + 1)" :class="{'opacity-30 cursor-not-allowed' : tabIdx > rootBreadcrumbs.length-2}" :disabled="tabIdx > rootBreadcrumbs.length-2">
       Next <i class="bi-arrow-right"></i>
     </button>
   </div>

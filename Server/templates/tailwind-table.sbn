@@ -65,12 +65,12 @@ app.config.globalProperties.$filters = {
 ~}}
 app.component('{{ kebab_case class.name }}-tables', {
   template: `
-  <div class="breadcrumb">
+  <div class="flex justify-start mb-1">
     <template v-for="(item, index) in breadcrumbs" :key="item">
-      <h5 class="clickable" @click="sliceBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
-      <h5 class="breadcrumb-separator">/</h5>
+      <h5 class="text-primary hover:text-primaryHover cursor-pointer" @click="sliceBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
+      <h5 class="text-primary px-2">/</h5>
     </template>
-    <h5 class="disabled">{{'{{'}} activeElement.name {{'}}'}}</h5>
+    <h5 class="text-disabled">{{'{{'}} activeElement.name {{'}}'}}</h5>
   </div>
   <component :is="activeElement.component" :modelValue="activeElement.obj[activeElement.property]" @update:modelValue="update" @show="show"></component>
   `,
