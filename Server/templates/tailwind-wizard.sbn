@@ -1,0 +1,260 @@
+{{~ func default_value(property)
+   if ((get_type property) == "Date")
+     ret "new Date().toISOString().split('.')[0]"
+    end
+   ret get_default_value property
+end ~}}
+const ref = Vue.ref;
+const reactive = Vue.reactive;
+const watchEffect = Vue.watchEffect;
+{{~ for class in classes
+  if class.is_root
+    root = class
+    break
+  end 
+end ~}}
+const  app = Vue.createApp({
+  template: `
+  <div class="breadcrumb">
+    <template v-for="(item, index) in rootBreadcrumbs" :key="item">
+      <h5 v-if="activeElement.name === item.name && activeElement.component === item.component" class="disabled">{{'{{'}} activeElement.name {{'}}'}}</h5>
+      <h5 v-else class="clickable" @click="sliceRootBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
+      <h5 v-if="index < rootBreadcrumbs.length-1" class="breadcrumb-separator">/</h5>
+    </template>
+  </div>
+  <component :is="activeElement.component" v-model="activeElement.obj[activeElement.property]"></component>
+  <div class="d-flex" v-if="rootBreadcrumbs.length > 1">
+    <button type="button" class="btn" @click="sliceRootBreadcrumbs(tabIdx - 1)" :disabled="tabIdx < 1">
+      <i class="bi-arrow-left"></i> Previous
+    </button>
+    <button type="button" class="btn" @click="sliceRootBreadcrumbs(tabIdx + 1)" :disabled="tabIdx > rootBreadcrumbs.length-2">
+      Next <i class="bi-arrow-right"></i>
+    </button>
+  </div>
+  `,
+  name: 'App',
+  setup: function () {
+    const {{ camel_case root.name }} = ref(null);
+    const rootBreadcrumbs = ref([]);
+    const activeElement = ref(null);
+    const tabIdx = ref(0);
+    {{~ if input ~}}
+    {{ camel_case root.name }}.value = {{input}};
+    {{~ else ~}}
+    function saveToLocalStorage(newValue) {
+        let minimized = JSON.stringify(newValue);
+        let oldValue = localStorage.getItem('json');
+        if (minimized != oldValue) {
+          localStorage.setItem('json', minimized);
+        }
+    }
+    function loadFromLocalStorage() {
+      let json = localStorage.getItem('json');
+      if (json && json !== JSON.stringify({{ camel_case root.name }}.value)) {
+        {{ camel_case root.name }}.value = JSON.parse(json);
+        rootShow('{{ to_words root.child_references[0].name }}', '{{ kebab_case root.child_references[0].class.name }}{{ if root.child_references[0].is_collection }}-list{{ end }}', '{{ camel_case root.child_references[0].name }}', {{ camel_case root.name }}.value);
+      }
+    }
+    loadFromLocalStorage();
+
+    watchEffect(() => {
+      saveToLocalStorage({{ camel_case root.name }}.value);
+    });
+
+    window.addEventListener('storage', loadFromLocalStorage);
+    {{~ end ~}}
+    
+    {{~ for property in root.child_references ~}}
+    rootBreadcrumbs.value.push({ name: '{{ to_words property.name }}', component: '{{ kebab_case property.class.name }}{{ if property.is_collection }}-list{{ end }}', property: '{{ camel_case property.name }}', obj: {{ camel_case root.name }}.value });
+    {{~ end ~}}
+    function rootShow(name, component, property, obj) {
+      activeElement.value = { name: name, component: component, property: property, obj: obj };
+    }
+    rootShow('{{ to_words root.child_references[0].name }}', '{{ kebab_case root.child_references[0].class.name }}{{ if root.child_references[0].is_collection }}-list{{ end }}', '{{ camel_case root.child_references[0].name }}', {{ camel_case root.name }}.value);
+
+    function sliceRootBreadcrumbs(idx){
+      activeElement.value = rootBreadcrumbs.value[idx];
+      tabIdx.value = idx; 
+    }
+    
+    return { {{ camel_case root.name }}, tabIdx, rootBreadcrumbs, sliceRootBreadcrumbs, activeElement }
+  },
+});
+{{~ for class in classes
+  if class.is_root
+    continue
+  end
+~}}
+app.component('{{ kebab_case class.name }}-form', {
+  template: `
+  <li class="list-item" v-if="deletable">
+    <button type="button" class="btn" @click="$emit('delete')">
+      <i class="bi-trash"></i> Delete
+    </button>
+  </li>
+  {{~ for property in class.base_properties ~}}
+  <li class="list-item">
+    <div class="field">
+      {{~ if property.built_in_type == "Bool" ~}}
+      <label>
+      <input class="check-input" type="checkbox" 
+      :checked="modelValue.{{ camel_case property.name }}"
+      @change="update{{property.name}}">
+      {{ to_words property.name }}
+      </label>
+      {{~ else ~}}
+      <input id="{{ camel_case property.name }}"
+      {{~ if property.built_in_type == "DateTime" ~}}
+      type="datetime-local"
+      step="60"
+      {{~ else if property.built_in_type == "Int" ~}}
+      type="number"
+      {{~ else if property.built_in_type == "Float" ~}}
+      type="number"
+      step="0.1"
+      {{~ else ~}}
+      type="text"
+      {{~ end ~}}
+      :value="modelValue.{{ camel_case property.name }}"
+      @input="update{{property.name}}"
+      placeholder="{{ to_words property.name }}">
+      <label for="{{ camel_case property.name }}">{{ to_words property.name }}</label>
+      {{~ end ~}}
+    </div>
+  </li>
+  {{~ end ~}}
+  `,
+  name: '{{ class.name }}Form',
+  props: {
+    modelValue: Object,
+    deletable: Boolean
+  },
+  emits: ['update:modelValue', 'delete'],
+  setup(props, context) {
+    {{~ for property in class.base_properties ~}}
+    function update{{property.name}}(event) {
+      {{~ if property.built_in_type == "Int" ~}}
+      const value = parseInt(event.target.value);
+      {{~ else if property.built_in_type == "Float" ~}}
+      const value = parseFloat(event.target.value);
+      {{~ else if property.built_in_type == "Bool" ~}}
+      const value = event.target.checked;
+      {{~ else ~}}
+      const value = event.target.value;
+      {{~ end ~}}
+      context.emit('update:modelValue', { ...props.modelValue, {{ camel_case property.name }}: value })
+    };
+    {{~ end ~}}
+    return {
+      {{~ for property in class.base_properties ~}}
+      update{{property.name}},
+      {{~ end ~}}
+    }
+  }
+});
+
+app.component('{{ kebab_case class.name }}', {
+  template: `
+  <div class="mb-2" v-if="modelValue">
+    <div class="card shadow">
+      <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @delete="$emit('delete')" :deletable="deletable"></{{ kebab_case class.name }}-form>
+    </div>
+    {{~ for property in class.child_references ~}}
+      <div class="card child-card">
+        <h5>{{ to_words property.name }}:</h5>
+        {{~ if property.is_collection ~}}
+        <{{ kebab_case property.class.name }}-list :modelValue="modelValue.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}"></{{ kebab_case property.class.name }}-list>
+        {{~ else ~}}
+        <{{ kebab_case property.class.name }} :modelValue="modelValue.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}" :deletable="false"></{{ kebab_case property.class.name }}>
+        {{~ end ~}}
+      </div>
+    {{~ end ~}}
+  </div>
+  <div class="mb-2" v-else>
+    <button type="button" class="btn" @click="$emit('update:modelValue', {})">
+      <i class="bi-plus"></i> Add {{ to_words class.name }}
+    </button>
+  </div>`,
+  name: '{{ class.name }}',
+  props: {
+    modelValue: Object,
+    deletable: Boolean
+  },
+  emits: ['update:modelValue', 'delete'],
+  setup(props, context) {
+    {{~ for property in class.child_references ~}}
+    function update{{ property.name }}(value) {
+      let newObject = {
+        ...props.modelValue,
+        {{ camel_case property.name }}: value
+      };
+      context.emit('update:modelValue', newObject);
+    }
+    {{~ end ~}}
+
+    function update(newValue) {
+      context.emit('update:modelValue', newValue);
+    }
+    return {
+      {{~ for property in class.child_references ~}}
+      update{{ property.name }},
+      {{~ end ~}}
+      update
+    };
+  }
+});
+
+app.component('{{ kebab_case class.name }}-list', {
+  template: `
+  <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
+  <{{ kebab_case class.name }} v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(idx)" :deletable="true" v-if="modelValue"></{{ kebab_case class.name }}>
+  <div class="d-flex">
+    <button type="button" class="btn" @click="addNewItem()">
+      <i class="bi-plus"></i> Add {{ to_words class.name }}
+    </button>
+  </div>`,
+  name: '{{ class.name }}List',
+  props: {
+    modelValue: Array
+  },
+  emits: ['update:modelValue'],
+  setup(props, context) {
+
+    function deleteItem(idx) {
+      if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
+        context.emit('update:modelValue', props.modelValue.filter((item, i) => i !== idx));
+      }
+    }
+    function updateItem(idx, item) {
+      let newList = [...props.modelValue];
+      newList[idx] = item;
+      context.emit('update:modelValue', newList);
+    }
+    function addNewItem() {
+      let newItem = {
+        {{~ for property in class.json_properties ~}}
+        {{ camel_case property.name }}: {{ default_value property }}{{if !for.last}},{{end}}
+        {{~ end ~}}
+      };
+      saveNewItem(newItem);
+    }
+    function saveNewItem(item) {
+      if (props.modelValue) {
+        const items = [...props.modelValue];
+        items.push(item);
+        context.emit('update:modelValue', items)
+      } else {
+        context.emit('update:modelValue', [item])
+      }
+    }
+
+    return {
+      deleteItem,
+      updateItem,
+      addNewItem
+    };
+  }
+});
+{{~ end ~}}
+
+app.mount('#app');

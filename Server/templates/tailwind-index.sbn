@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <title>{{ title }}</title>
+    {{~ if base_url ~}}
+    <base href="{{ base_url }}">
+    {{~ end ~}}
+    <style>
+      #app {
+        font-family: Avenir, Helvetica, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-align: center;
+        color: #2c3e50;
+        margin: 1rem;
+      }
+      h5 {
+        margin: 0;
+        color: #{{ color }};
+        font-size: 1.25rem;
+        font-weight: 500;
+        line-height: 1.2;
+      }
+      .disabled {
+        color: #777!important;
+      }
+      .clickable {
+        cursor: pointer;
+      }
+      .clickable:hover {
+        opacity: 0.8;
+      }
+      .btn {
+        color: #{{ text_color }};
+        background-color: #{{ color }};
+        padding: 0.25rem 1rem;
+        border-radius: 50rem;
+        border: 1px solid transparent;
+        font-size: .875rem;
+        font-family: inherit;
+      }
+      .btn:hover {
+        color: #{{ text_color }};
+        opacity: 0.8;
+      }
+      .breadcrumb {
+        display: flex;
+        text-align: left;
+        margin-bottom: 0.5rem;
+      }
+      .breadcrumb-separator {
+        padding-left: 0.3rem;
+        padding-right: 0.3rem;
+      }
+      .check-input:checked {
+        background-color: #{{ color }};
+        border-color: #{{ color }};
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+      }
+      input[type="checkbox"] {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        border: 1px solid #{{ color }};
+        border-radius: 0.25em;
+        width: 1em;
+        height: 1em;
+        cursor: pointer;
+      }
+      .field {
+        display: flex;
+        flex-flow: column-reverse;
+        width: 100%
+      }
+      label, input {
+        transition: all 0.2s;
+        touch-action: manipulation;
+      }
+      label {
+        display: flex;
+        align-items: center;
+      }
+      input {
+        font-size: 1em;
+        border: 0;
+        border-bottom: 1px solid #ccc;
+        font-family: inherit;
+        -webkit-appearance: none;
+        border-radius: 0;
+        padding: 0;
+        cursor: text;
+      }
+      input:focus {
+        outline: 0;
+        border-bottom: 1px solid #666;
+      }
+      input:placeholder-shown + label {
+        cursor: text;
+        max-width: 66.66%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transform-origin: left bottom;
+        transform: translate(0, 1.125rem);
+      }
+      ::-webkit-input-placeholder {
+        opacity: 0;
+        transition: inherit;
+      }
+      t:focus::-webkit-input-placeholder {
+        opacity: 1;
+      }
+      input:focus + label {
+        transform: translate(0, 0);
+        cursor: pointer;
+      }
+      {{~ if title == 'Data Card' ~}}
+      .w-35 {
+        width: 35%;
+      }
+      .w-65 {
+        width: 65%;
+      }
+      {{~ end ~}}
+      {{~ if title != 'Data Table' ~}}
+      .d-flex {
+        display: flex;
+      }
+      .mb-2 {
+        margin-bottom: 1rem;
+      }
+      .shadow {
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+      }
+      .card {
+        background-color: unset;
+        border: unset;
+        border-radius: 0.5rem;
+        word-wrap: break-word;
+        text-align: left!important;
+      }
+      .child-card {
+        margin-left: 3rem;
+        margin-top: 0.5rem;
+      }
+      .list-item {
+        display: flex;
+        padding: 0.5rem 1rem;
+        border: 1px solid rgba(0,0,0,.125);
+        border-bottom: unset;
+      }
+      .list-item:first-child {
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+      }
+      .list-item:last-child {
+        border-bottom-left-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+        border-bottom: 1px solid rgba(0,0,0,.125);
+      }
+      {{~ end ~}}
+      {{~ if title == 'Data Table' ~}}
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      td, th {
+        border-bottom: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+      }
+      th {
+        background-color: #f8f9fa;
+        border-bottom: solid 1px #000000;
+      }
+      td:last-child {
+        text-align: right;
+      }
+      .new-item-button {
+        display: flex;
+        border-bottom: unset;
+      }
+      {{~ end ~}}
+      </style>
+  </head>
+  <body>
+    <noscript>
+      <strong>We're sorry but {{ title }} doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div id="app"></div>
+  </body>
+  <script src="https://unpkg.com/vue@3.2.16/dist/vue.global.prod.js"></script>
+  <script src="app.js"></script>
+</html>

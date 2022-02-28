@@ -180,7 +180,7 @@ export default defineComponent({
     }
     async function generate(data) {
       try {
-        const resp = await axios.post(`api/generate/vanilla/${layoutMode.value}/${tempColor.value}`, JSON.parse(data), props.config);
+        const resp = await axios.post(`api/generate/tailwind/${layoutMode.value}/${tempColor.value}`, JSON.parse(data), props.config);
         saveToLocalStorage(data);
         generatedId.value = resp.data.id;
         seturl();
@@ -301,7 +301,7 @@ export default defineComponent({
       alertMessage.value = tip.getTip()
       alertWarning.value = false;
       isActionable.value = true;
-      context.emit('download', `api/download/vanilla/${layoutMode.value}/${tempColor.value}`, `${layoutMode.value}.zip`);
+      context.emit('download', `api/download/tailwind/${layoutMode.value}/${tempColor.value}`, `${layoutMode.value}.zip`);
     }
     function triggerColorPicker() {
       document.getElementById("colorInput").click();
