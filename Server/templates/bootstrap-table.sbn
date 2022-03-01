@@ -6,6 +6,7 @@
 end ~}}
 const ref = Vue.ref;
 const watchEffect = Vue.watchEffect;
+const watch = Vue.watch;
 {{~ for class in classes
   if class.is_root
     root = class
@@ -83,12 +84,20 @@ app.component('{{ kebab_case class.name }}-tables', {
     const breadcrumbs = ref([]);
     const activeElement = ref(null);
     const editedObject = ref([...props.modelValue])
-
+    
     function show(name, component, property, obj) {
       if (activeElement.value)
         breadcrumbs.value.push(activeElement.value);
       activeElement.value = { name: name, component: component, property: property, obj: obj };
     }
+
+    watch(() => props.modelValue, () => {
+      breadcrumbs.value = [];
+      activeElement.value = null;
+      editedObject.value = [...props.modelValue]
+      show('{{ to_words ref.name }}', '{{ kebab_case class.name }}{{ if ref.is_collection }}-list{{ end }}', '{{ camel_case ref.name }}', { {{ camel_case ref.name }}: editedObject });
+    });
+
     show('{{ to_words ref.name }}', '{{ kebab_case class.name }}{{ if ref.is_collection }}-list{{ end }}', '{{ camel_case ref.name }}', { {{ camel_case ref.name }}: editedObject });
 
     function update(newValue) {
