@@ -264,7 +264,7 @@ app.component('{{ kebab_case class.name }}', {
       context.emit('update:modelValue', newObj);
     }
 
-    return { update, show, activeProperty }
+    return { update, show, activeProperty, updateChild }
   }
 });
 
