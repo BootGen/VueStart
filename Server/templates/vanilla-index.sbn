@@ -24,6 +24,7 @@
         font-size: 1.25rem;
         font-weight: 500;
         line-height: 1.2;
+        display: table-cell;
       }
       .disabled {
         color: #777!important;
@@ -166,6 +167,7 @@
       table {
         width: 100%;
         border-collapse: collapse;
+        margin-bottom: 1rem;
       }
       td, th {
         border-bottom: 1px solid #dddddd;
