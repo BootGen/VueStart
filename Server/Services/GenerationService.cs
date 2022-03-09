@@ -7,6 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Drawing;
+using System.Linq;
 
 namespace VueStart.Services;
 public class GenerationService
@@ -83,7 +84,7 @@ public class GenerationService
         return json;
     }
 
-    public string GenerateToCache(JsonElement json, string title, string templateFileName, string type, string color)
+    public string GenerateToCache(JsonElement json, string title, string templateFileName, string type, string color, out List<string> warnings)
     {
         var generator = new VueStartGenerator(json, memoryCache);
         Generate(json, title, templateFileName, type, color, false, out var appjs, out var indexhtml, generator);
@@ -92,6 +93,48 @@ public class GenerationService
         Generate(json, title, templateFileName, type, color, true, out var pAppjs, out var pIndexhtml, generator);
         memoryCache.Set($"{generator.Id}/app.js_display", pAppjs, TimeSpan.FromMinutes(30));
         memoryCache.Set($"{generator.Id}/index.html_display", pIndexhtml, TimeSpan.FromMinutes(30));
+        warnings = new List<string>();
+        var warningData = generator.DataModel.Warnings;
+        foreach (var key in warningData.Keys) {
+            switch (key) {
+                case WarningType.EmptyType:
+                {
+                    HashSet<string> names = warningData[WarningType.EmptyType];
+                    if (names.Count == 1)
+                        warnings.Add($"Empty types are not supported, and are omitted. The type \"{names.First()}\" has no properties.");
+                    else
+                        warnings.Add("Empty types are not supported, and are omitted. The following types have no properties: " + names.Aggregate((a, b) => $"{a}, {b}"));
+                }
+                break;
+                case WarningType.NestedArray:
+                {
+                    HashSet<string> names = warningData[WarningType.NestedArray];
+                    if (names.Count == 1)
+                        warnings.Add($"Nested arrays are not supported. The property \"{names.First()}\" is omitted.");
+                    else
+                        warnings.Add("Nested arrays are not supported. The following properties are omitted: " + names.Aggregate((a, b) => $"{a}, {b}"));
+                }
+                break;
+                case WarningType.PrimitiveArrayElement:
+                {
+                    HashSet<string> names = warningData[WarningType.NestedArray];
+                    if (names.Count == 1)
+                        warnings.Add($"Arrays with primitive elements are not supported. The property \"{names.First()}\" is omitted.");
+                    else
+                        warnings.Add("Arrays with primitive elements are not supported. The following properties are omitted: " + names.Aggregate((a, b) => $"{a}, {b}"));
+                }
+                break;
+                case WarningType.PrimitiveRoot:
+                {
+                    HashSet<string> names = warningData[WarningType.NestedArray];
+                    if (names.Count == 1)
+                        warnings.Add($"Root elements must be arrays or objects. The property \"{names.First()}\" is omitted.");
+                    else
+                        warnings.Add("Root elements must be arrays or objects. The following properties are omitted: " + names.Aggregate((a, b) => $"{a}, {b}"));
+                }
+                break;
+            }
+        }
         return generator.Id;
     }
 
