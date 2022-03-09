@@ -79,16 +79,16 @@ app.component('{{ kebab_case class.name }}-data', {
   {{~ end ~}}
   {{~ for property in class.child_references ~}}
   <td>
-    <button type="button" class="btn" @click="$emit('show', '{{ camel_case property.name }}')">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="$emit('show', '{{ camel_case property.name }}')">
       <i class="bi-eye"></i>
     </button>
   </td>
   {{~ end ~}}
   <td>
-    <button type="button" class="btn" @click="$emit('edit')">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 mr-1 rounded-full" @click="$emit('edit')">
       <i class="bi-pencil"></i>
     </button>
-    <button type="button" class="btn" @click="$emit('delete')" v-if="deletable">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="$emit('delete')" v-if="deletable">
       <i class="bi-trash"></i>
     </button>
   </td>
@@ -133,16 +133,16 @@ app.component('{{ kebab_case class.name }}-form', {
   {{~ end ~}}
   {{~ for property in class.child_references ~}}
   <td>
-    <button type="button" class="btn" @click="$emit('show', '{{ camel_case property.name }}')">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="$emit('show', '{{ camel_case property.name }}')">
       <i class="bi-eye"></i>
     </button>
   </td>
   {{~ end ~}}
   <td>
-    <button type="button" class="btn" @click="save">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 mr-1 rounded-full" @click="save">
       <i class="bi-save"></i>
     </button>
-    <button type="button" class="btn" @click="cancel">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="cancel">
       <i class="bi-backspace"></i>
     </button>
   </td>
@@ -230,7 +230,7 @@ app.component('{{ kebab_case class.name }}', {
   <{{ kebab_case class.name }}-table v-if="activeProperty === null">
     <{{ kebab_case class.name }}-row :modelValue="modelValue" @update:modelValue="update" :deletable="false" @show="show" v-if="modelValue"></{{ kebab_case class.name }}-row>
     <tr v-else>
-      <button type="button" class="btn" @click="$emit('update:modelValue', {})">
+      <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full"  @click="$emit('update:modelValue', {})">
         <i class="bi-plus"></i> Add
       </button>
     </tr>
@@ -279,7 +279,7 @@ app.component('{{ kebab_case class.name }}-list', {
     </tr>
     <tr v-else>
       <td class="new-item-button">
-        <button type="button" class="btn" @click="addNewItem">
+        <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="addNewItem">
           <i class="bi-plus"></i> Add
         </button>
       <td/>

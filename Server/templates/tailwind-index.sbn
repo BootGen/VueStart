@@ -32,19 +32,6 @@
         color: #2c3e50;
         margin: 1rem;
       }
-      .btn {
-        color: #{{ text_color }};
-        background-color: #{{ color }};
-        padding: 0.25rem 1rem;
-        border-radius: 50rem;
-        border: 1px solid transparent;
-        font-size: .875rem;
-        font-family: inherit;
-      }
-      .btn:hover {
-        color: #{{ text_color }};
-        opacity: 0.8;
-      }
       .check-input:checked {
         background-color: #{{ color }};
         border-color: #{{ color }};

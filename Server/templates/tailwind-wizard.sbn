@@ -24,10 +24,10 @@ const  app = Vue.createApp({
   </div>
   <component :is="activeElement.component" v-model="activeElement.obj[activeElement.property]"></component>
   <div class="flex" v-if="rootBreadcrumbs.length > 1">
-    <button class="bg-primary hover:bg-primaryHover text-white font-bold py-2 px-4 rounded-full" @click="sliceRootBreadcrumbs(tabIdx - 1)" :class="{'opacity-30 cursor-not-allowed' : tabIdx < 1}" :disabled="tabIdx < 1">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 mr-1 rounded-full" @click="sliceRootBreadcrumbs(tabIdx - 1)" :class="{'opacity-30 cursor-not-allowed' : tabIdx < 1}" :disabled="tabIdx < 1">
       <i class="bi-arrow-left"></i> Previous
     </button>
-    <button class="bg-primary hover:bg-primaryHover text-white font-bold py-2 px-4 rounded-full" @click="sliceRootBreadcrumbs(tabIdx + 1)" :class="{'opacity-30 cursor-not-allowed' : tabIdx > rootBreadcrumbs.length-2}" :disabled="tabIdx > rootBreadcrumbs.length-2">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="sliceRootBreadcrumbs(tabIdx + 1)" :class="{'opacity-30 cursor-not-allowed' : tabIdx > rootBreadcrumbs.length-2}" :disabled="tabIdx > rootBreadcrumbs.length-2">
       Next <i class="bi-arrow-right"></i>
     </button>
   </div>
@@ -88,7 +88,7 @@ const  app = Vue.createApp({
 app.component('{{ kebab_case class.name }}-form', {
   template: `
   <li class="list-item" v-if="deletable">
-    <button type="button" class="btn" @click="$emit('delete')">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="$emit('delete')">
       <i class="bi-trash"></i> Delete
     </button>
   </li>
@@ -171,7 +171,7 @@ app.component('{{ kebab_case class.name }}', {
     {{~ end ~}}
   </div>
   <div class="mb-2" v-else>
-    <button type="button" class="btn" @click="$emit('update:modelValue', {})">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="$emit('update:modelValue', {})">
       <i class="bi-plus"></i> Add {{ to_words class.name }}
     </button>
   </div>`,
@@ -209,7 +209,7 @@ app.component('{{ kebab_case class.name }}-list', {
   <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
   <{{ kebab_case class.name }} v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(idx)" :deletable="true" v-if="modelValue"></{{ kebab_case class.name }}>
   <div class="d-flex">
-    <button type="button" class="btn" @click="addNewItem()">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="addNewItem">
       <i class="bi-plus"></i> Add {{ to_words class.name }}
     </button>
   </div>`,

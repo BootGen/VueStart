@@ -91,10 +91,10 @@ app.config.globalProperties.$filters = {
 app.component('{{ kebab_case class.name }}-data', {
   template: `
   <li class="list-item">
-    <button type="button" class="btn" @click="$emit('edit')">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 mr-1 rounded-full" @click="$emit('edit')">
       <i class="bi-pencil"></i> Edit
     </button>
-    <button type="button" class="btn" @click="$emit('delete')" v-if="deletable">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="$emit('delete')" v-if="deletable">
       <i class="bi-trash"></i> Delete
     </button>
   </li>
@@ -124,10 +124,10 @@ app.component('{{ kebab_case class.name }}-data', {
 app.component('{{ kebab_case class.name }}-form', {
   template: `
   <li class="list-item">
-    <button type="button" class="btn" @click="save">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 mr-1 rounded-full" @click="save">
       <i class="bi-save"></i> Save
     </button>
-    <button type="button" class="btn" @click="cancel">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="cancel">
       <i class="bi-backspace"></i> Cancel
     </button>
   </li>
@@ -200,7 +200,7 @@ app.component('{{ kebab_case class.name }}', {
     {{~ end ~}}
   </div>
   <div class="mb-2" v-else>
-    <button type="button" class="btn" @click="$emit('update:modelValue', {})">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="$emit('update:modelValue', {})">
       <i class="bi-plus"></i> Add {{ to_words class.name }}
     </button>
   </div>`,
@@ -241,7 +241,7 @@ app.component('{{ kebab_case class.name }}-list', {
   <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
   <{{ kebab_case class.name }} v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" :deletable="true" @delete="deleteItem(idx)" v-if="modelValue"></{{ kebab_case class.name }}>
   <div class="d-flex" v-if="newItem == null">
-    <button type="button" class="btn" @click="addNewItem()">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="addNewItem">
       <i class="bi-plus"></i> Add {{ to_words class.name }}
     </button>
   </div>
