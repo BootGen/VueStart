@@ -1,7 +1,7 @@
 <template>
   <div class="codemirror custom-card" :class="page">
     <code-mirror v-model="json"  @hasSyntaxError="syntaxError" :class="{'h-90': alert.shown, 'h-100': !alert.shown}"></code-mirror>
-    <div class="my-1 col-12 alert alert-dismissible fade" :class="{'show': alert.shown, 'alert-danger': alert.warning, 'alert-primary': !alert.warning}" role="alert" v-if="alert.shown">
+    <div class="my-1 col-12 alert alert-dismissible fade" :class="[alert.class, (alert.shown ? 'show' : '')]" role="alert" v-if="alert.shown">
       <div class="text-center">
         {{ alert.message }}
         <a :href="alert.action.href" :target="alert.action.target" class="alert-link" @click="alert.action.callback" v-if="alert.action.active">{{ alert.action.message }}</a>
@@ -114,7 +114,7 @@ export default defineComponent({
     const alert = reactive({
       shown: false,
       message: '',
-      warning: true,
+      class: 'alert-primary',
       action: {
         active: true,
         href: 'javascript:void(0)',
@@ -181,7 +181,7 @@ export default defineComponent({
       if (msg) {
         alert.shown = true;
         alert.message = msg;
-        alert.warning = false
+        alert.class = 'alert-primary'
       }
       generate(json.value)
     }
@@ -192,7 +192,18 @@ export default defineComponent({
         generatedId.value = resp.data.id;
         seturl();
         inputError.value = null;
-        alert.action.active = false;
+        if (resp.data.warnings) {
+          alert.shown = true;
+          alert.class = 'alert-warning';
+          alert.message = 'Generation succeeded with ';
+          alert.action.target='_self';
+          alert.action.active= true;
+          alert.action.href = 'javascript:void(0)';
+          alert.action.message = 'warnings.'
+          alert.action.callback = () => {};
+        } else {
+          alert.action.active = false;
+        }
         context.emit('hasError', false);
       } catch (e) {
         const response = e.response;
@@ -204,7 +215,7 @@ export default defineComponent({
           alert.action.callback = fixData
           inputError.value = response.data.error;
           alert.message = response.data.error;
-          alert.warning = true;
+          alert.class = 'alert-danger';
           alert.shown = true;
         }
         context.emit('hasError', true);
@@ -224,7 +235,7 @@ export default defineComponent({
           if (msg) {
             alert.shown = true;
             alert.message = msg;
-            alert.warning = false
+            alert.class = 'alert-primary'
           }
         }
       }
@@ -269,7 +280,7 @@ export default defineComponent({
         if (msg) {
           alert.shown = true;
           alert.message = msg;
-          alert.warning = false
+          alert.class = 'alert-primary'
         }
       }
       let debouncedGenerate = debounce(generateAndEmit, 1000);
@@ -307,15 +318,20 @@ export default defineComponent({
     });
     function onDownloadClicked() {
       if (tip.downloaded())
-        context.emit('success')
-      alert.shown = true;
-      alert.message = tip.getTip()
-      alert.warning = false;
-      alert.action.active = true;
-      alert.action.href = 'https://github.com/BootGen/VueStart';
-      alert.action.target = '_blank';
-      alert.action.message = 'GitHub!';
-      alert.action.callback = () => { alert.shown = false }
+        context.emit('success');
+      const msg = tip.getTip();
+      if (msg) {
+        alert.shown = true;
+        alert.message = msg;
+        alert.class = 'alert-primary';
+        alert.action.active = true;
+        alert.action.href = 'https://github.com/BootGen/VueStart';
+        alert.action.target = '_blank';
+        alert.action.message = 'GitHub!';
+        alert.action.callback = () => {
+          alert.shown = false
+        }
+      }
       context.emit('download', `api/download/${process.env.VUE_APP_UI}/${layoutMode.value}/${tempColor.value}`, `${layoutMode.value}.zip`);
     }
     function triggerColorPicker() {
@@ -351,14 +367,14 @@ export default defineComponent({
       if (hasError) {
         alert.shown = true;
         alert.message = message;
-        alert.warning = true;
+        alert.class = 'alert-danger';
         alert.action.active = false;
       } else {
         const msg = tip.getTip();
         if (msg) {
           alert.shown = true;
           alert.message = msg;
-          alert.warning = false;
+          alert.class = 'alert-primary';
         } else {
           alert.shown = false;
         }
