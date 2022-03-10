@@ -1,13 +1,12 @@
 <template>
   <div class="codemirror custom-card" :class="page">
-    <code-mirror v-model="json"  @hasSyntaxError="syntaxError" :class="{'h-90': alertShown, 'h-100': !alertShown}"></code-mirror>
-    <div class="my-1 col-12 alert alert-dismissible fade" :class="{'show': alertShown, 'alert-danger': alertWarning, 'alert-primary': !alertWarning}" role="alert" v-if="alertShown">
+    <code-mirror v-model="json"  @hasSyntaxError="syntaxError" :class="{'h-90': alert.shown, 'h-100': !alert.shown}"></code-mirror>
+    <div class="my-1 col-12 alert alert-dismissible fade" :class="{'show': alert.shown, 'alert-danger': alert.warning, 'alert-primary': !alert.warning}" role="alert" v-if="alert.shown">
       <div class="text-center">
-        {{ alertMessage }}
-        <a href="javascript:" class="alert-link"  @click="fixData"  v-if="isActionable && alertWarning">Fix it!</a>
-        <a href="https://github.com/BootGen/VueStart" target="_blank" class="alert-link" @click="alertShown=false" v-if="isActionable && !alertWarning">GitHub!</a>
+        {{ alert.message }}
+        <a :href="alert.action.href" :target="alert.action.target" class="alert-link" @click="alert.action.callback" v-if="alert.action.active">{{ alert.action.message }}</a>
       </div>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="alertShown=false"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="alert.shown=false"></button>
     </div>
   </div>
   <div class="browser-container" :class="page">
@@ -87,7 +86,7 @@
     </div>
 </template>
 <script>
-import {computed, defineComponent, ref, watch} from 'vue';
+import {computed, defineComponent, reactive, ref, watch} from 'vue';
 import CodeMirror from './CodeMirror.vue';
 import BrowserFrame from './BrowserFrame.vue'
 import Tab from "@/components/Tab";
@@ -106,16 +105,24 @@ export default defineComponent({
   emits: ['download', 'hasError', 'setVuecoon', 'success'],
   setup(props, context) {
     const inputError = ref(null);
-    const isActionable = ref(false);
     const json = ref('');
     const jsonSchema = ref(getSchema({}));
     const selectedTab = ref(0);
     const browserData = ref({ page_url: '', source_url: '' });
     const generatedId = ref('');
     const syntaxErr = ref(false);
-    const alertShown = ref(false);
-    const alertMessage = ref('');
-    const alertWarning = ref(true);
+    const alert = reactive({
+      shown: false,
+      message: '',
+      warning: true,
+      action: {
+        active: true,
+        href: 'javascript:void(0)',
+        target: '_self',
+        message: '',
+        callback: () => {}
+      }
+    });
     const tip = new Tip()
     function seturl() {
       switch (selectedTab.value) {
@@ -161,7 +168,7 @@ export default defineComponent({
       json.value = localStorage.getItem('json');
     });
     async function fixData() {
-      alertShown.value = false;
+      alert.shown = false;
       const fixedJson = await axios.post('api/generate/fix', JSON.parse(json.value));
       json.value = JSON.stringify(fixedJson.data);
       await generate(json.value);
@@ -172,9 +179,9 @@ export default defineComponent({
         context.emit('success')
       let msg = tip.getTip();
       if (msg) {
-        alertShown.value = true;
-        alertMessage.value = msg;
-        alertWarning.value = false
+        alert.shown = true;
+        alert.message = msg;
+        alert.warning = false
       }
       generate(json.value)
     }
@@ -185,16 +192,20 @@ export default defineComponent({
         generatedId.value = resp.data.id;
         seturl();
         inputError.value = null;
-        isActionable.value = false;
+        alert.action.active = false;
         context.emit('hasError', false);
       } catch (e) {
         const response = e.response;
         if (response) {
-          isActionable.value = !!response.data.fixable;
+          alert.action.active = !!response.data.fixable;
+          alert.action.href = 'javascript:void(0)';
+          alert.action.target = '_self';
+          alert.action.message = 'Fix it!';
+          alert.action.callback = fixData
           inputError.value = response.data.error;
-          alertMessage.value = response.data.error;
-          alertWarning.value = true;
-          alertShown.value = true;
+          alert.message = response.data.error;
+          alert.warning = true;
+          alert.shown = true;
         }
         context.emit('hasError', true);
       }
@@ -211,9 +222,9 @@ export default defineComponent({
             context.emit('success')
           let msg = tip.getTip();
           if (msg) {
-            alertShown.value = true;
-            alertMessage.value = msg;
-            alertWarning.value = false
+            alert.shown = true;
+            alert.message = msg;
+            alert.warning = false
           }
         }
       }
@@ -256,9 +267,9 @@ export default defineComponent({
           context.emit('success')
         let msg = tip.getTip();
         if (msg) {
-          alertShown.value = true;
-          alertMessage.value = msg;
-          alertWarning.value = false
+          alert.shown = true;
+          alert.message = msg;
+          alert.warning = false
         }
       }
       let debouncedGenerate = debounce(generateAndEmit, 1000);
@@ -297,10 +308,14 @@ export default defineComponent({
     function onDownloadClicked() {
       if (tip.downloaded())
         context.emit('success')
-      alertShown.value = true;
-      alertMessage.value = tip.getTip()
-      alertWarning.value = false;
-      isActionable.value = true;
+      alert.shown = true;
+      alert.message = tip.getTip()
+      alert.warning = false;
+      alert.action.active = true;
+      alert.action.href = 'https://github.com/BootGen/VueStart';
+      alert.action.target = '_blank';
+      alert.action.message = 'GitHub!';
+      alert.action.callback = () => { alert.shown = false }
       context.emit('download', `api/download/${process.env.VUE_APP_UI}/${layoutMode.value}/${tempColor.value}`, `${layoutMode.value}.zip`);
     }
     function triggerColorPicker() {
@@ -334,27 +349,27 @@ export default defineComponent({
     function syntaxError (hasError, message) {
       syntaxErr.value = hasError;
       if (hasError) {
-        alertShown.value = true;
-        alertMessage.value = message;
-        alertWarning.value = true;
-        isActionable.value = false;
+        alert.shown = true;
+        alert.message = message;
+        alert.warning = true;
+        alert.action.active = false;
       } else {
         const msg = tip.getTip();
         if (msg) {
-          alertShown.value = true;
-          alertMessage.value = msg;
-          alertWarning.value = false;
+          alert.shown = true;
+          alert.message = msg;
+          alert.warning = false;
         } else {
-          alertShown.value = false;
+          alert.shown = false;
         }
       }
       context.emit('hasError', hasError);
     }
 
     return { json, inputError, layoutMode, layoutModes, selectedColor,
-      changeLayoutMode, fixData, isActionable, onDownloadClicked, triggerColorPicker, pageRefresh,
+      changeLayoutMode, onDownloadClicked, triggerColorPicker, pageRefresh,
       selectedTab, layoutModeIcon, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError,
-      alertShown, alertMessage, alertWarning}
+      alert}
   },
 })
 </script>
