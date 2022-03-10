@@ -133,15 +133,14 @@ app.component('{{ kebab_case class.name }}-form', {
   </li>
   {{~ for property in class.base_properties ~}}
   <li class="list-item">
-    <div class="field">
+    <div class="relative z-0 mb-6 w-full group">
       {{~ if property.built_in_type == "Bool" ~}}
-      <label>
-      <input class="check-input" type="checkbox" 
-      v-model="editedItem.{{ camel_case property.name }}">
-      {{ to_words property.name }}
-      </label>
+      <div class="flex align-middle">
+        <input type="checkbox" v-model="editedItem.{{ camel_case property.name }}" class="ml-1 h-4 w-4 rounded border-primary focus:border-primary text-white" :checked="modelValue.{{ camel_case property.name }}">
+        <label class="ml-3 text-sm font-medium">{{ to_words property.name }}</label>
+      </div>
       {{~ else ~}}
-      <input id="{{ camel_case property.name }}"
+      <input class="block py-1.5 px-0 w-full text-sm bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer"
       {{~ if property.built_in_type == "DateTime" ~}}
       type="datetime-local"
       step="60"
@@ -154,8 +153,8 @@ app.component('{{ kebab_case class.name }}-form', {
       type="text"
       {{~ end ~}}
       v-model="editedItem.{{ camel_case property.name }}"
-      placeholder="{{ to_words property.name }}">
-      <label for="{{ camel_case property.name }}">{{ to_words property.name }}</label>
+      placeholder=" " />
+      <label class="absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">{{ to_words property.name }}</label>
       {{~ end ~}}
     </div>
   </li>
