@@ -183,13 +183,13 @@ app.component('{{ kebab_case class.name }}-form', {
 app.component('{{ kebab_case class.name }}', {
   template: `
   <div class="mb-2" v-if="modelValue">
-    <div class="card shadow">
+    <div class="w-full rounded overflow-hidden mb-2 text-left">
       <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @canceled="editing = false" v-if="editing"></{{ kebab_case class.name }}-form>
       <{{ kebab_case class.name }}-data :value="modelValue" @edit="editing = true" :deletable="deletable" @delete="$emit('delete')" v-else></{{ kebab_case class.name }}-data>
     </div>
     {{~ for property in class.child_references ~}}
-      <div class="card child-card">
-        <h5>{{ to_words property.name }}:</h5>
+      <div class="rounded overflow-hidden ml-6 mb-2 text-left">
+        <h5 class="text-primary font-[700]">{{ to_words property.name }}:</h5>
         {{~ if property.is_collection ~}}
         <{{ kebab_case property.class.name }}-list :modelValue="modelValue.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}"></{{ kebab_case property.class.name }}-list>
         {{~ else ~}}
@@ -244,7 +244,7 @@ app.component('{{ kebab_case class.name }}-list', {
       <i class="bi-plus"></i> Add {{ to_words class.name }}
     </button>
   </div>
-  <div class="card" v-if="newItem != null">
+  <div class="w-full rounded overflow-hidden mb-2 text-left" v-if="newItem != null">
     <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem($event)" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
   </div>`,
   name: '{{ class.name }}List',
