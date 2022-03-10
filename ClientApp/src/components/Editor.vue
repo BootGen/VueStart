@@ -1,7 +1,7 @@
 <template>
   <div class="codemirror custom-card" :class="page">
     <code-mirror v-model="json"  @hasSyntaxError="syntaxError" :class="{'h-90': alertShown, 'h-100': !alertShown}"></code-mirror>
-    <div class="my-1 col-12 alert alert-dismissible fade" :class="{'show': alertShown, 'alert-warning': alertWarning, 'alert-primary': !alertWarning}" role="alert" v-if="alertShown">
+    <div class="my-1 col-12 alert alert-dismissible fade" :class="{'show': alertShown, 'alert-danger': alertWarning, 'alert-primary': !alertWarning}" role="alert" v-if="alertShown">
       <div class="text-center">
         {{ alertMessage }}
         <a href="javascript:" class="alert-link"  @click="fixData"  v-if="isActionable && alertWarning">Fix it!</a>
@@ -365,7 +365,7 @@ body {
   overflow: hidden;
 }
 .h-90 {
-  height: 90%;
+  height: calc(100% - 4rem);
 }
 
 .fab-container {
@@ -520,11 +520,6 @@ a:hover {
   animation: none;
 }
 
-@media (max-width: 1255px) {
-  .h-90 {
-    height: 88%;
-  }
-}
 @media (max-width: 992px) {
   body {
     height: unset;
@@ -548,17 +543,11 @@ a:hover {
     transition-delay: 600ms;
   }
 
-  .h-90 {
-    height: 83%;
-  }
 }
 @media (max-width: 768px) {
   body {
     height: unset;
     overflow: unset;
-  }
-  .h-90 {
-    height: 80%;
   }
 }
 @media (max-width: 576px) {
