@@ -1,8 +1,8 @@
 <template>
   <div class="col-12">
-    <div class="download-panel-container" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }">
-      <download-panel class="download-panel shadow" :class="{ 'hide': !showDownloadPanel, 'show' : showDownloadPanel, }" :show="showDownloadPanel" @close="showDownloadPanel = false" @download="download"></download-panel>
-    </div>
+    <modal-panel v-model="showDownloadPanel">
+      <download-panel @close="showDownloadPanel = false" @download="download"></download-panel>
+    </modal-panel>
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="page">
       <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)" :class="page">
       <div class="jumbo-text-full" :class="page">
@@ -44,10 +44,11 @@ import Editor from './components/Editor.vue'
 import Supporters from './components/Supporters.vue'
 import axios from "axios";
 import {debounce} from "@/utils/Helper";
+import ModalPanel from "@/components/ModalPanel"
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { DownloadPanel, Editor, Supporters },
+  components: {ModalPanel, DownloadPanel, Editor, Supporters },
   setup() {
     const showDownloadPanel = ref(false);
     const downloaded = ref(false);
@@ -157,37 +158,6 @@ body {
 
 .text-justify{
   text-align: justify;
-}
-.download-panel{
-  transition: all 1s ease-in-out;
-  width: max-content;
-  margin: 1rem auto;
-}
-.download-panel.show{
-  opacity: 1;
-}
-.download-panel.hide{
-  opacity: 0;
-  visibility: hidden;
-  margin-top: 100%;
-}
-.download-panel-container {
-  transition: all 1s ease-in-out;
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.1);
-  z-index: 999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.download-panel-container.show{
-  opacity: 1;
-}
-.download-panel-container.hide{
-  opacity: 0;
-  visibility: hidden;
 }
 
 .fab-options li {
