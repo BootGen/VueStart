@@ -69,7 +69,7 @@ app.config.globalProperties.$filters = {
 app.component('{{ kebab_case class.name }}-data', {
   template: `
   {{~ for property in class.base_properties ~}}
-  <td>
+  <td class="p-2">
   {{~ if (get_type property) == "Date" ~}}
     {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
   {{~ else ~}}
@@ -78,13 +78,13 @@ app.component('{{ kebab_case class.name }}-data', {
   </td>
   {{~ end ~}}
   {{~ for property in class.child_references ~}}
-  <td>
+  <td class="p-2">
     <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="$emit('show', '{{ camel_case property.name }}')">
       <i class="bi-eye"></i>
     </button>
   </td>
   {{~ end ~}}
-  <td>
+  <td class="flex p-2 justify-end">
     <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 mr-1 rounded-full" @click="$emit('edit')">
       <i class="bi-pencil"></i>
     </button>
@@ -104,7 +104,8 @@ app.component('{{ kebab_case class.name }}-data', {
 app.component('{{ kebab_case class.name }}-form', {
   template: `
   {{~ for property in class.base_properties ~}}
-    <div class="relative z-0 mb-6 w-full group">
+  <td class="pt-4">
+    <div class="relative z-0 w-full group">
       {{~ if property.built_in_type == "Bool" ~}}
       <div class="flex align-middle">
         <input type="checkbox" v-model="editedItem.{{ camel_case property.name }}" class="ml-1 h-4 w-4 rounded border-primary focus:border-primary text-white" :checked="modelValue.{{ camel_case property.name }}">
@@ -128,15 +129,16 @@ app.component('{{ kebab_case class.name }}-form', {
       <label class="absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">{{ to_words property.name }}</label>
       {{~ end ~}}
     </div>
+  </td>
   {{~ end ~}}
   {{~ for property in class.child_references ~}}
-  <td>
+  <td class="p-2">
     <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="$emit('show', '{{ camel_case property.name }}')">
       <i class="bi-eye"></i>
     </button>
   </td>
   {{~ end ~}}
-  <td>
+  <td class="flex p-2 pt-3 justify-end">
     <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 mr-1 rounded-full" @click="save">
       <i class="bi-save"></i>
     </button>
@@ -165,7 +167,7 @@ app.component('{{ kebab_case class.name }}-form', {
 
 app.component('{{ kebab_case class.name }}-row', {
   template: `
-  <tr>
+  <tr class="border-b-2">
     <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @canceled="editing = false" @show="show" v-if="editing"></{{ kebab_case class.name }}-form>
     <{{ kebab_case class.name }}-data :value="modelValue" :deletable="deletable" @delete="$emit('delete')" @edit="editing = true" @show="show" v-else></{{ kebab_case class.name }}-data>
   </tr>
@@ -193,21 +195,20 @@ app.component('{{ kebab_case class.name }}-row', {
 
 app.component('{{ kebab_case class.name }}-table', {
   template: `
-  <table class="table">
+  <table class="table-auto w-full text-left">
     <thead>
-      <tr>
+      <tr class="border-b-2 border-black bg-gray-50">
         {{~ for property in class.base_properties ~}}
-        <th scope="col">
+        <th class="p-2">
           {{ to_words property.name }}
         </th>
         {{~ end ~}}
-        {{~ for property in class.child_references
-          ~}}
-          <th scope="col">
-          {{ to_words property.name }}
-          </th>
+        {{~ for property in class.child_references ~}}
+        <th class="p-2">
+        {{ to_words property.name }}
+        </th>
         {{~ end ~}}
-        <th scope="col"></th>
+        <th class="p-2"></th>
       </tr>
     </thead>
     <tbody>
@@ -276,7 +277,7 @@ app.component('{{ kebab_case class.name }}-list', {
       <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
     </tr>
     <tr v-else>
-      <td class="new-item-button">
+      <td class="pt-2">
         <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="addNewItem">
           <i class="bi-plus"></i> Add
         </button>
