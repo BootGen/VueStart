@@ -23,7 +23,7 @@
     {{~ if base_url ~}}
     <base href="{{ base_url }}">
     {{~ end ~}}
-    <style>
+    <style type="text/tailwindcss">
       #app {
         font-family: Avenir, Helvetica, Arial, sans-serif;
         -webkit-font-smoothing: antialiased;
@@ -31,6 +31,11 @@
         text-align: center;
         color: #2c3e50;
         margin: 1rem;
+      }
+      @layer utilities {
+        .border-b-1 {
+          border-bottom-width: 1px;
+        }
       }
       </style>
   </head>

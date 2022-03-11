@@ -112,7 +112,7 @@ app.component('{{ kebab_case class.name }}-form', {
         <label class="ml-3 text-sm font-medium">{{ to_words property.name }}</label>
       </div>
       {{~ else ~}}
-      <input class="block py-1.5 px-0 w-full text-sm bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer"
+      <input class="block py-1.5 px-0 w-full text-sm bg-transparent border-0 border-b-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer"
       {{~ if property.built_in_type == "DateTime" ~}}
       type="datetime-local"
       step="60"
@@ -167,7 +167,7 @@ app.component('{{ kebab_case class.name }}-form', {
 
 app.component('{{ kebab_case class.name }}-row', {
   template: `
-  <tr class="border-b-2">
+  <tr class="border-b-1">
     <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @canceled="editing = false" @show="show" v-if="editing"></{{ kebab_case class.name }}-form>
     <{{ kebab_case class.name }}-data :value="modelValue" :deletable="deletable" @delete="$emit('delete')" @edit="editing = true" @show="show" v-else></{{ kebab_case class.name }}-data>
   </tr>
@@ -197,7 +197,7 @@ app.component('{{ kebab_case class.name }}-table', {
   template: `
   <table class="table-auto w-full text-left">
     <thead>
-      <tr class="border-b-2 border-black bg-gray-50">
+      <tr class="border-b-1 border-black bg-gray-50">
         {{~ for property in class.base_properties ~}}
         <th class="p-2">
           {{ to_words property.name }}

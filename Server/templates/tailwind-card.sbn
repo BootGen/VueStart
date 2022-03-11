@@ -143,7 +143,7 @@ app.component('{{ kebab_case class.name }}-form', {
           <label class="ml-3 text-sm font-medium">{{ to_words property.name }}</label>
         </div>
         {{~ else ~}}
-        <input class="block py-1.5 px-0 w-full text-sm bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer"
+        <input class="block py-1.5 px-0 w-full text-sm bg-transparent border-0 border-b-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer"
         {{~ if property.built_in_type == "DateTime" ~}}
         type="datetime-local"
         step="60"
