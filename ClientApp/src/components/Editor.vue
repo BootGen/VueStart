@@ -1,4 +1,13 @@
 <template>
+  <modal-panel v-model="showWarningPanel">
+    <div class="alert alert-warning show px-3 py-3 my-0" role="alert">
+      <button type="button" class="btn-close" style="float: right" @click="showWarningPanel=false"></button>
+      <h3>Warnings</h3>
+      <ul>
+        <li v-for="(warning, idx) in warnings" :key="idx">{{warning}}</li>
+      </ul>
+    </div>
+  </modal-panel>
   <div class="codemirror custom-card" :class="page">
     <code-mirror v-model="json"  @hasSyntaxError="syntaxError" :class="{'h-90': alert.shown, 'h-100': !alert.shown}"></code-mirror>
     <div class="my-1 col-12 alert alert-dismissible fade" :class="[alert.class, (alert.shown ? 'show' : '')]" role="alert" v-if="alert.shown">
@@ -86,7 +95,7 @@
     </div>
 </template>
 <script>
-import {computed, defineComponent, reactive, ref, watch} from 'vue';
+import {computed, defineComponent, ref, watch} from 'vue';
 import CodeMirror from './CodeMirror.vue';
 import BrowserFrame from './BrowserFrame.vue'
 import Tab from "@/components/Tab";
@@ -95,9 +104,10 @@ import {getSchema} from "@/utils/Schema";
 import {debounce} from "@/utils/Helper";
 import {validateJson} from '@/utils/Validate';
 import Tip from '@/utils/Tip'
+import ModalPanel from "@/components/ModalPanel";
 
 export default defineComponent({
-  components: { CodeMirror, BrowserFrame, Tab },
+  components: { CodeMirror, BrowserFrame, Tab, ModalPanel },
   props: {
     page: String,
     config: Object
@@ -111,18 +121,22 @@ export default defineComponent({
     const browserData = ref({ page_url: '', source_url: '' });
     const generatedId = ref('');
     const syntaxErr = ref(false);
-    const alert = reactive({
+    const showWarningPanel = ref(false);
+    const warnings = ref([]);
+    let noAction = {
+      active: true,
+      href: 'javascript:void(0)',
+      target: '_self',
+      message: '',
+      callback() {}
+    };
+    const noAlert = {
       shown: false,
       message: '',
       class: 'alert-primary',
-      action: {
-        active: true,
-        href: 'javascript:void(0)',
-        target: '_self',
-        message: '',
-        callback: () => {}
-      }
-    });
+      action: noAction
+    }
+    const alert = ref(noAlert);
     const tip = new Tip()
     function seturl() {
       switch (selectedTab.value) {
@@ -168,20 +182,28 @@ export default defineComponent({
       json.value = localStorage.getItem('json');
     });
     async function fixData() {
-      alert.shown = false;
+      alert.value = noAlert;
       const fixedJson = await axios.post('api/generate/fix', JSON.parse(json.value));
       json.value = JSON.stringify(fixedJson.data);
       await generate(json.value);
     }
+
+    function showAlert(msg, kind) {
+      alert.value = {
+        shown: true,
+        message: msg,
+        class: kind,
+        action: noAction
+      }
+    }
+
     function changeLayoutMode(type) {
       layoutMode.value = type;
       if (tip.typeChanged())
         context.emit('success')
       let msg = tip.getTip();
       if (msg) {
-        alert.shown = true;
-        alert.message = msg;
-        alert.class = 'alert-primary'
+        showAlert(msg, 'alert-primary');
       }
       generate(json.value)
     }
@@ -192,31 +214,43 @@ export default defineComponent({
         generatedId.value = resp.data.id;
         seturl();
         inputError.value = null;
-        if (resp.data.warnings) {
-          alert.shown = true;
-          alert.class = 'alert-warning';
-          alert.message = 'Generation succeeded with ';
-          alert.action.target='_self';
-          alert.action.active= true;
-          alert.action.href = 'javascript:void(0)';
-          alert.action.message = 'warnings.'
-          alert.action.callback = () => {};
+        if (resp.data.warnings && resp.data.warnings.length > 0) {
+          warnings.value = resp.data.warnings;
+          alert.value = {
+            shown: true,
+            class: 'alert-warning',
+            message: 'Generation succeeded with ',
+            action: {
+              target: '_self',
+              active: true,
+              href: 'javascript:void(0)',
+              message: 'warnings.',
+              callback() {
+                showWarningPanel.value = true;
+              }
+            }
+          }
         } else {
-          alert.action.active = false;
+          warnings.value = [];
+          alert.value = noAlert
         }
         context.emit('hasError', false);
       } catch (e) {
         const response = e.response;
         if (response) {
-          alert.action.active = !!response.data.fixable;
-          alert.action.href = 'javascript:void(0)';
-          alert.action.target = '_self';
-          alert.action.message = 'Fix it!';
-          alert.action.callback = fixData
+          alert.value = {
+            shown: true,
+            class: 'alert-danger',
+            message: response.data.error,
+            action: {
+              target: '_self',
+              active: !!response.data.fixable,
+              href: 'javascript:void(0)',
+              message: 'Fix it!',
+              callback: fixData
+            }
+          }
           inputError.value = response.data.error;
-          alert.message = response.data.error;
-          alert.class = 'alert-danger';
-          alert.shown = true;
         }
         context.emit('hasError', true);
       }
@@ -233,9 +267,12 @@ export default defineComponent({
             context.emit('success')
           let msg = tip.getTip();
           if (msg) {
-            alert.shown = true;
-            alert.message = msg;
-            alert.class = 'alert-primary'
+            alert.value = {
+              shown: true,
+              message: msg,
+              class: 'alert-primary',
+              action: noAction
+            }
           }
         }
       }
@@ -278,9 +315,7 @@ export default defineComponent({
           context.emit('success')
         let msg = tip.getTip();
         if (msg) {
-          alert.shown = true;
-          alert.message = msg;
-          alert.class = 'alert-primary'
+          showAlert(msg, 'alert-primary');
         }
       }
       let debouncedGenerate = debounce(generateAndEmit, 1000);
@@ -321,15 +356,19 @@ export default defineComponent({
         context.emit('success');
       const msg = tip.getTip();
       if (msg) {
-        alert.shown = true;
-        alert.message = msg;
-        alert.class = 'alert-primary';
-        alert.action.active = true;
-        alert.action.href = 'https://github.com/BootGen/VueStart';
-        alert.action.target = '_blank';
-        alert.action.message = 'GitHub!';
-        alert.action.callback = () => {
-          alert.shown = false
+        alert.value = {
+          shown: true,
+          message: msg,
+          class: 'alert-primary',
+          action: {
+            active: true,
+            href: 'https://github.com/BootGen/VueStart',
+            target: '_blank',
+            message: 'GitHub!',
+            callback: () => {
+              alert.value = noAlert
+            }
+          }
         }
       }
       context.emit('download', `api/download/${process.env.VUE_APP_UI}/${layoutMode.value}/${tempColor.value}`, `${layoutMode.value}.zip`);
@@ -365,18 +404,13 @@ export default defineComponent({
     function syntaxError (hasError, message) {
       syntaxErr.value = hasError;
       if (hasError) {
-        alert.shown = true;
-        alert.message = message;
-        alert.class = 'alert-danger';
-        alert.action.active = false;
+        showAlert(message, 'alert-danger');
       } else {
         const msg = tip.getTip();
         if (msg) {
-          alert.shown = true;
-          alert.message = msg;
-          alert.class = 'alert-primary';
+          showAlert(msg, 'alert-primary');
         } else {
-          alert.shown = false;
+          alert.value = noAlert;
         }
       }
       context.emit('hasError', hasError);
@@ -385,7 +419,7 @@ export default defineComponent({
     return { json, inputError, layoutMode, layoutModes, selectedColor,
       changeLayoutMode, onDownloadClicked, triggerColorPicker, pageRefresh,
       selectedTab, layoutModeIcon, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError,
-      alert}
+      alert, showWarningPanel, warnings}
   },
 })
 </script>
