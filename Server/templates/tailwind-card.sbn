@@ -90,28 +90,30 @@ app.config.globalProperties.$filters = {
      ~}}
 app.component('{{ kebab_case class.name }}-data', {
   template: `
-  <li class="list-item">
-    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 mr-1 rounded-full" @click="$emit('edit')">
-      <i class="bi-pencil"></i> Edit
-    </button>
-    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="$emit('delete')" v-if="deletable">
-      <i class="bi-trash"></i> Delete
-    </button>
-  </li>
-  {{~ for property in class.base_properties ~}}
-  <li class="list-item">
-    <div class="w-35">
-      {{ to_words property.name }}:
+  <div class="divide-y divide-gray-300 border border-solid rounded-md">
+    <div class="p-2">
+      <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 mr-1 rounded-full" @click="$emit('edit')">
+        <i class="bi-pencil"></i> Edit
+      </button>
+      <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="$emit('delete')" v-if="deletable">
+        <i class="bi-trash"></i> Delete
+      </button>
     </div>
-    <div class="w-65">
-    {{~ if (get_type property) == "Date" ~}}
-      {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
-    {{~ else ~}}
-      {{'{{'}} value.{{ camel_case property.name }} {{'}}'}}
+    {{~ for property in class.base_properties ~}}
+    <div class="flex p-2">
+      <div class="w-2/5">
+        {{ to_words property.name }}:
+      </div>
+      <div class="w-3/5">
+      {{~ if (get_type property) == "Date" ~}}
+        {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
+      {{~ else ~}}
+        {{'{{'}} value.{{ camel_case property.name }} {{'}}'}}
+      {{~ end ~}}
+      </div>
+    </div>
     {{~ end ~}}
-    </div>
-  </li>
-  {{~ end ~}}
+  </div>
   `,
   name: '{{ class.name }}Data',
   props: {
@@ -123,42 +125,44 @@ app.component('{{ kebab_case class.name }}-data', {
 
 app.component('{{ kebab_case class.name }}-form', {
   template: `
-  <li class="list-item">
-    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 mr-1 rounded-full" @click="save">
-      <i class="bi-save"></i> Save
-    </button>
-    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="cancel">
-      <i class="bi-backspace"></i> Cancel
-    </button>
-  </li>
-  {{~ for property in class.base_properties ~}}
-  <li class="list-item">
-    <div class="relative z-0 mb-6 w-full group">
-      {{~ if property.built_in_type == "Bool" ~}}
-      <div class="flex align-middle">
-        <input type="checkbox" v-model="editedItem.{{ camel_case property.name }}" class="ml-1 h-4 w-4 rounded border-primary focus:border-primary text-white" :checked="modelValue.{{ camel_case property.name }}">
-        <label class="ml-3 text-sm font-medium">{{ to_words property.name }}</label>
-      </div>
-      {{~ else ~}}
-      <input class="block py-1.5 px-0 w-full text-sm bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer"
-      {{~ if property.built_in_type == "DateTime" ~}}
-      type="datetime-local"
-      step="60"
-      {{~ else if property.built_in_type == "Int" ~}}
-      type="number"
-      {{~ else if property.built_in_type == "Float" ~}}
-      type="number"
-      step="0.1"
-      {{~ else ~}}
-      type="text"
-      {{~ end ~}}
-      v-model="editedItem.{{ camel_case property.name }}"
-      placeholder=" " />
-      <label class="absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">{{ to_words property.name }}</label>
-      {{~ end ~}}
+  <div class="divide-y divide-gray-300 border border-solid rounded-md">
+    <div class="p-2">
+      <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 mr-1 rounded-full" @click="save">
+        <i class="bi-save"></i> Save
+      </button>
+      <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="cancel">
+        <i class="bi-backspace"></i> Cancel
+      </button>
     </div>
-  </li>
-  {{~ end ~}}
+    {{~ for property in class.base_properties ~}}
+    <div class="p-2 pt-4">
+      <div class="relative z-0 w-full group">
+        {{~ if property.built_in_type == "Bool" ~}}
+        <div class="flex align-middle">
+          <input type="checkbox" v-model="editedItem.{{ camel_case property.name }}" class="ml-1 h-4 w-4 rounded border-primary focus:border-primary text-white" :checked="modelValue.{{ camel_case property.name }}">
+          <label class="ml-3 text-sm font-medium">{{ to_words property.name }}</label>
+        </div>
+        {{~ else ~}}
+        <input class="block py-1.5 px-0 w-full text-sm bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer"
+        {{~ if property.built_in_type == "DateTime" ~}}
+        type="datetime-local"
+        step="60"
+        {{~ else if property.built_in_type == "Int" ~}}
+        type="number"
+        {{~ else if property.built_in_type == "Float" ~}}
+        type="number"
+        step="0.1"
+        {{~ else ~}}
+        type="text"
+        {{~ end ~}}
+        v-model="editedItem.{{ camel_case property.name }}"
+        placeholder=" " />
+        <label class="absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">{{ to_words property.name }}</label>
+        {{~ end ~}}
+      </div>
+    </div>
+    {{~ end ~}}
+  </div>
   `,
   name: '{{ class.name }}Form',
   props: {
@@ -239,11 +243,9 @@ app.component('{{ kebab_case class.name }}-list', {
   template: `
   <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
   <{{ kebab_case class.name }} v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" :deletable="true" @delete="deleteItem(idx)" v-if="modelValue"></{{ kebab_case class.name }}>
-  <div class="d-flex" v-if="newItem == null">
-    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="addNewItem">
-      <i class="bi-plus"></i> Add {{ to_words class.name }}
-    </button>
-  </div>
+  <button class="flex bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="addNewItem" v-if="newItem == null">
+    <i class="bi-plus"></i> Add {{ to_words class.name }}
+  </button>
   <div class="w-full rounded overflow-hidden mb-2 text-left" v-if="newItem != null">
     <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem($event)" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
   </div>`,
