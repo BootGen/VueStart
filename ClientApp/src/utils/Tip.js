@@ -3,12 +3,16 @@ export default class Tip {
     constructor() {
         this.tipIdx = parseInt(localStorage.getItem('tipIdx')) || 0;
         this.tips = [
-            'Try to edit the JSON data, and see the changes in the application',
+            'Try to edit the JSON data, and see the changes in the application.',
             'If you make structural changes, the application is regenerated.',
             'Try out multiple layouts with the button in the bottom right corner.',
-            'When you are done, click the download button.',
-            'If you like this project, please give us a star on'
+            'When you are done, click the download button.'
         ];
+    }
+
+    hideTips() {
+        this.tipIdx = this.tips.length;
+        localStorage.setItem('tipIdx', this.tipIdx.toString());
     }
 
     modified() {
