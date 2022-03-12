@@ -124,7 +124,7 @@ export default defineComponent({
     const showWarningPanel = ref(false);
     const warnings = ref([]);
     let noAction = {
-      active: true,
+      active: false,
       href: 'javascript:void(0)',
       target: '_self',
       message: '',
@@ -197,14 +197,51 @@ export default defineComponent({
       }
     }
 
+    function showGitHubCTA() {
+      alert.value = {
+        shown: true,
+        message: 'If you like this project, please give us a star on',
+        class: 'alert-success',
+        action: {
+          active: true,
+          href: 'https://github.com/BootGen/VueStart',
+          target: '_blank',
+          message: 'GitHub!',
+          callback: () => {
+            alert.value = noAlert
+          }
+        }
+      }
+    }
+
+    function showTip() {
+      const msg = tip.getTip();
+      if (msg) {
+        alert.value = {
+          shown: true,
+          message: msg,
+          class: 'alert-primary',
+          action: {
+            active: true,
+            href: 'javascript:void(0)',
+            target: '_self',
+            message: 'Hide tips.',
+            callback() {
+              tip.hideTips();
+              setTimeout(showGitHubCTA, 500)
+            }
+          }
+        }
+        return true;
+      }
+      return false;
+    }
+
     function changeLayoutMode(type) {
       layoutMode.value = type;
       if (tip.typeChanged())
         context.emit('success')
-      let msg = tip.getTip();
-      if (msg) {
-        showAlert(msg, 'alert-primary');
-      }
+      showTip()
       generate(json.value)
     }
     async function generate(data) {
@@ -232,7 +269,9 @@ export default defineComponent({
           }
         } else {
           warnings.value = [];
-          alert.value = noAlert
+          if (!showTip()) {
+            alert.value = noAlert;
+          }
         }
         context.emit('hasError', false);
       } catch (e) {
@@ -264,16 +303,8 @@ export default defineComponent({
         localStorage.setItem('json', minimized);
         if (oldValue) {
           if (tip.modified())
-            context.emit('success')
-          let msg = tip.getTip();
-          if (msg) {
-            alert.value = {
-              shown: true,
-              message: msg,
-              class: 'alert-primary',
-              action: noAction
-            }
-          }
+            context.emit('success');
+          showTip();
         }
       }
       const downloadButton = document.getElementById('download-btn');
@@ -312,11 +343,8 @@ export default defineComponent({
       function generateAndEmit(data) {
         generate(data);
         if (tip.generated())
-          context.emit('success')
-        let msg = tip.getTip();
-        if (msg) {
-          showAlert(msg, 'alert-primary');
-        }
+          context.emit('success');
+        showTip();
       }
       let debouncedGenerate = debounce(generateAndEmit, 1000);
       watch([tempColor, selectedColor, syntaxErr],() => {
@@ -352,24 +380,9 @@ export default defineComponent({
       })
     });
     function onDownloadClicked() {
-      if (tip.downloaded())
+      if (tip.downloaded()) {
         context.emit('success');
-      const msg = tip.getTip();
-      if (msg) {
-        alert.value = {
-          shown: true,
-          message: msg,
-          class: 'alert-primary',
-          action: {
-            active: true,
-            href: 'https://github.com/BootGen/VueStart',
-            target: '_blank',
-            message: 'GitHub!',
-            callback: () => {
-              alert.value = noAlert
-            }
-          }
-        }
+        showGitHubCTA();
       }
       context.emit('download', `api/download/${process.env.VUE_APP_UI}/${layoutMode.value}/${tempColor.value}`, `${layoutMode.value}.zip`);
     }
@@ -406,10 +419,7 @@ export default defineComponent({
       if (hasError) {
         showAlert(message, 'alert-danger');
       } else {
-        const msg = tip.getTip();
-        if (msg) {
-          showAlert(msg, 'alert-primary');
-        } else {
+        if (!showTip()) {
           alert.value = noAlert;
         }
       }
@@ -490,6 +500,10 @@ body {
   right: 2rem;
   font-size: 1rem!important;
   z-index: 99;
+}
+
+#download-btn {
+  cursor: pointer;
 }
 
 .pulse-download-btn {
