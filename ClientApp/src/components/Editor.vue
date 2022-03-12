@@ -604,7 +604,7 @@ a:hover {
   }
 
   .browser-container.content{
-    top: calc(15vh + 76vh - 1vh);
+    top: 95vh;
     transition-delay: 600ms;
   }
 
@@ -622,7 +622,7 @@ a:hover {
   }
 
   .browser-container.content{
-    top: calc(min(15vh, 25vw) + 76vh - 1.5vh);
+    top: 95vh;
   }
 
   .fab-icon-holder .bi {
