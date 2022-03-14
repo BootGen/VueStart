@@ -185,6 +185,12 @@
         display: flex;
         border-bottom: unset;
       }
+      .active-row {
+        background-color: #{{ color }}33;
+      }
+      .active-row input {
+        background-color: #fffa;
+      }
       {{~ end ~}}
       </style>
   </head>
