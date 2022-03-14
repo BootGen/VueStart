@@ -283,7 +283,7 @@ app.component('{{ kebab_case class.name }}-list', {
         <button type="button" class="btn" @click="addNewItem">
           <i class="bi-plus"></i> Add
         </button>
-      <td/>
+      </td>
     </tr>
   </{{ kebab_case class.name }}-table>
   {{~ for property in class.child_references ~}}
