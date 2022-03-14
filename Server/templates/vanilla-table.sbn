@@ -17,7 +17,7 @@ const  app = Vue.createApp({
   template: `
   {{~ for property in root.child_references ~}}
   {{~ if property.is_collection ~}}
-  <{{ kebab_case property.class.name }}-list v-model="{{ camel_case root.name }}.{{ camel_case property.name }}"></{{ kebab_case property.class.name }}-list>
+  <{{ kebab_case property.class.name.plural }} v-model="{{ camel_case root.name }}.{{ camel_case property.name }}"></{{ kebab_case property.class.name.plural }}>
   {{~ else ~}}
   <{{ kebab_case property.class.name }} v-model="{{ camel_case root.name }}.{{ camel_case property.name }}"></{{ kebab_case property.class.name }}>
   {{~ end ~}}
@@ -99,7 +99,7 @@ app.component('{{ kebab_case class.name }}-data', {
     value: Object,
     deletable: Boolean
   },
-  emits: ['edit',  'delete', 'show']
+  emits: ['edit',  'delete'{{ if class.has_child }}, 'show'{{ end }}]
 });
 
 app.component('{{ kebab_case class.name }}-form', {
@@ -169,8 +169,8 @@ app.component('{{ kebab_case class.name }}-form', {
 app.component('{{ kebab_case class.name }}-row', {
   template: `
   <tr :class="{'active-row': editing}">
-    <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @canceled="editing = false" @show="show" v-if="editing"></{{ kebab_case class.name }}-form>
-    <{{ kebab_case class.name }}-data :value="modelValue" :deletable="deletable" @delete="$emit('delete')" @edit="editing = true" @show="show" v-else></{{ kebab_case class.name }}-data>
+    <{{ kebab_case class.name }}-form :modelValue="modelValue" @update:modelValue="update" @canceled="editing = false"{{ if class.has_child }} @show="show"{{ end }} v-if="editing"></{{ kebab_case class.name }}-form>
+    <{{ kebab_case class.name }}-data :value="modelValue" :deletable="deletable" @delete="$emit('delete')" @edit="editing = true"{{ if class.has_child }} @show="show"{{ end }} v-else></{{ kebab_case class.name }}-data>
   </tr>
   `,
   name: '{{ class.name }}Row',
@@ -178,7 +178,7 @@ app.component('{{ kebab_case class.name }}-row', {
     modelValue: Object,
     deletable: Boolean
   },
-  emits: ['update:modelValue', 'delete', 'show'],
+  emits: ['update:modelValue', 'delete'{{ if class.has_child }}, 'show'{{ end }}],
   setup(props, context) {
     const editing = ref(false);
 
@@ -186,11 +186,12 @@ app.component('{{ kebab_case class.name }}-row', {
       context.emit('update:modelValue', newValue);
       editing.value = false;
     }
-
+    {{~ if class.has_child ~}}
     function show(property) {
       context.emit('show', property);
     }
-    return { editing, update, show }
+    {{~ end ~}}
+    return { editing, update{{ if class.has_child }}, show{{ end }} }
   }
 });
 
@@ -229,7 +230,7 @@ app.component('{{ kebab_case class.name }}', {
   <h5 class="clickable" @click="activeProperty = null" v-if="activeProperty !== null">{{ class.name.plural }}</h5>
   <h5 class="breadcrumb-separator" v-if="activeProperty !== null">/</h5>
   <{{ kebab_case class.name }}-table v-if="activeProperty === null">
-    <{{ kebab_case class.name }}-row :modelValue="modelValue" @update:modelValue="update" :deletable="false" @show="show" v-if="modelValue"></{{ kebab_case class.name }}-row>
+    <{{ kebab_case class.name }}-row :modelValue="modelValue" @update:modelValue="update" :deletable="false"{{ if class.has_child }} @show="show"{{ end }} v-if="modelValue"></{{ kebab_case class.name }}-row>
     <tr v-else>
       <button type="button" class="btn" @click="$emit('update:modelValue', {})">
         <i class="bi-plus"></i> Add
@@ -238,7 +239,7 @@ app.component('{{ kebab_case class.name }}', {
   </{{ kebab_case class.name }}-table>
   {{~ for property in class.child_references ~}}
       {{~ if property.is_collection ~}}
-      <{{ kebab_case property.class.name }}-list :modelValue="modelValue[activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}-list>
+      <{{ kebab_case property.class.name.plural }} :modelValue="modelValue[activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
       {{~ else ~}}
       <{{ kebab_case property.class.name }} :modelValue="modelValue[activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
       {{~ end ~}}
@@ -247,12 +248,16 @@ app.component('{{ kebab_case class.name }}', {
   props: {
     modelValue: Object
   },
-  emits: ['update:modelValue', 'show'],
+  emits: ['update:modelValue'{{ if class.has_child }}, 'show'{{ end }}],
   setup(props, context) {
+    {{~ if class.has_child ~}}
     const activeProperty = ref(null);
+
+    {{~ end ~}}
     function update(newValue) {
       context.emit('update:modelValue', newValue);
     }
+    {{~ if class.has_child ~}}
     function show(property) {
       activeProperty.value = property;
     }
@@ -262,19 +267,23 @@ app.component('{{ kebab_case class.name }}', {
       newObj[activeProperty.value] = newValue;
       context.emit('update:modelValue', newObj);
     }
-
-    return { update, show, activeProperty, updateChild }
+    {{~ end ~}}
+    return { update{{ if class.has_child }}, show, activeProperty, updateChild{{ end }} }
   }
 });
 
-app.component('{{ kebab_case class.name }}-list', {
+app.component('{{ kebab_case class.name.plural }}', {
   template: `
+  {{~ if class.has_child ~}}
   <h5 class="disabled"  v-if="activeProperty === null">{{ class.name.plural }}</h5>
   <h5 class="clickable" @click="activeProperty = null" v-if="activeProperty !== null">{{ class.name.plural }}</h5>
   <h5 class="breadcrumb-separator" v-if="activeProperty !== null">/</h5>
-  <{{ kebab_case class.name }}-table v-if="activeProperty === null">
+  {{~ else ~}}
+  <h5 class="disabled">{{ class.name.plural }}</h5>
+  {{~ end ~}}
+  <{{ kebab_case class.name }}-table{{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
     <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
-    <{{ kebab_case class.name }}-row v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(idx)" :deletable="true" @show="show(idx, $event)" v-if="modelValue"></{{ kebab_case class.name }}-row>
+    <{{ kebab_case class.name }}-row v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(idx)" :deletable="true"{{ if class.has_child }} @show="show(idx, $event)"{{ end }} v-if="modelValue"></{{ kebab_case class.name }}-row>
     <tr v-if="newItem" class="active-row">
       <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
     </tr>
@@ -288,7 +297,7 @@ app.component('{{ kebab_case class.name }}-list', {
   </{{ kebab_case class.name }}-table>
   {{~ for property in class.child_references ~}}
       {{~ if property.is_collection ~}}
-      <{{ kebab_case property.class.name }}-list :modelValue="modelValue[activeIdx][activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}-list>
+      <{{ kebab_case property.class.name.plural }} :modelValue="modelValue[activeIdx][activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
       {{~ else ~}}
       <{{ kebab_case property.class.name }} :modelValue="modelValue[activeIdx][activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
       {{~ end ~}}
@@ -297,9 +306,10 @@ app.component('{{ kebab_case class.name }}-list', {
   props: {
     modelValue: Array
   },
-  emits: ['update:modelValue', 'show'],
+  emits: ['update:modelValue'{{ if class.has_child }}, 'show'{{ end }}],
   setup(props, context) {
     const newItem = ref(null);
+    {{~ if class.has_child ~}}
     const activeProperty = ref(null);
     const activeIdx = ref(null);
 
@@ -314,6 +324,7 @@ app.component('{{ kebab_case class.name }}-list', {
       newList[activeIdx.value][activeProperty.value] = newValue;
       context.emit('update:modelValue', newList);
     }
+    {{~ end ~}}
 
     function deleteItem(idx) {
       if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
@@ -352,11 +363,12 @@ app.component('{{ kebab_case class.name }}-list', {
       updateItem,
       addNewItem,
       saveNewItem,
-      cancelAdd,
+      cancelAdd{{ if class.has_child }},
       show,
       activeIdx,
       activeProperty,
       updateChild
+      {{~ end ~}}
     };
   }
 });
