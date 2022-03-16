@@ -223,10 +223,10 @@ app.component('{{ kebab_case class.name }}-table', {
 
 app.component('{{ kebab_case class.name }}', {
   template: `
-  <h5 class="disabled"  v-if="activeProperty === null">{{ class.name.plural }}</h5>
-  <h5 class="clickable" @click="activeProperty = null" v-if="activeProperty !== null">{{ class.name.plural }}</h5>
-  <h5 class="breadcrumb-separator" v-if="activeProperty !== null">/</h5>
-  <{{ kebab_case class.name }}-table v-if="activeProperty === null">
+  <h5 class="text-disabled table-cell font-bold" v-if="activeProperty === null">{{ class.name.plural }}</h5>
+  <h5 class="text-primary hover:text-primaryHover cursor-pointer table-cell font-bold" @click="activeProperty = null" v-else>{{ class.name.plural }}</h5>
+  <h5 class="text-primary px-2 table-cell font-bold" v-if="activeProperty !== null">/</h5>
+  <{{ kebab_case class.name }}-table v-if="activeProperty === null" class="mb-2">
     <{{ kebab_case class.name }}-row :modelValue="modelValue" @update:modelValue="update" :deletable="false" @show="show" v-if="modelValue"></{{ kebab_case class.name }}-row>
     <tr v-else>
       <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full"  @click="$emit('update:modelValue', {})">
@@ -267,9 +267,9 @@ app.component('{{ kebab_case class.name }}', {
 
 app.component('{{ kebab_case class.name }}-list', {
   template: `
-  <h5 class="disabled"  v-if="activeProperty === null">{{ class.name.plural }}</h5>
-  <h5 class="clickable" @click="activeProperty = null" v-if="activeProperty !== null">{{ class.name.plural }}</h5>
-  <h5 class="breadcrumb-separator" v-if="activeProperty !== null">/</h5>
+  <h5 class="text-disabled table-cell font-bold" v-if="activeProperty === null">{{ class.name.plural }}</h5>
+  <h5 class="text-primary hover:text-primaryHover cursor-pointer table-cell font-bold" @click="activeProperty = null" v-else>{{ class.name.plural }}</h5>
+  <h5 class="text-primary px-2 table-cell font-bold" v-if="activeProperty !== null">/</h5>
   <{{ kebab_case class.name }}-table v-if="activeProperty === null">
     <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
     <{{ kebab_case class.name }}-row v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(idx)" :deletable="true" @show="show(idx, $event)" v-if="modelValue"></{{ kebab_case class.name }}-row>

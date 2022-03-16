@@ -17,9 +17,9 @@ const  app = Vue.createApp({
   template: `
   <div class="flex justify-start mb-1">
     <template v-for="(item, index) in rootBreadcrumbs" :key="item">
-      <h5 v-if="activeElement.name === item.name && activeElement.component === item.component" class="text-disabled">{{'{{'}} activeElement.name {{'}}'}}</h5>
-      <h5 v-else class="text-primary hover:text-primaryHover cursor-pointer" @click="sliceRootBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
-      <h5 v-if="index < rootBreadcrumbs.length-1" class="text-primary px-2">/</h5>
+      <h5 v-if="activeElement.name === item.name && activeElement.component === item.component" class="text-disabled font-bold">{{'{{'}} activeElement.name {{'}}'}}</h5>
+      <h5 v-else class="text-primary hover:text-primaryHover cursor-pointer font-bold" @click="sliceRootBreadcrumbs(index)">{{'{{'}} item.name {{'}}'}}</h5>
+      <h5 v-if="index < rootBreadcrumbs.length-1" class="text-primary px-2 font-bold">/</h5>
     </template>
   </div>
   <component :is="activeElement.component" v-model="activeElement.obj[activeElement.property]"></component>
@@ -161,7 +161,7 @@ app.component('{{ kebab_case class.name }}', {
     </div>
     {{~ for property in class.child_references ~}}
       <div class="rounded overflow-hidden ml-6 mb-2 text-left">
-        <h5 class="text-primary font-[700]">{{ to_words property.name }}:</h5>
+        <h5 class="text-primary font-bold">{{ to_words property.name }}:</h5>
         {{~ if property.is_collection ~}}
         <{{ kebab_case property.class.name }}-list :modelValue="modelValue.{{ camel_case property.name }}" @update:modelValue="update{{ property.name }}"></{{ kebab_case property.class.name }}-list>
         {{~ else ~}}
