@@ -201,7 +201,12 @@ app.component('{{ kebab_case class.name }}-table', {
     <thead>
       <tr>
         {{~ for property in class.base_properties ~}}
-        <th scope="col">
+        <th class="clickable" scope="col" @click="sort('{{ camel_case property.name }}')" v-if="sortable">
+        {{ to_words property.name }}
+        <i class="bi-caret-up-fill" v-if="orderBy === '{{ camel_case property.name }}' && orderAsc"></i>
+        <i class="bi-caret-down-fill" v-if="orderBy === '{{ camel_case property.name }}' && !orderAsc"></i>
+        </th>
+        <th scope="col" v-else>
           {{ to_words property.name }}
         </th>
         {{~ end ~}}
@@ -220,7 +225,22 @@ app.component('{{ kebab_case class.name }}-table', {
   </table>`,
   name: '{{ class.name }}Table',
   props: {
-    modelValue: Array
+    modelValue: Array,
+    sortable: Boolean
+  },
+  emits: ['sort'],
+  setup(props, context) {
+    const orderBy = ref('');
+    const orderAsc = ref(true);
+    function sort(propName) {
+      if (orderBy.value === propName) {
+        orderAsc.value = !orderAsc.value
+      } else {
+        orderBy.value = propName
+      }
+      context.emit('sort', orderBy.value, orderAsc.value)
+    }
+    return {orderBy, orderAsc, sort}
   }
 });
 
@@ -229,7 +249,7 @@ app.component('{{ kebab_case class.name }}', {
   <h5 class="disabled"  v-if="activeProperty === null">{{ class.name.plural }}</h5>
   <h5 class="clickable" @click="activeProperty = null" v-if="activeProperty !== null">{{ class.name.plural }}</h5>
   <h5 class="breadcrumb-separator" v-if="activeProperty !== null">/</h5>
-  <{{ kebab_case class.name }}-table v-if="activeProperty === null">
+  <{{ kebab_case class.name }}-table :sortable="false" v-if="activeProperty === null">
     <{{ kebab_case class.name }}-row :modelValue="modelValue" @update:modelValue="update" :deletable="false"{{ if class.has_child }} @show="show"{{ end }} v-if="modelValue"></{{ kebab_case class.name }}-row>
     <tr v-else>
       <button type="button" class="btn" @click="$emit('update:modelValue', {})">
@@ -281,7 +301,7 @@ app.component('{{ kebab_case class.name.plural }}', {
   {{~ else ~}}
   <h5 class="disabled">{{ class.name.plural }}</h5>
   {{~ end ~}}
-  <{{ kebab_case class.name }}-table{{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
+  <{{ kebab_case class.name }}-table :sortable="true" @sort="sort" {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
     <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
     <{{ kebab_case class.name }}-row v-for="(item, idx) in modelValue" :key="idx" :modelValue="item" @update:modelValue="updateItem(idx, $event)" @delete="deleteItem(idx)" :deletable="true"{{ if class.has_child }} @show="show(idx, $event)"{{ end }} v-if="modelValue"></{{ kebab_case class.name }}-row>
     <tr v-if="newItem" class="active-row">
@@ -326,6 +346,20 @@ app.component('{{ kebab_case class.name.plural }}', {
     }
     {{~ end ~}}
 
+    function sort(propName, asc) {
+      console.log('sort', propName, asc);
+      let newList = [...props.modelValue];
+      newList.sort((a, b) => { 
+          if (a[propName] < b[propName] ^ asc)
+            return 1;
+          if (a[propName] > b[propName] ^ asc)
+            return -1;
+          return 0
+        });
+      context.emit('update:modelValue', newList);
+    }
+    
+
     function deleteItem(idx) {
       if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
         context.emit('update:modelValue', props.modelValue.filter((item, i) => i !== idx));
@@ -358,6 +392,7 @@ app.component('{{ kebab_case class.name.plural }}', {
     }
 
     return {
+      sort,
       newItem,
       deleteItem,
       updateItem,
