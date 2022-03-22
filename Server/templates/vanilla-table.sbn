@@ -64,6 +64,29 @@ app.config.globalProperties.$filters = {
   }
 };
 
+app.component('pagination', {
+  template: `
+  <div>
+  <p>count: {{ count }}</p>
+  <p>pageSize: {{ pageSize }}</p>
+  <p>pageCount: {{ pageCount }}</p>
+    <span v-for="n in pageCount" class="clickable" @click="toPage(n)">{{ n }}</span>
+  </div>
+  `,
+  props: {
+    count: Number,
+    pageSize: Number
+  },
+  emits:['range'],
+  setup(props, context) {
+    const pageCount = computed(() => Math.ceil(props.count / props.pageSize))
+    function toPage(idx) {
+      context.emit('range', (idx - 1) * props.pageSize, Math.min(props.count, idx * props.pageSize))
+    }
+    return { pageCount, toPage }
+  }
+})
+
 {{~ for class in classes
       if class.is_root
         continue
@@ -316,6 +339,7 @@ app.component('{{ kebab_case class.name.plural }}', {
       </td>
     </tr>
   </{{ kebab_case class.name }}-table>
+  <pagination :count="items.length" :pageSize="3" @range="setRange"></pagination>
   {{~ for property in class.child_references ~}}
       {{~ if property.is_collection ~}}
       <{{ kebab_case property.class.name.plural }} :modelValue="modelValue[activeIdx][activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
@@ -332,6 +356,8 @@ app.component('{{ kebab_case class.name.plural }}', {
     const newItem = ref(null);
     const orderBy = ref('');
     const orderAsc = ref(true);
+    const rangeStart = ref(0);
+    const rangeEnd = ref(0);
     const items = computed(function(){
       let newList = props.modelValue.map((value, idx) => { return {idx, value} });
       if (orderBy.value !== '')
@@ -342,7 +368,6 @@ app.component('{{ kebab_case class.name.plural }}', {
               return -1;
             return 0
           });
-      console.log(newList);
       return newList;
     });
     {{~ if class.has_child ~}}
@@ -367,6 +392,10 @@ app.component('{{ kebab_case class.name.plural }}', {
       orderAsc.value = asc;
     }
     
+    function setRange(start, end) {
+      rangeStart.value = start;
+      rangeEnd.value = end;
+    }
 
     function deleteItem(idx) {
       if (confirm('Are you sure to delete this {{ camel_case (to_words class.name) }}?')) {
