@@ -67,10 +67,7 @@ app.config.globalProperties.$filters = {
 app.component('pagination', {
   template: `
   <div>
-  <p>count: {{ count }}</p>
-  <p>pageSize: {{ pageSize }}</p>
-  <p>pageCount: {{ pageCount }}</p>
-    <span v-for="n in pageCount" class="clickable" @click="toPage(n)">{{ n }}</span>
+    <span v-for="n in pageCount" class="clickable" @click="toPage(n)">{{'{{'}} n {{'}}'}}</span>
   </div>
   `,
   props: {
@@ -79,7 +76,8 @@ app.component('pagination', {
   },
   emits:['range'],
   setup(props, context) {
-    const pageCount = computed(() => Math.ceil(props.count / props.pageSize))
+    console.log(props);
+    const pageCount = computed(() => Math.ceil(props.count / props.pageSize));
     function toPage(idx) {
       context.emit('range', (idx - 1) * props.pageSize, Math.min(props.count, idx * props.pageSize))
     }
