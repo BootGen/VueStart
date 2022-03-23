@@ -281,7 +281,7 @@ app.component('{{ kebab_case class.name }}-table', {
     return {orderBy, orderAsc, sort}
   }
 });
-
+{{~ if class.referred_single ~}}
 app.component('{{ kebab_case class.name }}', {
   template: `
   {{~ if class.has_child ~}}
@@ -333,7 +333,9 @@ app.component('{{ kebab_case class.name }}', {
     return { update{{ if class.has_child }}, show, activeProperty, updateChild{{ end }} }
   }
 });
+{{~ end ~}}
 
+{{~ if class.referred_plural ~}}
 app.component('{{ kebab_case class.name.plural }}', {
   template: `
   {{~ if class.has_child ~}}
@@ -469,6 +471,7 @@ app.component('{{ kebab_case class.name.plural }}', {
     };
   }
 });
+{{~ end ~}}
 {{~ end ~}}
 
 app.mount('#app');
