@@ -70,25 +70,37 @@ app.component('pagination', {
     <i class="bi-chevron-left" :class="{clickable:pageIdx > 1, disabled: pageIdx === 1}" @click="toPage(pageIdx-1)"></i>
     <span v-for="n in pageCount" class="clickable page-idx" :class="{active: n === pageIdx}" @click="toPage(n)">{{'{{'}} n {{'}}'}}</span>
     <i class="bi-chevron-right" :class="{clickable: pageIdx < pageCount, disabled: pageIdx === pageCount}" @click="toPage(pageIdx+1)"></i>
+    <p>
+    rows per page:
+    <select v-model="pageSize">
+      <option>5</option>
+      <option>10</option>
+      <option>20</option>
+      <option>50</option>
+    </select>
+    </p>
   </div>
   `,
   props: {
     count: Number,
-    pageSize: Number
   },
   emits:['range'],
   setup(props, context) {
     const pageIdx = ref(0);
-    const pageCount = computed(() => Math.ceil(props.count / props.pageSize));
+    const pageSize = ref(5);
+    const pageCount = computed(() => Math.ceil(props.count / pageSize.value));
+    watch(pageCount, function() {
+      toPage(1)
+    })
     function toPage(idx) {
       if (idx < 1 || idx > pageCount.value) {
         return
       }
       pageIdx.value = idx;
-      context.emit('range', (idx - 1) * props.pageSize, idx * props.pageSize)
+      context.emit('range', (idx - 1) * pageSize.value, idx * pageSize.value)
     }
     toPage(1);
-    return { pageCount, pageIdx, toPage }
+    return { pageCount, pageIdx, pageSize, toPage }
   }
 });
 
@@ -137,11 +149,8 @@ app.component('{{ kebab_case class.name }}-form', {
   <td>
     <div class="field">
       {{~ if property.built_in_type == "Bool" ~}}
-      <label>
       <input class="check-input" type="checkbox" 
       v-model="editedItem.{{ camel_case property.name }}">
-      {{ to_words property.name }}
-      </label>
       {{~ else ~}}
       <input
       {{~ if property.built_in_type == "DateTime" ~}}
@@ -275,10 +284,14 @@ app.component('{{ kebab_case class.name }}-table', {
 
 app.component('{{ kebab_case class.name }}', {
   template: `
+  {{~ if class.has_child ~}}
   <h5 class="disabled"  v-if="activeProperty === null">{{ class.name.plural }}</h5>
   <h5 class="clickable" @click="activeProperty = null" v-if="activeProperty !== null">{{ class.name.plural }}</h5>
   <h5 class="breadcrumb-separator" v-if="activeProperty !== null">/</h5>
-  <{{ kebab_case class.name }}-table :sortable="false" v-if="activeProperty === null">
+  {{~ else ~}}
+  <h5 class="disabled">{{ class.name.plural }}</h5>
+  {{~ end ~}}
+  <{{ kebab_case class.name }}-table :sortable="false" {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
     <{{ kebab_case class.name }}-row :modelValue="modelValue" @update:modelValue="update" :deletable="false"{{ if class.has_child }} @show="show"{{ end }} v-if="modelValue"></{{ kebab_case class.name }}-row>
     <tr v-else>
       <button type="button" class="btn" @click="$emit('update:modelValue', {})">
@@ -331,17 +344,20 @@ app.component('{{ kebab_case class.name.plural }}', {
   <h5 class="disabled">{{ class.name.plural }}</h5>
   {{~ end ~}}
   <{{ kebab_case class.name }}-table :sortable="true" @sort="sort" {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
-    <!-- If {{ class.name }} has an identifier, then use it instead of idx as key! -->
     <{{ kebab_case class.name }}-row v-for="item in items" :key="item.idx" :modelValue="item.value" @update:modelValue="updateItem(item.idx, $event)" @delete="deleteItem(item.idx)" :deletable="true"{{ if class.has_child }} @show="show(item.idx, $event)"{{ end }} v-if="modelValue"></{{ kebab_case class.name }}-row>
     <tr v-if="newItem" class="active-row">
       <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
     </tr>
+    <tr v-else>
+      <td class="new-item-button">
+        <button type="button" class="btn new-item-button" @click="addNewItem"  v-if="!newItem">
+          <i class="bi-plus"></i> Add
+        </button>
+      </td>
+    </tr>
   </{{ kebab_case class.name }}-table>
   <div {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
-    <button type="button" class="btn new-item-button" @click="addNewItem"  v-if="!newItem">
-      <i class="bi-plus"></i> Add
-    </button>
-    <pagination :count="modelValue.length" :pageSize="3" @range="setRange"></pagination>
+    <pagination :count="modelValue.length" @range="setRange"></pagination>
   </div>
 {{~ for property in class.child_references ~}}
   {{~ if property.is_collection ~}}

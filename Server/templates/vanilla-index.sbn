@@ -184,6 +184,8 @@
         text-align: right;
       }
       .new-item-button {
+        display: flex;
+        border-bottom: unset;
         float: left
       }
       .active-row {
@@ -198,6 +200,9 @@
       .page-idx {
         margin-left: 0.5rem;
         margin-right: 0.5rem;
+      }
+      select {
+        border: none;
       }
       {{~ end ~}}
       </style>
