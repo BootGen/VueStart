@@ -91,7 +91,7 @@ app.component('pagination', {
     const pageCount = computed(() => Math.ceil(props.count / pageSize.value));
     watch(pageCount, function() {
       toPage(1)
-    })
+    });
     function toPage(idx) {
       if (idx < 1 || idx > pageCount.value) {
         return
