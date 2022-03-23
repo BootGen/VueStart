@@ -78,7 +78,7 @@ app.component('pagination', {
   },
   emits:['range'],
   setup(props, context) {
-    const pageIdx = ref(0)
+    const pageIdx = ref(0);
     const pageCount = computed(() => Math.ceil(props.count / props.pageSize));
     function toPage(idx) {
       if (idx < 1 || idx > pageCount.value) {
