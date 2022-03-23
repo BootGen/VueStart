@@ -342,14 +342,14 @@ app.component('{{ kebab_case class.name.plural }}', {
       <i class="bi-plus"></i> Add
     </button>
     <pagination :count="modelValue.length" :pageSize="3" @range="setRange"></pagination>
-  <div>
-  {{~ for property in class.child_references ~}}
-      {{~ if property.is_collection ~}}
-      <{{ kebab_case property.class.name.plural }} :modelValue="modelValue[activeIdx][activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
-      {{~ else ~}}
-      <{{ kebab_case property.class.name }} :modelValue="modelValue[activeIdx][activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
-      {{~ end ~}}
-  {{~ end ~}}`,
+  </div>
+{{~ for property in class.child_references ~}}
+  {{~ if property.is_collection ~}}
+  <{{ kebab_case property.class.name.plural }} :modelValue="modelValue[activeIdx][activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
+  {{~ else ~}}
+  <{{ kebab_case property.class.name }} :modelValue="modelValue[activeIdx][activeProperty]" @update:modelValue="updateChild" v-if="activeProperty == '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
+  {{~ end ~}}
+{{~ end ~}}`,
   name: '{{ class.name }}List',
   props: {
     modelValue: Array
