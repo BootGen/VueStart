@@ -43,6 +43,8 @@
         border: 1px solid transparent;
         font-size: .875rem;
         font-family: inherit;
+        margin-left: 0.1rem;
+        margin-right: 0.1rem;
       }
       .btn:hover {
         color: #{{ text_color }};
@@ -182,14 +184,20 @@
         text-align: right;
       }
       .new-item-button {
-        display: flex;
-        border-bottom: unset;
+        float: left
       }
       .active-row {
         background-color: #{{ color }}33;
       }
       .active-row input {
         background-color: #fffa;
+      }
+      .active {
+        color: #{{ color }};
+      }
+      .page-idx {
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
       }
       {{~ end ~}}
       </style>
