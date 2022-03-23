@@ -90,7 +90,7 @@ app.component('pagination', {
     toPage(1);
     return { pageCount, pageIdx, toPage }
   }
-})
+});
 
 {{~ for class in classes
       if class.is_root
