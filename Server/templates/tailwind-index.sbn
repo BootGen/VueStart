@@ -12,6 +12,7 @@
           colors: {
             primary: '#{{ color }}',
             primaryHover: '#{{ color }}99',
+            primaryActive: '#{{ color }}33',
             disabled: '#777777',
           }
         }
