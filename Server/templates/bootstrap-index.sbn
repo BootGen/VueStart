@@ -48,6 +48,12 @@
       .clickable:hover {
         opacity: 0.8;
       }
+      .active {
+        color: #{{ color }};
+      }
+      .active-row {
+        background-color: #42b98333;
+      }
       .form-check-input:checked {
         background-color: #{{ color }};
         border-color: #{{ color }};
