@@ -22,7 +22,7 @@
       <div class="browser custom-card shadow">
         <browser-frame v-model="browserData" :config="config"  @refresh="pageRefresh" :borderRadius="selectedTab === 0">
           <div class="d-flex w-100 h-auto">
-            <tab :title="layoutMode" :icon="layoutModeIcon" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
+            <tab :title="forntendMode" :icon="forntendModeIcon" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
             <tab title="index.html" icon="code" :class="{'active': selectedTab === 1, 'inactive': selectedTab !== 1, 'border-bottom-left': selectedTab === 0, 'border-bottom-right': selectedTab === 2}" @select="selectedTab = 1"></tab>
             <tab title="app.js" icon="code" :class="{'active': selectedTab === 2, 'inactive': selectedTab !== 2, 'border-bottom-left': selectedTab === 1}" @select="selectedTab = 2"></tab>
             <tab class="inactive" :class="{'border-bottom-left': selectedTab === 2}"></tab>
@@ -58,28 +58,28 @@
         </div>
         <div class="fab-container mx-2">
           <div class="fab fab-icon-holder">
-            <span class="bi bi-view-stacked" aria-hidden="true" v-if="layoutMode === layoutModes.Card"></span>
-            <span class="bi bi-input-cursor" aria-hidden="true" v-if="layoutMode === layoutModes.Wizard"></span>
-            <span class="bi bi-table" aria-hidden="true" v-if="layoutMode === layoutModes.Table"></span>
-            <span class="ps-2">Layout</span>
+            <span class="bi bi-filetype-css" aria-hidden="true" v-if="forntendMode === forntendModes.Vanilla"></span>
+            <span class="bi bi-bootstrap" aria-hidden="true" v-if="forntendMode === forntendModes.Bootstrap"></span>
+            <span class="bi bi-wind" aria-hidden="true" v-if="forntendMode === forntendModes.Tailwind"></span>
+            <span class="ps-2">Forntend</span>
           </div>
           <ul class="fab-options">
             <li>
-              <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Card)">
-                <span class="bi bi-view-stacked" aria-hidden="true"></span>
-                <span class="ps-2">Card</span>
+              <div class="fab-icon-holder" @click="changeForntendMode(forntendModes.Vanilla)">
+                <span class="bi bi-filetype-css" aria-hidden="true"></span>
+                <span class="ps-2">Vanilla</span>
               </div>
             </li>
             <li>
-              <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Wizard)">
-                <span class="bi bi-input-cursor" aria-hidden="true"></span>
-                <span class="ps-2">Wizard</span>
+              <div class="fab-icon-holder" @click="changeForntendMode(forntendModes.Bootstrap)">
+                <span class="bi bi-bootstrap" aria-hidden="true"></span>
+                <span class="ps-2">Bootstrap</span>
               </div>
             </li>
             <li>
-              <div class="fab-icon-holder" @click="changeLayoutMode(layoutModes.Table)">
-                <span class="bi bi-table" aria-hidden="true"></span>
-                <span class="ps-2">Table</span>
+              <div class="fab-icon-holder" @click="changeForntendMode(forntendModes.Tailwind)">
+                <span class="bi bi-wind" aria-hidden="true"></span>
+                <span class="ps-2">Tailwind</span>
               </div>
             </li>
           </ul>
@@ -158,23 +158,23 @@ export default defineComponent({
       }
     }
     watch(selectedTab, seturl);
-    const layoutModeIcon = computed(() =>{
-      switch (layoutMode.value) {
-        case layoutModes.Table:
-          return 'table';
-        case layoutModes.Card:
-          return 'view-stacked';
-        case layoutModes.Wizard:
-          return 'input-cursor';
+    const forntendModeIcon = computed(() =>{
+      switch (forntendMode.value) {
+        case forntendModes.Tailwind:
+          return 'wind';
+        case forntendModes.Vanilla:
+          return 'filetype-css';
+        case forntendModes.Bootstrap:
+          return 'bootstrap';
       }
-      return 'table';
+      return 'filetype-css';
     })
-    const layoutModes = {
-      Table: 'table',
-      Card: 'card',
-      Wizard: 'wizard'
+    const forntendModes = {
+      Vanilla: 'vanilla',
+      Bootstrap: 'bootstrap',
+      Tailwind: 'tailwind'
     }
-    const layoutMode = ref(layoutModes.Table);
+    const forntendMode = ref(forntendModes.Vanilla);
     const tempColor = ref('42b983');
     const selectedColor = ref('#42b983');
 
@@ -237,8 +237,8 @@ export default defineComponent({
       return false;
     }
 
-    function changeLayoutMode(type) {
-      layoutMode.value = type;
+    function changeForntendMode(type) {
+      forntendMode.value = type;
       if (tip.typeChanged())
         context.emit('success')
       showTip()
@@ -246,7 +246,7 @@ export default defineComponent({
     }
     async function generate(data) {
       try {
-        const resp = await axios.post(`api/generate/${process.env.VUE_APP_UI}/${layoutMode.value}/${tempColor.value}`, JSON.parse(data), props.config);
+        const resp = await axios.post(`api/generate/${forntendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
         saveToLocalStorage(data);
         generatedId.value = resp.data.id;
         seturl();
@@ -324,17 +324,17 @@ export default defineComponent({
     async function loadTasksExample() {
       context.emit('setVuecoon', 'loading');
       json.value = await getProjectContentFromServer('tasks_example_input');
-      changeLayoutMode(layoutModes.Card);
+      changeForntendMode(forntendModes.Vanilla);
     }
     async function loadOrdersExample() {
       context.emit('setVuecoon', 'loading');
       json.value = await getProjectContentFromServer('orders_example_input');
-      changeLayoutMode(layoutModes.Table);
+      changeForntendMode(forntendModes.Tailwind);
     }
     async function loadBookingExample() {
       context.emit('setVuecoon', 'loading');
       json.value = await getProjectContentFromServer('booking_example_input');
-      changeLayoutMode(layoutModes.Wizard);
+      changeForntendMode(forntendModes.Bootstrap);
     }
     getProjectContentFromServer('orders_example_input').then( (content) => {
       json.value = content;
@@ -384,7 +384,7 @@ export default defineComponent({
         context.emit('success');
         showGitHubCTA();
       }
-      context.emit('download', `api/download/${process.env.VUE_APP_UI}/${layoutMode.value}/${tempColor.value}`, `${layoutMode.value}.zip`);
+      context.emit('download', `api/download/${process.env.VUE_APP_UI}/${forntendMode.value}/${tempColor.value}`, `${forntendMode.value}.zip`);
     }
     function triggerColorPicker() {
       document.getElementById("colorInput").click();
@@ -426,9 +426,9 @@ export default defineComponent({
       context.emit('hasError', hasError);
     }
 
-    return { json, inputError, layoutMode, layoutModes, selectedColor,
-      changeLayoutMode, onDownloadClicked, triggerColorPicker, pageRefresh,
-      selectedTab, layoutModeIcon, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError,
+    return { json, inputError, forntendMode, forntendModes, selectedColor,
+      changeForntendMode, onDownloadClicked, triggerColorPicker, pageRefresh,
+      selectedTab, forntendModeIcon, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError,
       alert, showWarningPanel, warnings}
   },
 })
