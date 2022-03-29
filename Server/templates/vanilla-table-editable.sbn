@@ -14,7 +14,7 @@ const computed = Vue.computed;
     break
   end 
 end ~}}
-const  app = Vue.createApp({
+const app = Vue.createApp({
   template: `
   {{~ for property in root.child_references ~}}
   {{~ if property.is_collection ~}}
@@ -40,7 +40,7 @@ const  app = Vue.createApp({
     function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
       if (json && json !== JSON.stringify({{ camel_case root.name }}.value)) {
-          {{ camel_case root.name }}.value = JSON.parse(json);
+        {{ camel_case root.name }}.value = JSON.parse(json);
       }
     }
     loadFromLocalStorage();
@@ -140,7 +140,7 @@ app.component('{{ kebab_case class.name }}-data', {
     value: Object,
     deletable: Boolean
   },
-  emits: ['edit',  'delete'{{ if class.has_child }}, 'show'{{ end }}]
+  emits: ['edit', 'delete'{{ if class.has_child }}, 'show'{{ end }}]
 });
 
 app.component('{{ kebab_case class.name }}-form', {
@@ -285,7 +285,7 @@ app.component('{{ kebab_case class.name }}-table', {
 app.component('{{ kebab_case class.name }}', {
   template: `
   {{~ if class.has_child ~}}
-  <h5 class="disabled"  v-if="activeProperty === null">{{ class.name.plural }}</h5>
+  <h5 class="disabled" v-if="activeProperty === null">{{ class.name.plural }}</h5>
   <h5 class="clickable" @click="activeProperty = null" v-if="activeProperty !== null">{{ class.name.plural }}</h5>
   <h5 class="breadcrumb-separator" v-if="activeProperty !== null">/</h5>
   {{~ else ~}}
@@ -339,7 +339,7 @@ app.component('{{ kebab_case class.name }}', {
 app.component('{{ kebab_case class.name.plural }}', {
   template: `
   {{~ if class.has_child ~}}
-  <h5 class="disabled"  v-if="activeProperty === null">{{ class.name.plural }}</h5>
+  <h5 class="disabled" v-if="activeProperty === null">{{ class.name.plural }}</h5>
   <h5 class="clickable" @click="activeProperty = null" v-if="activeProperty !== null">{{ class.name.plural }}</h5>
   <h5 class="breadcrumb-separator" v-if="activeProperty !== null">/</h5>
   {{~ else ~}}
@@ -352,7 +352,7 @@ app.component('{{ kebab_case class.name.plural }}', {
     </tr>
     <tr v-else>
       <td class="new-item-button">
-        <button type="button" class="btn new-item-button" @click="addNewItem"  v-if="!newItem">
+        <button type="button" class="btn new-item-button" @click="addNewItem" v-if="!newItem">
           <i class="bi-plus"></i> Add
         </button>
       </td>

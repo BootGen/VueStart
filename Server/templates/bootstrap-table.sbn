@@ -32,7 +32,7 @@ const app = Vue.createApp({
     function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
       if (json && json !== JSON.stringify({{ camel_case root.name }}.value)) {
-          {{ camel_case root.name }}.value = JSON.parse(json);
+        {{ camel_case root.name }}.value = JSON.parse(json);
       }
     }
     loadFromLocalStorage();
@@ -214,7 +214,7 @@ app.component('{{ kebab_case class.name }}', {
   props: {
     modelValue: Object
   },
-  emits: [{{ if class.has_child }}, 'show'{{ end }}],
+  emits: [{{ if class.has_child }}'show'{{ end }}],
   setup(props, context) {
     {{~ if class.has_child ~}}
     const activeProperty = ref(null);

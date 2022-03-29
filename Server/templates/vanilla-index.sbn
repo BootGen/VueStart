@@ -153,7 +153,7 @@
       }
       .active-row input {
         background-color: #fffa;
-      }      
+      }
       {{~ end ~}}
       </style>
   </head>

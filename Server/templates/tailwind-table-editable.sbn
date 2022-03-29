@@ -14,7 +14,7 @@ const computed = Vue.computed;
     break
   end 
 end ~}}
-const  app = Vue.createApp({
+const app = Vue.createApp({
   template: `
   {{~ for property in root.child_references ~}}
   {{~ if property.is_collection ~}}
@@ -40,7 +40,7 @@ const  app = Vue.createApp({
     function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
       if (json && json !== JSON.stringify({{ camel_case root.name }}.value)) {
-          {{ camel_case root.name }}.value = JSON.parse(json);
+        {{ camel_case root.name }}.value = JSON.parse(json);
       }
     }
     loadFromLocalStorage();
@@ -140,7 +140,7 @@ app.component('{{ kebab_case class.name }}-data', {
     value: Object,
     deletable: Boolean
   },
-  emits: ['edit',  'delete'{{ if class.has_child }}, 'show'{{ end }}]
+  emits: ['edit', 'delete'{{ if class.has_child }}, 'show'{{ end }}]
 });
 
 app.component('{{ kebab_case class.name }}-form', {
