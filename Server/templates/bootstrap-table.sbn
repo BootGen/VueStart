@@ -5,7 +5,6 @@
    ret get_default_value property
 end ~}}
 const ref = Vue.ref;
-const watchEffect = Vue.watchEffect;
 const watch = Vue.watch;
 const computed = Vue.computed;
 {{~ for class in classes
@@ -30,13 +29,6 @@ const app = Vue.createApp({
     {{~ if input ~}}
     {{ camel_case root.name }}.value = {{input}};
     {{~ else ~}}
-    function saveToLocalStorage(newValue) {
-        let minimized = JSON.stringify(newValue);
-        let oldValue = localStorage.getItem('json');
-        if (minimized != oldValue) {
-          localStorage.setItem('json', minimized);
-        }
-    }
     function loadFromLocalStorage() {
       let json = localStorage.getItem('json');
       if (json && json !== JSON.stringify({{ camel_case root.name }}.value)) {
@@ -44,10 +36,6 @@ const app = Vue.createApp({
       }
     }
     loadFromLocalStorage();
-
-    watchEffect(() => {
-      saveToLocalStorage({{ camel_case root.name }}.value);
-    });
 
     window.addEventListener('storage', loadFromLocalStorage);
     {{~ end ~}}
@@ -129,7 +117,7 @@ app.component('{{ kebab_case class.name }}-data', {
   `,
   name: '{{ class.name }}View',
   props: {
-    value: Object,
+    value: Object
   },
   emits: [{{ if class.has_child }}'show'{{ end }}]
 });
@@ -226,7 +214,7 @@ app.component('{{ kebab_case class.name }}', {
   props: {
     modelValue: Object
   },
-  emits: ['update:modelValue'{{ if class.has_child }}, 'show'{{ end }}],
+  emits: [{{ if class.has_child }}, 'show'{{ end }}],
   setup(props, context) {
     {{~ if class.has_child ~}}
     const activeProperty = ref(null);
