@@ -19,13 +19,9 @@
         color: #2c3e50;
         margin: 1rem;
       }
-      h5{
+      h5 {
         margin-bottom: 0;
-      }
-      .card {
-        background-color: unset;
-        border: unset;
-        border-radius: 0.5rem;
+        color: #{{ color }};
       }
       .btn {
         color: #{{ text_color }};
@@ -36,10 +32,7 @@
         color: #{{ text_color }};
         opacity: 0.8;
       }
-      h5 {
-        color: #{{ color }};
-      }
-      .disabled{
+      .disabled {
         color: #777!important;
       }
       .clickable {

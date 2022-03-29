@@ -50,11 +50,6 @@
         color: #{{ text_color }};
         opacity: 0.8;
       }
-      .breadcrumb {
-        display: flex;
-        text-align: left;
-        margin-bottom: 0.5rem;
-      }
       .breadcrumb-separator {
         padding-left: 0.3rem;
         padding-right: 0.3rem;
@@ -120,52 +115,6 @@
         transform: translate(0, 0);
         cursor: pointer;
       }
-      {{~ if title == 'Data Card' ~}}
-      .w-35 {
-        width: 35%;
-      }
-      .w-65 {
-        width: 65%;
-      }
-      {{~ end ~}}
-      {{~ if title != 'Data Table' ~}}
-      .d-flex {
-        display: flex;
-      }
-      .mb-2 {
-        margin-bottom: 1rem;
-      }
-      .shadow {
-        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
-      }
-      .card {
-        background-color: unset;
-        border: unset;
-        border-radius: 0.5rem;
-        word-wrap: break-word;
-        text-align: left!important;
-      }
-      .child-card {
-        margin-left: 3rem;
-        margin-top: 0.5rem;
-      }
-      .list-item {
-        display: flex;
-        padding: 0.5rem 1rem;
-        border: 1px solid rgba(0,0,0,.125);
-        border-bottom: unset;
-      }
-      .list-item:first-child {
-        border-top-left-radius: 0.5rem;
-        border-top-right-radius: 0.5rem;
-      }
-      .list-item:last-child {
-        border-bottom-left-radius: 0.5rem;
-        border-bottom-right-radius: 0.5rem;
-        border-bottom: 1px solid rgba(0,0,0,.125);
-      }
-      {{~ end ~}}
-      {{~ if title == 'Data Table' ~}}
       table {
         width: 100%;
         border-collapse: collapse;
@@ -204,7 +153,6 @@
       select {
         border: none;
       }
-      {{~ end ~}}
       </style>
   </head>
   <body>
