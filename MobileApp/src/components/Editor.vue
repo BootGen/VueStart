@@ -69,9 +69,10 @@ export default defineComponent({
         if(props.editable) {
           resp.value = await axios.post(`api/generate/${frontendMode.value}/table-editable/${tempColor.value}`, JSON.parse(data), props.config);
         } else {
-          await axios.post(`api/generate/${frontendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
+          resp.value = await axios.post(`api/generate/${frontendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
         }
         saveToLocalStorage(data);
+        console.log("id", resp.value);
         generatedId.value = resp.value.data.id;
         if (selectedTab.value === 0) {
           browserData.value = {
