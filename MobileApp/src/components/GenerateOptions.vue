@@ -14,6 +14,16 @@
         <span class="ps-2">Tailwind</span>
       </div>
     </div>
+    <div class="row flex-colum justify-content-center">
+      <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="editable ? 'active' : 'inactive'" @click="$emit('editableChanged', true)">
+        <span class="bi bi-pencil" aria-hidden="true"></span>
+        <span class="ps-2">Editable</span>
+      </div>
+      <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="!editable ? 'active' : 'inactive'" @click="$emit('editableChanged', false)">
+        <span class="bi bi-shield" aria-hidden="true"></span>
+        <span class="ps-2">Uneditable</span>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -22,9 +32,10 @@ import { defineComponent } from 'vue';
 export default defineComponent({
   name: 'GenerateOptions',
   props: {
-    frontendMode: String
+    frontendMode: String,
+    editable: Boolean
   },
-  emits: ['frontendChanged',],
+  emits: ['frontendChanged', 'editableChanged'],
   setup() {
     const frontendModes = {
       Vanilla: 'vanilla',

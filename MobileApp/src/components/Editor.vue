@@ -32,7 +32,8 @@ export default defineComponent({
   components: { CodeMirror, BrowserFrame, BrowserOptions },
   props: {
     config: Object,
-    frontendMode: String
+    frontendMode: String,
+    editable: Boolean
   },
   emits: ['hasError', 'setVuecoon'],
   setup(props, context) {
@@ -64,16 +65,21 @@ export default defineComponent({
     }
     async function generate(data) {
       try {
-        const resp = await axios.post(`api/generate/${frontendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
+        const resp = ref(null);
+        if(props.editable) {
+          resp.value = await axios.post(`api/generate/${frontendMode.value}/table-editable/${tempColor.value}`, JSON.parse(data), props.config);
+        } else {
+          await axios.post(`api/generate/${frontendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
+        }
         saveToLocalStorage(data);
-        generatedId.value = resp.data.id;
+        generatedId.value = resp.value.data.id;
         if (selectedTab.value === 0) {
           browserData.value = {
-            page_url: `api/files/${resp.data.id}/index.html`
+            page_url: `api/files/${resp.value.data.id}/index.html`
           };
         } else {
           browserData.value = {
-            source_url: `api/files/${resp.data.id}/app.js?display=true`
+            source_url: `api/files/${resp.value.data.id}/app.js?display=true`
           };
         }
         inputError.value = null;
@@ -84,6 +90,8 @@ export default defineComponent({
         if (response) {
           isFixable.value = !!response.data.fixable;
           inputError.value = response.data.error;
+        } else {
+          console.error(e);
         }
         context.emit('hasError', true);
       }

@@ -4,6 +4,7 @@ namespace VueStart.Data
         None,
         Card,
         Table,
+        TableEditable,
         Wizard
     }
 
@@ -17,6 +18,8 @@ namespace VueStart.Data
                     return ArtifactType.Wizard;
                 case "table":
                     return ArtifactType.Table;
+                case "table-editable":
+                    return ArtifactType.TableEditable;
                 case "card":
                     return ArtifactType.Card;
                 default:

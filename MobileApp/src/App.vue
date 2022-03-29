@@ -1,8 +1,8 @@
 <template>
   <div class="container-fluid m-0">
     <landing :vuecoonState="vuecoonState"></landing>
-    <generate-options class="mt-3" :frontendMode="frontendMode" @frontendChanged="changeFrontendMode"></generate-options>
-    <editor :config="config" :frontendMode="frontendMode" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
+    <generate-options class="mt-3" :frontendMode="frontendMode" :editable="editable" @frontendChanged="changeFrontendMode" @editableChanged="chengeEditable"></generate-options>
+    <editor :config="config" :frontendMode="frontendMode" :editable="editable" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
     <supporters class="mt-5"></supporters>
     <div class="row">
       <div class="col-12 d-flex align-items-center footer mt-3">
@@ -30,6 +30,7 @@ export default defineComponent({
     };
     const vuecoonState = ref(vuecoonStates.Default);
     const frontendMode = ref('vanilla');
+    const editable = ref(true);
 
     let idtoken = localStorage.getItem('idtoken');
     if (!idtoken) {
@@ -61,10 +62,13 @@ export default defineComponent({
     function changeFrontendMode(mode) {
       frontendMode.value = mode;
     }
+    function chengeEditable(b) {
+      editable.value = b;
+    }
 
     return { vuecoonState, config,
       hasError, setVuecoon,
-      changeFrontendMode, frontendMode }
+      changeFrontendMode, frontendMode, editable, chengeEditable }
   }
 });
 

@@ -18,7 +18,7 @@
 import { defineComponent, computed } from 'vue';
 
 export default defineComponent({
-  name: 'GenerateOptions',
+  name: 'BrowserOptions',
   props: {
     selected: Number,
     frontendMode: String,

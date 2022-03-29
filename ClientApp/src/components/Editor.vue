@@ -84,6 +84,26 @@
             </li>
           </ul>
         </div>
+        <div class="fab-container mx-2">
+          <div class="fab fab-icon-holder">
+            <span class="bi bi-pencil" aria-hidden="true" v-if="editable"></span>
+            <span class="bi bi-shield" aria-hidden="true" v-else></span>
+          </div>
+          <ul class="fab-options">
+            <li>
+              <div class="fab-icon-holder" @click="editableChanged(true)">
+                <span class="bi bi-pencil" aria-hidden="true"></span>
+                <span class="ps-2">Editable</span>
+              </div>
+            </li>
+            <li>
+              <div class="fab-icon-holder" @click="editableChanged(false)">
+                <span class="bi bi-shield" aria-hidden="true"></span>
+                <span class="ps-2">Uneditable</span>
+              </div>
+            </li>
+          </ul>
+        </div>
         <div id="color-picker-btn" class="fab fab-icon-holder" @click="triggerColorPicker">
           <input type="color" class="form-control form-control-color position-absolute" id="colorInput" v-model="selectedColor" title="Choose your color">
           <span class="bi bi-palette" aria-hidden="true"></span>
@@ -118,6 +138,7 @@ export default defineComponent({
     const json = ref('');
     const jsonSchema = ref(getSchema({}));
     const selectedTab = ref(0);
+    const editable = ref(true);
     const browserData = ref({ page_url: '', source_url: '' });
     const generatedId = ref('');
     const syntaxErr = ref(false);
@@ -246,13 +267,18 @@ export default defineComponent({
     }
     async function generate(data) {
       try {
-        const resp = await axios.post(`api/generate/${frontendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
+        const resp = ref(null);
+        if(editable.value) {
+          resp.value = await axios.post(`api/generate/${frontendMode.value}/table-editable/${tempColor.value}`, JSON.parse(data), props.config);
+        } else {
+          resp.value = await axios.post(`api/generate/${frontendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
+        }
         saveToLocalStorage(data);
-        generatedId.value = resp.data.id;
+        generatedId.value = resp.value.data.id;
         seturl();
         inputError.value = null;
-        if (resp.data.warnings && resp.data.warnings.length > 0) {
-          warnings.value = resp.data.warnings;
+        if (resp.value.data.warnings && resp.value.data.warnings.length > 0) {
+          warnings.value = resp.value.data.warnings;
           alert.value = {
             shown: true,
             class: 'alert-warning',
@@ -290,6 +316,8 @@ export default defineComponent({
             }
           }
           inputError.value = response.data.error;
+        } else {
+          console.error(e);
         }
         context.emit('hasError', true);
       }
@@ -384,7 +412,11 @@ export default defineComponent({
         context.emit('success');
         showGitHubCTA();
       }
-      context.emit('download', `api/download/${process.env.VUE_APP_UI}/${frontendMode.value}/${tempColor.value}`, `${frontendMode.value}.zip`);
+      if(editable.value) {
+        context.emit('download', `api/download/${frontendMode.value}/table-editable/${tempColor.value}`, `${frontendMode.value}.zip`);
+      } else {
+        context.emit('download', `api/download/${frontendMode.value}/table/${tempColor.value}`, `${frontendMode.value}.zip`);
+      }
     }
     function triggerColorPicker() {
       document.getElementById("colorInput").click();
@@ -425,11 +457,15 @@ export default defineComponent({
       }
       context.emit('hasError', hasError);
     }
+    function editableChanged(b) {
+      editable.value = b;
+      generate(json.value);
+    }
 
     return { json, inputError, frontendMode, frontendModes, selectedColor,
       changeFrontendMode, onDownloadClicked, triggerColorPicker, pageRefresh,
       selectedTab, frontendModeIcon, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError,
-      alert, showWarningPanel, warnings}
+      alert, showWarningPanel, warnings, editable, editableChanged }
   },
 })
 </script>

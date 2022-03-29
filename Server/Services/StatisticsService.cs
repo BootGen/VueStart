@@ -77,6 +77,9 @@ namespace VueStart.Services
                     case ArtifactType.Table:
                     record.TableDownloadedCount += 1;
                     break;
+                    case ArtifactType.TableEditable:
+                    record.TableDownloadedCount += 1;
+                    break;
                     case ArtifactType.Wizard:
                     record.WizardDownloadedCount += 1;
                     break;
@@ -90,6 +93,9 @@ namespace VueStart.Services
                     break;
                     case ArtifactType.Table:
                     record.TableGeneratedCount += 1;
+                    break;
+                    case ArtifactType.TableEditable:
+                    record.TableDownloadedCount += 1;
                     break;
                     case ArtifactType.Wizard:
                     record.WizardGeneratedCount += 1;
