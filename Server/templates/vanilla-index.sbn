@@ -54,6 +54,34 @@
         padding-left: 0.3rem;
         padding-right: 0.3rem;
       }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+      }
+      td, th {
+        border-bottom: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+      }
+      th {
+        background-color: #f8f9fa;
+        border-bottom: solid 1px #000000;
+      }
+      td:last-child {
+        text-align: right;
+      }
+      .active {
+        color: #{{ color }};
+      }
+      .page-idx {
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+      }
+      select {
+        border: none;
+      }
+      {{~ if title == 'Data Table-editable' ~}}
       .check-input:checked {
         background-color: #{{ color }};
         border-color: #{{ color }};
@@ -115,23 +143,6 @@
         transform: translate(0, 0);
         cursor: pointer;
       }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 1rem;
-      }
-      td, th {
-        border-bottom: 1px solid #dddddd;
-        text-align: left;
-        padding: 8px;
-      }
-      th {
-        background-color: #f8f9fa;
-        border-bottom: solid 1px #000000;
-      }
-      td:last-child {
-        text-align: right;
-      }
       .new-item-button {
         display: flex;
         border-bottom: unset;
@@ -142,17 +153,8 @@
       }
       .active-row input {
         background-color: #fffa;
-      }
-      .active {
-        color: #{{ color }};
-      }
-      .page-idx {
-        margin-left: 0.5rem;
-        margin-right: 0.5rem;
-      }
-      select {
-        border: none;
-      }
+      }      
+      {{~ end ~}}
       </style>
   </head>
   <body>
