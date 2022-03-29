@@ -3,7 +3,7 @@
     <div class="row flex-colum justify-content-center mt-4">
       <div class="btn-group col-lg-5 col-md-5 col-12 p-0" role="group" aria-label="Basic example">
         <button type="button" class="btn btn-secondary toggle_left p-2" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
-          <span :class="`bi bi-${layoutModeIcon}`" aria-hidden="true"></span>
+          <span :class="`bi bi-${frontendModeIcon}`" aria-hidden="true"></span>
           <span class="ps-2">View</span>
         </button>
         <button type="button" class="btn btn-secondary toggle_right p-2" :class="selected === 1 ? 'active' : 'inactive'" @click="$emit('select', 1)">
@@ -21,24 +21,23 @@ export default defineComponent({
   name: 'GenerateOptions',
   props: {
     selected: Number,
-    layoutMode: String,
+    frontendMode: String,
   },
   emits: ['select'],
   setup(props) {
-
-    const layoutModeIcon = computed(() =>{
-      switch (props.layoutMode) {
-        case 'table':
-          return 'table';
-        case 'card':
-          return 'view-stacked';
-        case 'wizard':
-          return 'input-cursor';
+    const frontendModeIcon = computed(() =>{
+      switch (props.frontendMode) {
+        case 'tailwind':
+          return 'wind';
+        case 'vanilla':
+          return 'filetype-css';
+        case 'bootstrap':
+          return 'bootstrap';
       }
-      return 'pencil';
+      return 'filetype-css';
     })
 
-    return { layoutModeIcon }
+    return { frontendModeIcon }
   },
 })
 </script>

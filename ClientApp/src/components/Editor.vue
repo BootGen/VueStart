@@ -22,7 +22,7 @@
       <div class="browser custom-card shadow">
         <browser-frame v-model="browserData" :config="config"  @refresh="pageRefresh" :borderRadius="selectedTab === 0">
           <div class="d-flex w-100 h-auto">
-            <tab :title="forntendMode" :icon="forntendModeIcon" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
+            <tab :title="frontendMode" :icon="frontendModeIcon" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
             <tab title="index.html" icon="code" :class="{'active': selectedTab === 1, 'inactive': selectedTab !== 1, 'border-bottom-left': selectedTab === 0, 'border-bottom-right': selectedTab === 2}" @select="selectedTab = 1"></tab>
             <tab title="app.js" icon="code" :class="{'active': selectedTab === 2, 'inactive': selectedTab !== 2, 'border-bottom-left': selectedTab === 1}" @select="selectedTab = 2"></tab>
             <tab class="inactive" :class="{'border-bottom-left': selectedTab === 2}"></tab>
@@ -58,26 +58,26 @@
         </div>
         <div class="fab-container mx-2">
           <div class="fab fab-icon-holder">
-            <span class="bi bi-filetype-css" aria-hidden="true" v-if="forntendMode === forntendModes.Vanilla"></span>
-            <span class="bi bi-bootstrap" aria-hidden="true" v-if="forntendMode === forntendModes.Bootstrap"></span>
-            <span class="bi bi-wind" aria-hidden="true" v-if="forntendMode === forntendModes.Tailwind"></span>
-            <span class="ps-2">Forntend</span>
+            <span class="bi bi-filetype-css" aria-hidden="true" v-if="frontendMode === frontendModes.Vanilla"></span>
+            <span class="bi bi-bootstrap" aria-hidden="true" v-if="frontendMode === frontendModes.Bootstrap"></span>
+            <span class="bi bi-wind" aria-hidden="true" v-if="frontendMode === frontendModes.Tailwind"></span>
+            <span class="ps-2">Frontend</span>
           </div>
           <ul class="fab-options">
             <li>
-              <div class="fab-icon-holder" @click="changeForntendMode(forntendModes.Vanilla)">
+              <div class="fab-icon-holder" @click="changeFrontendMode(frontendModes.Vanilla)">
                 <span class="bi bi-filetype-css" aria-hidden="true"></span>
                 <span class="ps-2">Vanilla</span>
               </div>
             </li>
             <li>
-              <div class="fab-icon-holder" @click="changeForntendMode(forntendModes.Bootstrap)">
+              <div class="fab-icon-holder" @click="changeFrontendMode(frontendModes.Bootstrap)">
                 <span class="bi bi-bootstrap" aria-hidden="true"></span>
                 <span class="ps-2">Bootstrap</span>
               </div>
             </li>
             <li>
-              <div class="fab-icon-holder" @click="changeForntendMode(forntendModes.Tailwind)">
+              <div class="fab-icon-holder" @click="changeFrontendMode(frontendModes.Tailwind)">
                 <span class="bi bi-wind" aria-hidden="true"></span>
                 <span class="ps-2">Tailwind</span>
               </div>
@@ -158,23 +158,23 @@ export default defineComponent({
       }
     }
     watch(selectedTab, seturl);
-    const forntendModeIcon = computed(() =>{
-      switch (forntendMode.value) {
-        case forntendModes.Tailwind:
+    const frontendModeIcon = computed(() =>{
+      switch (frontendMode.value) {
+        case frontendModes.Tailwind:
           return 'wind';
-        case forntendModes.Vanilla:
+        case frontendModes.Vanilla:
           return 'filetype-css';
-        case forntendModes.Bootstrap:
+        case frontendModes.Bootstrap:
           return 'bootstrap';
       }
       return 'filetype-css';
     })
-    const forntendModes = {
+    const frontendModes = {
       Vanilla: 'vanilla',
       Bootstrap: 'bootstrap',
       Tailwind: 'tailwind'
     }
-    const forntendMode = ref(forntendModes.Vanilla);
+    const frontendMode = ref(frontendModes.Vanilla);
     const tempColor = ref('42b983');
     const selectedColor = ref('#42b983');
 
@@ -237,8 +237,8 @@ export default defineComponent({
       return false;
     }
 
-    function changeForntendMode(type) {
-      forntendMode.value = type;
+    function changeFrontendMode(type) {
+      frontendMode.value = type;
       if (tip.typeChanged())
         context.emit('success')
       showTip()
@@ -246,7 +246,7 @@ export default defineComponent({
     }
     async function generate(data) {
       try {
-        const resp = await axios.post(`api/generate/${forntendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
+        const resp = await axios.post(`api/generate/${frontendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
         saveToLocalStorage(data);
         generatedId.value = resp.data.id;
         seturl();
@@ -324,17 +324,17 @@ export default defineComponent({
     async function loadTasksExample() {
       context.emit('setVuecoon', 'loading');
       json.value = await getProjectContentFromServer('tasks_example_input');
-      changeForntendMode(forntendModes.Vanilla);
+      changeFrontendMode(frontendModes.Vanilla);
     }
     async function loadOrdersExample() {
       context.emit('setVuecoon', 'loading');
       json.value = await getProjectContentFromServer('orders_example_input');
-      changeForntendMode(forntendModes.Tailwind);
+      changeFrontendMode(frontendModes.Tailwind);
     }
     async function loadBookingExample() {
       context.emit('setVuecoon', 'loading');
       json.value = await getProjectContentFromServer('booking_example_input');
-      changeForntendMode(forntendModes.Bootstrap);
+      changeFrontendMode(frontendModes.Bootstrap);
     }
     getProjectContentFromServer('orders_example_input').then( (content) => {
       json.value = content;
@@ -384,7 +384,7 @@ export default defineComponent({
         context.emit('success');
         showGitHubCTA();
       }
-      context.emit('download', `api/download/${process.env.VUE_APP_UI}/${forntendMode.value}/${tempColor.value}`, `${forntendMode.value}.zip`);
+      context.emit('download', `api/download/${process.env.VUE_APP_UI}/${frontendMode.value}/${tempColor.value}`, `${frontendMode.value}.zip`);
     }
     function triggerColorPicker() {
       document.getElementById("colorInput").click();
@@ -426,9 +426,9 @@ export default defineComponent({
       context.emit('hasError', hasError);
     }
 
-    return { json, inputError, forntendMode, forntendModes, selectedColor,
-      changeForntendMode, onDownloadClicked, triggerColorPicker, pageRefresh,
-      selectedTab, forntendModeIcon, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError,
+    return { json, inputError, frontendMode, frontendModes, selectedColor,
+      changeFrontendMode, onDownloadClicked, triggerColorPicker, pageRefresh,
+      selectedTab, frontendModeIcon, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError,
       alert, showWarningPanel, warnings}
   },
 })

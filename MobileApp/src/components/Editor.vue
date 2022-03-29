@@ -15,7 +15,7 @@
         </div>
       </div>
     </div>
-    <browser-options :selected="selectedTab" :layoutMode="layoutMode" @select="selectTab"></browser-options>
+    <browser-options :selected="selectedTab" :frontendMode="frontendMode" @select="selectTab"></browser-options>
     <div class="browser custom-card shadow mt-2">
       <browser-frame v-model="browserData"></browser-frame>
     </div>
@@ -32,7 +32,7 @@ export default defineComponent({
   components: { CodeMirror, BrowserFrame, BrowserOptions },
   props: {
     config: Object,
-    layoutMode: String
+    frontendMode: String
   },
   emits: ['hasError', 'setVuecoon'],
   setup(props, context) {
@@ -42,7 +42,7 @@ export default defineComponent({
     const jsonSchema = ref(getSchema({}));
     const tempColor = ref('42b983');
     const selectedColor = ref('#42b983');
-    const layoutMode = ref(props.layoutMode);
+    const frontendMode = ref(props.frontendMode);
     const selectedTab = ref(0);
     const browserData = ref({ page_url: '', source_url: '' });
     const generatedId = ref('');
@@ -64,7 +64,7 @@ export default defineComponent({
     }
     async function generate(data) {
       try {
-        const resp = await axios.post(`api/generate/vanilla/${layoutMode.value}/${tempColor.value}`, JSON.parse(data), props.config);
+        const resp = await axios.post(`api/generate/${frontendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
         saveToLocalStorage(data);
         generatedId.value = resp.data.id;
         if (selectedTab.value === 0) {
@@ -110,8 +110,8 @@ export default defineComponent({
       jsonSchema.value = getSchema(JSON.parse(json.value));
       generate(json.value);
       watchEffect(() => {
-        if(props.layoutMode !== layoutMode.value) {
-          layoutMode.value = props.layoutMode;
+        if(props.frontendMode !== frontendMode.value) {
+          frontendMode.value = props.frontendMode;
           generate(json.value);
         }
         if('#' + tempColor.value !== selectedColor.value) {

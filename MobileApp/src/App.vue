@@ -1,8 +1,8 @@
 <template>
   <div class="container-fluid m-0">
     <landing :vuecoonState="vuecoonState"></landing>
-    <generate-options class="mt-3" :layoutMode="layoutMode" @layoutChanged="changeLayoutMode"></generate-options>
-    <editor :config="config" :layoutMode="layoutMode" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
+    <generate-options class="mt-3" :frontendMode="frontendMode" @frontendChanged="changeFrontendMode"></generate-options>
+    <editor :config="config" :frontendMode="frontendMode" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
     <supporters class="mt-5"></supporters>
     <div class="row">
       <div class="col-12 d-flex align-items-center footer mt-3">
@@ -17,7 +17,6 @@ import { defineComponent, ref } from 'vue';
 import Landing from './components/Landing.vue';
 import Editor from './components/Editor.vue';
 import Supporters from './components/Supporters.vue';
-import axios from "axios";
 import GenerateOptions from './components/GenerateOptions.vue';
 
 export default defineComponent({
@@ -30,7 +29,7 @@ export default defineComponent({
       Success: 'success'
     };
     const vuecoonState = ref(vuecoonStates.Default);
-    const layoutMode = ref('card');
+    const frontendMode = ref('vanilla');
 
     let idtoken = localStorage.getItem('idtoken');
     if (!idtoken) {
@@ -59,13 +58,13 @@ export default defineComponent({
     function setVuecoon(state) {
       vuecoonState.value = state;
     }
-    function changeLayoutMode(mode) {
-      layoutMode.value = mode;
+    function changeFrontendMode(mode) {
+      frontendMode.value = mode;
     }
 
     return { vuecoonState, config,
       hasError, setVuecoon,
-      changeLayoutMode, layoutMode }
+      changeFrontendMode, frontendMode }
   }
 });
 

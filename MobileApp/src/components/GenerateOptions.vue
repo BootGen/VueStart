@@ -1,17 +1,17 @@
 <template>
   <div class="container">
     <div class="row flex-colum justify-content-center">
-      <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="layoutMode === layoutModes.Card ? 'active' : 'inactive'" @click="$emit('layoutChanged', layoutModes.Card)">
-        <span class="bi bi-view-stacked" aria-hidden="true"></span>
-        <span class="ps-2">Card</span>
+      <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="frontendMode === frontendModes.Vanilla ? 'active' : 'inactive'" @click="$emit('frontendChanged', frontendModes.Vanilla)">
+        <span class="bi bi-filetype-css" aria-hidden="true"></span>
+        <span class="ps-2">Vanilla</span>
       </div>
-      <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="layoutMode === layoutModes.Wizard ? 'active' : 'inactive'" @click="$emit('layoutChanged', layoutModes.Wizard)">
-        <span class="bi bi-input-cursor" aria-hidden="true"></span>
-        <span class="ps-2">Wizard</span>
+      <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="frontendMode === frontendModes.Bootstrap ? 'active' : 'inactive'" @click="$emit('frontendChanged', frontendModes.Bootstrap)">
+        <span class="bi bi-bootstrap" aria-hidden="true"></span>
+        <span class="ps-2">Bootstrap</span>
       </div>
-     <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="layoutMode === layoutModes.Table ? 'active' : 'inactive'" @click="$emit('layoutChanged', layoutModes.Table)">
-        <span class="bi bi-table" aria-hidden="true"></span>
-        <span class="ps-2">Table</span>
+     <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="frontendMode === frontendModes.Tailwind ? 'active' : 'inactive'" @click="$emit('frontendChanged', frontendModes.Tailwind)">
+        <span class="bi bi-wind" aria-hidden="true"></span>
+        <span class="ps-2">Tailwind</span>
       </div>
     </div>
   </div>
@@ -22,17 +22,17 @@ import { defineComponent } from 'vue';
 export default defineComponent({
   name: 'GenerateOptions',
   props: {
-    layoutMode: String
+    frontendMode: String
   },
-  emits: ['layoutChanged',],
+  emits: ['frontendChanged',],
   setup() {
-    const layoutModes = {
-      Table: 'table',
-      Card: 'card',
-      Wizard: 'wizard'
+    const frontendModes = {
+      Vanilla: 'vanilla',
+      Bootstrap: 'bootstrap',
+      Tailwind: 'tailwind'
     }
 
-    return { layoutModes }
+    return { frontendModes }
   },
 })
 </script>
