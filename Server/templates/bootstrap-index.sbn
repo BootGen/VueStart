@@ -44,6 +44,9 @@
       .active {
         color: #{{ color }};
       }
+      select {
+        border: none;
+      }
       {{~ if title == 'Data Table-editable' ~}}
       .active-row {
         background-color: #42b98333;
