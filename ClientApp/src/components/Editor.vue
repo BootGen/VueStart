@@ -87,7 +87,7 @@
         <div class="fab-container mx-2">
           <div class="fab fab-icon-holder">
             <span class="bi bi-pencil" aria-hidden="true" v-if="editable"></span>
-            <span class="bi bi-shield" aria-hidden="true" v-else></span>
+            <span class="bi bi-eye" aria-hidden="true" v-else></span>
           </div>
           <ul class="fab-options">
             <li>
@@ -98,8 +98,8 @@
             </li>
             <li>
               <div class="fab-icon-holder" @click="editableChanged(false)">
-                <span class="bi bi-shield" aria-hidden="true"></span>
-                <span class="ps-2">Uneditable</span>
+                <span class="bi bi-eye" aria-hidden="true"></span>
+                <span class="ps-2">Read-only</span>
               </div>
             </li>
           </ul>

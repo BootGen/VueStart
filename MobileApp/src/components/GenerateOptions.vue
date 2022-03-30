@@ -20,8 +20,8 @@
         <span class="ps-2">Editable</span>
       </div>
       <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="!editable ? 'active' : 'inactive'" @click="$emit('editableChanged', false)">
-        <span class="bi bi-shield" aria-hidden="true"></span>
-        <span class="ps-2">Uneditable</span>
+        <span class="bi bi-eye" aria-hidden="true"></span>
+        <span class="ps-2">Read-only</span>
       </div>
     </div>
   </div>

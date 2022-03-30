@@ -68,9 +68,6 @@
         background-color: #f8f9fa;
         border-bottom: solid 1px #000000;
       }
-      td:last-child {
-        text-align: right;
-      }
       .active {
         color: #{{ color }};
       }
@@ -82,6 +79,9 @@
         border: none;
       }
       {{~ if title == 'Data Table-editable' ~}}
+      td:last-child {
+        text-align: right;
+      }
       .check-input:checked {
         background-color: #{{ color }};
         border-color: #{{ color }};
