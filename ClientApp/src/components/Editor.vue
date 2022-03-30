@@ -352,17 +352,17 @@ export default defineComponent({
     async function loadTasksExample() {
       context.emit('setVuecoon', 'loading');
       json.value = await getProjectContentFromServer('tasks_example_input');
-      changeFrontendMode(frontendModes.Vanilla);
+      generate(json.value);
     }
     async function loadOrdersExample() {
       context.emit('setVuecoon', 'loading');
       json.value = await getProjectContentFromServer('orders_example_input');
-      changeFrontendMode(frontendModes.Tailwind);
+      generate(json.value);
     }
     async function loadBookingExample() {
       context.emit('setVuecoon', 'loading');
       json.value = await getProjectContentFromServer('booking_example_input');
-      changeFrontendMode(frontendModes.Bootstrap);
+      generate(json.value);
     }
     getProjectContentFromServer('orders_example_input').then( (content) => {
       json.value = content;
