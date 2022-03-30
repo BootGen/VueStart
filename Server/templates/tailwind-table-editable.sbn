@@ -66,7 +66,7 @@ app.config.globalProperties.$filters = {
 
 app.component('pagination', {
   template: `
-  <div>
+  <div class="mt-3">
     <i class="bi-chevron-left" :class="{'cursor-pointer':pageIdx > 1, 'text-disabled': pageIdx === 1}" @click="toPage(pageIdx-1)"></i>
     <span v-for="n in pageCount" class="cursor-pointer px-2" :class="{'text-primary': n === pageIdx}" @click="toPage(n)">{{'{{'}} n {{'}}'}}</span>
     <i class="bi-chevron-right" :class="{'cursor-pointer': pageIdx < pageCount, 'text-disabled': pageIdx === pageCount}" @click="toPage(pageIdx+1)"></i>
