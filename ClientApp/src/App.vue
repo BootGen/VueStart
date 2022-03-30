@@ -192,9 +192,11 @@ body {
     margin-right: 1%;
   }
   .jumbotron.landing {
-    height: calc( 100vh - 2.5rem );
+    height: 100vh;
     transition-delay: 300ms;
     border-bottom-left-radius: 0;
+    flex-direction: column;
+    width: 40%;
   }
   .jumbotron.content, .jumbotron.supporters {
     height: 15vh;
@@ -209,7 +211,7 @@ body {
   }
   .jumbo-text.landing{
     opacity: 1;
-    height: 19rem;
+    height: 11rem;
   }
   .jumbo-text-full{
     transition: all 1s ease-in-out;
@@ -223,7 +225,7 @@ body {
     align-items: center;
   }
   .jumbo-text-full.landing{
-    width: 50%;
+    width: 90%;
   }
   .slogen-text{
     transition: all 1s ease-in-out;
@@ -311,7 +313,7 @@ body {
 
 @media (max-width: 1200px) {
     .jumbo-text.landing{
-      height: 23rem;
+      height: 11rem;
     }
   }
   @media (max-width: 992px) {
@@ -341,7 +343,10 @@ body {
     }
 
     .jumbo-text.landing{
-      height: 29rem;
+      height: 12rem;
+    }
+    .text-justify{
+      font-size: 1rem;
     }
     .github .small-text {
       display: none!important;
@@ -356,11 +361,7 @@ body {
       height: min(15vh, 25vw);
     }
     .jumbo-text.landing{
-      height: 26rem;
-    }
-    .jumbo-text-full.landing{
-      width: 100vw;
-      text-align: center;
+      height: 16rem;
     }
     .jumbo-text-full.content, .jumbo-text-full.supporters{
       margin: unset;
@@ -369,9 +370,6 @@ body {
     }
     .vuecoon.landing {
       max-width: 35vw;
-    }
-    .text-justify{
-      font-size: 1rem;
     }
     .jumbo-text-full.content, .jumbo-text-full.supporters {
       max-width: 50%;
