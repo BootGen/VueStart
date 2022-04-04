@@ -607,6 +607,7 @@ input#colorInput {
 }
 .browser-container{
   position: absolute;
+  top: 12vh;
   width: 52%;
   margin: 1% 1% 1% 47%;
   transition: all 1s ease-in-out;
@@ -614,14 +615,10 @@ input#colorInput {
   background-color: transparent;
   box-shadow: 0rem -1.5rem 2rem rgb(0 0 0 / 10%);
 }
-.browser-container.landing {
-  top: calc((100vh - 80vh - 2rem)/2);
-}
 .browser-container.content{
   opacity: 1;
   height: 80vh;
   transition-delay: 300ms;
-  top: 12vh;
   visibility: visible;
 }
 .browser-container.supporters{
