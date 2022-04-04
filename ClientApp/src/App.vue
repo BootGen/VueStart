@@ -6,10 +6,7 @@
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="page">
       <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)" :class="page">
       <div class="jumbo-text-full" :class="page">
-        <div class="d-flex align-items-center justify-content-center">
-          <img class="vue_logo" alt="vue" :src="require(`./assets/vue_logo.webp`)">
-          <p class="title">ue Start!</p>
-        </div>
+        <p class="title">Vue Start!</p>
         <div class="d-flex align-items-center jumbo-text" :class="page">
           <div class="d-flex flex-column align-items-center">
             <p class="lead text-justify m-0">
@@ -279,6 +276,7 @@ body {
     margin-bottom: .5rem;
     font-weight: 500;
     line-height: 1.2;
+    text-align: center;
   }
 
 .shadow {
