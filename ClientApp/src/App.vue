@@ -12,7 +12,7 @@
         </div>
         <div class="d-flex align-items-center jumbo-text" :class="page">
           <div class="d-flex flex-column align-items-center">
-            <p class="lead text-justify">
+            <p class="lead text-justify m-0">
               An online tool that generates UI components for Vue.js developers. Input some JSON data, chose a template, download the code and use it in any project.
             </p>
             <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showEditor">Start!</button>
@@ -152,7 +152,7 @@ export default defineComponent({
 
 <style>
 body {
-  height: 100%;
+  height: 99%;
   overflow: hidden;
 }
 
@@ -196,7 +196,7 @@ body {
     transition-delay: 300ms;
     border-bottom-left-radius: 0;
     flex-direction: column;
-    width: 40%;
+    width: 45%;
   }
   .jumbotron.content, .jumbotron.supporters {
     height: 15vh;
@@ -311,15 +311,20 @@ body {
     visibility: hidden;
   }
 
-@media (max-width: 1200px) {
-    .jumbo-text.landing{
-      height: 11rem;
-    }
-  }
   @media (max-width: 992px) {
     body {
       height: unset;
       overflow: unset;
+    }
+    .vuecoon.landing {
+      max-width: 200px;
+      margin: 1%;
+    }
+    .jumbotron.landing {
+      height: 30vh;
+      flex-direction: row;
+      width: 99%;
+      margin-top: 2vh;
     }
 
     .footer.content, .footer.supporters{
@@ -332,7 +337,7 @@ body {
     }
     .footer.content, .footer.supporters{
       height: 2rem;
-      top: calc(170vh + 1.5rem);
+      top: calc(170vh + 4rem);
       padding-top: 5px;
     }
   }
@@ -340,10 +345,6 @@ body {
     body {
       height: unset;
       overflow: unset;
-    }
-
-    .jumbo-text.landing{
-      height: 12rem;
     }
     .text-justify{
       font-size: 1rem;
@@ -361,7 +362,7 @@ body {
       height: min(15vh, 25vw);
     }
     .jumbo-text.landing{
-      height: 16rem;
+      height: 12rem;
     }
     .jumbo-text-full.content, .jumbo-text-full.supporters{
       margin: unset;
@@ -393,10 +394,6 @@ body {
     }
     .slogen-text {
       display: none!important;
-    }
-
-    .footer.content, .footer.supporters{
-      top: calc(170vh + 1.5rem);
     }
   }
 

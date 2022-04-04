@@ -532,6 +532,7 @@ body {
 
 .browser-buttons {
   position: absolute;
+  bottom: -1rem;
   right: 2rem;
   font-size: 1rem!important;
   z-index: 99;
@@ -539,11 +540,11 @@ body {
   transition-delay: 150ms;
 }
 .browser-buttons.landing {
-  bottom: -20vh;
+  /*bottom: -20vh;*/
   opacity: 0;
 }
 .browser-buttons.content {
-  bottom: -1rem;
+  /*bottom: -1rem;*/
   opacity: 1;
 }
 
@@ -623,7 +624,7 @@ input#colorInput {
   top: 12vh;
   visibility: visible;
 }
-/*.browser-container.landing, */.browser-container.supporters{
+.browser-container.supporters{
   opacity: 0;
   height: 0vh;
   top: 98vh;
@@ -665,9 +666,17 @@ a:hover {
     margin: 1%;
     transition-delay: 600ms;
   }
+  
+  .browser-container.landing {
+    top: 32vh;
+  }
+
+  .browser-container.landing > .browser {
+    height: 64vh;
+  }
 
   .browser-container.content{
-    /*top: 95vh;*/
+    top: 95vh;
   }
 
 }
