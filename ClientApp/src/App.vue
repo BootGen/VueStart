@@ -17,12 +17,14 @@
       </div>
     </div>
     <p class="title">Vue Start!</p>
-    <div @click="openGithub()" class="github" :class="page">
-      <div class="d-flex align-items-center px-2">
-        <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
-        <span class="bi bi-star-fill star-icon px-2" aria-hidden="true"></span>
+    <div class="github" :class="page">
+      <div class="clickable" @click="openGithub()">
+        <div class="d-flex align-items-center px-2">
+          <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
+          <span class="bi bi-star-fill star-icon px-2" aria-hidden="true"></span>
+        </div>
+        <p class="small-text">Star this project on GitHub!</p>
       </div>
-      <p class="small-text">Star this project on GitHub!</p>
     </div>
     <transition name="fade">
       <supporters v-if="page === 'supporters'"></supporters>
@@ -219,11 +221,13 @@ export default defineComponent({
   .small-text {
     font-size: 0.8rem;
   }
+  .clickable {
+    cursor: pointer;
+  }
   .github {
     transition: all 1s ease-in-out;
     transition-delay: 300ms;
     overflow: hidden;
-    cursor: pointer;
     position: absolute;
     width: 98%;
     top: 0;
