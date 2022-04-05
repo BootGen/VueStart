@@ -3,26 +3,26 @@
     <modal-panel v-model="showDownloadPanel">
       <download-panel @close="showDownloadPanel = false" @download="download"></download-panel>
     </modal-panel>
-    <div class="d-flex justify-content-center align-items-center jumbotron" :class="page">
-      <img class="vuecoon img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)" :class="page">
-      <div class="jumbo-text-full" :class="page">
-        <p class="title">Vue Start!</p>
-        <div class="d-flex align-items-center jumbo-text" :class="page">
-          <div class="d-flex flex-column align-items-center">
-            <p class="lead text-justify m-0">
-              An online tool that generates UI components for Vue.js developers. Input some JSON data, chose a template, download the code and use it in any project.
-            </p>
-            <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showEditor">Start!</button>
-          </div>
+    <div class="d-flex justify-content-center jumbotron" :class="page">
+      <div class="vuecoon" :class="page">
+        <img class="img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)">
+      </div>
+      <div class="d-flex align-items-center jumbo-text" :class="page">
+        <div class="d-flex flex-column align-items-center">
+          <p class="lead text-justify m-0">
+            An online tool that generates UI components for Vue.js developers. Input some JSON data, chose a template, download the code and use it in any project.
+          </p>
+          <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showEditor">Start!</button>
         </div>
       </div>
-      <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github" :class="page">
-        <div class="d-flex align-items-center px-2">
-          <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
-          <span class="bi bi-star-fill star-icon px-2" aria-hidden="true"></span>
-        </div>
-        <p class="small-text">Star this project on GitHub!</p>
+    </div>
+    <p class="title">Vue Start!</p>
+    <div @click="openGithub()" class="github" :class="page">
+      <div class="d-flex align-items-center px-2">
+        <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
+        <span class="bi bi-star-fill star-icon px-2" aria-hidden="true"></span>
       </div>
+      <p class="small-text">Star this project on GitHub!</p>
     </div>
     <transition name="fade">
       <supporters v-if="page === 'supporters'"></supporters>
@@ -148,21 +148,21 @@ export default defineComponent({
 </script>
 
 <style>
-body {
-  height: 99%;
-  overflow: hidden;
-}
-
-.text-justify{
-  text-align: justify;
-}
-
-.fab-options li {
+  body {
+    height: 99%;
+    overflow: hidden;
+  }
+  p {
+    margin: 0;
+  }
+  .text-justify{
+    text-align: justify;
+  }
+  .fab-options li {
     display: flex;
     justify-content: flex-end;
     padding: 5px;
   }
-
   .fill-btn {
     color: #ffffff;
     background-color: #42b983;
@@ -172,35 +172,38 @@ body {
     border-color: #17a062;
     background-color: #17a062;
   }
-
-.vuecoon {
+  .vuecoon {
     transition: all 1s ease-in-out;
   }
   .vuecoon.landing {
     max-width: 300px;
-    margin: 1%;
   }
   .vuecoon.content, .vuecoon.supporters {
     max-width: min(12vh, 22vw);
+    margin-left: 10%;
   }
   .jumbotron {
     transition: all 1s ease-in-out;
+    transition-delay: 300ms;
     margin-left: 1%;
     margin-right: 1%;
-  }
-  .jumbotron.landing {
-    height: 100vh;
-    transition-delay: 300ms;
-    border-bottom-left-radius: 0;
     flex-direction: column;
     width: 45%;
   }
+  .jumbotron.landing {
+    height: 100vh;
+    align-items: center;
+  }
   .jumbotron.content, .jumbotron.supporters {
     height: 15vh;
+    align-items: flex-start;
   }
-  .jumbo-text{
+  .jumbo-text {
     transition: all 1s ease-in-out;
     overflow: hidden;
+    margin-right: 2%;
+    margin-left: 1%;
+    margin-top: 1rem;
   }
   .jumbo-text.content, .jumbo-text.supporters{
     opacity: 0;
@@ -209,34 +212,6 @@ body {
   .jumbo-text.landing{
     opacity: 1;
     height: 11rem;
-  }
-  .jumbo-text-full{
-    transition: all 1s ease-in-out;
-    overflow: hidden;
-  }
-  .jumbo-text-full.content, .jumbo-text-full.supporters{
-    max-width: 50%;
-    justify-content: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .jumbo-text-full.landing{
-    width: 90%;
-  }
-  .slogen-text{
-    transition: all 1s ease-in-out;
-    overflow: hidden;
-  }
-  .slogen-text.content, .slogen-text.supporters{
-    opacity: 1;
-    height: 100%;
-    visibility: visible;
-  }
-  .slogen-text.landing{
-    opacity: 0;
-    height: 0;
-    visibility: hidden;
   }
   .vue_logo {
     width: 3rem;
@@ -247,20 +222,18 @@ body {
   }
   .github {
     transition: all 1s ease-in-out;
+    transition-delay: 300ms;
     overflow: hidden;
     cursor: pointer;
-  }
-  .github.content, .github.supporters{
-    opacity: 1;
-    height: 100%;
-    width: auto;
-    visibility: visible;
-  }
-  .github.landing{
-    opacity: 0;
-    height: 0;
-    width: 0;
-    visibility: hidden;
+    position: absolute;
+    width: 98%;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    right: 10%;
+    height: 12vh;
+    justify-content: center;
   }
   .github-icon {
     font-size: min(5vh, 5vw);
@@ -270,16 +243,17 @@ body {
     font-size: min(4vh, 4vw);
   }
   .title {
-    margin-left: -3px;
+    font-family: cursive, sans-serif;
     font-size: 1.9rem;
-    margin-top: 0;
-    margin-bottom: .5rem;
-    font-weight: 500;
-    line-height: 1.2;
-    text-align: center;
+    position: absolute;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 12vh;
   }
-
-.shadow {
+  .shadow {
     box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
   }
   .footer{
@@ -314,6 +288,14 @@ body {
       height: unset;
       overflow: unset;
     }
+    .github.landing {
+      right: 0;
+      margin-top: 0;
+    }
+    .github.content, .github.supporters {
+      right: 10%;
+      margin-top: 1%;
+    }
     .vuecoon.landing {
       max-width: 200px;
       margin: 1%;
@@ -324,11 +306,9 @@ body {
       width: 99%;
       margin-top: 2vh;
     }
-
     .footer.content, .footer.supporters{
       transition-delay: 700ms;
     }
-
     .footer{
       font-size: 0.8rem;
       bottom: unset;
@@ -337,6 +317,9 @@ body {
       height: 2rem;
       top: calc(170vh + 4rem);
       padding-top: 5px;
+    }
+    .github .small-text {
+      display: none!important;
     }
   }
   @media (max-width: 768px) {
@@ -347,8 +330,12 @@ body {
     .text-justify{
       font-size: 1rem;
     }
-    .github .small-text {
-      display: none!important;
+    .github.content, .github.suppo {
+      height: 15vh;
+      justify-content: center;
+    }
+    .github-icon {
+      font-size: min(7vh, 7vw);
     }
   }
   @media (max-width: 576px) {
@@ -362,35 +349,16 @@ body {
     .jumbo-text.landing{
       height: 12rem;
     }
-    .jumbo-text-full.content, .jumbo-text-full.supporters{
-      margin: unset;
-      max-width: 100%;
-      text-align: center;
-    }
     .vuecoon.landing {
       max-width: 35vw;
     }
-    .jumbo-text-full.content, .jumbo-text-full.supporters {
-      max-width: 50%;
-    }
-    .github-icon {
-        font-size: min(10vh, 10vw);
-    }
-    .vue_logo {
-      width: 2.5rem;
-      height: 2.5rem;
-    }
     .title {
       font-size: 1.5rem;
-      margin-right: min(2.5vh, 7.5vw);
     }
     .star-icon {
       display: none!important;
     }
     .github > .small-text {
-      display: none!important;
-    }
-    .slogen-text {
       display: none!important;
     }
   }
