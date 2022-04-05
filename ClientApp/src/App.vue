@@ -174,9 +174,12 @@ export default defineComponent({
   }
   .vuecoon {
     transition: all 1s ease-in-out;
+    display: flex;
+    align-items: center;
   }
   .vuecoon.landing {
     max-width: 300px;
+    margin-left: calc((100% - 300px)/2);
   }
   .vuecoon.content, .vuecoon.supporters {
     max-width: min(12vh, 22vw);
@@ -192,30 +195,26 @@ export default defineComponent({
   }
   .jumbotron.landing {
     height: 100vh;
-    align-items: center;
   }
   .jumbotron.content, .jumbotron.supporters {
     height: 15vh;
-    align-items: flex-start;
+    margin-right: 10%;
   }
   .jumbo-text {
     transition: all 1s ease-in-out;
     overflow: hidden;
     margin-right: 2%;
     margin-left: 1%;
-    margin-top: 1rem;
   }
   .jumbo-text.content, .jumbo-text.supporters{
     opacity: 0;
     height: 0rem;
+    margin-top: 0;
   }
   .jumbo-text.landing{
     opacity: 1;
     height: 11rem;
-  }
-  .vue_logo {
-    width: 3rem;
-    height: 3rem;
+    margin-top: 3rem;
   }
   .small-text {
     font-size: 0.8rem;
@@ -300,9 +299,11 @@ export default defineComponent({
       max-width: 200px;
       margin: 1%;
     }
+    .jumbotron {
+      flex-direction: row;
+    }
     .jumbotron.landing {
       height: 30vh;
-      flex-direction: row;
       width: 99%;
       margin-top: 2vh;
     }
