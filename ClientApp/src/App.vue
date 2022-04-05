@@ -241,9 +241,10 @@ export default defineComponent({
     color: rgb(222, 169, 64);
     font-size: min(4vh, 4vw);
   }
+  @import url('https://fonts.googleapis.com/css2?family=Caveat+Brush&display=swap');
   .title {
-    font-family: cursive, sans-serif;
-    font-size: 1.9rem;
+    font-family: 'Caveat Brush', cursive;
+    font-size: 3rem;
     position: absolute;
     top: 0;
     display: flex;
