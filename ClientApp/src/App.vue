@@ -5,7 +5,8 @@
     </modal-panel>
     <div class="d-flex justify-content-center jumbotron" :class="page">
       <div class="vuecoon" :class="page">
-        <img class="img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)">
+        <img v-if="page == 'supporters'" @click="showEditor()" class="img-fluid clickable" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)">
+        <img v-else class="img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)">
       </div>
       <div class="d-flex align-items-center jumbo-text" :class="page">
         <div class="d-flex flex-column align-items-center">
@@ -229,7 +230,7 @@ export default defineComponent({
     transition-delay: 300ms;
     overflow: hidden;
     position: absolute;
-    width: 98%;
+    width: 50%;
     top: 0;
     display: flex;
     flex-direction: column;
@@ -256,6 +257,7 @@ export default defineComponent({
     align-items: center;
     width: 100%;
     height: 12vh;
+    z-index: -1;
   }
   .shadow {
     box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
