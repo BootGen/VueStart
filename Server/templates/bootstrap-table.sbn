@@ -122,7 +122,7 @@ app.component('{{ kebab_case class.name }}-row', {
   props: {
     value: Object
   },
-  emits: [{{ if class.has_child }}'show'{{ end }}],
+  {{ if class.has_child }}emits: ['show'],{{ end }}
   setup(props, context) {
     {{~ if class.has_child ~}}
     function show(property) {
@@ -204,7 +204,7 @@ app.component('{{ kebab_case class.name }}', {
   props: {
     value: Object
   },
-  emits: [{{ if class.has_child }}'show'{{ end }}],
+  {{ if class.has_child }}emits: ['show'],{{ end }}
   setup(props, context) {
     {{~ if class.has_child ~}}
     const activeProperty = ref(null);
@@ -247,7 +247,7 @@ app.component('{{ kebab_case class.name.plural }}', {
   props: {
     value: Array
   },
-  emits: [{{ if class.has_child }}'show'{{ end }}],
+  {{ if class.has_child }}emits: ['show'],{{ end }}
   setup(props, context) {
     const orderBy = ref('');
     const orderAsc = ref(true);
