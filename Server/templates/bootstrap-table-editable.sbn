@@ -81,6 +81,7 @@ app.component('pagination', {
     </p>
   </div>
   `,
+  name: 'Pagination',
   props: {
     count: Number,
   },
@@ -135,7 +136,7 @@ app.component('{{ kebab_case class.name }}-data', {
       </button>
     </td>
   `,
-  name: '{{ class.name }}View',
+  name: '{{ class.name }}Data',
   props: {
     value: Object,
     deletable: Boolean
@@ -369,7 +370,7 @@ app.component('{{ kebab_case class.name.plural }}', {
   <{{ kebab_case property.class.name }} :modelValue="modelValue[activeIdx][activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
   {{~ end ~}}
   {{~ end ~}}`,
-  name: '{{ class.name }}List',
+  name: '{{ class.name.plural }}',
   props: {
     modelValue: Array
   },
