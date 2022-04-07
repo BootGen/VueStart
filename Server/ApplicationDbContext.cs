@@ -24,11 +24,11 @@ namespace VueStart
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var connectionString = Configuration.GetConnectionString("MySQL");
+            var connectionString = Configuration.GetConnectionString("PostgreSQL");
             if (!string.IsNullOrWhiteSpace(connectionString))
             {
-                Console.WriteLine("Using MySQL");
-                optionsBuilder.UseMySql(connectionString, ServerVersion.Parse("8.0.23"));
+                Console.WriteLine("Using PostgreSQL");
+                optionsBuilder.UseNpgsql(connectionString);
             } else {
                 Console.WriteLine("Using Sqlite");
                 var connection = new SqliteConnection("DataSource=:memory:");
