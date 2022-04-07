@@ -3,10 +3,22 @@
     <landing :vuecoonState="vuecoonState"></landing>
     <generate-options class="mt-3" :frontendMode="frontendMode" :editable="editable" @frontendChanged="changeFrontendMode" @editableChanged="chengeEditable"></generate-options>
     <editor :config="config" :frontendMode="frontendMode" :editable="editable" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
-    <supporters class="mt-5"></supporters>
+    <div class="d-flex flex-column align-items-center mt-5">
+      <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github">
+        <div class="d-flex align-items-center px-2">
+          <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
+          <span class="bi bi-star-fill star-icon px-2" aria-hidden="true"></span>
+        </div>
+        <p class="small-text">Star this project on GitHub!</p>
+      </div>
+      <div class="d-flex flex-column align-items-center">
+        <p>Staring our project on  GitHub may seem like a small thing, but it really keeps us motivated. We thank you for your support!</p>
+      </div>
+    </div>
+    <supporters :show="isShowSupporters"></supporters>
     <div class="row">
       <div class="col-12 d-flex align-items-center footer mt-3">
-        <p>Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a></p>
+        <p><a href="javascript:void(0)" @click="showSupporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a></p>
       </div>
     </div>
   </div>
@@ -31,6 +43,7 @@ export default defineComponent({
     const vuecoonState = ref(vuecoonStates.Default);
     const frontendMode = ref('vanilla');
     const editable = ref(true);
+    const isShowSupporters = ref(false);
 
     let idtoken = localStorage.getItem('idtoken');
     if (!idtoken) {
@@ -66,9 +79,21 @@ export default defineComponent({
       editable.value = b;
     }
 
+    function showSupporters (){
+      isShowSupporters.value = !isShowSupporters.value;
+      let pageHeight = document.body.scrollHeight;
+      setTimeout(() => {
+        window.scrollTo({
+          top: pageHeight,
+          left: 100,
+          behavior: 'smooth'
+        })
+      }, 10);
+    }
+
     return { vuecoonState, config,
       hasError, setVuecoon,
-      changeFrontendMode, frontendMode, editable, chengeEditable }
+      changeFrontendMode, frontendMode, editable, chengeEditable, showSupporters, isShowSupporters }
   }
 });
 
@@ -81,13 +106,11 @@ export default defineComponent({
   .text-justify{
     text-align: justify;
   }
-  
   .fab-options li {
     display: flex;
     justify-content: flex-end;
     padding: 5px;
   }
-
   .fill-btn {
     color: #ffffff;
     background-color: #42b983;
@@ -111,5 +134,12 @@ export default defineComponent({
   }
   a:hover {
     color: #17a062;
+  }
+  .github-icon {
+    font-size: min(9vw, 5rem);
+  }
+  .star-icon {
+    color: rgb(222, 169, 64);
+    font-size: min(6vw, 3.5rem);
   }
 </style>

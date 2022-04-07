@@ -1,18 +1,6 @@
 <template>
   <div class="row">
-    <div class="col-lg-11 col-md-12 supporters-page">
-      <div class="d-flex flex-column align-items-center">
-        <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github">
-          <div class="d-flex align-items-center px-2">
-            <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
-            <span class="bi bi-star-fill star-icon px-2" aria-hidden="true"></span>
-          </div>
-          <p class="small-text">Star this project on GitHub!</p>
-        </div>
-        <div class="d-flex flex-column align-items-center">
-          <p>Staring our project on  GitHub may seem like a small thing, but it really keeps us motivated. We thank you for your support!</p>
-        </div>
-      </div>
+    <div class="col-lg-11 col-md-12 supporters-page" :class="{'show': show, 'hide': !show}">
       <h3>The Team</h3>
       <div class="container">
         <div class="row">
@@ -53,6 +41,9 @@ import GitHubUser from "@/components/GitHubUser";
 export default defineComponent({
   name: "Supporters",
   components: {GitHubUser},
+  props: {
+    show: Boolean
+  },
   setup() {
     const users = reactive([]);
     axios.get('https://api.github.com/repos/BootGen/VueStart/stargazers').then(resp => {
@@ -81,15 +72,25 @@ h3 {
   margin-bottom: 10px;
 }
 .supporters-page {
+  transition: all 1s ease-in-out;
   margin-top: 30px;
   margin-left: auto;
   margin-right: auto;
+  overflow: hidden;
+}
+.supporters-page.show {
+  opacity: 1;
+  position: unset;
+}
+.supporters-page.hide {
+  opacity: 0;
+  position: absolute;
+  top: 0;
 }
 .usertag {
   position: relative;
   display: inline-block;
 }
-
 .usertag .usertagtext {
   visibility: hidden;
   width: 120px;
@@ -104,7 +105,6 @@ h3 {
   left: 50%;
   margin-left: -60px;
 }
-
 .usertag .usertagtext::after {
   content: "";
   position: absolute;
@@ -115,16 +115,7 @@ h3 {
   border-style: solid;
   border-color: black transparent transparent transparent;
 }
-
 .usertag:hover .usertagtext {
   visibility: visible;
-}
-
-.github-icon {
-  font-size: min(9vw, 5rem);
-}
-.star-icon {
-  color: rgb(222, 169, 64);
-  font-size: min(6vw, 3.5rem);
 }
 </style>
