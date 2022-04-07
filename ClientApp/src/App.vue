@@ -3,7 +3,7 @@
     <modal-panel v-model="showDownloadPanel">
       <download-panel @close="showDownloadPanel = false" @download="download"></download-panel>
     </modal-panel>
-    <div class="d-flex justify-content-center jumbotron" :class="page">
+    <div class="d-flex justify-content-center align-items-center jumbotron" :class="page">
       <div class="vuecoon" :class="page">
         <img v-if="page == 'supporters'" @click="showEditor()" class="img-fluid clickable" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)">
         <img v-else class="img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)">
@@ -19,7 +19,7 @@
     </div>
     <p class="title">Vue Start!</p>
     <div class="github" :class="page">
-      <div class="clickable" @click="openGithub()">
+      <div class="d-flex clickable flex-column align-items-center" @click="openGithub()">
         <div class="d-flex align-items-center px-2">
           <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
           <span class="bi bi-star-fill star-icon px-2" aria-hidden="true"></span>
@@ -181,12 +181,10 @@ export default defineComponent({
     align-items: center;
   }
   .vuecoon.landing {
-    max-width: 300px;
-    margin-left: calc((100% - 300px)/2);
+    max-width: 250px;
   }
   .vuecoon.content, .vuecoon.supporters {
     max-width: min(12vh, 22vw);
-    margin-left: 10%;
   }
   .jumbotron {
     transition: all 1s ease-in-out;
@@ -194,7 +192,7 @@ export default defineComponent({
     margin-left: 1%;
     margin-right: 1%;
     flex-direction: column;
-    width: 45%;
+    width: 48.5%;
   }
   .jumbotron.landing {
     height: 100vh;
@@ -228,16 +226,14 @@ export default defineComponent({
   .github {
     transition: all 1s ease-in-out;
     transition-delay: 300ms;
-    overflow: hidden;
     position: absolute;
-    width: 50%;
+    width: 48.5%;
     top: 0;
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    right: 10%;
+    align-items: center;
     height: 12vh;
     justify-content: center;
+    right: 1%;
   }
   .github-icon {
     font-size: min(5vh, 5vw);
@@ -294,13 +290,16 @@ export default defineComponent({
       height: unset;
       overflow: unset;
     }
+    .github {
+      height: min(15vh, 25vw);
+    }
     .github.landing {
       right: 0;
       margin-top: 0;
+      justify-content: flex-end;
     }
     .github.content, .github.supporters {
-      right: 10%;
-      margin-top: 1%;
+      justify-content: flex-end;
     }
     .vuecoon.landing {
       max-width: 200px;
@@ -313,6 +312,9 @@ export default defineComponent({
       height: 30vh;
       width: 99%;
       margin-top: 2vh;
+    }
+    .jumbotron.content, .jumbotron.supporters {
+      height: min(15vh, 25vw);
     }
     .footer.content, .footer.supporters{
       transition-delay: 700ms;
@@ -338,10 +340,6 @@ export default defineComponent({
     .text-justify{
       font-size: 1rem;
     }
-    .github.content, .github.suppo {
-      height: 15vh;
-      justify-content: center;
-    }
     .github-icon {
       font-size: min(7vh, 7vw);
     }
@@ -351,9 +349,6 @@ export default defineComponent({
       height: unset;
       overflow: unset;
     }
-    .jumbotron.content, .jumbotron.supporters {
-      height: min(15vh, 25vw);
-    }
     .jumbo-text.landing{
       height: 12rem;
     }
@@ -361,10 +356,7 @@ export default defineComponent({
       max-width: 35vw;
     }
     .title {
-      font-size: 1.5rem;
-    }
-    .star-icon {
-      display: none!important;
+      font-size: 2.2rem;
     }
     .github > .small-text {
       display: none!important;
