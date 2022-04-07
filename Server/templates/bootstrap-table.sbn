@@ -17,9 +17,9 @@ const app = Vue.createApp({
   template: `
   {{~ for property in root.child_references ~}}
   {{~ if property.is_collection ~}}
-  <{{ kebab_case property.class.name.plural }} v-model="{{ camel_case root.name }}.{{ camel_case property.name }}"></{{ kebab_case property.class.name.plural }}>
+  <{{ kebab_case property.class.name.plural }} :value="{{ camel_case root.name }}.{{ camel_case property.name }}"></{{ kebab_case property.class.name.plural }}>
   {{~ else ~}}
-  <{{ kebab_case property.class.name }} v-model="{{ camel_case root.name }}.{{ camel_case property.name }}"></{{ kebab_case property.class.name }}>
+  <{{ kebab_case property.class.name }} :value="{{ camel_case root.name }}.{{ camel_case property.name }}"></{{ kebab_case property.class.name }}>
   {{~ end ~}}
   {{~ end ~}}
   `,
@@ -69,6 +69,7 @@ app.component('pagination', {
     </p>
   </div>
   `,
+  name: 'Pagination',
   props: {
     count: Number,
   },
@@ -96,8 +97,9 @@ app.component('pagination', {
       if class.is_root
         continue
       end ~}}
-app.component('{{ kebab_case class.name }}-data', {
+app.component('{{ kebab_case class.name }}-row', {
   template: `
+  <tr>
     {{~ for property in class.base_properties ~}}
     <td class="align-middle">
     {{~ if (get_type property) == "Date" ~}}
@@ -114,25 +116,13 @@ app.component('{{ kebab_case class.name }}-data', {
       </button>
     </td>
     {{~ end ~}}
-  `,
-  name: '{{ class.name }}View',
-  props: {
-    value: Object
-  },
-  emits: [{{ if class.has_child }}'show'{{ end }}]
-});
-
-app.component('{{ kebab_case class.name }}-row', {
-  template: `
-  <tr>
-    <{{ kebab_case class.name }}-data :value="modelValue" {{ if class.has_child }}@show="show"{{ end }} v-else></{{ kebab_case class.name }}-data>
   </tr>
   `,
   name: '{{ class.name }}Row',
   props: {
-    modelValue: Object
+    value: Object
   },
-  emits: [{{ if class.has_child }}'show'{{ end }}],
+  {{ if class.has_child }}emits: ['show'],{{ end }}
   setup(props, context) {
     {{~ if class.has_child ~}}
     function show(property) {
@@ -172,7 +162,7 @@ app.component('{{ kebab_case class.name }}-table', {
   </table>`,
   name: '{{ class.name }}Table',
   props: {
-    modelValue: Array,
+    value: Array,
     sortable: Boolean
   },
   emits: ['sort'],
@@ -201,20 +191,20 @@ app.component('{{ kebab_case class.name }}', {
   <h5 class="d-inline-block disabled px-2 float-start">{{ class.name.plural }}</h5>
   {{~ end ~}}
   <{{ kebab_case class.name }}-table :sortable="false" {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
-    <{{ kebab_case class.name }}-row :modelValue="modelValue" {{ if class.has_child }}@show="show"{{ end }} v-if="modelValue"></{{ kebab_case class.name }}-row>
+    <{{ kebab_case class.name }}-row :value="value" {{ if class.has_child }}@show="show"{{ end }} v-if="value"></{{ kebab_case class.name }}-row>
   </{{ kebab_case class.name }}-table>
   {{~ for property in class.child_references ~}}
     {{~ if property.is_collection ~}}
-    <{{ kebab_case property.class.name.plural }} :modelValue="modelValue[activeProperty]" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
+    <{{ kebab_case property.class.name.plural }} :value="value[activeProperty]" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
     {{~ else ~}}
-    <{{ kebab_case property.class.name }} :modelValue="modelValue[activeProperty]" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
+    <{{ kebab_case property.class.name }} :value="value[activeProperty]" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
     {{~ end ~}}
   {{~ end ~}}`,
   name: '{{ class.name }}',
   props: {
-    modelValue: Object
+    value: Object
   },
-  emits: [{{ if class.has_child }}'show'{{ end }}],
+  {{ if class.has_child }}emits: ['show'],{{ end }}
   setup(props, context) {
     {{~ if class.has_child ~}}
     const activeProperty = ref(null);
@@ -241,32 +231,32 @@ app.component('{{ kebab_case class.name.plural }}', {
   <h5 class="d-inline-block disabled px-2 float-start">{{ class.name.plural }}</h5>
   {{~ end ~}}
   <{{ kebab_case class.name }}-table :sortable="true" @sort="sort" {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
-    <{{ kebab_case class.name }}-row v-for="item in items" :key="item.idx" :modelValue="item.value" {{ if class.has_child }}@show="show(item.idx, $event)"{{ end }} v-if="modelValue"></{{ kebab_case class.name }}-row>
+    <{{ kebab_case class.name }}-row v-for="item in items" :key="item.idx" :value="item.value" {{ if class.has_child }}@show="show(item.idx, $event)"{{ end }} v-if="value"></{{ kebab_case class.name }}-row>
   </{{ kebab_case class.name }}-table>
   <div {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
-    <pagination :count="modelValue.length" @range="setRange"></pagination>
+    <pagination :count="value.length" @range="setRange"></pagination>
   </div>
   {{~ for property in class.child_references ~}}
   {{~ if property.is_collection ~}}
-  <{{ kebab_case property.class.name.plural }} :modelValue="modelValue[activeIdx][activeProperty]" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
+  <{{ kebab_case property.class.name.plural }} :value="value[activeIdx][activeProperty]" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
   {{~ else ~}}
-  <{{ kebab_case property.class.name }} :modelValue="modelValue[activeIdx][activeProperty]" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
+  <{{ kebab_case property.class.name }} :value="value[activeIdx][activeProperty]" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
   {{~ end ~}}
   {{~ end ~}}`,
-  name: '{{ class.name }}List',
+  name: '{{ class.name.plural }}',
   props: {
-    modelValue: Array
+    value: Array
   },
-  emits: [{{ if class.has_child }}'show'{{ end }}],
+  {{ if class.has_child }}emits: ['show'],{{ end }}
   setup(props, context) {
     const orderBy = ref('');
     const orderAsc = ref(true);
     const rangeStart = ref(0);
-    const rangeEnd = ref(props.modelValue.length);
+    const rangeEnd = ref(props.value.length);
     const items = computed(function(){
-      if (!props.modelValue)
+      if (!props.value)
         return [];
-      const newList = props.modelValue.map((value, idx) => { return {idx, value} });
+      const newList = props.value.map((value, idx) => { return {idx, value} });
       const ordBy = orderBy.value;
       const asc = orderAsc.value;
       if (ordBy !== '')
