@@ -569,7 +569,7 @@ input#colorInput {
 
 .codemirror{
   position: absolute;
-  width: 45%;
+  width: 48.5%;
   margin: 1%;
   transition: all 1s ease-in-out;
   transition-delay: 150ms;
@@ -608,8 +608,8 @@ input#colorInput {
 .browser-container{
   position: absolute;
   top: 12vh;
-  width: 52%;
-  margin: 1% 1% 1% 47%;
+  width: 48.5%;
+  margin: 1% 1% 1% 50.5%;
   transition: all 1s ease-in-out;
   vertical-align: bottom;
   background-color: transparent;
