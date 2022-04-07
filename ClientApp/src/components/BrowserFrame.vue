@@ -12,8 +12,8 @@
     </div>
     <div class="d-flex justify-content-around align-items-center menu">
       <div class="d-flex">
-        <span class="bi bi-arrow-left icon" aria-hidden="true"></span>
-        <span class="bi bi-arrow-right icon" aria-hidden="true"></span>
+        <span class="bi bi-arrow-left icon" :class="{'clickable': undoable}" aria-hidden="true" @click="$emit('undo')"></span>
+        <span class="bi bi-arrow-right icon" :class="{'clickable': redoable}" aria-hidden="true" @click="$emit('redo')"></span>
         <span class="bi bi-arrow-clockwise icon clickable" aria-hidden="true" @click="$emit('refresh')"></span>
       </div>
       <div class="middle mx-2">
@@ -43,9 +43,11 @@ export default defineComponent({
   props: {
     modelValue: Object,
     config: Object,
-    borderRadius: Boolean
+    borderRadius: Boolean,
+    undoable: Boolean,
+    redoable: Boolean
   },
-  emits: ['refresh'],
+  emits: ['refresh', 'undo', 'redo'],
   setup(props) {
     const js = ref(true);
     const frameA = ref(true);

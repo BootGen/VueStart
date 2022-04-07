@@ -20,7 +20,7 @@
   </div>
   <div class="browser-container" :class="page">
       <div class="browser custom-card shadow">
-        <browser-frame v-model="browserData" :config="config"  @refresh="pageRefresh" :borderRadius="selectedTab === 0">
+        <browser-frame v-model="browserData" :config="config" :undoable="undoStack.length > 1"  @refresh="pageRefresh" @undo="undo" :borderRadius="selectedTab === 0">
           <div class="d-flex w-100 h-auto">
             <tab :title="frontendMode" :icon="frontendModeIcon" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
             <tab title="index.html" icon="code" :class="{'active': selectedTab === 1, 'inactive': selectedTab !== 1, 'border-bottom-left': selectedTab === 0, 'border-bottom-right': selectedTab === 2}" @select="selectedTab = 1"></tab>
@@ -144,6 +144,7 @@ export default defineComponent({
     const syntaxErr = ref(false);
     const showWarningPanel = ref(false);
     const warnings = ref([]);
+    const undoStack = ref([]);
     let noAction = {
       active: false,
       href: 'javascript:void(0)',
@@ -277,6 +278,11 @@ export default defineComponent({
         generatedId.value = resp.value.data.id;
         seturl();
         inputError.value = null;
+        if(data !== undoStack.value[undoStack.value.length-1]) {          
+          undoStack.value.push(data);
+        }
+        console.log("UndoStack", undoStack.value);
+          console.log("---------------------");
         if (resp.value.data.warnings && resp.value.data.warnings.length > 0) {
           warnings.value = resp.value.data.warnings;
           alert.value = {
@@ -461,11 +467,17 @@ export default defineComponent({
       editable.value = b;
       generate(json.value);
     }
+    function undo() {
+      if(undoStack.value.length > 1){
+        json.value = undoStack.value[undoStack.value.length-2];
+        undoStack.value.pop();
+      }
+    }
 
     return { json, inputError, frontendMode, frontendModes, selectedColor,
       changeFrontendMode, onDownloadClicked, triggerColorPicker, pageRefresh,
       selectedTab, frontendModeIcon, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError,
-      alert, showWarningPanel, warnings, editable, editableChanged }
+      alert, showWarningPanel, warnings, editable, editableChanged, undo, undoStack }
   },
 })
 </script>
