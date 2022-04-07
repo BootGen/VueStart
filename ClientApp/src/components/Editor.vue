@@ -29,7 +29,7 @@
           </div>
         </browser-frame>
       </div>
-      <div class="d-flex browser-buttons">
+      <div class="d-flex browser-buttons" :class="page">
         <div class="fab-container">
           <div class="fab fab-icon-holder">
             <span class="bi bi-lightbulb" aria-hidden="true"></span>
@@ -536,6 +536,16 @@ body {
   right: 2rem;
   font-size: 1rem!important;
   z-index: 99;
+  transition: all 1s ease-in-out;
+  transition-delay: 150ms;
+}
+.browser-buttons.landing {
+  /*bottom: -20vh;*/
+  opacity: 0;
+}
+.browser-buttons.content {
+  /*bottom: -1rem;*/
+  opacity: 1;
 }
 
 #download-btn {
@@ -597,6 +607,7 @@ input#colorInput {
 }
 .browser-container{
   position: absolute;
+  top: 12vh;
   width: 52%;
   margin: 1% 1% 1% 47%;
   transition: all 1s ease-in-out;
@@ -608,10 +619,9 @@ input#colorInput {
   opacity: 1;
   height: 80vh;
   transition-delay: 300ms;
-  top: 12vh;
   visibility: visible;
 }
-.browser-container.landing, .browser-container.supporters{
+.browser-container.supporters{
   opacity: 0;
   height: 0vh;
   top: 98vh;
@@ -651,11 +661,19 @@ a:hover {
   .browser-container{
     width: 98%;
     margin: 1%;
+    transition-delay: 600ms;
+  }
+  
+  .browser-container.landing {
+    top: 32vh;
+  }
+
+  .browser-container.landing > .browser {
+    height: 64vh;
   }
 
   .browser-container.content{
     top: 95vh;
-    transition-delay: 600ms;
   }
 
 }
@@ -671,9 +689,9 @@ a:hover {
     overflow: unset;
   }
 
-  .browser-container.content{
+  /*.browser-container.content{
     top: 95vh;
-  }
+  }*/
 
   .fab-icon-holder .bi {
     font-size: 1rem;
