@@ -20,7 +20,7 @@
   </div>
   <div class="browser-container" :class="page">
       <div class="browser custom-card shadow">
-        <browser-frame v-model="browserData" :config="config" :undoable="undoStack.length > 1" :redoable="redoStack.length > 0"  @refresh="pageRefresh" @undo="undo" @redo="redo" :borderRadius="selectedTab === 0">
+        <browser-frame v-model="browserData" :config="config" :undoable="undoStackIdx > 0" :redoable="undoStackIdx < undoStack.length-1"  @refresh="pageRefresh" @undo="undo" @redo="redo" :borderRadius="selectedTab === 0">
           <div class="d-flex w-100 h-auto">
             <tab :title="frontendMode" :icon="frontendModeIcon" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
             <tab title="index.html" icon="code" :class="{'active': selectedTab === 1, 'inactive': selectedTab !== 1, 'border-bottom-left': selectedTab === 0, 'border-bottom-right': selectedTab === 2}" @select="selectedTab = 1"></tab>
@@ -145,7 +145,7 @@ export default defineComponent({
     const showWarningPanel = ref(false);
     const warnings = ref([]);
     const undoStack = ref([]);
-    const redoStack = ref([]);
+    const undoStackIdx = ref(-1);
     let noAction = {
       active: false,
       href: 'javascript:void(0)',
@@ -279,9 +279,6 @@ export default defineComponent({
         generatedId.value = resp.value.data.id;
         seturl();
         inputError.value = null;
-        if(JSON.stringify(JSON.parse(json.value)) !== undoStack.value[undoStack.value.length-1]) {
-          undoStack.value.push(JSON.stringify(JSON.parse(json.value)));
-        }
         if (resp.value.data.warnings && resp.value.data.warnings.length > 0) {
           warnings.value = resp.value.data.warnings;
           alert.value = {
@@ -339,6 +336,10 @@ export default defineComponent({
             context.emit('success');
           showTip();
         }
+      }
+      if(minimized !== undoStack.value[undoStackIdx.value]) {
+        undoStackIdx.value++;
+        undoStack.value.splice(undoStackIdx.value, 0, minimized);
       }
       const downloadButton = document.getElementById('download-btn');
       downloadButton.classList.add('pulse-download-btn');
@@ -467,26 +468,22 @@ export default defineComponent({
       generate(json.value);
     }
     function undo() {
-      if(undoStack.value.length > 1) {
-        redoStack.value.push(JSON.stringify(JSON.parse(json.value)));
-        json.value = undoStack.value[undoStack.value.length-2];
-        undoStack.value.pop();
+      if(undoStackIdx.value > 0) {
+        undoStackIdx.value--;
+        json.value = undoStack.value[undoStackIdx.value];
       }
     }
     function redo() {
-      if(redoStack.value.length > 0) {
-        if(JSON.stringify(JSON.parse(json.value)) !== undoStack.value[undoStack.value.length-1]) {
-          undoStack.value.push(JSON.stringify(JSON.parse(json.value)));
-        }
-        json.value = redoStack.value[redoStack.value.length-1];
-        redoStack.value.pop();
+      if(undoStackIdx.value < undoStack.value.length-1) {
+        undoStackIdx.value++;
+        json.value = undoStack.value[undoStackIdx.value];
       }
     }
 
     return { json, inputError, frontendMode, frontendModes, selectedColor,
       changeFrontendMode, onDownloadClicked, triggerColorPicker, pageRefresh,
       selectedTab, frontendModeIcon, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError,
-      alert, showWarningPanel, warnings, editable, editableChanged, undo, undoStack, redo, redoStack }
+      alert, showWarningPanel, warnings, editable, editableChanged, undo, redo, undoStackIdx, undoStack }
   },
 })
 </script>
