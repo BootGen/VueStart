@@ -339,7 +339,8 @@ export default defineComponent({
       }
       if(minimized !== undoStack.value[undoStackIdx.value]) {
         undoStackIdx.value++;
-        undoStack.value.splice(undoStackIdx.value, 0, minimized);
+        undoStack.value.splice(undoStackIdx.value);
+        undoStack.value.push(minimized)
       }
       const downloadButton = document.getElementById('download-btn');
       downloadButton.classList.add('pulse-download-btn');
