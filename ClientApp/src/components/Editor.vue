@@ -20,7 +20,7 @@
   </div>
   <div class="browser-container" :class="page">
       <div class="browser custom-card shadow">
-        <browser-frame v-model="browserData" :config="config"  @refresh="pageRefresh" :borderRadius="selectedTab === 0">
+        <browser-frame v-model="browserData" :config="config" :undoable="undoStackIdx > 0" :redoable="undoStackIdx < undoStack.length-1"  @refresh="pageRefresh" @undo="undo" @redo="redo" :borderRadius="selectedTab === 0">
           <div class="d-flex w-100 h-auto">
             <tab :title="frontendMode" :icon="frontendModeIcon" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
             <tab title="index.html" icon="code" :class="{'active': selectedTab === 1, 'inactive': selectedTab !== 1, 'border-bottom-left': selectedTab === 0, 'border-bottom-right': selectedTab === 2}" @select="selectedTab = 1"></tab>
@@ -144,6 +144,8 @@ export default defineComponent({
     const syntaxErr = ref(false);
     const showWarningPanel = ref(false);
     const warnings = ref([]);
+    const undoStack = ref([]);
+    const undoStackIdx = ref(-1);
     let noAction = {
       active: false,
       href: 'javascript:void(0)',
@@ -335,6 +337,11 @@ export default defineComponent({
           showTip();
         }
       }
+      if(minimized !== undoStack.value[undoStackIdx.value]) {
+        undoStackIdx.value++;
+        undoStack.value.splice(undoStackIdx.value);
+        undoStack.value.push(minimized)
+      }
       const downloadButton = document.getElementById('download-btn');
       downloadButton.classList.add('pulse-download-btn');
       setTimeout(function(){
@@ -461,11 +468,23 @@ export default defineComponent({
       editable.value = b;
       generate(json.value);
     }
+    function undo() {
+      if(undoStackIdx.value > 0) {
+        undoStackIdx.value--;
+        json.value = undoStack.value[undoStackIdx.value];
+      }
+    }
+    function redo() {
+      if(undoStackIdx.value < undoStack.value.length-1) {
+        undoStackIdx.value++;
+        json.value = undoStack.value[undoStackIdx.value];
+      }
+    }
 
     return { json, inputError, frontendMode, frontendModes, selectedColor,
       changeFrontendMode, onDownloadClicked, triggerColorPicker, pageRefresh,
       selectedTab, frontendModeIcon, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError,
-      alert, showWarningPanel, warnings, editable, editableChanged }
+      alert, showWarningPanel, warnings, editable, editableChanged, undo, redo, undoStackIdx, undoStack }
   },
 })
 </script>
