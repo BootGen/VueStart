@@ -65,7 +65,7 @@ namespace VueStart.Services
 
         private void UpdateRecord(StatisticRecord record, ActionType actionType, ArtifactType artifactType)
         {
-            record.LastUse = DateTime.Now;
+            record.LastUse = DateTime.UtcNow;
             switch (actionType)
             {
                 case ActionType.Download:
@@ -118,8 +118,8 @@ namespace VueStart.Services
 
         public void OnEvent(HttpContext context, string jsonData, ActionType actionType, ArtifactType artifactType)
         {   
-            var now = DateTime.Now;
-            var periodLengthInMinutes = 15;
+            var now = DateTime.UtcNow;
+            var periodLengthInMinutes = 1;
             var key = new CacheKey
             {
                 Day = (now - new DateTime(2021, 1, 1)).Days,
@@ -161,7 +161,7 @@ namespace VueStart.Services
                 {
                     Hash = hash,
                     Data = jsonData,
-                    FirstUse = DateTime.Now
+                    FirstUse = DateTime.UtcNow
                 };
                 records.Add(record);
             }
@@ -199,20 +199,24 @@ namespace VueStart.Services
 
         private async Task SaveData(PeriodData data)
         {
-            var sw = new Stopwatch();
-            sw.Start();
-            using var dbContext = new ApplicationDbContext(configuration);
-            dbContext.Database.EnsureCreated();
-            await SaveVisitors(data, dbContext);
-            SaveRecords(data.Records, dbContext);
-            dbContext.SaveChanges();
-            sw.Stop();
-            data.ProfilerRecord.Database = sw.ElapsedMilliseconds - data.ProfilerRecord.GeoLocation;
-            sw.Restart();
-            dbContext.ProfilerRecords.Add(data.ProfilerRecord);
-            dbContext.SaveChanges();
-            sw.Stop();
-            Console.WriteLine($"\n\nSaving profiler record: {sw.ElapsedMilliseconds}");
+            try {
+                var sw = new Stopwatch();
+                sw.Start();
+                using var dbContext = new ApplicationDbContext(configuration);
+                dbContext.Database.EnsureCreated();
+                await SaveVisitors(data, dbContext);
+                SaveRecords(data.Records, dbContext);
+                dbContext.SaveChanges();
+                sw.Stop();
+                data.ProfilerRecord.Database = sw.ElapsedMilliseconds - data.ProfilerRecord.GeoLocation;
+                sw.Restart();
+                dbContext.ProfilerRecords.Add(data.ProfilerRecord);
+                dbContext.SaveChanges();
+                sw.Stop();
+                Console.WriteLine($"\n\nSaving profiler record: {sw.ElapsedMilliseconds}");
+            } catch (Exception e) {
+                Console.WriteLine(e.Message);
+            }
         }
 
         private static void SaveRecords(List<StatisticRecord> records, ApplicationDbContext dbContext)
@@ -307,7 +311,7 @@ namespace VueStart.Services
             {
                 Token = token,
                 Citation = citation,
-                FirstVisit = DateTime.Now,
+                FirstVisit = DateTime.UtcNow,
                 UserAgent = uaString,
                 OSFamily = c.OS.Family,
                 OSMajor = c.OS.Major,

@@ -10,21 +10,20 @@ namespace VueStart.Controllers
     [Route("api/errors")]
     public class ClientErrorsController : ControllerBase
     {
-        private readonly IConfiguration configuration;
+        private readonly ApplicationDbContext dbContext;
 
-        public ClientErrorsController(IConfiguration configuration)
+        public ClientErrorsController(ApplicationDbContext dbContext)
         {
-            this.configuration = configuration;
+            this.dbContext = dbContext;
         }
 
         [HttpPost]
         [Route("")]
         public IActionResult LogError([FromBody] JsonElement data) {
             Console.WriteLine( data.ToString());
-            using var dbContext = new ApplicationDbContext(configuration);
             dbContext.Database.EnsureCreated();
             dbContext.ClientErrors.Add(new ClientError{
-                DateTime = DateTime.Now,
+                DateTime = DateTime.UtcNow,
                 UserAgent = Request.Headers["User-Agent"].FirstOrDefault(),
                 Data = data.ToString()
             });

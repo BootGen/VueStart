@@ -31,7 +31,7 @@ namespace VueStart
             var st = new StackTrace(e, true);
             var frame = st.GetFrame(0);
             return new ServerError {
-                DateTime = DateTime.Now,
+                DateTime = DateTime.UtcNow,
                 Message = e.Message,
                 StackTrace = e.StackTrace,
                 File = frame.GetFileName(),
