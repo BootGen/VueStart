@@ -41,6 +41,13 @@
       .clickable:hover {
         opacity: 0.8;
       }
+      .hideOrderBy {
+        display: none;
+      }
+      .clickable:hover > .hideOrderBy {
+        display: unset;
+        opacity: 0.4;
+      }
       .active {
         color: #{{ color }};
       }
@@ -49,7 +56,7 @@
       }
       {{~ if title == 'Data Table-editable' ~}}
       .active-row {
-        background-color: #42b98333;
+        background-color:#{{ color }}33;
       }
       .form-check-input:checked {
         background-color: #{{ color }};
