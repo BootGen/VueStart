@@ -269,7 +269,7 @@ app.component('{{ kebab_case class.name }}-row', {
 
 app.component('{{ kebab_case class.name }}-table', {
   template: `
-  <table class="border-collapse table-auto w-full mt-3">
+  <table class="border-collapse table-auto w-full mt-2 mb-6">
     <thead>
       <tr>
         {{~ for property in class.base_properties ~}}
@@ -399,7 +399,7 @@ app.component('{{ kebab_case class.name.plural }}', {
       </td>
     </tr>
   </{{ kebab_case class.name }}-table>
-  <div {{ if class.has_child }} v-if="activeProperty === null"{{ end }} class="mt-3">
+  <div {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
     <pagination :count="modelValue.length" @range="setRange"></pagination>
   </div>
   {{~ for property in class.child_references ~}}

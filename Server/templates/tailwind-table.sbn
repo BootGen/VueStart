@@ -154,7 +154,7 @@ app.component('{{ kebab_case class.name }}-row', {
 
 app.component('{{ kebab_case class.name }}-table', {
   template: `
-  <table class="border-collapse table-auto w-full mt-3">
+  <table class="border-collapse table-auto w-full mt-2 mb-6">
     <thead>
       <tr>
         {{~ for property in class.base_properties ~}}
@@ -255,7 +255,7 @@ app.component('{{ kebab_case class.name.plural }}', {
   <{{ kebab_case class.name }}-table :sortable="true" @sort="sort" {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
   <{{ kebab_case class.name }}-row v-for="item in items" :key="item.idx" :value="item.value" {{ if class.has_child }}@show="show(item.idx, $event)"{{ end }} v-if="value"></{{ kebab_case class.name }}-row>
   </{{ kebab_case class.name }}-table>
-  <div {{ if class.has_child }} v-if="activeProperty === null"{{ end }} class="mt-3">
+  <div {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
     <pagination :count="value.length" @range="setRange"></pagination>
   </div>
   {{~ for property in class.child_references ~}}
