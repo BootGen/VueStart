@@ -35,6 +35,13 @@
       .clickable:hover {
         opacity: 0.8;
       }
+      .hideOrderBy {
+        display: none;
+      }
+      .clickable:hover > .hideOrderBy {
+        display: unset;
+        opacity: 0.4;
+      }
       .btn {
         color: #{{ text_color }};
         background-color: #{{ color }};
