@@ -80,15 +80,38 @@
       .text-left {
         text-align: left;
       }
-      .active {
-        color: #{{ color }};
-      }
       .page-idx {
         margin-left: 0.5rem;
         margin-right: 0.5rem;
       }
       select {
         border: none;
+      }
+      .pagination {
+        display: inline-block;
+      }
+      .pagination a {
+        color: black;
+        float: left;
+        padding: 8px 16px;
+        text-decoration: none;
+        border: 1px solid #ddd;
+      }
+      .pagination a.active {
+        background-color: #{{ color }};
+        color: #{{ text_color }};
+        border: 1px solid #{{ color }};
+      }
+      .pagination a:hover:not(.active) {
+        background-color: #ddd;
+      }
+      .pagination a:first-child {
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+      }
+      .pagination a:last-child {
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
       }
       {{~ if title == 'Data Table-editable' ~}}
       td:last-child {
