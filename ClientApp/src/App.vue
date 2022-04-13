@@ -5,13 +5,16 @@
     </modal-panel>
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="page">
       <div class="vuecoon" :class="page">
-        <img v-if="page == 'supporters'" @click="showEditor()" class="img-fluid clickable" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)">
+        <img v-if="page === 'supporters'" @click="showEditor()" class="img-fluid clickable" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)">
         <img v-else class="img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)">
       </div>
       <div class="d-flex align-items-center jumbo-text" :class="page">
         <div class="d-flex flex-column align-items-center">
           <p class="lead text-justify m-0">
-            An online tool that generates UI components for Vue.js developers. Input some JSON data, chose a template, download the code and use it in any project.
+            <img src="./assets/vue_logo.webp"> <img src="./assets/bootstrap.webp"> <img src="./assets/tailwind.webp"> <img src="./assets/css.webp">
+          </p>
+          <p class="lead text-justify m-0">
+            Zero dependency data table solution for Vue.js. Generate pure Vue.js data tables. Input some JSON data, choose from Bootstrap, Tailwind CSS or Vanilla CSS, download the code and use it in any project.
           </p>
           <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showEditor">Start!</button>
         </div>
@@ -214,8 +217,13 @@ export default defineComponent({
   }
   .jumbo-text.landing{
     opacity: 1;
-    height: 11rem;
-    margin-top: 3rem;
+    height: 20rem;
+    margin: 3rem;
+  }
+  .jumbo-text img {
+    height: 5rem;
+    width: 5rem;
+    margin: 0.5rem;
   }
   .small-text {
     font-size: 0.8rem;

@@ -5,7 +5,7 @@
   Vue Start
 </h1>
 <p align="center">
-  An online tool that generates UI components for Vue.js developers.
+  Zero dependency data table solution for Vue.js.
 </p>
 <p align="center">
   <a style="text-decoration:none" href="https://github.com/BootGen/VueStart/actions" target="_blank">
@@ -21,7 +21,7 @@
 
 ## Introduction
 
-An online tool that generates UI components for Vue.js developers. Input some JSON data, chose a template, download the code and use it in any project. Try it online at [vuestart.com](https://vuestart.com)!
+An online tool that generates data tables using pure Vue.js developers. Input some JSON data, chose a template, download the code and use it in any project. Try it online at [vuestart.com](https://vuestart.com)!
 
 
 ### What is Vue Start good for?

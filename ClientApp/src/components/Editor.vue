@@ -58,27 +58,27 @@
         </div>
         <div class="fab-container mx-2">
           <div class="fab fab-icon-holder">
-            <span class="bi bi-filetype-css" aria-hidden="true" v-if="frontendMode === frontendModes.Vanilla"></span>
-            <span class="bi bi-bootstrap" aria-hidden="true" v-if="frontendMode === frontendModes.Bootstrap"></span>
-            <span class="bi bi-wind" aria-hidden="true" v-if="frontendMode === frontendModes.Tailwind"></span>
+            <img src="../assets/css_white.webp" v-if="frontendMode === frontendModes.Vanilla">
+            <img src="../assets/bootstrap_white.webp" v-if="frontendMode === frontendModes.Bootstrap">
+            <img src="../assets/tailwind_white.webp" v-if="frontendMode === frontendModes.Tailwind">
             <span class="ps-2">{{ frontendMode.charAt(0).toUpperCase() + frontendMode.slice(1) }}</span>
           </div>
           <ul class="fab-options">
             <li>
               <div class="fab-icon-holder" @click="changeFrontendMode(frontendModes.Vanilla)">
-                <span class="bi bi-filetype-css" aria-hidden="true"></span>
+                <img src="../assets/css_white.webp">
                 <span class="ps-2">Vanilla</span>
               </div>
             </li>
             <li>
               <div class="fab-icon-holder" @click="changeFrontendMode(frontendModes.Bootstrap)">
-                <span class="bi bi-bootstrap" aria-hidden="true"></span>
+                <img src="../assets/bootstrap_white.webp">
                 <span class="ps-2">Bootstrap</span>
               </div>
             </li>
             <li>
               <div class="fab-icon-holder" @click="changeFrontendMode(frontendModes.Tailwind)">
-                <span class="bi bi-wind" aria-hidden="true"></span>
+                <img src="../assets/tailwind_white.webp">
                 <span class="ps-2">Tailwind</span>
               </div>
             </li>
@@ -513,8 +513,12 @@ body {
   padding: 1rem;
   box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
 }
-.fab-icon-holder .bi{
+.fab-icon-holder .bi {
   font-size: 1.5rem;
+}
+.fab-icon-holder img {
+  width: 1.5rem;
+  height: 1.5rem;
 }
 .fab-icon-holder:hover {
   background: #17a062;
