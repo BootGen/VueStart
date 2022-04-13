@@ -54,15 +54,27 @@ app.config.globalProperties.$filters = {
 
 app.component('pagination', {
   template: `
-  <div class="flex align-middle justify-center">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1" :class="{'cursor-pointer':pageIdx > 1, 'text-disabled': pageIdx === 1}" @click="toPage(pageIdx-1)">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-    </svg>
-    <span v-for="n in pageCount" class="cursor-pointer px-2" :class="{'text-primary': n === pageIdx}" @click="toPage(n)">{{'{{'}} n {{'}}'}}</span>
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1" :class="{'cursor-pointer': pageIdx < pageCount, 'text-disabled': pageIdx === pageCount}" @click="toPage(pageIdx+1)">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-    </svg>
-  </div>
+  <nav aria-label="Page navigation">
+    <ul class="inline-flex items-center -space-x-px">
+      <li>
+        <a href="javascript:void(0)" class="block py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700" @click="toPage(pageIdx-1)">
+          <span class="sr-only">Previous</span>
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+          </svg>
+        </a>
+      </li>
+      <li v-for="n in pageCount" @click="toPage(n)">
+        <a href="javascript:void(0)" class="block py-2 px-3 leading-tight bg-white border border-gray-300 hover:bg-gray-100" :class="{'text-primary': n === pageIdx, 'text-gray-500 hover:text-gray-700': n !== pageIdx }">{{'{{'}} n {{'}}'}}</a>
+      </li>
+      <li>
+        <a href="javascript:void(0)" class="block py-2 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700" @click="toPage(pageIdx+1)">
+          <span class="sr-only">Next</span>
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+        </a>
+      </li>
+    </ul>
+  </nav>
   <p>
     rows per page:
     <select v-model="pageSize">
