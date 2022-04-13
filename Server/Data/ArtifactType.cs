@@ -2,10 +2,8 @@ namespace VueStart.Data
 {
     public enum ArtifactType {
         None,
-        Card,
         Table,
-        TableEditable,
-        Wizard
+        TableEditable
     }
 
     public static class ArtifactTypeExtensions {
@@ -14,14 +12,10 @@ namespace VueStart.Data
         {
             switch (type)
             {
-                case "wizard":
-                    return ArtifactType.Wizard;
                 case "table":
                     return ArtifactType.Table;
                 case "table-editable":
                     return ArtifactType.TableEditable;
-                case "card":
-                    return ArtifactType.Card;
                 default:
                     return ArtifactType.None;
             }

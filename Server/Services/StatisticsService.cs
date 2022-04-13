@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -63,44 +62,91 @@ namespace VueStart.Services
             }
         }
 
-        private void UpdateRecord(StatisticRecord record, ActionType actionType, ArtifactType artifactType)
+        private void UpdateRecord(StatisticRecord record, ActionType actionType, ArtifactType artifactType, CssType cssType)
         {
             record.LastUse = DateTime.UtcNow;
-            switch (actionType)
+            switch (cssType)
             {
-                case ActionType.Download:
-                switch (artifactType)
-                {
-                    case ArtifactType.Card:
-                    record.CardDownloadedCount += 1;
-                    break;
-                    case ArtifactType.Table:
-                    record.TableDownloadedCount += 1;
-                    break;
-                    case ArtifactType.TableEditable:
-                    record.TableDownloadedCount += 1;
-                    break;
-                    case ArtifactType.Wizard:
-                    record.WizardDownloadedCount += 1;
-                    break;
-                }
+                case CssType.Bootstrap:
+                    switch (actionType)
+                    {
+                        case ActionType.Download:
+                        switch (artifactType)
+                        {
+                            case ArtifactType.Table:
+                            record.BootstrapReadonlyDownloadedCount += 1;
+                            break;
+                            case ArtifactType.TableEditable:
+                            record.BootstrapEditableGeneratedCount += 1;
+                            break;
+                        }
+                        break;
+                        case ActionType.Generate:
+                        switch (artifactType)
+                        {
+                            case ArtifactType.Table:
+                            record.BootstrapReadonlyGeneratedCount += 1;
+                            break;
+                            case ArtifactType.TableEditable:
+                            record.BootstrapReadonlyDownloadedCount += 1;
+                            break;
+                        }
+                        break;
+                    }
                 break;
-                case ActionType.Generate:
-                switch (artifactType)
-                {
-                    case ArtifactType.Card:
-                    record.CardGeneratedCount += 1;
-                    break;
-                    case ArtifactType.Table:
-                    record.TableGeneratedCount += 1;
-                    break;
-                    case ArtifactType.TableEditable:
-                    record.TableDownloadedCount += 1;
-                    break;
-                    case ArtifactType.Wizard:
-                    record.WizardGeneratedCount += 1;
-                    break;
-                }
+                case CssType.Tailwind:
+                    switch (actionType)
+                    {
+                        case ActionType.Download:
+                        switch (artifactType)
+                        {
+                            case ArtifactType.Table:
+                            record.TailwindReadonlyDownloadedCount += 1;
+                            break;
+                            case ArtifactType.TableEditable:
+                            record.TailwindEditableGeneratedCount += 1;
+                            break;
+                        }
+                        break;
+                        case ActionType.Generate:
+                        switch (artifactType)
+                        {
+                            case ArtifactType.Table:
+                            record.TailwindReadonlyGeneratedCount += 1;
+                            break;
+                            case ArtifactType.TableEditable:
+                            record.TailwindReadonlyDownloadedCount += 1;
+                            break;
+                        }
+                        break;
+                    }
+                break;
+                case CssType.Vanilla:
+                    switch (actionType)
+                    {
+                        case ActionType.Download:
+                        switch (artifactType)
+                        {
+                            case ArtifactType.Table:
+                            record.VanillaReadonlyDownloadedCount += 1;
+                            break;
+                            case ArtifactType.TableEditable:
+                            record.VanillaEditableGeneratedCount += 1;
+                            break;
+                        }
+                        break;
+                        case ActionType.Generate:
+                        switch (artifactType)
+                        {
+                            case ArtifactType.Table:
+                            record.VanillaReadonlyGeneratedCount += 1;
+                            break;
+                            case ArtifactType.TableEditable:
+                            record.VanillaReadonlyDownloadedCount += 1;
+                            break;
+                        }
+                        break;
+                    }
                 break;
             }
         }
@@ -116,10 +162,10 @@ namespace VueStart.Services
             Data.ProfilerRecord.Download += GenerateWatch.ElapsedMilliseconds;
         }
 
-        public void OnEvent(HttpContext context, string jsonData, ActionType actionType, ArtifactType artifactType)
+        public void OnEvent(HttpContext context, string jsonData, ActionType actionType, ArtifactType artifactType, CssType cssType)
         {   
             var now = DateTime.UtcNow;
-            var periodLengthInMinutes = 1;
+            var periodLengthInMinutes = 15;
             var key = new CacheKey
             {
                 Day = (now - new DateTime(2021, 1, 1)).Days,
@@ -145,13 +191,13 @@ namespace VueStart.Services
             });
             Data.ProfilerRecord.Count += 1;
             SaveVisitToCahce(Data.Visitors, context, key);
-            SaveStatisticRecordToCache(Data.Records, jsonData, actionType, artifactType);
+            SaveStatisticRecordToCache(Data.Records, jsonData, actionType, artifactType, cssType);
             GenerateWatch = new Stopwatch();
             GenerateWatch.Start();
         }
 
 
-        private void SaveStatisticRecordToCache(List<StatisticRecord> records, string jsonData, ActionType actionType, ArtifactType artifactType)
+        private void SaveStatisticRecordToCache(List<StatisticRecord> records, string jsonData, ActionType actionType, ArtifactType artifactType, CssType cssType)
         {
             int hash = StringHash(jsonData);
             var record = records.FirstOrDefault(r => r.Hash == hash);
@@ -165,7 +211,7 @@ namespace VueStart.Services
                 };
                 records.Add(record);
             }
-            UpdateRecord(record, actionType, artifactType);
+            UpdateRecord(record, actionType, artifactType, cssType);
         }
 
         private void SaveVisitToCahce(Dictionary<string, VisitorData> visitors, HttpContext context, CacheKey key)
@@ -226,12 +272,18 @@ namespace VueStart.Services
                 var existingRecord = dbContext.StatisticRecords.FirstOrDefault(r => r.Hash == record.Hash);
                 if (existingRecord != null)
                 {
-                    existingRecord.CardGeneratedCount += record.CardGeneratedCount;
-                    existingRecord.CardDownloadedCount += record.CardDownloadedCount;
-                    existingRecord.TableGeneratedCount += record.TableGeneratedCount;
-                    existingRecord.TableDownloadedCount += record.TableDownloadedCount;
-                    existingRecord.WizardGeneratedCount += record.WizardGeneratedCount;
-                    existingRecord.WizardDownloadedCount += record.WizardDownloadedCount;
+                    existingRecord.BootstrapReadonlyGeneratedCount += record.BootstrapReadonlyGeneratedCount;
+                    existingRecord.BootstrapEditableGeneratedCount += record.BootstrapEditableGeneratedCount;
+                    existingRecord.BootstrapReadonlyDownloadedCount += record.BootstrapReadonlyDownloadedCount;
+                    existingRecord.BootstrapEditableDownloadedCount += record.BootstrapEditableDownloadedCount;
+                    existingRecord.TailwindReadonlyGeneratedCount += record.TailwindReadonlyGeneratedCount;
+                    existingRecord.TailwindEditableGeneratedCount += record.TailwindEditableGeneratedCount;
+                    existingRecord.TailwindReadonlyDownloadedCount += record.TailwindReadonlyDownloadedCount;
+                    existingRecord.TailwindEditableDownloadedCount += record.TailwindEditableDownloadedCount;
+                    existingRecord.VanillaReadonlyGeneratedCount += record.VanillaReadonlyGeneratedCount;
+                    existingRecord.VanillaEditableGeneratedCount += record.VanillaEditableGeneratedCount;
+                    existingRecord.VanillaReadonlyDownloadedCount += record.VanillaReadonlyDownloadedCount;
+                    existingRecord.VanillaEditableDownloadedCount += record.VanillaEditableDownloadedCount;
                     existingRecord.LastUse = record.LastUse;
                 }
                 else

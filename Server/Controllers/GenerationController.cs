@@ -35,7 +35,10 @@ namespace VueStart.Controllers
                 var artifactType = layout.ToArtifactType();
                 if (artifactType == ArtifactType.None)
                     return NotFound();
-                statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Generate, artifactType);
+                var cssType = type.ToCssType();
+                if (cssType == CssType.None)
+                    return NotFound();
+                statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Generate, artifactType, cssType);
                 string artifactId = generationService.GenerateToCache(json, $"Data {ToUpperFirst(layout)}", $"{type}-{layout}.sbn", type, color, out var warnings);
                 statisticsService.OnGenerateEnd();
                 return Ok(new { Id = artifactId, Warnings = warnings });
