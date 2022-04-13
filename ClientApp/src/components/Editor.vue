@@ -61,7 +61,7 @@
             <span class="bi bi-filetype-css" aria-hidden="true" v-if="frontendMode === frontendModes.Vanilla"></span>
             <span class="bi bi-bootstrap" aria-hidden="true" v-if="frontendMode === frontendModes.Bootstrap"></span>
             <span class="bi bi-wind" aria-hidden="true" v-if="frontendMode === frontendModes.Tailwind"></span>
-            <span class="ps-2">Frontend</span>
+            <span class="ps-2">{{ frontendMode.charAt(0).toUpperCase() + frontendMode.slice(1) }}</span>
           </div>
           <ul class="fab-options">
             <li>

@@ -4,7 +4,7 @@
       <div class="btn-group col-lg-5 col-md-5 col-12 p-0" role="group" aria-label="Basic example">
         <button type="button" class="btn btn-secondary toggle_left p-2" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
           <span :class="`bi bi-${frontendModeIcon}`" aria-hidden="true"></span>
-          <span class="ps-2">View</span>
+          <span class="ps-2">{{ frontendMode.charAt(0).toUpperCase() + frontendMode.slice(1) }}</span>
         </button>
         <button type="button" class="btn btn-secondary toggle_right p-2" :class="selected === 1 ? 'active' : 'inactive'" @click="$emit('select', 1)">
           <span class="bi bi-code" aria-hidden="true"></span>
