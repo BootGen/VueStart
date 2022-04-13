@@ -55,18 +55,30 @@
         padding-right: 0.3rem;
       }
       table {
-        width: 100%;
         border-collapse: collapse;
-        margin-bottom: 1rem;
+        width: 100%;
+        margin-top: 0.5rem;
+        margin-bottom: 1.5rem;
       }
       td, th {
-        border-bottom: 1px solid #dddddd;
-        text-align: left;
+        border-bottom: 1px solid #ddd;
         padding: 8px;
       }
+      tr:nth-child(even){
+        background-color: #f2f2f2;
+      }
+      tr:hover {
+        background-color: #ddd;
+      }
       th {
-        background-color: #f8f9fa;
-        border-bottom: solid 1px #000000;
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: #{{ color }};
+        color: #{{ text_color }};
+      }
+      .text-left {
+        text-align: left;
       }
       .active {
         color: #{{ color }};
@@ -145,7 +157,7 @@
       }
       .new-item-button {
         display: flex;
-        border-bottom: unset;
+        margin-top: 1rem;
         float: left
       }
       .active-row {

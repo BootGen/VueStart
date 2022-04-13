@@ -112,7 +112,7 @@ app.component('pagination', {
 app.component('{{ kebab_case class.name }}-data', {
   template: `
   {{~ for property in class.base_properties ~}}
-  <td>
+  <td class="text-left">
   {{~ if (get_type property) == "Date" ~}}
     {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
   {{~ else ~}}
@@ -351,13 +351,11 @@ app.component('{{ kebab_case class.name.plural }}', {
     <tr v-if="newItem" class="active-row">
       <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
     </tr>
-    <tr v-else>
-      <td class="new-item-button">
-        <button type="button" class="btn new-item-button" @click="addNewItem" v-if="!newItem">
-          <i class="bi-plus"></i> Add
-        </button>
-      </td>
-    </tr>
+    <div v-else>
+      <button type="button" class="btn new-item-button" @click="addNewItem" v-if="!newItem">
+        <i class="bi-plus"></i> Add
+      </button>
+    </div>
   </{{ kebab_case class.name }}-table>
   <div {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
     <pagination :count="modelValue.length" @range="setRange"></pagination>
