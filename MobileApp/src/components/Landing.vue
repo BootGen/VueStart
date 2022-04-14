@@ -1,10 +1,7 @@
 <template>
   <div class="d-flex flex-column align-items-center mt-3">
-    <div class="d-flex align-items-center justify-content-center">
-      <img class="vue_logo" alt="vue" :src="require(`../assets/vue_logo.webp`)">
-      <p class="title">ue Start!</p>
-    </div>
-    <img class="vuecoon img-fluid px-3 mt-4" alt="Vuecoon" :src="require(`../assets/vuecoon_${vuecoonState}.webp`)">
+    <p class="title">Vue Start!</p>
+    <img class="vuecoon img-fluid px-3" alt="Vuecoon" :src="require(`../assets/vuecoon_${vuecoonState}.webp`)">
     <p class="logos mt-4">
       <img src="../assets/vue_logo.webp"> <img src="../assets/bootstrap.webp"> <img src="../assets/tailwind.webp"> <img src="../assets/css.webp">
     </p>
@@ -34,13 +31,11 @@ export default defineComponent({
     width: 3rem;
     height: 3rem;
   }
+  @import url('https://fonts.googleapis.com/css2?family=Caveat+Brush&display=swap');
   .title {
-    margin-left: -3px;
-    font-size: 1.9rem;
-    margin-top: 0;
-    margin-bottom: .5rem;
-    font-weight: 500;
-    line-height: 1.2;
+    font-family: 'Caveat Brush', cursive;
+    font-size: 3rem;
+    text-align: center
   }
   .logos > img {
     height: 4rem;
