@@ -22,7 +22,7 @@
       <div class="browser custom-card shadow">
         <browser-frame v-model="browserData" :config="config" :undoable="undoStackIdx > 0" :redoable="undoStackIdx < undoStack.length-1"  @refresh="pageRefresh" @undo="undo" @redo="redo" :borderRadius="selectedTab === 0">
           <div class="d-flex w-100 h-auto">
-            <tab :title="frontendMode" :icon="frontendModeIcon" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
+            <tab :title="frontendMode" :img="frontendMode" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
             <tab title="index.html" icon="code" :class="{'active': selectedTab === 1, 'inactive': selectedTab !== 1, 'border-bottom-left': selectedTab === 0, 'border-bottom-right': selectedTab === 2}" @select="selectedTab = 1"></tab>
             <tab title="app.js" icon="code" :class="{'active': selectedTab === 2, 'inactive': selectedTab !== 2, 'border-bottom-left': selectedTab === 1}" @select="selectedTab = 2"></tab>
             <tab class="inactive" :class="{'border-bottom-left': selectedTab === 2}"></tab>
@@ -181,17 +181,6 @@ export default defineComponent({
       }
     }
     watch(selectedTab, seturl);
-    const frontendModeIcon = computed(() =>{
-      switch (frontendMode.value) {
-        case frontendModes.Tailwind:
-          return 'wind';
-        case frontendModes.Vanilla:
-          return 'filetype-css';
-        case frontendModes.Bootstrap:
-          return 'bootstrap';
-      }
-      return 'filetype-css';
-    })
     const frontendModes = {
       Vanilla: 'vanilla',
       Bootstrap: 'bootstrap',
@@ -483,7 +472,7 @@ export default defineComponent({
 
     return { json, inputError, frontendMode, frontendModes, selectedColor,
       changeFrontendMode, onDownloadClicked, triggerColorPicker, pageRefresh,
-      selectedTab, frontendModeIcon, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError,
+      selectedTab, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError,
       alert, showWarningPanel, warnings, editable, editableChanged, undo, redo, undoStackIdx, undoStack }
   },
 })

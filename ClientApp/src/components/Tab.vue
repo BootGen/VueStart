@@ -1,7 +1,10 @@
 <template>
   <button type="button" class="btn-site" @click="$emit('select')">
     <div class="d-flex">
-      <span :class="`bi bi-${icon}`" aria-hidden="true"></span>
+      <span v-if="icon" :class="`bi bi-${icon}`" aria-hidden="true"></span>
+      <img v-else-if="img == 'tailwind'" alt="tailwind" src="../assets/tailwind_green.webp" height="25">
+      <img v-else-if="img == 'bootstrap'" alt="bootstrap" src="../assets/bootstrap_green.webp" height="25">
+      <img v-else alt="vanilla" src="../assets/css_green.webp" height="25">
       <span class="px-2">{{ title }}</span>
     </div>
   </button>
@@ -14,6 +17,7 @@ export default defineComponent({
   name: 'Tab',
   props: {
     icon: String,
+    img: String,
     title: String
   },
   setup() {}
