@@ -42,7 +42,7 @@ export default defineComponent({
     };
     const vuecoonState = ref(vuecoonStates.Default);
     const frontendMode = ref('vanilla');
-    const editable = ref(true);
+    const editable = ref(false);
     const isShowSupporters = ref(false);
 
     let idtoken = localStorage.getItem('idtoken');
