@@ -27,6 +27,7 @@ import BrowserFrame from './BrowserFrame.vue';
 import BrowserOptions from './BrowserOptions.vue';
 import axios from "axios";
 import { getSchema } from "@/utils/Schema";
+import {debounce} from "@/utils/Helper";
 
 export default defineComponent({
   components: { CodeMirror, BrowserFrame, BrowserOptions },
@@ -132,6 +133,8 @@ export default defineComponent({
           tempColor.value = selectedColor.value.slice(1, 7);
           document.getElementById('color-picker-btn').style.backgroundColor = selectedColor.value;
           setTextColor();
+          let debouncedGenerate = debounce(generate, 1000);
+          debouncedGenerate(json.value);
         }
       })
     });
