@@ -2,15 +2,18 @@
   <div class="container">
     <div class="row flex-colum justify-content-center">
       <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="frontendMode === frontendModes.Vanilla ? 'active' : 'inactive'" @click="$emit('frontendChanged', frontendModes.Vanilla)">
-        <span class="bi bi-filetype-css" aria-hidden="true"></span>
+        <img v-if="frontendMode === frontendModes.Vanilla" alt="css" src="../assets/css_white.webp" height="25">
+        <img v-else alt="css" src="../assets/css_green.webp" height="25">
         <span class="ps-2">Vanilla</span>
       </div>
       <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="frontendMode === frontendModes.Bootstrap ? 'active' : 'inactive'" @click="$emit('frontendChanged', frontendModes.Bootstrap)">
-        <span class="bi bi-bootstrap" aria-hidden="true"></span>
+        <img v-if="frontendMode === frontendModes.Bootstrap" alt="bootstrap" src="../assets/bootstrap_white.webp" height="25">
+        <img v-else alt="bootstrap" src="../assets/bootstrap_green.webp" height="25">
         <span class="ps-2">Bootstrap</span>
       </div>
      <div class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" :class="frontendMode === frontendModes.Tailwind ? 'active' : 'inactive'" @click="$emit('frontendChanged', frontendModes.Tailwind)">
-        <span class="bi bi-wind" aria-hidden="true"></span>
+        <img v-if="frontendMode === frontendModes.Tailwind" alt="tailwind" src="../assets/tailwind_white.webp" height="25">
+        <img v-else alt="tailwind" src="../assets/tailwind_green.webp" height="25">
         <span class="ps-2">Tailwind</span>
       </div>
     </div>
@@ -65,10 +68,6 @@ export default defineComponent({
 .fab-icon-holder .bi{
   font-size: 1.2rem;
 }
-.fab-icon-holder:hover {
-  background: #42b983;
-  color: #ffffff;
-}
 .active {
   background: #42b983;
   color: #ffffff;
@@ -76,5 +75,11 @@ export default defineComponent({
 .inactive {
   background: #ffffff;
   color: #42b983;
+}
+.fab-icon-holder.inactive:hover {
+  background: #42b98320;
+}
+.fab-icon-holder.active:hover {
+  background: #17a062;
 }
 </style>

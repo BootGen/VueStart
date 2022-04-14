@@ -5,7 +5,10 @@
       <p class="title">ue Start!</p>
     </div>
     <img class="vuecoon img-fluid px-3 mt-4" alt="Vuecoon" :src="require(`../assets/vuecoon_${vuecoonState}.webp`)">
-    <span class="lead text-center mt-4">
+    <p class="logos mt-4">
+      <img src="../assets/vue_logo.webp"> <img src="../assets/bootstrap.webp"> <img src="../assets/tailwind.webp"> <img src="../assets/css.webp">
+    </p>
+    <span class="lead text-center">
       An online tool that generates UI components for Vue.js developers. Input some JSON data, chose a template, download the code and use it in any project.
     </span>
     <p class="text-center small-text"><em>For the full feature set please visit this page from a desktop browser.</em></p>
@@ -38,5 +41,8 @@ export default defineComponent({
     margin-bottom: .5rem;
     font-weight: 500;
     line-height: 1.2;
+  }
+  .logos > img {
+    height: 4rem;
   }
 </style>
