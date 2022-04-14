@@ -79,13 +79,14 @@ h3 {
   overflow: hidden;
 }
 .supporters-page.show {
+  visibility: visible;
   opacity: 1;
-  position: unset;
+  height: fit-content;
 }
 .supporters-page.hide {
+  visibility: hidden;
   opacity: 0;
-  position: absolute;
-  top: 0;
+  height: 0;
 }
 .usertag {
   position: relative;
