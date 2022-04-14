@@ -44,6 +44,7 @@ export default defineComponent({
     const tempColor = ref('42b983');
     const selectedColor = ref('#42b983');
     const frontendMode = ref(props.frontendMode);
+    const editable = ref(props.editable);
     const selectedTab = ref(0);
     const browserData = ref({ page_url: '', source_url: '' });
     const generatedId = ref('');
@@ -121,6 +122,10 @@ export default defineComponent({
       watchEffect(() => {
         if(props.frontendMode !== frontendMode.value) {
           frontendMode.value = props.frontendMode;
+          generate(json.value);
+        }
+        if(props.editable !== editable.value) {
+          editable.value = props.editable;
           generate(json.value);
         }
         if('#' + tempColor.value !== selectedColor.value) {
