@@ -43,12 +43,6 @@
               </div>
             </li>
             <li>
-              <div class="fab-icon-holder" @click="loadBookingExample">
-                <span class="bi bi-book-half" aria-hidden="true"></span>
-                <span class="ps-2">Booking</span>
-              </div>
-            </li>
-            <li>
               <div class="fab-icon-holder" @click="loadOrdersExample">
                 <span class="bi bi-cart-check" aria-hidden="true"></span>
                 <span class="ps-2">Orders</span>
@@ -348,17 +342,12 @@ export default defineComponent({
     async function loadTasksExample() {
       context.emit('setVuecoon', 'loading');
       json.value = await getProjectContentFromServer('tasks_example_input');
-      generate(json.value);
+      await generate(json.value);
     }
     async function loadOrdersExample() {
       context.emit('setVuecoon', 'loading');
       json.value = await getProjectContentFromServer('orders_example_input');
-      generate(json.value);
-    }
-    async function loadBookingExample() {
-      context.emit('setVuecoon', 'loading');
-      json.value = await getProjectContentFromServer('booking_example_input');
-      generate(json.value);
+      await generate(json.value);
     }
     getProjectContentFromServer('orders_example_input').then( (content) => {
       json.value = content;
@@ -472,7 +461,7 @@ export default defineComponent({
 
     return { json, inputError, frontendMode, frontendModes, selectedColor,
       changeFrontendMode, onDownloadClicked, triggerColorPicker, pageRefresh,
-      selectedTab, browserData, loadTasksExample, loadOrdersExample, loadBookingExample, syntaxError,
+      selectedTab, browserData, loadTasksExample, loadOrdersExample, syntaxError,
       alert, showWarningPanel, warnings, editable, editableChanged, undo, redo, undoStackIdx, undoStack }
   },
 })

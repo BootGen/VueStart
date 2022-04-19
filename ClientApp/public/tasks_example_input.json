@@ -6,6 +6,21 @@
 			"due": "2022-04-19T10:00"
 		},
 		{
+			"title": "Chop Onions",
+			"done": true,
+			"due": "2022-04-19T12:00"
+		},
+		{
+			"title": "Cut the meat",
+			"done": true,
+			"due": "2022-04-19T12:00"
+		},
+		{
+			"title": "Taste the wine",
+			"done": true,
+			"due": "2022-04-19T12:00"
+		},
+		{
 			"title": "Cook Goulash",
 			"done": true,
 			"due": "2022-04-19T12:00"
@@ -14,6 +29,16 @@
 			"title": "Start Dishwasher",
 			"done": false,
 			"due": "2022-04-19T16:00"
+		},
+		{
+			"title": "Set the table",
+			"done": true,
+			"due": "2022-04-19T12:00"
+		},
+		{
+			"title": "Light the candles",
+			"done": true,
+			"due": "2022-04-19T12:00"
 		}
 	]
 }
