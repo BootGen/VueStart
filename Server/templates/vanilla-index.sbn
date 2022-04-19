@@ -36,10 +36,10 @@
         opacity: 0.8;
       }
       .hideOrderBy {
-        display: none;
+        visibility: hidden;
       }
       .clickable:hover > .hideOrderBy {
-        display: unset;
+        visibility: visible;
         opacity: 0.4;
       }
       .btn {
