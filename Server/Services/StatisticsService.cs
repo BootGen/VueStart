@@ -71,26 +71,26 @@ namespace VueStart.Services
                     switch (actionType)
                     {
                         case ActionType.Download:
-                        switch (artifactType)
-                        {
-                            case ArtifactType.Table:
-                            record.BootstrapReadonlyDownloadedCount += 1;
-                            break;
-                            case ArtifactType.TableEditable:
-                            record.BootstrapEditableGeneratedCount += 1;
-                            break;
-                        }
+                            switch (artifactType)
+                            {
+                                case ArtifactType.Table:
+                                record.BootstrapReadonlyDownloadedCount += 1;
+                                break;
+                                case ArtifactType.TableEditable:
+                                record.BootstrapEditableDownloadedCount += 1;
+                                break;
+                            }
                         break;
                         case ActionType.Generate:
-                        switch (artifactType)
-                        {
-                            case ArtifactType.Table:
-                            record.BootstrapReadonlyGeneratedCount += 1;
-                            break;
-                            case ArtifactType.TableEditable:
-                            record.BootstrapReadonlyDownloadedCount += 1;
-                            break;
-                        }
+                            switch (artifactType)
+                            {
+                                case ArtifactType.Table:
+                                record.BootstrapReadonlyGeneratedCount += 1;
+                                break;
+                                case ArtifactType.TableEditable:
+                                record.BootstrapReadonlyGeneratedCount += 1;
+                                break;
+                            }
                         break;
                     }
                 break;
@@ -98,26 +98,26 @@ namespace VueStart.Services
                     switch (actionType)
                     {
                         case ActionType.Download:
-                        switch (artifactType)
-                        {
-                            case ArtifactType.Table:
-                            record.TailwindReadonlyDownloadedCount += 1;
-                            break;
-                            case ArtifactType.TableEditable:
-                            record.TailwindEditableGeneratedCount += 1;
-                            break;
-                        }
+                            switch (artifactType)
+                            {
+                                case ArtifactType.Table:
+                                record.TailwindReadonlyDownloadedCount += 1;
+                                break;
+                                case ArtifactType.TableEditable:
+                                record.TailwindEditableDownloadedCount += 1;
+                                break;
+                            }
                         break;
                         case ActionType.Generate:
-                        switch (artifactType)
-                        {
-                            case ArtifactType.Table:
-                            record.TailwindReadonlyGeneratedCount += 1;
-                            break;
-                            case ArtifactType.TableEditable:
-                            record.TailwindReadonlyDownloadedCount += 1;
-                            break;
-                        }
+                            switch (artifactType)
+                            {
+                                case ArtifactType.Table:
+                                record.TailwindReadonlyGeneratedCount += 1;
+                                break;
+                                case ArtifactType.TableEditable:
+                                record.TailwindReadonlyGeneratedCount += 1;
+                                break;
+                            }
                         break;
                     }
                 break;
@@ -125,26 +125,26 @@ namespace VueStart.Services
                     switch (actionType)
                     {
                         case ActionType.Download:
-                        switch (artifactType)
-                        {
-                            case ArtifactType.Table:
-                            record.VanillaReadonlyDownloadedCount += 1;
-                            break;
-                            case ArtifactType.TableEditable:
-                            record.VanillaEditableGeneratedCount += 1;
-                            break;
-                        }
+                            switch (artifactType)
+                            {
+                                case ArtifactType.Table:
+                                record.VanillaReadonlyDownloadedCount += 1;
+                                break;
+                                case ArtifactType.TableEditable:
+                                record.VanillaEditableDownloadedCount += 1;
+                                break;
+                            }
                         break;
                         case ActionType.Generate:
-                        switch (artifactType)
-                        {
-                            case ArtifactType.Table:
-                            record.VanillaReadonlyGeneratedCount += 1;
-                            break;
-                            case ArtifactType.TableEditable:
-                            record.VanillaReadonlyDownloadedCount += 1;
-                            break;
-                        }
+                            switch (artifactType)
+                            {
+                                case ArtifactType.Table:
+                                record.VanillaReadonlyGeneratedCount += 1;
+                                break;
+                                case ArtifactType.TableEditable:
+                                record.VanillaReadonlyGeneratedCount += 1;
+                                break;
+                            }
                         break;
                     }
                 break;
