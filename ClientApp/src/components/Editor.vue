@@ -157,7 +157,7 @@ export default defineComponent({
     const alert = ref(noAlert);
     const tip = new Tip();
 
-    const keys = ['idtoken', 'previousId', 'tipIdx', 'loglevel:webpack-dev-server'];
+    const keys = ['idtoken', 'previousId', 'tipIdx'];
     for (let [key, value] of Object.entries(localStorage)) {
       if(!keys.includes(key)) {
         localStorage.removeItem(key);
@@ -351,7 +351,6 @@ export default defineComponent({
       return JSON.stringify(data);
     }
 
-    localStorage.removeItem('json');
     async function loadTasksExample() {
       context.emit('setVuecoon', 'loading');
       json.value = await getProjectContentFromServer('tasks_example_input');

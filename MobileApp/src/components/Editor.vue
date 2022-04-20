@@ -57,8 +57,15 @@ export default defineComponent({
     }
     const selectedView = ref(views.View);
     
+    const keys = ['idtoken', 'previousId', 'tipIdx'];
+    for (let [key, value] of Object.entries(localStorage)) {
+      if(!keys.includes(key)) {
+        localStorage.removeItem(key);
+      }
+    }
+
     window.addEventListener('storage', () => {
-      json.value = localStorage.getItem('json');
+      json.value = localStorage.getItem(generatedId.value);
     });
     async function fixData() {
       const fixedJson = await axios.post('api/generate/fix', JSON.parse(json.value));
@@ -73,9 +80,9 @@ export default defineComponent({
         } else {
           resp.value = await axios.post(`api/generate/${frontendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
         }
-        saveToLocalStorage(data);
-        console.log("id", resp.value);
+        localStorage.setItem('previousId', generatedId.value);
         generatedId.value = resp.value.data.id;
+        saveToLocalStorage(data);
         if (selectedTab.value === 0) {
           browserData.value = {
             page_url: `api/files/${resp.value.data.id}/index.html`
@@ -103,9 +110,10 @@ export default defineComponent({
     function saveToLocalStorage(newValue) {
       let obj = JSON.parse(newValue);
       let minimized = JSON.stringify(obj);
-      let oldValue = localStorage.getItem('json');
+      let oldValue = localStorage.getItem(generatedId.value);
       if (minimized !== oldValue) {
-        localStorage.setItem('json', minimized);
+        localStorage.setItem(generatedId.value, minimized);
+        localStorage.removeItem(localStorage.getItem('previousId'));
       }
     }
     async function getProjectContentFromServer(name) {
@@ -115,7 +123,6 @@ export default defineComponent({
       return JSON.stringify(data);
     }
 
-    localStorage.removeItem('json');
     getProjectContentFromServer('example_input').then( (content) => {
       json.value = content;
       jsonSchema.value = getSchema(JSON.parse(json.value));
