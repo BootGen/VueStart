@@ -412,9 +412,9 @@ export default defineComponent({
         showGitHubCTA();
       }
       if(editable.value) {
-        context.emit('download', `api/download/${frontendMode.value}/table-editable/${tempColor.value}`, `${frontendMode.value}.zip`);
+        context.emit('download', `api/download/${frontendMode.value}/table-editable/${tempColor.value}`, `${frontendMode.value}.zip`, generatedId);
       } else {
-        context.emit('download', `api/download/${frontendMode.value}/table/${tempColor.value}`, `${frontendMode.value}.zip`);
+        context.emit('download', `api/download/${frontendMode.value}/table/${tempColor.value}`, `${frontendMode.value}.zip`, generatedId);
       }
     }
     function triggerColorPicker() {

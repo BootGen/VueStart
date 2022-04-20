@@ -62,6 +62,7 @@ export default defineComponent({
       Success: 'success'
     };
     const vuecoonState = ref(vuecoonStates.Default);
+    let generatedId = '';
 
     let idtoken = localStorage.getItem('idtoken');
     if (!idtoken) {
@@ -123,7 +124,7 @@ export default defineComponent({
     }
 
     async function download() {
-      const response = await axios.post(downloadUrl, JSON.parse(localStorage.getItem('json')), {responseType: 'blob', ...config});
+      const response = await axios.post(downloadUrl, JSON.parse(localStorage.getItem(generatedId)), {responseType: 'blob', ...config});
       const fileURL = window.URL.createObjectURL(new Blob([response.data]));
       const fileLink = document.createElement('a');
       fileLink.href = fileURL;
@@ -134,11 +135,12 @@ export default defineComponent({
       showDownloadPanel.value = false;
     }
 
-    function onDownloadClicked(url, fileName) {
+    function onDownloadClicked(url, fileName, id) {
       downloadUrl = url;
       downloadedFileName = fileName;
       showDownloadPanel.value = true;
       downloaded.value = true;
+      generatedId = id;
     }
 
     function setVuecoon(state) {
