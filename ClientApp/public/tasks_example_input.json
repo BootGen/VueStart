@@ -12,33 +12,33 @@
 		},
 		{
 			"title": "Cut the meat",
-			"done": true,
-			"due": "2022-04-19T12:00"
+			"done": false,
+			"due": "2022-04-19T12:20"
 		},
 		{
 			"title": "Taste the wine",
-			"done": true,
-			"due": "2022-04-19T12:00"
+			"done": false,
+			"due": "2022-04-19T13:00"
 		},
 		{
 			"title": "Cook Goulash",
-			"done": true,
-			"due": "2022-04-19T12:00"
+			"done": false,
+			"due": "2022-04-19T17:00"
 		},
 		{
 			"title": "Start Dishwasher",
 			"done": false,
-			"due": "2022-04-19T16:00"
+			"due": "2022-04-19T17:15"
 		},
 		{
 			"title": "Set the table",
-			"done": true,
-			"due": "2022-04-19T12:00"
+			"done": false,
+			"due": "2022-04-19T17:30"
 		},
 		{
 			"title": "Light the candles",
-			"done": true,
-			"due": "2022-04-19T12:00"
+			"done": false,
+			"due": "2022-04-19T17:45"
 		}
 	]
 }
