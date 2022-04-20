@@ -155,7 +155,15 @@ export default defineComponent({
       action: noAction
     }
     const alert = ref(noAlert);
-    const tip = new Tip()
+    const tip = new Tip();
+
+    const keys = ['idtoken', 'previousId', 'tipIdx', 'loglevel:webpack-dev-server'];
+    for (let [key, value] of Object.entries(localStorage)) {
+      if(!keys.includes(key)) {
+        localStorage.removeItem(key);
+      }
+    }
+
     function seturl() {
       switch (selectedTab.value) {
         case 0:
@@ -261,6 +269,7 @@ export default defineComponent({
         } else {
           resp.value = await axios.post(`api/generate/${frontendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
         }
+        localStorage.setItem('previousId', generatedId.value);
         generatedId.value = resp.value.data.id;
         saveToLocalStorage(data);
         seturl();
@@ -312,13 +321,12 @@ export default defineComponent({
     }
 
     function saveToLocalStorage(newValue) {
-      console.log(generatedId.value);
-      console.log(new Error());
       let obj = JSON.parse(newValue);
       let minimized = JSON.stringify(obj);
       let oldValue = localStorage.getItem(generatedId.value);
       if (minimized !== oldValue) {
         localStorage.setItem(generatedId.value, minimized);
+        localStorage.removeItem(localStorage.getItem('previousId'));
         if (oldValue) {
           if (tip.modified())
             context.emit('success');
