@@ -18,20 +18,23 @@ public class GenerationService
     {
         this.memoryCache = memoryCache;
     }
-    public string Generate(JsonElement json, string title, string templateFileName, string type, string color, bool forDownload, out string appjs, out string indexhtml)
+    public string Generate(JsonElement json, string title, string templateFileName, string type, string color, string generatedId, bool forDownload, out string appjs, out string indexhtml)
     {
         var generator = new VueStartGenerator(json, memoryCache);
-        Generate(json, title, templateFileName, type, color, forDownload, out appjs, out indexhtml, generator);
+        Generate(json, title, templateFileName, type, color, generatedId, forDownload, out appjs, out indexhtml, generator);
         return generator.Id;
     }
 
-    private static void Generate(JsonElement json, string title, string templateFileName, string type, string color, bool forDownload, out string appjs, out string indexhtml, VueStartGenerator generator)
+    private static void Generate(JsonElement json, string title, string templateFileName, string type, string color, string generatedId, bool forDownload, out string appjs, out string indexhtml, VueStartGenerator generator)
     {
         var jsParameters = new Dictionary<string, object> {
                 {"classes", generator.DataModel.CommonClasses}
             };
         if (forDownload)
             jsParameters.Add("input", json.ToString());
+        else
+            jsParameters.Add("generated_id", $"{generatedId}");
+
         appjs = generator.Render(templateFileName, jsParameters);
         var indexParameters = new Dictionary<string, object> {
                 {"title", $"{title}"}
@@ -87,10 +90,10 @@ public class GenerationService
     public string GenerateToCache(JsonElement json, string title, string templateFileName, string type, string color, out List<string> warnings)
     {
         var generator = new VueStartGenerator(json, memoryCache);
-        Generate(json, title, templateFileName, type, color, false, out var appjs, out var indexhtml, generator);
+        Generate(json, title, templateFileName, type, color, generator.Id, false, out var appjs, out var indexhtml, generator);
         memoryCache.Set($"{generator.Id}/app.js", Minify(appjs), TimeSpan.FromMinutes(30));
         memoryCache.Set($"{generator.Id}/index.html", Minify(indexhtml), TimeSpan.FromMinutes(30));
-        Generate(json, title, templateFileName, type, color, true, out var pAppjs, out var pIndexhtml, generator);
+        Generate(json, title, templateFileName, type, color, generator.Id, true, out var pAppjs, out var pIndexhtml, generator);
         memoryCache.Set($"{generator.Id}/app.js_display", pAppjs, TimeSpan.FromMinutes(30));
         memoryCache.Set($"{generator.Id}/index.html_display", pIndexhtml, TimeSpan.FromMinutes(30));
         warnings = new List<string>();

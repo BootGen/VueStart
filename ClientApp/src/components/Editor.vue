@@ -134,12 +134,13 @@ export default defineComponent({
     const selectedTab = ref(0);
     const editable = ref(true);
     const browserData = ref({ page_url: '', source_url: '' });
-    const generatedId = ref('');
     const syntaxErr = ref(false);
     const showWarningPanel = ref(false);
     const warnings = ref([]);
     const undoStack = ref([]);
     const undoStackIdx = ref(-1);
+    let generatedId = '';
+    let isGenerating = false;
     let noAction = {
       active: false,
       href: 'javascript:void(0)',
@@ -154,22 +155,30 @@ export default defineComponent({
       action: noAction
     }
     const alert = ref(noAlert);
-    const tip = new Tip()
+    const tip = new Tip();
+
+    const keys = ['idtoken', 'tipIdx'];
+    for (let [key, value] of Object.entries(localStorage)) {
+      if(!keys.includes(key)) {
+        localStorage.removeItem(key);
+      }
+    }
+
     function seturl() {
       switch (selectedTab.value) {
         case 0:
           browserData.value = {
-            page_url: `api/files/${generatedId.value}/index.html`
+            page_url: `api/files/${generatedId}/index.html`
           };
           break;
         case 1:
           browserData.value = {
-            source_url: `api/files/${generatedId.value}/index.html?display=true`
+            source_url: `api/files/${generatedId}/index.html?display=true`
           };
           break;
         case 2:
           browserData.value = {
-            source_url: `api/files/${generatedId.value}/app.js?display=true`
+            source_url: `api/files/${generatedId}/app.js?display=true`
           };
           break;
       }
@@ -185,7 +194,9 @@ export default defineComponent({
     const selectedColor = ref('#42b983');
 
     window.addEventListener('storage', () => {
-      json.value = localStorage.getItem('json');
+      const item = localStorage.getItem(generatedId);
+      if (item)
+        json.value = item;
     });
     async function fixData() {
       alert.value = noAlert;
@@ -258,8 +269,9 @@ export default defineComponent({
         } else {
           resp.value = await axios.post(`api/generate/${frontendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
         }
+        localStorage.removeItem(generatedId);
+        generatedId = resp.value.data.id;
         saveToLocalStorage(data);
-        generatedId.value = resp.value.data.id;
         seturl();
         inputError.value = null;
         if (resp.value.data.warnings && resp.value.data.warnings.length > 0) {
@@ -311,9 +323,9 @@ export default defineComponent({
     function saveToLocalStorage(newValue) {
       let obj = JSON.parse(newValue);
       let minimized = JSON.stringify(obj);
-      let oldValue = localStorage.getItem('json');
+      let oldValue = localStorage.getItem(generatedId);
       if (minimized !== oldValue) {
-        localStorage.setItem('json', minimized);
+        localStorage.setItem(generatedId, minimized);
         if (oldValue) {
           if (tip.modified())
             context.emit('success');
@@ -338,7 +350,6 @@ export default defineComponent({
       return JSON.stringify(data);
     }
 
-    localStorage.removeItem('json');
     async function loadTasksExample() {
       context.emit('setVuecoon', 'loading');
       json.value = await getProjectContentFromServer('tasks_example_input');
@@ -358,6 +369,7 @@ export default defineComponent({
         if (tip.generated())
           context.emit('success');
         showTip();
+        isGenerating = false
       }
       let debouncedGenerate = debounce(generateAndEmit, 1000);
       watch([tempColor, selectedColor, syntaxErr],() => {
@@ -367,6 +379,7 @@ export default defineComponent({
             document.getElementById('color-picker-btn').style.backgroundColor = selectedColor.value;
             tempColor.value = selectedColor.value.slice(1, 7);
             setTextColor();
+            isGenerating = true;
             debouncedGenerate(json.value);
           }
         }
@@ -378,8 +391,9 @@ export default defineComponent({
           const newSchema = getSchema(JSON.parse(json.value));
           if(JSON.stringify(newSchema) !== JSON.stringify(jsonSchema.value)) {
             jsonSchema.value = newSchema;
+            isGenerating = true;
             debouncedGenerate(json.value);
-          } else {
+          } else if(!isGenerating && generatedId !== '') {
             saveToLocalStorage(json.value);
             inputError.value = null;
           }

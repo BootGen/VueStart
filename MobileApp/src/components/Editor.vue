@@ -48,7 +48,7 @@ export default defineComponent({
     const editable = ref(props.editable);
     const selectedTab = ref(0);
     const browserData = ref({ page_url: '', source_url: '' });
-    const generatedId = ref('');
+    let generatedId = '';
 
     const views = {
       View: 'view',
@@ -57,8 +57,15 @@ export default defineComponent({
     }
     const selectedView = ref(views.View);
     
+    const keys = ['idtoken', 'tipIdx'];
+    for (let [key, value] of Object.entries(localStorage)) {
+      if(!keys.includes(key)) {
+        localStorage.removeItem(key);
+      }
+    }
+
     window.addEventListener('storage', () => {
-      json.value = localStorage.getItem('json');
+      json.value = localStorage.getItem(generatedId);
     });
     async function fixData() {
       const fixedJson = await axios.post('api/generate/fix', JSON.parse(json.value));
@@ -73,9 +80,9 @@ export default defineComponent({
         } else {
           resp.value = await axios.post(`api/generate/${frontendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
         }
+        localStorage.removeItem(generatedId);
+        generatedId = resp.value.data.id;
         saveToLocalStorage(data);
-        console.log("id", resp.value);
-        generatedId.value = resp.value.data.id;
         if (selectedTab.value === 0) {
           browserData.value = {
             page_url: `api/files/${resp.value.data.id}/index.html`
@@ -103,9 +110,9 @@ export default defineComponent({
     function saveToLocalStorage(newValue) {
       let obj = JSON.parse(newValue);
       let minimized = JSON.stringify(obj);
-      let oldValue = localStorage.getItem('json');
+      let oldValue = localStorage.getItem(generatedId);
       if (minimized !== oldValue) {
-        localStorage.setItem('json', minimized);
+        localStorage.setItem(generatedId, minimized);
       }
     }
     async function getProjectContentFromServer(name) {
@@ -115,7 +122,6 @@ export default defineComponent({
       return JSON.stringify(data);
     }
 
-    localStorage.removeItem('json');
     getProjectContentFromServer('example_input').then( (content) => {
       json.value = content;
       jsonSchema.value = getSchema(JSON.parse(json.value));
@@ -163,12 +169,12 @@ export default defineComponent({
       switch (selectedTab.value) {
         case 0:
           browserData.value = {
-            page_url: `api/files/${generatedId.value}/index.html`
+            page_url: `api/files/${generatedId}/index.html`
           };
           break;
         case 1:
           browserData.value = {
-            source_url: `api/files/${generatedId.value}/app.js?display=true`
+            source_url: `api/files/${generatedId}/app.js?display=true`
           };
           break;
       }

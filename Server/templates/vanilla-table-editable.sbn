@@ -32,13 +32,13 @@ const app = Vue.createApp({
     {{~ else ~}}
     function saveToLocalStorage(newValue) {
         let minimized = JSON.stringify(newValue);
-        let oldValue = localStorage.getItem('json');
+        let oldValue = localStorage.getItem('{{ generated_id }}');
         if (minimized != oldValue) {
-          localStorage.setItem('json', minimized);
+          localStorage.setItem('{{ generated_id }}', minimized);
         }
     }
     function loadFromLocalStorage() {
-      let json = localStorage.getItem('json');
+      let json = localStorage.getItem('{{ generated_id }}');
       if (json && json !== JSON.stringify({{ camel_case root.name }}.value)) {
         {{ camel_case root.name }}.value = JSON.parse(json);
       }
