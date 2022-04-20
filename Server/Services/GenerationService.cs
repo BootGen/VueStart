@@ -120,7 +120,7 @@ public class GenerationService
                 break;
                 case WarningType.PrimitiveArrayElement:
                 {
-                    HashSet<string> names = warningData[WarningType.NestedArray];
+                    HashSet<string> names = warningData[WarningType.PrimitiveArrayElement];
                     if (names.Count == 1)
                         warnings.Add($"Arrays with primitive elements are not supported. The property \"{names.First()}\" is omitted.");
                     else
@@ -129,7 +129,7 @@ public class GenerationService
                 break;
                 case WarningType.PrimitiveRoot:
                 {
-                    HashSet<string> names = warningData[WarningType.NestedArray];
+                    HashSet<string> names = warningData[WarningType.PrimitiveRoot];
                     if (names.Count == 1)
                         warnings.Add($"Root elements must be arrays or objects. The property \"{names.First()}\" is omitted.");
                     else
