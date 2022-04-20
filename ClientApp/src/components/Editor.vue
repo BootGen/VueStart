@@ -140,6 +140,7 @@ export default defineComponent({
     const warnings = ref([]);
     const undoStack = ref([]);
     const undoStackIdx = ref(-1);
+    const isGenerating = ref(false);
     let noAction = {
       active: false,
       href: 'javascript:void(0)',
@@ -185,7 +186,9 @@ export default defineComponent({
     const selectedColor = ref('#42b983');
 
     window.addEventListener('storage', () => {
-      json.value = localStorage.getItem('json');
+      const item = localStorage.getItem(generatedId.value);
+      if (item)
+        json.value = item;
     });
     async function fixData() {
       alert.value = noAlert;
@@ -258,8 +261,8 @@ export default defineComponent({
         } else {
           resp.value = await axios.post(`api/generate/${frontendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
         }
-        saveToLocalStorage(data);
         generatedId.value = resp.value.data.id;
+        saveToLocalStorage(data);
         seturl();
         inputError.value = null;
         if (resp.value.data.warnings && resp.value.data.warnings.length > 0) {
@@ -309,11 +312,13 @@ export default defineComponent({
     }
 
     function saveToLocalStorage(newValue) {
+      console.log(generatedId.value);
+      console.log(new Error());
       let obj = JSON.parse(newValue);
       let minimized = JSON.stringify(obj);
-      let oldValue = localStorage.getItem('json');
+      let oldValue = localStorage.getItem(generatedId.value);
       if (minimized !== oldValue) {
-        localStorage.setItem('json', minimized);
+        localStorage.setItem(generatedId.value, minimized);
         if (oldValue) {
           if (tip.modified())
             context.emit('success');
@@ -358,6 +363,7 @@ export default defineComponent({
         if (tip.generated())
           context.emit('success');
         showTip();
+        isGenerating.value = false
       }
       let debouncedGenerate = debounce(generateAndEmit, 1000);
       watch([tempColor, selectedColor, syntaxErr],() => {
@@ -367,6 +373,7 @@ export default defineComponent({
             document.getElementById('color-picker-btn').style.backgroundColor = selectedColor.value;
             tempColor.value = selectedColor.value.slice(1, 7);
             setTextColor();
+            isGenerating.value = true;
             debouncedGenerate(json.value);
           }
         }
@@ -378,8 +385,9 @@ export default defineComponent({
           const newSchema = getSchema(JSON.parse(json.value));
           if(JSON.stringify(newSchema) !== JSON.stringify(jsonSchema.value)) {
             jsonSchema.value = newSchema;
+            isGenerating.value = true;
             debouncedGenerate(json.value);
-          } else {
+          } else if(!isGenerating.value && generatedId.value !== '') {
             saveToLocalStorage(json.value);
             inputError.value = null;
           }

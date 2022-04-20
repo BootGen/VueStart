@@ -30,7 +30,7 @@ const app = Vue.createApp({
     {{ camel_case root.name }}.value = {{input}};
     {{~ else ~}}
     function loadFromLocalStorage() {
-      let json = localStorage.getItem('json');
+      let json = localStorage.getItem('{{ generated_id }}');
       if (json && json !== JSON.stringify({{ camel_case root.name }}.value)) {
         {{ camel_case root.name }}.value = JSON.parse(json);
       }
