@@ -80,7 +80,7 @@ function getType(val) {
   }
 
   if (typeof val === 'string') {
-    const regexExp = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})$/gi;
+    const regexExp = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?)$/gi;
     if (regexExp.test(val))
       return 'datetime'
   }
