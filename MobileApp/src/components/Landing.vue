@@ -6,7 +6,7 @@
       <img src="../assets/vue_logo.webp"> <img src="../assets/bootstrap.webp"> <img src="../assets/tailwind.webp"> <img src="../assets/css.webp">
     </p>
     <span class="lead text-center">
-      Zero dependency data table solution for Vue.js. Generate pure Vue.js data tables. Input some JSON data, choose from Bootstrap, Tailwind CSS or Vanilla CSS, download the code and use it in any project.
+      Turn any JSON into Vue 3 talbes! Create well coded Vue 3 tables with Bootstrap, Tailwind CSS or vanilla CSS.
     </span>
     <p class="text-center small-text"><em>For the full feature set please visit this page from a desktop browser.</em></p>
   </div>

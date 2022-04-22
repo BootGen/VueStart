@@ -10,11 +10,11 @@
       </div>
       <div class="d-flex align-items-center jumbo-text" :class="page">
         <div class="d-flex flex-column align-items-center">
-          <p class="lead text-justify m-0">
+          <p class="jumbo-logos lead text-justify m-0">
             <img src="./assets/vue_logo.webp"> <img src="./assets/bootstrap.webp"> <img src="./assets/tailwind.webp"> <img src="./assets/css.webp">
           </p>
           <p class="lead text-justify m-0">
-            Zero dependency data table solution for Vue.js. Generate pure Vue.js data tables. Input some JSON data, choose from Bootstrap, Tailwind CSS or Vanilla CSS, download the code and use it in any project.
+            Turn any JSON into Vue 3 talbes! Create well coded Vue 3 tables with Bootstrap, Tailwind CSS or vanilla CSS.
           </p>
           <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showEditor">Start!</button>
         </div>
@@ -318,10 +318,13 @@ export default defineComponent({
     .jumbotron {
       flex-direction: row;
     }
+    .jumbo-logos {
+      display: none;
+    }
     .jumbotron.landing {
       height: 30vh;
       width: 99%;
-      margin-top: 2vh;
+      margin-top: 5vh;
     }
     .jumbotron.content, .jumbotron.supporters {
       height: min(15vh, 25vw);
@@ -361,6 +364,9 @@ export default defineComponent({
     }
     .jumbo-text.landing{
       height: 12rem;
+    }
+    .jumbo-logos {
+      display: none;
     }
     .vuecoon.landing {
       max-width: 35vw;
