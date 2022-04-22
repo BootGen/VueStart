@@ -90,9 +90,12 @@ export default defineComponent({
         })
       }, 10);
     }
+    function openGithub (){
+      window.open("https://github.com/BootGen/VueStart");
+    }
 
     return { vuecoonState, config,
-      hasError, setVuecoon,
+      hasError, setVuecoon, openGithub,
       changeFrontendMode, frontendMode, editable, chengeEditable, showSupporters, isShowSupporters }
   }
 });
