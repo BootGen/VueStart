@@ -3,7 +3,6 @@
     <div class="row flex-colum justify-content-center mt-4">
       <div class="btn-group col-lg-5 col-md-5 col-12 p-0" role="group" aria-label="Basic example">
         <button type="button" class="btn btn-secondary toggle_left p-2" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
-          <span :class="`bi bi-${frontendModeIcon}`" aria-hidden="true"></span>
           <img v-if="frontendMode == 'tailwind' && selected === 0" alt="tailwind" src="../assets/tailwind_white.webp" height="25">
           <img v-else-if="frontendMode == 'tailwind' && selected !== 0" alt="tailwind" src="../assets/tailwind_green.webp" height="25">
 
