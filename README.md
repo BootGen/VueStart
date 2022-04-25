@@ -5,7 +5,7 @@
   Vue Start
 </h1>
 <p align="center">
-  Turn any JSON into Vue 3 talbes!
+  Turn any JSON into Vue 3 tables!
 </p>
 <p align="center">
   <a style="text-decoration:none" href="https://github.com/BootGen/VueStart/actions" target="_blank">

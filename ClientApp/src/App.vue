@@ -14,7 +14,7 @@
             <img src="./assets/vue_logo.webp"> <img src="./assets/bootstrap.webp"> <img src="./assets/tailwind.webp"> <img src="./assets/css.webp">
           </p>
           <p class="lead text-justify m-0">
-            Turn any JSON into Vue 3 talbes! Create well coded Vue 3 tables with Bootstrap, Tailwind CSS or vanilla CSS.
+            Turn any JSON into Vue 3 tables! Create well coded Vue 3 tables with Bootstrap, Tailwind CSS or vanilla CSS.
           </p>
           <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showEditor">Start!</button>
         </div>
