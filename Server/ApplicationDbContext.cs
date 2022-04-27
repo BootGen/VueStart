@@ -14,6 +14,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<ClientError> ClientErrors { get; set; }
     public DbSet<Visitor> Visitors { get; set; }
     public DbSet<Visit> Visits { get; set; }
+    public DbSet<ShareableLink> ShareableLinks { get; set; }
     public IConfiguration Configuration { get; }
 
     
@@ -51,6 +52,12 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Visitor>()
             .HasMany<Visit>(v => v.Visits);
         modelBuilder.Entity<Visit>()
+            .Property(b => b.Id)
+            .IsRequired();
+        modelBuilder.Entity<ShareableLink>()
+            .Property(b => b.Hash)
+            .IsRequired();
+        modelBuilder.Entity<ShareableLink>()
             .Property(b => b.Id)
             .IsRequired();
         modelBuilder.Entity<ProfilerRecord>()
