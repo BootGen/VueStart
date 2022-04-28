@@ -28,7 +28,7 @@ public class ShareController : ControllerBase
 
     [HttpPost]
     [Route("{json}")]
-    public IActionResult Save([FromBody] string json)
+    public IActionResult Save([FromRoute] string json)
     {
         int hash = StringHash(json);
         dbContext.ShareableLinks.Add(new ShareableLink { Hash = hash, Json = json });
@@ -36,9 +36,9 @@ public class ShareController : ControllerBase
         return Ok("https://vuestart.com/" + hash);
     }
 
-    [HttpPost]
+    [HttpGet]
     [Route("{hash}")]
-    public IActionResult Load([FromBody] int hash)
+    public IActionResult Load([FromRoute] int hash)
     {
         var link = dbContext.ShareableLinks.FirstOrDefault(r => r.Hash == hash);
         if (link == null)
