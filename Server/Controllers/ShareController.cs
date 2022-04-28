@@ -1,4 +1,6 @@
+using System;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 
 namespace VueStart.Controllers;
@@ -27,13 +29,13 @@ public class ShareController : ControllerBase
     }
 
     [HttpPost]
-    [Route("{json}")]
-    public IActionResult Save([FromRoute] string json)
+    [Route("")]
+    public IActionResult Save([FromBody] JsonElement json)
     {
-        int hash = StringHash(json);
+        int hash = StringHash(JsonSerializer.Serialize(json));
         dbContext.ShareableLinks.Add(new ShareableLink { Hash = hash, Json = json });
         dbContext.SaveChanges();
-        return Ok("https://vuestart.com/" + hash);
+        return Ok(new { ShareableLink = "https://vuestart.com/" + hash });
     }
 
     [HttpGet]
