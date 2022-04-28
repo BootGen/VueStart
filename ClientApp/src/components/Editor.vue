@@ -483,10 +483,10 @@ export default defineComponent({
       let shareableJson = JSON.stringify(json.value);
       if(shareableJson !== sharedJson) {
         sharedLink = await axios.post(`api/share`, JSON.parse(json.value));
-        console.log('sharedLink', sharedLink);
+        console.log('sharedLink', sharedLink.data.shareableLink);
         sharedJson = shareableJson;
       }
-      navigator.clipboard.writeText(sharedLink);
+      navigator.clipboard.writeText(sharedLink.data.shareableLink);
       shareLinkOnClipboard.value = true;
       setTimeout(()=> {
         shareLinkOnClipboard.value = false;
