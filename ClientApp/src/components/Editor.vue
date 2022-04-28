@@ -493,6 +493,19 @@ export default defineComponent({
       }, 800);
     }
 
+    if(!window.location.pathname.includes('editor') && window.location.pathname !== '/') {
+      loadSharedLink(window.location.pathname);
+    }
+
+    async function loadSharedLink(path){      
+      try {
+        let resp = await axios.get(`api/share${path}`);
+        json.value = JSON.stringify(resp.data.json);
+      } catch (e) {
+        console.log('Not found', e.response);
+      }
+    }
+
     return { json, inputError, frontendMode, frontendModes, selectedColor,
       changeFrontendMode, onDownloadClicked, triggerColorPicker, pageRefresh,
       selectedTab, browserData, loadTasksExample, loadOrdersExample, syntaxError,

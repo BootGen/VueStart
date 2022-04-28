@@ -101,10 +101,11 @@ export default defineComponent({
     }
 
     function setShowContentForUrl(){
-      if (window.location.pathname === '/supporters')
+      let pathname = window.location.pathname;
+      if (pathname === '/supporters')
         page.value = 'supporters';
       else
-        page.value = window.location.pathname === '/editor' ? 'content' : 'landing';
+        page.value = pathname === '/' ? 'landing' : 'content';
     }
     window.addEventListener('popstate', setShowContentForUrl);
     window.addEventListener('load', setShowContentForUrl);
