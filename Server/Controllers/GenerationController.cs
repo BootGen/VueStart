@@ -28,16 +28,23 @@ namespace VueStart.Controllers
         [Route("{type}/{layout}/{color}")]
         public IActionResult Generate([FromBody] JsonElement json, string type, string layout, string color)
         {
+            var artifactType = layout.ToArtifactType();
+            if (artifactType == ArtifactType.None)
+                return NotFound();
+            var cssType = type.ToCssType();
+            if (cssType == CssType.None)
+                return NotFound();
             if (json.ValueKind != JsonValueKind.Object) {
-                return BadRequest(new { error = "The root element must be an object!", fixable = false });
+                statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Generate, artifactType, cssType, true);
+                return BadRequest(new { error = "The root element must be an object!", fixable = true });
+            }
+            foreach (var property in json.EnumerateObject()) {
+                if (property.Value.ValueKind != JsonValueKind.Object && property.Value.ValueKind != JsonValueKind.Array) {
+                    statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Generate, artifactType, cssType, true);
+                    return BadRequest(new { error = "Properties of the root element must be an objects or arrays!", fixable = false });
+                }
             }
             try {
-                var artifactType = layout.ToArtifactType();
-                if (artifactType == ArtifactType.None)
-                    return NotFound();
-                var cssType = type.ToCssType();
-                if (cssType == CssType.None)
-                    return NotFound();
                 statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Generate, artifactType, cssType);
                 string artifactId = generationService.GenerateToCache(json, $"Data {ToUpperFirst(layout)}", $"{type}-{layout}.sbn", type, color, out var warnings);
                 statisticsService.OnGenerateEnd();

@@ -63,6 +63,9 @@ public class GenerationService
 
     public JsonElement Fix(JsonElement json)
     {
+        if (json.ValueKind == JsonValueKind.Array) {
+            return JsonDocument.Parse($"{{\"items\": {json} }}").RootElement;
+        }
         var jObject = JsonConvert.DeserializeObject<JObject>(json.ToString(), new JsonSerializerSettings
         {
             DateFormatString = "yyyy-MM-ddTHH:mm",

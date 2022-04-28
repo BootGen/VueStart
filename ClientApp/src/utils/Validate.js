@@ -46,15 +46,7 @@ function getErrorPosition(str, err) {
 
 export function validateJson(text) {
     try {
-        const obj = JSON.parse(text);
-        if (typeof obj !== 'object' || Array.isArray(obj))
-            return {error: true, message: 'The root elements must be an object!'};
-        let idx = 0;
-        for (const prop in obj) {
-            if (typeof obj[prop] !== 'object')
-                return {error: true, message: 'The root elements must only have a single property with object or array type!'};
-            idx += 1;
-        }
+        JSON.parse(text);
         return {error: false, message: ''};
     } catch (err) {
         const positions = getErrorPosition(text, err);

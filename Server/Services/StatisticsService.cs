@@ -162,7 +162,7 @@ namespace VueStart.Services
             Data.ProfilerRecord.Download += GenerateWatch.ElapsedMilliseconds;
         }
 
-        public void OnEvent(HttpContext context, string jsonData, ActionType actionType, ArtifactType artifactType, CssType cssType)
+        public void OnEvent(HttpContext context, string jsonData, ActionType actionType, ArtifactType artifactType, CssType cssType, bool error = false)
         {   
             var now = DateTime.UtcNow;
             var periodLengthInMinutes = 15;
@@ -191,13 +191,13 @@ namespace VueStart.Services
             });
             Data.ProfilerRecord.Count += 1;
             SaveVisitToCahce(Data.Visitors, context, key);
-            SaveStatisticRecordToCache(Data.Records, jsonData, actionType, artifactType, cssType);
+            SaveStatisticRecordToCache(Data.Records, jsonData, actionType, artifactType, cssType, error);
             GenerateWatch = new Stopwatch();
             GenerateWatch.Start();
         }
 
 
-        private void SaveStatisticRecordToCache(List<StatisticRecord> records, string jsonData, ActionType actionType, ArtifactType artifactType, CssType cssType)
+        private void SaveStatisticRecordToCache(List<StatisticRecord> records, string jsonData, ActionType actionType, ArtifactType artifactType, CssType cssType, bool error)
         {
             int hash = StringHash(jsonData);
             var record = records.FirstOrDefault(r => r.Hash == hash);
@@ -207,7 +207,8 @@ namespace VueStart.Services
                 {
                     Hash = hash,
                     Data = jsonData,
-                    FirstUse = DateTime.UtcNow
+                    FirstUse = DateTime.UtcNow,
+                    Error = error
                 };
                 records.Add(record);
             }

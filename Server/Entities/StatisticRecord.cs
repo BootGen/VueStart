@@ -22,5 +22,6 @@ namespace VueStart
         public int VanillaEditableDownloadedCount { get; set; }
         public DateTime FirstUse { get; set; }
         public DateTime LastUse { get; set; }
+        public bool Error { get; set; }
     }
 }
