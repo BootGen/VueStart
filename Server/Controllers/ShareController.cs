@@ -35,10 +35,10 @@ public class ShareController : ControllerBase
         int hash = StringHash(JsonSerializer.Serialize(json));
         var link = dbContext.ShareableLinks.FirstOrDefault(r => r.Hash == hash);
         if(link != null)
-            return Ok(new { ShareableLink = "https://vuestart.com/" + hash });
+            return Ok(new { hash = hash });
         dbContext.ShareableLinks.Add(new ShareableLink { Hash = hash, Json = json });
         dbContext.SaveChanges();
-        return Ok(new { ShareableLink = "https://vuestart.com/" + hash });
+        return Ok(new { hash = hash });
     }
 
     [HttpGet]
