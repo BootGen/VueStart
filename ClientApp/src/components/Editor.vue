@@ -640,7 +640,7 @@ input#colorInput {
   top: 12vh;
   visibility: visible;
 }
-.codemirror.landing, .codemirror.supporters{
+.codemirror.landing, .codemirror.supporters, .codemirror.notfound {
   opacity: 0;
   height: 0vh;
   top: 98vh;
@@ -656,7 +656,7 @@ input#colorInput {
   width: 100%;
   height: 80vh;
 }
-.browser.landing, .browser.supporters{
+.browser.landing, .browser.supporters, .browser.notfound {
   height: 0vh;
   top: 98vh;
   visibility: hidden;
@@ -680,7 +680,7 @@ input#colorInput {
   transition-delay: 300ms;
   visibility: visible;
 }
-.browser-container.supporters{
+.browser-container.supporters, .browser-container.notfound {
   opacity: 0;
   height: 0vh;
   top: 98vh;
