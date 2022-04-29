@@ -28,15 +28,16 @@ public class ShareController : ControllerBase
         }
     }
 
+    
     [HttpPost]
-    [Route("")]
-    public IActionResult Save([FromBody] JsonElement json)
+    [Route("{type}/{editable}/{color}")]
+    public IActionResult Save([FromBody] JsonElement json, string type, bool editable, string color)
     {
-        int hash = StringHash(JsonSerializer.Serialize(json));
+        int hash = StringHash(JsonSerializer.Serialize(json)+type+editable.ToString()+color);
         var link = dbContext.ShareableLinks.FirstOrDefault(r => r.Hash == hash);
         if(link != null)
             return Ok(new { hash = hash });
-        dbContext.ShareableLinks.Add(new ShareableLink { Hash = hash, Json = json });
+        dbContext.ShareableLinks.Add(new ShareableLink { Hash = hash, Json = json, FrontendType = type, Editable = editable, Color = color });
         dbContext.SaveChanges();
         return Ok(new { hash = hash });
     }

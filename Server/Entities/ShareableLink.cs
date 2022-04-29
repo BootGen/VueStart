@@ -7,5 +7,8 @@ namespace VueStart
         public int Id { get; set; }
         public int Hash { get; set; }
         public JsonElement Json { get; set; }
+        public string FrontendType { get; set; }
+        public bool Editable { get; set; }
+        public string Color { get; set; }
     }
 }

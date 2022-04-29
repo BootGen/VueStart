@@ -482,7 +482,7 @@ export default defineComponent({
     async function share() {
       let shareableJson = JSON.stringify(json.value);
       if(shareableJson !== sharedJson) {
-        sharedLink = await axios.post(`api/share`, JSON.parse(json.value));
+        sharedLink = await axios.post(`api/share/${frontendMode.value}/${editable.value}/${tempColor.value}`, JSON.parse(json.value));
         sharedJson = shareableJson;
       }
       navigator.clipboard.writeText(window.location.origin + '/' + sharedLink.data.hash);
@@ -500,6 +500,9 @@ export default defineComponent({
       try {
         let resp = await axios.get(`api/share${path}`);
         json.value = JSON.stringify(resp.data.json);
+        frontendMode.value = resp.data.frontendType;
+        editable.value = resp.data.editable;
+        selectedColor.value = '#'+resp.data.color;
       } catch (e) {
         console.log('Not found', e.response);
       }
