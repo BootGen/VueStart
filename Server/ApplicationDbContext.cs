@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +15,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<ClientError> ClientErrors { get; set; }
     public DbSet<Visitor> Visitors { get; set; }
     public DbSet<Visit> Visits { get; set; }
+    public DbSet<User> Users { get; set; }
     public IConfiguration Configuration { get; }
 
     
@@ -50,14 +52,13 @@ public class ApplicationDbContext : DbContext
             .IsRequired();
         modelBuilder.Entity<Visitor>()
             .HasMany<Visit>(v => v.Visits);
-        modelBuilder.Entity<Visit>()
-            .Property(b => b.Id)
-            .IsRequired();
-        modelBuilder.Entity<ProfilerRecord>()
-            .Property(b => b.Id)
-            .IsRequired();
-        modelBuilder.Entity<ServerError>()
-            .Property(b => b.Id)
-            .IsRequired();
+        
+        var passwordHasher = new PasswordHasher<User>();
+        var admin = new User {
+            Id = 1,
+            Username = "admin"
+        };
+        admin.PasswordHash = passwordHasher.HashPassword(admin, "password");
+        modelBuilder.Entity<User>().HasData(admin);
     }
 }

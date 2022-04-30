@@ -163,7 +163,23 @@ namespace VueStart.Services
         }
 
         public void OnEvent(HttpContext context, string jsonData, ActionType actionType, ArtifactType artifactType, CssType cssType, bool error = false)
-        {   
+        {
+            CacheKey key = SetCurrentCacheEntry();
+            Data.ProfilerRecord.Count += 1;
+            SaveVisitToCahce(Data.Visitors, context, key);
+            SaveStatisticRecordToCache(Data.Records, jsonData, actionType, artifactType, cssType, error);
+            GenerateWatch = new Stopwatch();
+            GenerateWatch.Start();
+        }
+
+        public List<Visitor> GetCachedVisitors()
+        {
+            SetCurrentCacheEntry();
+            return Data.Visitors.Select(kvp => kvp.Value.Visitor).ToList();
+        }
+
+        private CacheKey SetCurrentCacheEntry()
+        {
             var now = DateTime.UtcNow;
             var periodLengthInMinutes = 15;
             var key = new CacheKey
@@ -171,10 +187,13 @@ namespace VueStart.Services
                 Day = (now - new DateTime(2021, 1, 1)).Days,
                 Period = (int)now.TimeOfDay.TotalMinutes / periodLengthInMinutes
             };
-            Data = memoryCache.GetOrCreate(key, entry => {
+            Data = memoryCache.GetOrCreate(key, entry =>
+            {
                 entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(periodLengthInMinutes + 0.5));
-                entry.RegisterPostEvictionCallback( (object key, object value, EvictionReason reason, object state) => {
-                    Task.Run(async () => {
+                entry.RegisterPostEvictionCallback((object key, object value, EvictionReason reason, object state) =>
+                {
+                    Task.Run(async () =>
+                    {
                         await SaveData((PeriodData)value);
                     });
                 });
@@ -189,13 +208,8 @@ namespace VueStart.Services
                     }
                 };
             });
-            Data.ProfilerRecord.Count += 1;
-            SaveVisitToCahce(Data.Visitors, context, key);
-            SaveStatisticRecordToCache(Data.Records, jsonData, actionType, artifactType, cssType, error);
-            GenerateWatch = new Stopwatch();
-            GenerateWatch.Start();
+            return key;
         }
-
 
         private void SaveStatisticRecordToCache(List<StatisticRecord> records, string jsonData, ActionType actionType, ArtifactType artifactType, CssType cssType, bool error)
         {

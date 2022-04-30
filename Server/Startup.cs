@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using VueStart.Services;
 using Microsoft.AspNetCore.Http;
+using VueStart.Authorization;
 
 namespace VueStart
 {
@@ -27,6 +28,7 @@ namespace VueStart
             services.AddMemoryCache();
             services.AddScoped<StatisticsService>();
             services.AddScoped<GenerationService>();
+            services.AddScoped<UserService>();
             services.AddDbContext<ApplicationDbContext>();
         }
 
@@ -63,7 +65,7 @@ namespace VueStart
 
             app.UseRouting();
 
-            //app.UseAuthorization();
+            app.UseMiddleware<BasicAuthMiddleware>();
             app.UseCors();
 
             app.UseEndpoints(endpoints =>

@@ -18,14 +18,14 @@ public class GenerationService
     {
         this.memoryCache = memoryCache;
     }
-    public string Generate(JsonElement json, string title, string templateFileName, string type, string color, string generatedId, bool forDownload, out string appjs, out string indexhtml)
+    public string Generate(JsonElement json, string title, string templateFileName, string type, string color, string generatedId, bool forDownload, out string appjs, out string indexhtml, bool isAdmin = false)
     {
         var generator = new VueStartGenerator(json, memoryCache);
-        Generate(json, title, templateFileName, type, color, generatedId, forDownload, out appjs, out indexhtml, generator);
+        Generate(json, title, templateFileName, type, color, generatedId, forDownload, out appjs, out indexhtml, generator, isAdmin);
         return generator.Id;
     }
 
-    private static void Generate(JsonElement json, string title, string templateFileName, string type, string color, string generatedId, bool forDownload, out string appjs, out string indexhtml, VueStartGenerator generator)
+    private static void Generate(JsonElement json, string title, string templateFileName, string type, string color, string generatedId, bool forDownload, out string appjs, out string indexhtml, VueStartGenerator generator, bool isAdmin = false)
     {
         var jsParameters = new Dictionary<string, object> {
                 {"classes", generator.DataModel.CommonClasses}
@@ -39,8 +39,12 @@ public class GenerationService
         var indexParameters = new Dictionary<string, object> {
                 {"title", $"{title}"}
             };
-        if (!forDownload)
-            indexParameters.Add("base_url", $"/api/files/{generator.Id}/");
+        if (!forDownload) {
+            if (isAdmin)
+                indexParameters.Add("base_url", "/admin/");
+            else
+                indexParameters.Add("base_url", $"/api/files/{generator.Id}/");
+        }
         indexParameters.Add("color", color);
         if (Brightness(ColorTranslator.FromHtml($"#{color}")) > 170)
         {

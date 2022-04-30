@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace VueStart
 {
@@ -12,6 +13,7 @@ namespace VueStart
         public string Country { get; set; }
         public string Region { get; set; }
         public string City { get; set; }
+        [JsonIgnore]
         public string UserAgent { get; set; }
         public string OSFamily { get; set; }
         public string OSMajor { get; set; }
