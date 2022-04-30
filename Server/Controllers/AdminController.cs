@@ -22,18 +22,22 @@ public class AdminController : ControllerBase
     private readonly IMemoryCache memoryCache;
     private readonly GenerationService generationService;
     private readonly GenerationService generateService;
+    private readonly StatisticsService statisticsService;
 
-    public AdminController(ApplicationDbContext dbContext, IMemoryCache memoryCache, GenerationService generationService, GenerationService generateService) {
+    public AdminController(ApplicationDbContext dbContext, IMemoryCache memoryCache, GenerationService generationService, GenerationService generateService, StatisticsService statisticsService)
+    {
         this.dbContext = dbContext;
         this.memoryCache = memoryCache;
         this.generationService = generationService;
         this.generateService = generateService;
+        this.statisticsService = statisticsService;
     }
 
     [HttpGet]
     [Route("visitors")]
     public JsonElement GetVisitors() {
         List<Visitor> visitors = dbContext.Visitors.Include(visitor => visitor.Visits).ToList();
+        visitors.AddRange(statisticsService.GetCachedVisitors());
         JsonDocument doc = JsonDocument.Parse("{\"visitors\":" + JsonSerializer.Serialize(visitors, new JsonSerializerOptions{ 
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         }) + "}");
