@@ -51,7 +51,7 @@ namespace VueStart
             });
             app.UseExceptionHandler(builder => {
                 builder.Run(async context => {
-                        var service = new ErrorHandlerService(Configuration);
+                        using var service = new ErrorHandlerService(Configuration);
                         var handler = context.Features.Get<IExceptionHandlerFeature>();
                         var exception = handler?.Error;
                         context.Request.Body.Seek(0, SeekOrigin.Begin);

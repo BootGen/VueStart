@@ -4,8 +4,8 @@ namespace VueStart
 {
     public class Visit {
         public int Id { get; set; }
-        public int Day { get; init; }
-        public int Period { get; init; }
+        public DateTime Start { get; init; }
+        public DateTime End { get; set; }
         public int Count { get; set; }
     }
 }

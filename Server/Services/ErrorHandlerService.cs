@@ -5,25 +5,27 @@ using Microsoft.Extensions.Configuration;
 
 namespace VueStart
 {
-    class ErrorHandlerService
+    class ErrorHandlerService : IDisposable
     {
-        private readonly IConfiguration configuration;
+        private readonly ApplicationDbContext dbContext;
 
         public ErrorHandlerService(IConfiguration configuration)
         {
-            this.configuration = configuration;
+            dbContext = new ApplicationDbContext(configuration);
+        }
+
+        public ErrorHandlerService(ApplicationDbContext dbContext)
+        {
+            this.dbContext = dbContext;
         }
 
         public void OnException(Exception e, string data)
         {
             ServerError error = e.InnerException == null ? ExceptionToError(e) : ExceptionToError(e.InnerException);
             error.Data = data;
-            using (var dbContext = new ApplicationDbContext(configuration))
-            {
-                dbContext.Database.EnsureCreated();
-                dbContext.ServerErrors.Add(error);
-                dbContext.SaveChanges();
-            }
+            dbContext.Database.EnsureCreated();
+            dbContext.ServerErrors.Add(error);
+            dbContext.SaveChanges();
         }
 
         private static ServerError ExceptionToError(Exception e)
@@ -39,6 +41,11 @@ namespace VueStart
                 Source = e.Source,
                 HResult = e.HResult
             };
+        }
+
+        public void Dispose()
+        {
+            dbContext.Dispose();
         }
     }
 }
