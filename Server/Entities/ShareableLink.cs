@@ -10,5 +10,8 @@ namespace VueStart
         public string FrontendType { get; set; }
         public bool Editable { get; set; }
         public string Color { get; set; }
+        public DateTime FirstUse { get; set; }
+        public DateTime LastUse { get; set; }
+        public int Count { get; set; }
     }
 }
