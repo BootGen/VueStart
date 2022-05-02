@@ -27,6 +27,23 @@ namespace VueStart.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "InputData",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Hash = table.Column<int>(type: "integer", nullable: false),
+                    Data = table.Column<JsonElement>(type: "jsonb", nullable: false),
+                    FirstUse = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastUse = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Error = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InputData", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ProfilerRecords",
                 columns: table => new
                 {
@@ -83,35 +100,6 @@ namespace VueStart.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "StatisticRecords",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Hash = table.Column<int>(type: "integer", nullable: false),
-                    Data = table.Column<string>(type: "text", nullable: false),
-                    BootstrapReadonlyGeneratedCount = table.Column<int>(type: "integer", nullable: false),
-                    BootstrapEditableGeneratedCount = table.Column<int>(type: "integer", nullable: false),
-                    BootstrapReadonlyDownloadedCount = table.Column<int>(type: "integer", nullable: false),
-                    BootstrapEditableDownloadedCount = table.Column<int>(type: "integer", nullable: false),
-                    TailwindReadonlyGeneratedCount = table.Column<int>(type: "integer", nullable: false),
-                    TailwindEditableGeneratedCount = table.Column<int>(type: "integer", nullable: false),
-                    TailwindReadonlyDownloadedCount = table.Column<int>(type: "integer", nullable: false),
-                    TailwindEditableDownloadedCount = table.Column<int>(type: "integer", nullable: false),
-                    VanillaReadonlyGeneratedCount = table.Column<int>(type: "integer", nullable: false),
-                    VanillaEditableGeneratedCount = table.Column<int>(type: "integer", nullable: false),
-                    VanillaReadonlyDownloadedCount = table.Column<int>(type: "integer", nullable: false),
-                    VanillaEditableDownloadedCount = table.Column<int>(type: "integer", nullable: false),
-                    FirstUse = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LastUse = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Error = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StatisticRecords", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -154,6 +142,30 @@ namespace VueStart.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "StatisticRecords",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    InputDataId = table.Column<int>(type: "integer", nullable: false),
+                    Readonly = table.Column<bool>(type: "boolean", nullable: false),
+                    Download = table.Column<bool>(type: "boolean", nullable: false),
+                    BootstrapCount = table.Column<int>(type: "integer", nullable: false),
+                    TailwindCount = table.Column<int>(type: "integer", nullable: false),
+                    VanillaCount = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StatisticRecords", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StatisticRecords_InputData_InputDataId",
+                        column: x => x.InputDataId,
+                        principalTable: "InputData",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Visits",
                 columns: table => new
                 {
@@ -177,7 +189,12 @@ namespace VueStart.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "PasswordHash", "Username" },
-                values: new object[] { 1, "AQAAAAEAACcQAAAAEIxZn3eZLfL7ta12de0a3P87RIpiYbA+Rj9JsN859c85GfTq+Pd+uvvhGs904rNkhw==", "admin" });
+                values: new object[] { 1, "AQAAAAEAACcQAAAAEB8NPZXlW5cwQuyEPPrqikkOUQHErDgxO1HkozrriZi5pUy0BquMLQCTq5Abr11Y1Q==", "admin" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StatisticRecords_InputDataId",
+                table: "StatisticRecords",
+                column: "InputDataId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Visits_VisitorId",
@@ -207,6 +224,9 @@ namespace VueStart.Migrations
 
             migrationBuilder.DropTable(
                 name: "Visits");
+
+            migrationBuilder.DropTable(
+                name: "InputData");
 
             migrationBuilder.DropTable(
                 name: "Visitors");

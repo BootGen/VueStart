@@ -45,7 +45,7 @@ namespace VueStart.Migrations
                         new
                         {
                             Id = 1,
-                            PasswordHash = "AQAAAAEAACcQAAAAEIxZn3eZLfL7ta12de0a3P87RIpiYbA+Rj9JsN859c85GfTq+Pd+uvvhGs904rNkhw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEB8NPZXlW5cwQuyEPPrqikkOUQHErDgxO1HkozrriZi5pUy0BquMLQCTq5Abr11Y1Q==",
                             Username = "admin"
                         });
                 });
@@ -70,6 +70,34 @@ namespace VueStart.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ClientErrors");
+                });
+
+            modelBuilder.Entity("VueStart.InputData", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<JsonElement>("Data")
+                        .HasColumnType("jsonb");
+
+                    b.Property<bool>("Error")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("FirstUse")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Hash")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("LastUse")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InputData");
                 });
 
             modelBuilder.Entity("VueStart.ProfilerRecord", b =>
@@ -179,59 +207,27 @@ namespace VueStart.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BootstrapEditableDownloadedCount")
+                    b.Property<int>("BootstrapCount")
                         .HasColumnType("integer");
 
-                    b.Property<int>("BootstrapEditableGeneratedCount")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("BootstrapReadonlyDownloadedCount")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("BootstrapReadonlyGeneratedCount")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Data")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("Error")
+                    b.Property<bool>("Download")
                         .HasColumnType("boolean");
 
-                    b.Property<DateTime>("FirstUse")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Hash")
+                    b.Property<int>("InputDataId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("LastUse")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<bool>("Readonly")
+                        .HasColumnType("boolean");
 
-                    b.Property<int>("TailwindEditableDownloadedCount")
+                    b.Property<int>("TailwindCount")
                         .HasColumnType("integer");
 
-                    b.Property<int>("TailwindEditableGeneratedCount")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TailwindReadonlyDownloadedCount")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TailwindReadonlyGeneratedCount")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("VanillaEditableDownloadedCount")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("VanillaEditableGeneratedCount")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("VanillaReadonlyDownloadedCount")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("VanillaReadonlyGeneratedCount")
+                    b.Property<int>("VanillaCount")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("InputDataId");
 
                     b.ToTable("StatisticRecords");
                 });
@@ -325,11 +321,27 @@ namespace VueStart.Migrations
                     b.ToTable("Visitors");
                 });
 
+            modelBuilder.Entity("VueStart.StatisticRecord", b =>
+                {
+                    b.HasOne("VueStart.InputData", "InputData")
+                        .WithMany("StatisticRecords")
+                        .HasForeignKey("InputDataId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InputData");
+                });
+
             modelBuilder.Entity("VueStart.Visit", b =>
                 {
                     b.HasOne("VueStart.Visitor", null)
                         .WithMany("Visits")
                         .HasForeignKey("VisitorId");
+                });
+
+            modelBuilder.Entity("VueStart.InputData", b =>
+                {
+                    b.Navigation("StatisticRecords");
                 });
 
             modelBuilder.Entity("VueStart.Visitor", b =>

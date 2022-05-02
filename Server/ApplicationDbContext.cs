@@ -9,6 +9,7 @@ namespace VueStart;
 
 public class ApplicationDbContext : DbContext
 {
+    public DbSet<InputData> InputData { get; set; }
     public DbSet<StatisticRecord> StatisticRecords { get; set; }
     public DbSet<ProfilerRecord> ProfilerRecords { get; set; }
     public DbSet<ServerError> ServerErrors { get; set; }
@@ -42,10 +43,10 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<StatisticRecord>()
+       modelBuilder.Entity<InputData>()
             .Property(b => b.Hash)
             .IsRequired();
-        modelBuilder.Entity<StatisticRecord>()
+        modelBuilder.Entity<InputData>()
             .Property(b => b.Data)
             .IsRequired();
         modelBuilder.Entity<Visitor>()
@@ -53,6 +54,10 @@ public class ApplicationDbContext : DbContext
             .IsRequired();
         modelBuilder.Entity<Visitor>()
             .HasMany<Visit>(v => v.Visits);
+        modelBuilder.Entity<InputData>()
+            .HasMany<StatisticRecord>(v => v.StatisticRecords);
+        modelBuilder.Entity<StatisticRecord>()
+            .HasOne<InputData>(v => v.InputData);
         
         var passwordHasher = new PasswordHasher<User>();
         var admin = new User {

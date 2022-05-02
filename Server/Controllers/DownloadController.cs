@@ -38,7 +38,7 @@ namespace VueStart.Controllers
                 var cssType = type.ToCssType();
                 if (cssType == CssType.None)
                     return NotFound();
-                statisticsService.OnEvent(Request.HttpContext, json.ToString(), ActionType.Download, artifactType, cssType);
+                statisticsService.OnEvent(Request.HttpContext, json, ActionType.Download, artifactType, cssType);
                 var memoryStream = CreateZipStream(json, $"Data {ToUpperFirst(layout)}", $"{type}-{layout}.sbn", type, color);
                 statisticsService.OnDownloadEnd();
                 return File(memoryStream, "application/zip", $"{layout}.zip");

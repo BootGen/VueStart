@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
@@ -33,7 +34,7 @@ namespace VueStart.Services
         private struct PeriodData
         {
             public Dictionary<string, VisitorData> Visitors { get; init; }
-            public List<StatisticRecord> Records { get; init; }
+            public List<InputData> InputData { get; init; }
             public ProfilerRecord ProfilerRecord { get; init; }
         }
 
@@ -62,91 +63,18 @@ namespace VueStart.Services
             }
         }
 
-        private void UpdateRecord(StatisticRecord record, ActionType actionType, ArtifactType artifactType, CssType cssType)
+        private void UpdateRecord(StatisticRecord record,  CssType cssType)
         {
-            record.LastUse = DateTime.UtcNow;
             switch (cssType)
             {
                 case CssType.Bootstrap:
-                    switch (actionType)
-                    {
-                        case ActionType.Download:
-                            switch (artifactType)
-                            {
-                                case ArtifactType.Table:
-                                record.BootstrapReadonlyDownloadedCount += 1;
-                                break;
-                                case ArtifactType.TableEditable:
-                                record.BootstrapEditableDownloadedCount += 1;
-                                break;
-                            }
-                        break;
-                        case ActionType.Generate:
-                            switch (artifactType)
-                            {
-                                case ArtifactType.Table:
-                                record.BootstrapReadonlyGeneratedCount += 1;
-                                break;
-                                case ArtifactType.TableEditable:
-                                record.BootstrapReadonlyGeneratedCount += 1;
-                                break;
-                            }
-                        break;
-                    }
+                    record.BootstrapCount += 1;
                 break;
                 case CssType.Tailwind:
-                    switch (actionType)
-                    {
-                        case ActionType.Download:
-                            switch (artifactType)
-                            {
-                                case ArtifactType.Table:
-                                record.TailwindReadonlyDownloadedCount += 1;
-                                break;
-                                case ArtifactType.TableEditable:
-                                record.TailwindEditableDownloadedCount += 1;
-                                break;
-                            }
-                        break;
-                        case ActionType.Generate:
-                            switch (artifactType)
-                            {
-                                case ArtifactType.Table:
-                                record.TailwindReadonlyGeneratedCount += 1;
-                                break;
-                                case ArtifactType.TableEditable:
-                                record.TailwindReadonlyGeneratedCount += 1;
-                                break;
-                            }
-                        break;
-                    }
+                    record.TailwindCount += 1;
                 break;
                 case CssType.Vanilla:
-                    switch (actionType)
-                    {
-                        case ActionType.Download:
-                            switch (artifactType)
-                            {
-                                case ArtifactType.Table:
-                                record.VanillaReadonlyDownloadedCount += 1;
-                                break;
-                                case ArtifactType.TableEditable:
-                                record.VanillaEditableDownloadedCount += 1;
-                                break;
-                            }
-                        break;
-                        case ActionType.Generate:
-                            switch (artifactType)
-                            {
-                                case ArtifactType.Table:
-                                record.VanillaReadonlyGeneratedCount += 1;
-                                break;
-                                case ArtifactType.TableEditable:
-                                record.VanillaReadonlyGeneratedCount += 1;
-                                break;
-                            }
-                        break;
-                    }
+                    record.VanillaCount += 1;
                 break;
             }
         }
@@ -162,12 +90,12 @@ namespace VueStart.Services
             Data.ProfilerRecord.Download += GenerateWatch.ElapsedMilliseconds;
         }
 
-        public void OnEvent(HttpContext context, string jsonData, ActionType actionType, ArtifactType artifactType, CssType cssType, bool error = false)
+        public void OnEvent(HttpContext context, JsonElement jsonData, ActionType actionType, ArtifactType artifactType, CssType cssType, bool error = false)
         {
             CacheKey key = SetCurrentCacheEntry();
             Data.ProfilerRecord.Count += 1;
             SaveVisitToCahce(Data.Visitors, context, key);
-            SaveStatisticRecordToCache(Data.Records, jsonData, actionType, artifactType, cssType, error);
+            SaveStatisticRecordToCache(Data, jsonData, actionType, artifactType, cssType, error);
             GenerateWatch = new Stopwatch();
             GenerateWatch.Start();
         }
@@ -181,7 +109,7 @@ namespace VueStart.Services
         private CacheKey SetCurrentCacheEntry()
         {
             var now = DateTime.UtcNow;
-            var periodLengthInMinutes = 15;
+            var periodLengthInMinutes = 1;
             var key = new CacheKey
             {
                 Day = (now - new DateTime(2021, 1, 1)).Days,
@@ -200,7 +128,7 @@ namespace VueStart.Services
                 return new PeriodData
                 {
                     Visitors = new Dictionary<string, VisitorData>(),
-                    Records = new List<StatisticRecord>(),
+                    InputData = new List<InputData>(),
                     ProfilerRecord = new ProfilerRecord
                     {
                         Day = key.Day,
@@ -211,22 +139,35 @@ namespace VueStart.Services
             return key;
         }
 
-        private void SaveStatisticRecordToCache(List<StatisticRecord> records, string jsonData, ActionType actionType, ArtifactType artifactType, CssType cssType, bool error)
+        private void SaveStatisticRecordToCache(PeriodData periodData, JsonElement jsonData, ActionType actionType, ArtifactType artifactType, CssType cssType, bool error)
         {
-            int hash = StringHash(jsonData);
-            var record = records.FirstOrDefault(r => r.Hash == hash);
-            if (record == null)
+            int hash = StringHash(jsonData.ToString());
+            var inputData = periodData.InputData.FirstOrDefault(r => r.Hash == hash);
+            var record = new StatisticRecord {
+                Download = actionType == ActionType.Download,
+                Readonly = artifactType == ArtifactType.TableEditable
+            };
+            if (inputData == null)
             {
-                record = new StatisticRecord
-                {
+                inputData = new InputData {
                     Hash = hash,
                     Data = jsonData,
                     FirstUse = DateTime.UtcNow,
-                    Error = error
+                    LastUse = DateTime.UtcNow,
+                    Error = error,
+                    StatisticRecords = new List<StatisticRecord>() { record }
                 };
-                records.Add(record);
+                periodData.InputData.Add(inputData);
+            } else {
+                var existingRecord = inputData.StatisticRecords.FirstOrDefault(r => r.IsSameKind(record));
+                if (existingRecord != null)
+                {
+                    record = existingRecord;
+                } else {
+                    inputData.StatisticRecords.Add(record);
+                }
             }
-            UpdateRecord(record, actionType, artifactType, cssType);
+            UpdateRecord(record, cssType);
         }
 
         private void SaveVisitToCahce(Dictionary<string, VisitorData> visitors, HttpContext context, CacheKey key)
@@ -248,8 +189,7 @@ namespace VueStart.Services
                 });
 
                 visitor.Visits = new List<Visit> {
-                    new Visit
-                    {
+                    new Visit {
                         Day = key.Day,
                         Period = key.Period,
                         Count = 1
@@ -266,7 +206,7 @@ namespace VueStart.Services
                 using var dbContext = new ApplicationDbContext(configuration);
                 dbContext.Database.EnsureCreated();
                 await SaveVisitors(data, dbContext);
-                SaveRecords(data.Records, dbContext);
+                SaveRecords(data, dbContext);
                 dbContext.SaveChanges();
                 sw.Stop();
                 data.ProfilerRecord.Database = sw.ElapsedMilliseconds - data.ProfilerRecord.GeoLocation;
@@ -280,30 +220,28 @@ namespace VueStart.Services
             }
         }
 
-        private static void SaveRecords(List<StatisticRecord> records, ApplicationDbContext dbContext)
+        private void SaveRecords(PeriodData data, ApplicationDbContext dbContext)
         {
-            foreach (var record in records)
+            foreach (var inputData in Data.InputData)
             {
-                var existingRecord = dbContext.StatisticRecords.FirstOrDefault(r => r.Hash == record.Hash);
-                if (existingRecord != null)
+                var existingInputData = dbContext.InputData.FirstOrDefault(r => r.Hash == inputData.Hash);
+                if (existingInputData != null)
                 {
-                    existingRecord.BootstrapReadonlyGeneratedCount += record.BootstrapReadonlyGeneratedCount;
-                    existingRecord.BootstrapEditableGeneratedCount += record.BootstrapEditableGeneratedCount;
-                    existingRecord.BootstrapReadonlyDownloadedCount += record.BootstrapReadonlyDownloadedCount;
-                    existingRecord.BootstrapEditableDownloadedCount += record.BootstrapEditableDownloadedCount;
-                    existingRecord.TailwindReadonlyGeneratedCount += record.TailwindReadonlyGeneratedCount;
-                    existingRecord.TailwindEditableGeneratedCount += record.TailwindEditableGeneratedCount;
-                    existingRecord.TailwindReadonlyDownloadedCount += record.TailwindReadonlyDownloadedCount;
-                    existingRecord.TailwindEditableDownloadedCount += record.TailwindEditableDownloadedCount;
-                    existingRecord.VanillaReadonlyGeneratedCount += record.VanillaReadonlyGeneratedCount;
-                    existingRecord.VanillaEditableGeneratedCount += record.VanillaEditableGeneratedCount;
-                    existingRecord.VanillaReadonlyDownloadedCount += record.VanillaReadonlyDownloadedCount;
-                    existingRecord.VanillaEditableDownloadedCount += record.VanillaEditableDownloadedCount;
-                    existingRecord.LastUse = record.LastUse;
+                    existingInputData.LastUse = DateTime.UtcNow;
+                    foreach(var record in inputData.StatisticRecords) {
+                        var existingRecord = existingInputData.StatisticRecords.FirstOrDefault(r => r.IsSameKind(record));
+                        if (existingRecord != null) {
+                            existingRecord.BootstrapCount += record.BootstrapCount;
+                            existingRecord.TailwindCount += record.TailwindCount;
+                            existingRecord.VanillaCount += record.VanillaCount;
+                        } else {
+                            existingInputData.StatisticRecords.Add(record);
+                        }
+                    }
                 }
                 else
                 {
-                    dbContext.StatisticRecords.Add(record);
+                    dbContext.InputData.Add(inputData);
                 }
             }
         }
