@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -65,6 +66,23 @@ namespace VueStart.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ShareableLinks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Hash = table.Column<int>(type: "integer", nullable: false),
+                    Json = table.Column<JsonElement>(type: "jsonb", nullable: false),
+                    FrontendType = table.Column<string>(type: "text", nullable: true),
+                    Editable = table.Column<bool>(type: "boolean", nullable: false),
+                    Color = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ShareableLinks", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "StatisticRecords",
                 columns: table => new
                 {
@@ -85,7 +103,8 @@ namespace VueStart.Migrations
                     VanillaReadonlyDownloadedCount = table.Column<int>(type: "integer", nullable: false),
                     VanillaEditableDownloadedCount = table.Column<int>(type: "integer", nullable: false),
                     FirstUse = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LastUse = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    LastUse = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Error = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -158,7 +177,7 @@ namespace VueStart.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "PasswordHash", "Username" },
-                values: new object[] { 1, "AQAAAAEAACcQAAAAEAr9Z9CH3Tr4ULztb8HHSh5S/bWyk+UAwvXGRtBh1B9C6i1cUwRQaYUHM7KyNcgxGA==", "admin" });
+                values: new object[] { 1, "AQAAAAEAACcQAAAAEIxZn3eZLfL7ta12de0a3P87RIpiYbA+Rj9JsN859c85GfTq+Pd+uvvhGs904rNkhw==", "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Visits_VisitorId",
@@ -176,6 +195,9 @@ namespace VueStart.Migrations
 
             migrationBuilder.DropTable(
                 name: "ServerErrors");
+
+            migrationBuilder.DropTable(
+                name: "ShareableLinks");
 
             migrationBuilder.DropTable(
                 name: "StatisticRecords");
