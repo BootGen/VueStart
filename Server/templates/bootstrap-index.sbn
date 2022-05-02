@@ -54,6 +54,13 @@
       select {
         border: none;
       }
+      .page-item.active .page-link {
+        background-color: #{{ color }};
+        border-color: #{{ color }};
+      }
+      .page-link {
+        color: #{{ color }};
+      }
       {{~ if title == 'Data Table-editable' ~}}
       .active-row {
         background-color:#{{ color }}33;

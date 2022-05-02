@@ -66,10 +66,22 @@ app.config.globalProperties.$filters = {
 
 app.component('pagination', {
   template: `
-  <div>
-    <i class="bi-chevron-left" :class="{clickable:pageIdx > 1, disabled: pageIdx === 1}" @click="toPage(pageIdx-1)"></i>
-    <span v-for="n in pageCount" class="clickable px-2" :class="{active: n === pageIdx}" @click="toPage(n)">{{'{{'}} n {{'}}'}}</span>
-    <i class="bi-chevron-right" :class="{clickable: pageIdx < pageCount, disabled: pageIdx === pageCount}" @click="toPage(pageIdx+1)"></i>
+  <div class="d-flex flex-column align-items-center">
+    <nav aria-label="pagination">
+      <ul class="pagination">
+        <li class="page-item" :class="{disabled: pageIdx === 1}">
+          <a class="page-link" href="javascript:void(0)" @click="toPage(pageIdx-1)">&laquo;</a>
+        </li>
+        
+        <li class="page-item" :class="{active: n === pageIdx}" v-for="n in pageCount" @click="toPage(n)">
+          <a class="page-link" href="javascript:void(0)">{{'{{'}} n {{'}}'}} <span class="sr-only"></span></a>
+        </li>
+
+        <li class="page-item" :class="{disabled: pageIdx === pageCount}" @click="toPage(pageIdx+1)">
+          <a class="page-link" href="javascript:void(0)">&raquo;</a>
+        </li>
+      </ul>
+    </nav>
     <p>
     rows per page:
     <select v-model="pageSize">
