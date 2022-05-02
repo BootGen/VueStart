@@ -109,7 +109,11 @@ namespace VueStart.Services
         private CacheKey SetCurrentCacheEntry()
         {
             var now = DateTime.UtcNow;
+            #if DEBUG
             var periodLengthInMinutes = 1;
+            #else
+            var periodLengthInMinutes = 15;
+            #endif
             var key = new CacheKey
             {
                 Day = (now - new DateTime(2021, 1, 1)).Days,
@@ -178,7 +182,9 @@ namespace VueStart.Services
             string remoteIpAddress = context.Connection.RemoteIpAddress.ToString();
             if (visitors.TryGetValue(token, out var data))
             {
-                data.Visitor.Visits.First().Count += 1;
+                var visit = data.Visitor.Visits.First();
+                visit.Count += 1;
+                visit.End = DateTime.UtcNow;
             }
             else
             {
@@ -190,8 +196,8 @@ namespace VueStart.Services
 
                 visitor.Visits = new List<Visit> {
                     new Visit {
-                        Day = key.Day,
-                        Period = key.Period,
+                        Start = DateTime.UtcNow,
+                        End = DateTime.UtcNow,
                         Count = 1
                     }
                 };
@@ -200,10 +206,10 @@ namespace VueStart.Services
 
         private async Task SaveData(PeriodData data)
         {
+            using var dbContext = new ApplicationDbContext(configuration);
             try {
                 var sw = new Stopwatch();
                 sw.Start();
-                using var dbContext = new ApplicationDbContext(configuration);
                 dbContext.Database.EnsureCreated();
                 await SaveVisitors(data, dbContext);
                 SaveRecords(data, dbContext);
@@ -216,6 +222,8 @@ namespace VueStart.Services
                 sw.Stop();
                 Console.WriteLine($"\n\nSaving profiler record: {sw.ElapsedMilliseconds}");
             } catch (Exception e) {
+                using var errorHandlingService = new ErrorHandlerService(dbContext);
+                errorHandlingService.OnException(e, null);
                 Console.WriteLine(e.Message);
             }
         }
