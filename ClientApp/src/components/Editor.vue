@@ -30,7 +30,7 @@
         </browser-frame>
       </div>
       <div class="d-flex browser-buttons" :class="page">
-        <div class="fab-container">
+        <div class="fab-container mx-1">
           <div class="fab fab-icon-holder">
             <span class="bi bi-lightbulb" aria-hidden="true"></span>
             <span class="ps-2">Example</span>
@@ -50,7 +50,7 @@
             </li>
           </ul>
         </div>
-        <div class="fab-container mx-2">
+        <div class="fab-container mx-1">
           <div class="fab fab-icon-holder">
             <img src="../assets/css_white.webp" v-if="frontendMode === frontendModes.Vanilla">
             <img src="../assets/bootstrap_white.webp" v-if="frontendMode === frontendModes.Bootstrap">
@@ -78,7 +78,7 @@
             </li>
           </ul>
         </div>
-        <div class="fab-container mx-2">
+        <div class="fab-container mx-1">
           <div class="fab fab-icon-holder">
             <span class="bi bi-pencil" aria-hidden="true" v-if="editable"></span>
             <span class="bi bi-eye" aria-hidden="true" v-else></span>
@@ -98,11 +98,15 @@
             </li>
           </ul>
         </div>
-        <div id="color-picker-btn" class="fab fab-icon-holder" @click="triggerColorPicker">
+        <div id="color-picker-btn" class="fab fab-icon-holder mx-1" @click="triggerColorPicker">
           <input type="color" class="form-control form-control-color position-absolute" id="colorInput" v-model="selectedColor" title="Choose your color">
           <span class="bi bi-palette" aria-hidden="true"></span>
         </div>
-        <div id="download-btn" class="fab fab-icon-holder pulse-download-btn mx-2" @click="onDownloadClicked">
+        <div id="share-btn" class="fab fab-icon-holder mx-1" :class="{'disable-share': shareLinkOnClipboard}" @click="share">
+          <span class="bi bi-share" aria-hidden="true"></span>
+          <span class="copied">Copied!</span>
+        </div>
+        <div id="download-btn" class="fab fab-icon-holder pulse-download-btn mx-1" @click="onDownloadClicked">
           <span class="bi bi-download" aria-hidden="true"></span>
         </div>
       </div>
@@ -130,6 +134,8 @@ export default defineComponent({
   setup(props, context) {
     const inputError = ref(null);
     const json = ref('');
+    let sharedJson = '';
+    let sharedLink = '';
     const jsonSchema = ref(getSchema({}));
     const selectedTab = ref(0);
     const editable = ref(true);
@@ -141,6 +147,7 @@ export default defineComponent({
     const undoStackIdx = ref(-1);
     let generatedId = '';
     let isGenerating = false;
+    const shareLinkOnClipboard = ref(false);
     let noAction = {
       active: false,
       href: 'javascript:void(0)',
@@ -472,11 +479,39 @@ export default defineComponent({
         json.value = undoStack.value[undoStackIdx.value];
       }
     }
+    async function share() {
+      let shareableJson = JSON.stringify(json.value);
+      if(shareableJson !== sharedJson) {
+        sharedLink = await axios.post(`api/share/${frontendMode.value}/${editable.value}/${tempColor.value}`, JSON.parse(json.value));
+        sharedJson = shareableJson;
+      }
+      navigator.clipboard.writeText(window.location.origin + '/' + sharedLink.data.hash);
+      shareLinkOnClipboard.value = true;
+      setTimeout(()=> {
+        shareLinkOnClipboard.value = false;
+      }, 800);
+    }
+
+    if(!window.location.pathname.includes('editor') && window.location.pathname !== '/') {
+      loadSharedLink(window.location.pathname);
+    }
+
+    async function loadSharedLink(path){      
+      try {
+        let resp = await axios.get(`api/share${path}`);
+        json.value = JSON.stringify(resp.data.json);
+        frontendMode.value = resp.data.frontendType;
+        editable.value = resp.data.editable;
+        selectedColor.value = '#'+resp.data.color;
+      } catch (e) {
+        console.log('Not found', e.response);
+      }
+    }
 
     return { json, inputError, frontendMode, frontendModes, selectedColor,
       changeFrontendMode, onDownloadClicked, triggerColorPicker, pageRefresh,
       selectedTab, browserData, loadTasksExample, loadOrdersExample, syntaxError,
-      alert, showWarningPanel, warnings, editable, editableChanged, undo, redo, undoStackIdx, undoStack }
+      alert, showWarningPanel, warnings, editable, editableChanged, undo, redo, undoStackIdx, undoStack, share, shareLinkOnClipboard }
   },
 })
 </script>
@@ -505,6 +540,20 @@ body {
   padding: 1rem;
   box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
 }
+.copied {
+  transition: all 1s ease-in-out;
+  transition-delay: 10ms;
+  position: absolute;
+  opacity: 0;
+  color: #42b983;
+  bottom: 1rem;
+  display: flex;
+  justify-content: center;
+}
+.disable-share .copied {
+  opacity: 1;
+  bottom: 4rem;
+}
 .fab-icon-holder .bi {
   font-size: 1.5rem;
 }
@@ -519,6 +568,7 @@ body {
 .fab {
   height: 50px;
   background: #42b983;
+  cursor: pointer;
 }
 .fab-options {
   list-style-type: none;
@@ -555,16 +605,10 @@ body {
   transition-delay: 150ms;
 }
 .browser-buttons.landing {
-  /*bottom: -20vh;*/
   opacity: 0;
 }
 .browser-buttons.content {
-  /*bottom: -1rem;*/
   opacity: 1;
-}
-
-#download-btn {
-  cursor: pointer;
 }
 
 .pulse-download-btn {
@@ -596,7 +640,7 @@ input#colorInput {
   top: 12vh;
   visibility: visible;
 }
-.codemirror.landing, .codemirror.supporters{
+.codemirror.landing, .codemirror.supporters, .codemirror.notfound {
   opacity: 0;
   height: 0vh;
   top: 98vh;
@@ -612,7 +656,7 @@ input#colorInput {
   width: 100%;
   height: 80vh;
 }
-.browser.landing, .browser.supporters{
+.browser.landing, .browser.supporters, .browser.notfound {
   height: 0vh;
   top: 98vh;
   visibility: hidden;
@@ -636,7 +680,7 @@ input#colorInput {
   transition-delay: 300ms;
   visibility: visible;
 }
-.browser-container.supporters{
+.browser-container.supporters, .browser-container.notfound {
   opacity: 0;
   height: 0vh;
   top: 98vh;

@@ -5,7 +5,7 @@
     </modal-panel>
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="page">
       <div class="vuecoon" :class="page">
-        <img v-if="page === 'supporters'" @click="showEditor()" class="img-fluid clickable" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)">
+        <img v-if="page === 'supporters' || page === 'notfound'" @click="showEditor()" class="img-fluid clickable" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)">
         <img v-else class="img-fluid" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)">
       </div>
       <div class="d-flex align-items-center jumbo-text" :class="page">
@@ -33,6 +33,9 @@
     <transition name="fade">
       <supporters v-if="page === 'supporters'"></supporters>
     </transition>
+    <transition name="fade">
+      <not-found v-if="page === 'notfound'" @showEditor="showEditor()"></not-found>
+    </transition>
     <editor :config="config" :page="page" @download="onDownloadClicked" @hasError="hasError" @setVuecoon="setVuecoon"  @success="setSuccessVuecoon"></editor>
     <div class="col-12 d-flex align-items-center footer" :class="page">
       <p><a href="javascript:void(0)" @click="showSupporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a> | Send <a href="https://github.com/BootGen/VueStart/discussions/55" target="_blank">Feedback!</a></p>
@@ -45,13 +48,14 @@ import { defineComponent, ref } from 'vue';
 import DownloadPanel from './components/DownloadPanel.vue'
 import Editor from './components/Editor.vue'
 import Supporters from './components/Supporters.vue'
+import NotFound from './components/NotFound.vue'
 import axios from "axios";
 import {debounce} from "@/utils/Helper";
 import ModalPanel from "@/components/ModalPanel"
 
 export default defineComponent({
   name: 'LandingPage',
-  components: {ModalPanel, DownloadPanel, Editor, Supporters },
+  components: {ModalPanel, DownloadPanel, Editor, Supporters, NotFound },
   setup() {
     const showDownloadPanel = ref(false);
     const downloaded = ref(false);
@@ -100,11 +104,25 @@ export default defineComponent({
       vuecoonState.value = vuecoonStates.Default;
     }
 
-    function setShowContentForUrl(){
-      if (window.location.pathname === '/supporters')
+    async function setShowContentForUrl(){
+      let pathname = window.location.pathname;
+      if (pathname === '/supporters')
         page.value = 'supporters';
-      else
-        page.value = window.location.pathname === '/editor' ? 'content' : 'landing';
+      else if (pathname === '/')
+        page.value = 'landing';
+      else if (pathname === '/editor')
+        page.value = 'content';
+      else {
+        try {
+          let resp = await axios.get(`api/share${pathname}`);
+          if (resp.data)
+            page.value = 'content';
+          console.log('found - cotent');
+        } catch (e) {
+          page.value = 'notfound'
+          console.log('not found');
+        }
+      }
     }
     window.addEventListener('popstate', setShowContentForUrl);
     window.addEventListener('load', setShowContentForUrl);
@@ -188,7 +206,7 @@ export default defineComponent({
   .vuecoon.landing {
     max-width: 250px;
   }
-  .vuecoon.content, .vuecoon.supporters {
+  .vuecoon.content, .vuecoon.supporters, .vuecoon.notfound {
     max-width: min(12vh, 22vw);
   }
   .jumbotron {
@@ -202,7 +220,7 @@ export default defineComponent({
   .jumbotron.landing {
     height: 100vh;
   }
-  .jumbotron.content, .jumbotron.supporters {
+  .jumbotron.content, .jumbotron.supporters, .jumbotron.notfound {
     height: 15vh;
     margin-right: 10%;
   }
@@ -212,7 +230,7 @@ export default defineComponent({
     margin-right: 2%;
     margin-left: 1%;
   }
-  .jumbo-text.content, .jumbo-text.supporters{
+  .jumbo-text.content, .jumbo-text.supporters, .jumbo-text.notfound {
     opacity: 0;
     height: 0rem;
     margin-top: 0;
@@ -283,7 +301,7 @@ export default defineComponent({
   a:hover {
     color: #17a062;
   }
-  .footer.content, .footer.supporters{
+  .footer.content, .footer.supporters, .footer.notfound {
     opacity: 1;
     height: 2.5rem;
     transition-delay: 500ms;
@@ -308,7 +326,7 @@ export default defineComponent({
       margin-top: 0;
       justify-content: flex-end;
     }
-    .github.content, .github.supporters {
+    .github.content, .github.supporters, .github.notfound {
       justify-content: flex-end;
     }
     .vuecoon.landing {
@@ -326,17 +344,17 @@ export default defineComponent({
       width: 99%;
       margin-top: 5vh;
     }
-    .jumbotron.content, .jumbotron.supporters {
+    .jumbotron.content, .jumbotron.supporters, .jumbotron.notfound {
       height: min(15vh, 25vw);
     }
-    .footer.content, .footer.supporters{
+    .footer.content, .footer.supporters, .footer.notfound {
       transition-delay: 700ms;
     }
     .footer{
       font-size: 0.8rem;
       bottom: unset;
     }
-    .footer.content, .footer.supporters{
+    .footer.content, .footer.supporters, .footer.notfound {
       height: 2rem;
       top: calc(170vh + 4rem);
       padding-top: 5px;

@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Visitor> Visitors { get; set; }
     public DbSet<Visit> Visits { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<ShareableLink> ShareableLinks { get; set; }
     public IConfiguration Configuration { get; }
 
     
