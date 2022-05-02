@@ -1,4 +1,7 @@
 <template>
+  <modal-panel v-model="showSettingsPanel">
+    <browser-settings :frontendMode="frontendMode" :editable="editable" :color="selectedColor" @cancel="showSettingsPanel = false" @save="saveBrowserSettings"></browser-settings>
+  </modal-panel>
   <modal-panel v-model="showWarningPanel">
     <div class="alert alert-warning show px-3 py-3 my-0" role="alert">
       <button type="button" class="btn-close" style="float: right" @click="showWarningPanel=false"></button>
@@ -50,57 +53,8 @@
             </li>
           </ul>
         </div>
-        <div class="fab-container mx-1">
-          <div class="fab fab-icon-holder">
-            <img src="../assets/css_white.webp" v-if="frontendMode === frontendModes.Vanilla">
-            <img src="../assets/bootstrap_white.webp" v-if="frontendMode === frontendModes.Bootstrap">
-            <img src="../assets/tailwind_white.webp" v-if="frontendMode === frontendModes.Tailwind">
-            <span class="ps-2">{{ frontendMode.charAt(0).toUpperCase() + frontendMode.slice(1) }}</span>
-          </div>
-          <ul class="fab-options">
-            <li>
-              <div class="fab-icon-holder" @click="changeFrontendMode(frontendModes.Vanilla)">
-                <img src="../assets/css_white.webp">
-                <span class="ps-2">Vanilla</span>
-              </div>
-            </li>
-            <li>
-              <div class="fab-icon-holder" @click="changeFrontendMode(frontendModes.Bootstrap)">
-                <img src="../assets/bootstrap_white.webp">
-                <span class="ps-2">Bootstrap</span>
-              </div>
-            </li>
-            <li>
-              <div class="fab-icon-holder" @click="changeFrontendMode(frontendModes.Tailwind)">
-                <img src="../assets/tailwind_white.webp">
-                <span class="ps-2">Tailwind</span>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div class="fab-container mx-1">
-          <div class="fab fab-icon-holder">
-            <span class="bi bi-pencil" aria-hidden="true" v-if="editable"></span>
-            <span class="bi bi-eye" aria-hidden="true" v-else></span>
-          </div>
-          <ul class="fab-options">
-            <li>
-              <div class="fab-icon-holder" @click="editableChanged(true)">
-                <span class="bi bi-pencil" aria-hidden="true"></span>
-                <span class="ps-2">Editable</span>
-              </div>
-            </li>
-            <li>
-              <div class="fab-icon-holder" @click="editableChanged(false)">
-                <span class="bi bi-eye" aria-hidden="true"></span>
-                <span class="ps-2">Read-only</span>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div id="color-picker-btn" class="fab fab-icon-holder mx-1" @click="triggerColorPicker">
-          <input type="color" class="form-control form-control-color position-absolute" id="colorInput" v-model="selectedColor" title="Choose your color">
-          <span class="bi bi-palette" aria-hidden="true"></span>
+        <div id="settings-btn" class="fab fab-icon-holder mx-1" @click="onSettingsClicked">
+          <span class="bi bi-gear" aria-hidden="true"></span>
         </div>
         <div id="share-btn" class="fab fab-icon-holder mx-1" :class="{'disable-share': shareLinkOnClipboard}" @click="share">
           <span class="bi bi-share" aria-hidden="true"></span>
@@ -113,9 +67,10 @@
     </div>
 </template>
 <script>
-import {computed, defineComponent, ref, watch} from 'vue';
+import {defineComponent, ref, watch} from 'vue';
 import CodeMirror from './CodeMirror.vue';
 import BrowserFrame from './BrowserFrame.vue'
+import BrowserSettings from './BrowserSettings.vue'
 import Tab from "@/components/Tab";
 import axios from "axios";
 import {getSchema} from "@/utils/Schema";
@@ -125,13 +80,14 @@ import Tip from '@/utils/Tip'
 import ModalPanel from "@/components/ModalPanel";
 
 export default defineComponent({
-  components: { CodeMirror, BrowserFrame, Tab, ModalPanel },
+  components: { CodeMirror, BrowserFrame, Tab, ModalPanel, BrowserSettings },
   props: {
     page: String,
     config: Object
   },
   emits: ['download', 'hasError', 'setVuecoon', 'success'],
   setup(props, context) {
+    const showSettingsPanel = ref(false);
     const inputError = ref(null);
     const json = ref('');
     let sharedJson = '';
@@ -197,7 +153,6 @@ export default defineComponent({
       Tailwind: 'tailwind'
     }
     const frontendMode = ref(frontendModes.Vanilla);
-    const tempColor = ref('42b983');
     const selectedColor = ref('#42b983');
 
     window.addEventListener('storage', () => {
@@ -261,20 +216,13 @@ export default defineComponent({
       return false;
     }
 
-    function changeFrontendMode(type) {
-      frontendMode.value = type;
-      if (tip.typeChanged())
-        context.emit('success')
-      showTip()
-      generate(json.value)
-    }
     async function generate(data) {
       try {
         const resp = ref(null);
         if(editable.value) {
-          resp.value = await axios.post(`api/generate/${frontendMode.value}/table-editable/${tempColor.value}`, JSON.parse(data), props.config);
+          resp.value = await axios.post(`api/generate/${frontendMode.value}/table-editable/${selectedColor.value.slice(1, 7)}`, JSON.parse(data), props.config);
         } else {
-          resp.value = await axios.post(`api/generate/${frontendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
+          resp.value = await axios.post(`api/generate/${frontendMode.value}/table/${selectedColor.value.slice(1, 7)}`, JSON.parse(data), props.config);
         }
         localStorage.removeItem(generatedId);
         generatedId = resp.value.data.id;
@@ -379,18 +327,6 @@ export default defineComponent({
         isGenerating = false
       }
       let debouncedGenerate = debounce(generateAndEmit, 1000);
-      watch([tempColor, selectedColor, syntaxErr],() => {
-        if ('#' + tempColor.value !== selectedColor.value) {
-            document.getElementById('color-picker-btn').style.backgroundColor = selectedColor.value;
-          if (!syntaxErr.value) {
-            document.getElementById('color-picker-btn').style.backgroundColor = selectedColor.value;
-            tempColor.value = selectedColor.value.slice(1, 7);
-            setTextColor();
-            isGenerating = true;
-            debouncedGenerate(json.value);
-          }
-        }
-      });
       watch(json, () => {
         try {
           if (validateJson(json.value).error)
@@ -419,28 +355,9 @@ export default defineComponent({
         showGitHubCTA();
       }
       if(editable.value) {
-        context.emit('download', `api/download/${frontendMode.value}/table-editable/${tempColor.value}`, `${frontendMode.value}.zip`, generatedId);
+        context.emit('download', `api/download/${frontendMode.value}/table-editable/${selectedColor.value.slice(1, 7)}`, `${frontendMode.value}.zip`, generatedId);
       } else {
-        context.emit('download', `api/download/${frontendMode.value}/table/${tempColor.value}`, `${frontendMode.value}.zip`, generatedId);
-      }
-    }
-    function triggerColorPicker() {
-      document.getElementById("colorInput").click();
-    }
-
-    function setTextColor() {
-      let r = parseInt(tempColor.value.substr(0, 2), 16),
-          g = parseInt(tempColor.value.substr(2, 2), 16),
-          b = parseInt(tempColor.value.substr(4, 2), 16);
-      let brightness = Math.sqrt(
-        r * r * .241 + 
-        g * g * .691 + 
-        b * b * .068
-      );
-      if (brightness > 170) {
-        document.getElementById('color-picker-btn').style.color = '#2c3e50';
-      } else {
-        document.getElementById('color-picker-btn').style.color = '#ffffff';
+        context.emit('download', `api/download/${frontendMode.value}/table/${selectedColor.value.slice(1, 7)}`, `${frontendMode.value}.zip`, generatedId);
       }
     }
     function refresh() {
@@ -463,10 +380,6 @@ export default defineComponent({
       }
       context.emit('hasError', hasError);
     }
-    function editableChanged(b) {
-      editable.value = b;
-      generate(json.value);
-    }
     function undo() {
       if(undoStackIdx.value > 0) {
         undoStackIdx.value--;
@@ -482,7 +395,7 @@ export default defineComponent({
     async function share() {
       let shareableJson = JSON.stringify(json.value);
       if(shareableJson !== sharedJson) {
-        sharedLink = await axios.post(`api/share/${frontendMode.value}/${editable.value}/${tempColor.value}`, JSON.parse(json.value));
+        sharedLink = await axios.post(`api/share/${frontendMode.value}/${editable.value}/${selectedColor.value.slice(1, 7)}`, JSON.parse(json.value));
         sharedJson = shareableJson;
       }
       navigator.clipboard.writeText(window.location.origin + '/' + sharedLink.data.hash);
@@ -507,11 +420,24 @@ export default defineComponent({
         console.log('Not found', e.response);
       }
     }
+    function onSettingsClicked() {
+      showSettingsPanel.value = true;
+    }
+    function saveBrowserSettings(f, e, c) {
+      frontendMode.value = f;
+      selectedColor.value = c;
+      if(e.value !== editable) {
+        editable.value = e;
+        generate(json.value);
+      }
+      showSettingsPanel.value = false;
+    }
 
     return { json, inputError, frontendMode, frontendModes, selectedColor,
-      changeFrontendMode, onDownloadClicked, triggerColorPicker, pageRefresh,
+      onDownloadClicked, pageRefresh,
       selectedTab, browserData, loadTasksExample, loadOrdersExample, syntaxError,
-      alert, showWarningPanel, warnings, editable, editableChanged, undo, redo, undoStackIdx, undoStack, share, shareLinkOnClipboard }
+      alert, showWarningPanel, warnings, editable, undo, redo, undoStackIdx, undoStack, share, shareLinkOnClipboard,
+      showSettingsPanel, onSettingsClicked, saveBrowserSettings }
   },
 })
 </script>
@@ -618,12 +544,6 @@ body {
   -moz-animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
   -ms-animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
   animation: pulse 1s infinite cubic-bezier(0.66, 0, 0, 1);
-}
-
-input#colorInput {
-  width: 100px;
-  opacity: 0;
-  padding-top: 25px;
 }
 
 .codemirror{
@@ -747,10 +667,6 @@ a:hover {
     height: unset;
     overflow: unset;
   }
-
-  /*.browser-container.content{
-    top: 95vh;
-  }*/
 
   .fab-icon-holder .bi {
     font-size: 1rem;
