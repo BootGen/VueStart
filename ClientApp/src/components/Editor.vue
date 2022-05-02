@@ -36,7 +36,7 @@
         <div class="fab-container mx-1">
           <div class="fab fab-icon-holder">
             <span class="bi bi-lightbulb" aria-hidden="true"></span>
-            <span class="ps-2">Example</span>
+            <span class="ps-2">JSON Samples</span>
           </div>
           <ul class="fab-options">
             <li>
@@ -55,13 +55,16 @@
         </div>
         <div id="settings-btn" class="fab fab-icon-holder mx-1" @click="onSettingsClicked">
           <span class="bi bi-gear" aria-hidden="true"></span>
+            <span class="ps-2">Settings</span>
         </div>
         <div id="share-btn" class="fab fab-icon-holder mx-1" :class="{'disable-share': shareLinkOnClipboard}" @click="share">
           <span class="bi bi-share" aria-hidden="true"></span>
+          <span class="ps-2">Share</span>
           <span class="copied">Copied!</span>
         </div>
         <div id="download-btn" class="fab fab-icon-holder pulse-download-btn mx-1" @click="onDownloadClicked">
           <span class="bi bi-download" aria-hidden="true"></span>
+            <span class="ps-2">Download</span>
         </div>
       </div>
     </div>
