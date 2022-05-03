@@ -231,6 +231,7 @@ export default defineComponent({
         generatedId = resp.value.data.id;
         saveToLocalStorage(data);
         seturl();
+        jsonSchema.value = getSchema(JSON.parse(data));
         inputError.value = null;
         if (resp.value.data.warnings && resp.value.data.warnings.length > 0) {
           warnings.value = resp.value.data.warnings;
@@ -334,9 +335,7 @@ export default defineComponent({
         try {
           if (validateJson(json.value).error)
             return;
-          const newSchema = getSchema(JSON.parse(json.value));
-          if(JSON.stringify(newSchema) !== JSON.stringify(jsonSchema.value)) {
-            jsonSchema.value = newSchema;
+          if(JSON.stringify(getSchema(JSON.parse(json.value))) !== JSON.stringify(jsonSchema.value)) {
             isGenerating = true;
             debouncedGenerate(json.value);
           } else if(!isGenerating && generatedId !== '') {

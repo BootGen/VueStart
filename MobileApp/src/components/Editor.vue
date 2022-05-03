@@ -41,7 +41,6 @@ export default defineComponent({
     const inputError = ref(null);
     const isFixable = ref(false);
     const json = ref('');
-    const jsonSchema = ref(getSchema({}));
     const tempColor = ref('42b983');
     const selectedColor = ref('#42b983');
     const frontendMode = ref(props.frontendMode);
@@ -124,7 +123,6 @@ export default defineComponent({
 
     getProjectContentFromServer('example_input').then( (content) => {
       json.value = content;
-      jsonSchema.value = getSchema(JSON.parse(json.value));
       generate(json.value);
       watchEffect(() => {
         if(props.frontendMode !== frontendMode.value) {
