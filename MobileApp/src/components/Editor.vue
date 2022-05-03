@@ -4,11 +4,6 @@
     </div>
     <div class="container mt-4">
       <div class="row flex-colum justify-content-center">
-        <div id="color-picker-btn" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" @click="triggerColorPicker">
-          <input type="color" class="form-control form-control-color position-absolute" id="colorInput" v-model="selectedColor" title="Choose your color">
-          <span class="bi bi-palette" aria-hidden="true"></span>
-          <span class="ps-2">Color</span>
-        </div>
         <div id="generate-btn" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" @click="generate(json)">
           <span class="bi bi-arrow-right" aria-hidden="true"></span>
           <span class="ps-2">Generate</span>
@@ -21,41 +16,42 @@
     </div>
 </template>
 <script>
-import { defineComponent, ref, watchEffect } from 'vue';
+import { defineComponent, ref, watchEffect, watch } from 'vue';
 import CodeMirror from './CodeMirror.vue';
 import BrowserFrame from './BrowserFrame.vue';
 import BrowserOptions from './BrowserOptions.vue';
 import axios from "axios";
 import { getSchema } from "@/utils/Schema";
-import {debounce} from "@/utils/Helper";
 
 export default defineComponent({
   components: { CodeMirror, BrowserFrame, BrowserOptions },
   props: {
     config: Object,
     frontendMode: String,
-    editable: Boolean
+    editable: Boolean,
+    color: String
   },
   emits: ['hasError', 'setVuecoon'],
   setup(props, context) {
     const inputError = ref(null);
     const isFixable = ref(false);
     const json = ref('');
-    const jsonSchema = ref(getSchema({}));
-    const tempColor = ref('42b983');
-    const selectedColor = ref('#42b983');
-    const frontendMode = ref(props.frontendMode);
-    const editable = ref(props.editable);
+    const selectedColor = ref();
+    const frontendMode = ref();
+    const editable = ref(false);
     const selectedTab = ref(0);
     const browserData = ref({ page_url: '', source_url: '' });
     let generatedId = '';
-
-    const views = {
-      View: 'view',
-      App: 'app.js',
-      Index: 'index.html'
-    }
-    const selectedView = ref(views.View);
+    
+    frontendMode.value = props.frontendMode;
+    editable.value = props.editable;
+    selectedColor.value = props.color;
+    watch(() => [props.frontendMode, props.editable, props.color], () => {
+      frontendMode.value = props.frontendMode;
+      editable.value = props.editable;
+      selectedColor.value = props.color;
+      generate(json.value);
+    });
     
     const keys = ['idtoken', 'tipIdx'];
     for (let [key, value] of Object.entries(localStorage)) {
@@ -76,9 +72,9 @@ export default defineComponent({
       try {
         const resp = ref(null);
         if(props.editable) {
-          resp.value = await axios.post(`api/generate/${frontendMode.value}/table-editable/${tempColor.value}`, JSON.parse(data), props.config);
+          resp.value = await axios.post(`api/generate/${frontendMode.value}/table-editable/${selectedColor.value.slice(1, 7)}`, JSON.parse(data), props.config);
         } else {
-          resp.value = await axios.post(`api/generate/${frontendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
+          resp.value = await axios.post(`api/generate/${frontendMode.value}/table/${selectedColor.value.slice(1, 7)}`, JSON.parse(data), props.config);
         }
         localStorage.removeItem(generatedId);
         generatedId = resp.value.data.id;
@@ -124,7 +120,6 @@ export default defineComponent({
 
     getProjectContentFromServer('example_input').then( (content) => {
       json.value = content;
-      jsonSchema.value = getSchema(JSON.parse(json.value));
       generate(json.value);
       watchEffect(() => {
         if(props.frontendMode !== frontendMode.value) {
@@ -135,34 +130,8 @@ export default defineComponent({
           editable.value = props.editable;
           generate(json.value);
         }
-        if('#' + tempColor.value !== selectedColor.value) {
-          tempColor.value = selectedColor.value.slice(1, 7);
-          document.getElementById('color-picker-btn').style.backgroundColor = selectedColor.value;
-          setTextColor();
-          let debouncedGenerate = debounce(generate, 1000);
-          debouncedGenerate(json.value);
-        }
       })
     });
-    function triggerColorPicker() {
-      document.getElementById("colorInput").click();
-    }
-
-    function setTextColor() {
-      let r = parseInt(tempColor.value.substr(0, 2), 16),
-          g = parseInt(tempColor.value.substr(2, 2), 16),
-          b = parseInt(tempColor.value.substr(4, 2), 16);
-      let brightness = Math.sqrt(
-        r * r * .241 + 
-        g * g * .691 + 
-        b * b * .068
-      );
-      if (brightness > 170) {
-        document.getElementById('color-picker-btn').style.color = '#2c3e50';
-      } else {
-        document.getElementById('color-picker-btn').style.color = '#ffffff';
-      }
-    }
 
     function selectTab(mode) {
       selectedTab.value = mode;
@@ -181,7 +150,7 @@ export default defineComponent({
     }
 
     return { json, inputError, selectedColor,
-      fixData, isFixable, triggerColorPicker, generate, views, selectedView, selectedTab, selectTab, browserData }
+      fixData, isFixable, generate, selectedTab, selectTab, browserData }
   },
 })
 </script>
@@ -208,11 +177,6 @@ export default defineComponent({
 }
 .fab-icon-holder:hover {
   background: #17a062;
-}
-input#colorInput {
-  width: 100px;
-  opacity: 0;
-  padding-top: 25px;
 }
 .shadow {
   box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;

@@ -1,8 +1,8 @@
 <template>
   <div class="container-fluid m-0">
+    <settings :frontendMode="frontendMode" :editable="editable" :color="selectedColor" @save="saveSettings"></settings>
     <landing :vuecoonState="vuecoonState"></landing>
-    <generate-options class="mt-3" :frontendMode="frontendMode" :editable="editable" @frontendChanged="changeFrontendMode" @editableChanged="chengeEditable"></generate-options>
-    <editor :config="config" :frontendMode="frontendMode" :editable="editable" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
+    <editor :config="config" :frontendMode="frontendMode" :editable="editable" :color="selectedColor" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
     <div class="d-flex flex-column align-items-center mt-5">
       <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github">
         <div class="d-flex align-items-center px-2">
@@ -29,11 +29,11 @@ import { defineComponent, ref } from 'vue';
 import Landing from './components/Landing.vue';
 import Editor from './components/Editor.vue';
 import Supporters from './components/Supporters.vue';
-import GenerateOptions from './components/GenerateOptions.vue';
+import Settings from './components/Settings.vue';
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { Landing, Editor, Supporters, GenerateOptions },
+  components: { Landing, Editor, Supporters, Settings },
   setup() {
     const vuecoonStates = {
       Default: 'default',
@@ -43,6 +43,7 @@ export default defineComponent({
     const vuecoonState = ref(vuecoonStates.Default);
     const frontendMode = ref('vanilla');
     const editable = ref(false);
+    const selectedColor = ref('#42b983');
     const isShowSupporters = ref(false);
 
     let idtoken = localStorage.getItem('idtoken');
@@ -72,12 +73,6 @@ export default defineComponent({
     function setVuecoon(state) {
       vuecoonState.value = state;
     }
-    function changeFrontendMode(mode) {
-      frontendMode.value = mode;
-    }
-    function chengeEditable(b) {
-      editable.value = b;
-    }
 
     function showSupporters (){
       isShowSupporters.value = !isShowSupporters.value;
@@ -93,10 +88,16 @@ export default defineComponent({
     function openGithub (){
       window.open("https://github.com/BootGen/VueStart");
     }
+    function saveSettings(f, e, c) {
+      frontendMode.value = f;
+      editable.value = e;
+      selectedColor.value = c;
+    }
 
     return { vuecoonState, config,
       hasError, setVuecoon, openGithub,
-      changeFrontendMode, frontendMode, editable, chengeEditable, showSupporters, isShowSupporters }
+      frontendMode, editable, selectedColor, showSupporters, isShowSupporters,
+      saveSettings }
   }
 });
 

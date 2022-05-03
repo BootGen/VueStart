@@ -2,7 +2,7 @@
   <div class="container">
     <div class="row flex-colum justify-content-center mt-4">
       <div class="btn-group col-lg-5 col-md-5 col-12 p-0" role="group" aria-label="Basic example">
-        <button type="button" class="btn btn-secondary toggle_left p-2" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
+        <button type="button" class="btn toggle_left p-2" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
           <img v-if="frontendMode == 'tailwind' && selected === 0" alt="tailwind" src="../assets/tailwind_white.webp" height="25">
           <img v-else-if="frontendMode == 'tailwind' && selected !== 0" alt="tailwind" src="../assets/tailwind_green.webp" height="25">
 
@@ -14,7 +14,7 @@
 
           <span class="ps-2">{{ frontendMode.charAt(0).toUpperCase() + frontendMode.slice(1) }}</span>
         </button>
-        <button type="button" class="btn btn-secondary toggle_right p-2" :class="selected === 1 ? 'active' : 'inactive'" @click="$emit('select', 1)">
+        <button type="button" class="btn toggle_right p-2" :class="selected === 1 ? 'active' : 'inactive'" @click="$emit('select', 1)">
           <span class="bi bi-code" aria-hidden="true"></span>
           <span class="ps-2">app.js</span>
         </button>
@@ -23,7 +23,7 @@
   </div>
 </template>
 <script>
-import { defineComponent, computed } from 'vue';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: 'BrowserOptions',
@@ -35,7 +35,7 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
+<style>
 .fab-icon-holder {
   cursor: pointer;
   height: 40px;
@@ -53,16 +53,16 @@ export default defineComponent({
   font-size: 1.2rem;
 }
 .fab-icon-holder:hover {
-  background: #42b983;
+   background-color: #42b983!important;
   color: #ffffff;
 }
 .active {
-  background: #42b983;
+  background-color: #42b983;
   color: #ffffff;
 }
 .inactive {
-  background: #ffffff;
-  color: #42b983;
+  background-color: #ffffff!important;
+  color: #42b983!important;
 }
 .toggle_left {
   border-bottom-left-radius: 25px;
@@ -77,9 +77,11 @@ export default defineComponent({
   box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
 }
 .inactive:hover {
-  background: #42b98320;
+  background-color: #42b98320!important;
+  color: #42b983!important;
 }
 .active:hover {
-  background: #17a062;
+  background-color: #17a062!important;
+  color: #ffffff;
 }
 </style>
