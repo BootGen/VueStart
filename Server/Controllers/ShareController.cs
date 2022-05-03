@@ -37,8 +37,6 @@ public class ShareController : ControllerBase
         dbContext.Database.EnsureCreated();
         var link = dbContext.ShareableLinks.FirstOrDefault(r => r.Hash == hash);
         if(link != null) {
-            link.LastUse = DateTime.UtcNow;
-            link.Count += 1;
             return Ok(new { hash = hash });
         }
         dbContext.ShareableLinks.Add(new ShareableLink { Hash = hash, Json = json, FrontendType = type, Editable = editable, Color = color, FirstUse = DateTime.UtcNow, LastUse = DateTime.UtcNow, Count = 0});
@@ -53,9 +51,9 @@ public class ShareController : ControllerBase
         var link = dbContext.ShareableLinks.FirstOrDefault(r => r.Hash == hash);
         if (link == null)
             return NotFound();
-        
         link.LastUse = DateTime.UtcNow;
         link.Count += 1;
+        dbContext.SaveChanges();
         return Ok(link);
     }
 }
