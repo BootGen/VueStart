@@ -52,11 +52,11 @@
         <p class="m-0 px-2">{{ newColor }}</p>
       </div>
       <div class="fab-icon-holder w-100 inactive" @click="cancel" data-bs-dismiss="offcanvas">
-        <span class="bi bi-eye" aria-hidden="true"></span>
+        <span class="bi bi-backspace" aria-hidden="true"></span>
         <span class="ps-2">Cancel</span>
       </div>
       <div class="fab-icon-holder w-100 active" @click="$emit('save', newFrontend, newEditable, newColor)" data-bs-dismiss="offcanvas">
-        <span class="bi bi-eye" aria-hidden="true"></span>
+        <span class="bi bi-save" aria-hidden="true"></span>
         <span class="ps-2">Save</span>
       </div>
     </div>
