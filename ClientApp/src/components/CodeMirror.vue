@@ -216,6 +216,8 @@ export default defineComponent({
     margin-left: 20px;
     transition: all 0.5s;
     margin-right: unset;
+    transition: all 1s ease-in-out;
+    transition-delay: 150ms;
   }
   .alert-msg.show{
     opacity: 1;
