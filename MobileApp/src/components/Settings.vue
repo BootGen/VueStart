@@ -51,14 +51,19 @@
         <input type="color" class="form-control form-control-color" id="colorInput" v-model="newColor" title="Choose your color"  @click="triggerColorPicker">
         <p class="m-0 px-2">{{ newColor }}</p>
       </div>
-      <div class="fab-icon-holder w-100 inactive" @click="cancel" data-bs-dismiss="offcanvas">
-        <span class="bi bi-backspace" aria-hidden="true"></span>
-        <span class="ps-2">Cancel</span>
-      </div>
       <div class="fab-icon-holder w-100 active" @click="$emit('save', newFrontend, newEditable, newColor)" data-bs-dismiss="offcanvas">
         <span class="bi bi-save" aria-hidden="true"></span>
         <span class="ps-2">Save</span>
       </div>
+      <div class="fab-icon-holder w-100 inactive" @click="cancel" data-bs-dismiss="offcanvas">
+        <span class="bi bi-backspace" aria-hidden="true"></span>
+        <span class="ps-2">Cancel</span>
+      </div>
+      <div id="share-btn" class="fab-icon-holder w-100 active" @click="share">
+        <span class="bi bi-share" aria-hidden="true"></span>
+        <span class="ps-2">Share</span>
+      </div>
+        <span :class="{'disable-share': shareLinkOnClipboard}" class="copied">Copied!</span>
     </div>
   </div>
   
@@ -66,19 +71,25 @@
 
 <script>
 import { defineComponent, ref, watch } from 'vue';
+import axios from "axios";
 
 export default defineComponent({
   name: "Settings",
   props: {
     frontendMode: String,
     editable: Boolean,
-    color: String
+    color: String,
+    json: String
   },
   emits: ['save'],
   setup(props, context) {
     const newFrontend = ref(props.frontendMode);
     const newEditable = ref(props.editable);
     const newColor = ref(props.color);
+    const shareLinkOnClipboard = ref(false);
+    let sharedJson = '';
+    let sharedLink = '';
+
     watch(() => [props.frontendMode, props.editable, props.color], () => {
       newFrontend.value = props.frontendMode;
       newEditable.value = props.editable;
@@ -92,12 +103,28 @@ export default defineComponent({
       newEditable.value = props.editable;
       newColor.value = props.color;
     }
-    return { newFrontend, newEditable, newColor, triggerColorPicker, cancel }
+
+    async function share() {
+      let shareableJson = JSON.stringify(props.json);
+      if(shareableJson !== sharedJson) {
+        sharedLink = await axios.post(`api/share/${newFrontend.value}/${newEditable.value}/${newColor.value.slice(1, 7)}`, JSON.parse(props.json));
+        sharedJson = shareableJson;
+      }
+      navigator.clipboard.writeText(window.location.origin + '/' + sharedLink.data.hash);
+      shareLinkOnClipboard.value = true;
+      setTimeout(()=> {
+        shareLinkOnClipboard.value = false;
+      }, 800);
+    }
+    return { newFrontend, newEditable, newColor, shareLinkOnClipboard, triggerColorPicker, cancel, share }
   }  
 })
 </script>
 
 <style>
+.offcanvas-body {
+  overflow-y: unset;
+}
 .form-check-input:checked {
   background-color: #42b983;
   border-color: #42b983;
@@ -108,5 +135,16 @@ export default defineComponent({
   z-index: 9999;
   right: 0;
   top: .5rem;
+}
+.copied {
+  transition: all 1s ease-in-out;
+  transition-delay: 10ms;
+  opacity: 0;
+  color: #42b983;
+  display: flex;
+  justify-content: center;
+}
+.disable-share {
+  opacity: 1!important;
 }
 </style>

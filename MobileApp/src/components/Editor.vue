@@ -1,58 +1,63 @@
 <template>
-    <div class="custom-card shadow mt-4">
-      <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData" @hasSyntaxError="$emit('hasError', $event)"></code-mirror>
-    </div>
-    <div class="container mt-4">
-      <div class="row flex-colum justify-content-center">
-        <div id="generate-btn" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" @click="generate(json)">
-          <span class="bi bi-arrow-right" aria-hidden="true"></span>
-          <span class="ps-2">Generate</span>
-        </div>
+  <settings :frontendMode="frontendMode" :editable="editable" :color="selectedColor" :json="json" @save="saveSettings"></settings>
+  <div class="custom-card shadow mt-4">
+    <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData" @hasSyntaxError="$emit('hasError', $event)"></code-mirror>
+  </div>
+  <div class="container mt-4">
+    <div class="row flex-colum justify-content-center">
+      <div id="generate-btn" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" @click="generate(json)">
+        <span class="bi bi-arrow-right" aria-hidden="true"></span>
+        <span class="ps-2">Generate</span>
       </div>
     </div>
-    <browser-options :selected="selectedTab" :frontendMode="frontendMode" @select="selectTab"></browser-options>
-    <div class="browser custom-card shadow mt-2">
-      <browser-frame v-model="browserData"></browser-frame>
-    </div>
+  </div>
+  <browser-options :selected="selectedTab" :frontendMode="frontendMode" @select="selectTab"></browser-options>
+  <div class="browser custom-card shadow mt-2">
+    <browser-frame v-model="browserData"></browser-frame>
+  </div>
 </template>
 <script>
-import { defineComponent, ref, watchEffect, watch } from 'vue';
+import { defineComponent, ref } from 'vue';
 import CodeMirror from './CodeMirror.vue';
 import BrowserFrame from './BrowserFrame.vue';
 import BrowserOptions from './BrowserOptions.vue';
+import Settings from './Settings.vue';
 import axios from "axios";
-import { getSchema } from "@/utils/Schema";
 
 export default defineComponent({
-  components: { CodeMirror, BrowserFrame, BrowserOptions },
+  components: { CodeMirror, BrowserFrame, BrowserOptions, Settings },
   props: {
-    config: Object,
-    frontendMode: String,
-    editable: Boolean,
-    color: String
+    config: Object
   },
   emits: ['hasError', 'setVuecoon'],
   setup(props, context) {
     const inputError = ref(null);
     const isFixable = ref(false);
     const json = ref('');
-    const selectedColor = ref();
-    const frontendMode = ref();
+    const frontendMode = ref('vanilla');
     const editable = ref(false);
+    const selectedColor = ref('#42b983');
     const selectedTab = ref(0);
     const browserData = ref({ page_url: '', source_url: '' });
     let generatedId = '';
     
-    frontendMode.value = props.frontendMode;
-    editable.value = props.editable;
-    selectedColor.value = props.color;
-    watch(() => [props.frontendMode, props.editable, props.color], () => {
-      frontendMode.value = props.frontendMode;
-      editable.value = props.editable;
-      selectedColor.value = props.color;
-      generate(json.value);
-    });
-    
+
+    if(window.location.pathname !== '/') {
+      loadSharedLink(window.location.pathname);
+    }
+
+    async function loadSharedLink(path){      
+      try {
+        let resp = await axios.get(`api/share${path}`);
+        json.value = JSON.stringify(resp.data.json);
+        frontendMode.value = resp.data.frontendType;
+        editable.value = resp.data.editable;
+        selectedColor.value = '#'+resp.data.color;
+      } catch (e) {
+        console.log('Not found', e.response);
+      }
+    }
+
     const keys = ['idtoken', 'tipIdx'];
     for (let [key, value] of Object.entries(localStorage)) {
       if(!keys.includes(key)) {
@@ -71,7 +76,7 @@ export default defineComponent({
     async function generate(data) {
       try {
         const resp = ref(null);
-        if(props.editable) {
+        if(editable.value) {
           resp.value = await axios.post(`api/generate/${frontendMode.value}/table-editable/${selectedColor.value.slice(1, 7)}`, JSON.parse(data), props.config);
         } else {
           resp.value = await axios.post(`api/generate/${frontendMode.value}/table/${selectedColor.value.slice(1, 7)}`, JSON.parse(data), props.config);
@@ -121,16 +126,6 @@ export default defineComponent({
     getProjectContentFromServer('example_input').then( (content) => {
       json.value = content;
       generate(json.value);
-      watchEffect(() => {
-        if(props.frontendMode !== frontendMode.value) {
-          frontendMode.value = props.frontendMode;
-          generate(json.value);
-        }
-        if(props.editable !== editable.value) {
-          editable.value = props.editable;
-          generate(json.value);
-        }
-      })
     });
 
     function selectTab(mode) {
@@ -149,8 +144,16 @@ export default defineComponent({
       }
     }
 
-    return { json, inputError, selectedColor,
-      fixData, isFixable, generate, selectedTab, selectTab, browserData }
+    function saveSettings(f, e, c) {
+      frontendMode.value = f;
+      editable.value = e;
+      selectedColor.value = c;
+      generate(json.value);
+    }
+
+    return { json, inputError, frontendMode, editable, selectedColor,
+      fixData, isFixable, generate, selectedTab, selectTab, browserData,
+      saveSettings }
   },
 })
 </script>
