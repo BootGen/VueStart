@@ -1,5 +1,6 @@
 <template>
-  <div class="container-fluid m-0">
+  <not-found :class="{'notfound': isNotFound, 'found': !isNotFound}" @showEditor="showEditor"></not-found>
+  <div class="container-fluid" :class="{'notfound': isNotFound, 'found': !isNotFound}">
     <landing :vuecoonState="vuecoonState"></landing>
     <editor :config="config" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
     <div class="d-flex flex-column align-items-center mt-5">
@@ -28,10 +29,11 @@ import { defineComponent, ref } from 'vue';
 import Landing from './components/Landing.vue';
 import Editor from './components/Editor.vue';
 import Supporters from './components/Supporters.vue';
+import NotFound from './components/NotFound.vue';
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { Landing, Editor, Supporters },
+  components: { Landing, Editor, Supporters, NotFound },
   setup() {
     const vuecoonStates = {
       Default: 'default',
@@ -40,7 +42,22 @@ export default defineComponent({
     };
     const vuecoonState = ref(vuecoonStates.Default);
     const isShowSupporters = ref(false);
-
+    const isNotFound = ref(false);
+    
+    async function setShowContentForUrl(){
+      if(window.location.pathname === '/')
+        isNotFound.value = false;
+      if (window.location.pathname !== '/') {
+        try {
+          await axios.get(`api/share${window.location.pathname}`);
+          isNotFound.value = false;
+        } catch (e) {
+          isNotFound.value = true;
+        }
+      }
+    }
+    window.addEventListener('popstate', setShowContentForUrl);
+    window.addEventListener('load', setShowContentForUrl);
     let idtoken = localStorage.getItem('idtoken');
     if (!idtoken) {
       idtoken = ''
@@ -83,10 +100,14 @@ export default defineComponent({
     function openGithub (){
       window.open("https://github.com/BootGen/VueStart");
     }
+    function showEditor(){
+      history.pushState({}, '', '/');
+      isNotFound.value = false;
+    }
 
     return { vuecoonState, config,
       hasError, setVuecoon, openGithub,
-      showSupporters, isShowSupporters }
+      showSupporters, isShowSupporters, isNotFound, showEditor }
   }
 });
 
@@ -134,5 +155,34 @@ export default defineComponent({
   .star-icon {
     color: rgb(222, 169, 64);
     font-size: min(6vw, 3.5rem);
+  }
+  .notfound-page {
+    transition: all 1s ease-in-out;
+    transition-delay: 300ms;
+    position: absolute;
+    width: 100%!important;
+    height: 100%!important;
+    z-index: 999;
+  }
+  .notfound-page.found {
+    top: -100%;
+  }
+  .notfound-page.notfound {
+    top: 0;
+    opacity: 1!important;
+  }
+  .container-fluid {
+    transition: all 1s ease-in-out;
+    transition-delay: 300ms;
+  }
+  .container-fluid.found {
+    opacity: 1;
+    height: 100%;
+    overflow: visible;
+  }
+  .container-fluid.notfound {
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
   }
 </style>
