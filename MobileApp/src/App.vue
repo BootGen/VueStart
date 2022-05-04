@@ -44,15 +44,20 @@ export default defineComponent({
     const isShowSupporters = ref(false);
     const isNotFound = ref(false);
     
-    async function setShowContentForUrl(){
-      if(window.location.pathname === '/')
-        isNotFound.value = false;
-      if (window.location.pathname !== '/') {
+
+    async function setShowContentForUrl() {   
+      let path = window.location.pathname;
+      if(path === '/') {
+        isNotFound.value = false;   
+      } else {
         try {
-          await axios.get(`api/share${window.location.pathname}`);
-          isNotFound.value = false;
+          let resp = await axios.get(`api/share${path}`);
+          if (resp.data)
+            isNotFound.value = false;
+          console.log('found - cotent');
         } catch (e) {
           isNotFound.value = true;
+          console.log('not found');
         }
       }
     }
