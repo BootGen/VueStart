@@ -2,7 +2,7 @@
   <not-found :class="{'notfound': isNotFound, 'found': !isNotFound}" @showEditor="showEditor"></not-found>
   <div class="container-fluid" :class="{'notfound': isNotFound, 'found': !isNotFound}">
     <landing :vuecoonState="vuecoonState"></landing>
-    <editor :config="config" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
+    <editor :config="config" :loadedData="loadedData" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
     <div class="d-flex flex-column align-items-center mt-5">
       <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github">
         <div class="d-flex align-items-center px-2">
@@ -30,6 +30,7 @@ import Landing from './components/Landing.vue';
 import Editor from './components/Editor.vue';
 import Supporters from './components/Supporters.vue';
 import NotFound from './components/NotFound.vue';
+import axios from "axios";
 
 export default defineComponent({
   name: 'LandingPage',
@@ -43,6 +44,7 @@ export default defineComponent({
     const vuecoonState = ref(vuecoonStates.Default);
     const isShowSupporters = ref(false);
     const isNotFound = ref(false);
+    const loadedData = ref({});
     
 
     async function setShowContentForUrl() {   
@@ -54,10 +56,10 @@ export default defineComponent({
           let resp = await axios.get(`api/share${path}`);
           if (resp.data)
             isNotFound.value = false;
-          console.log('found - cotent');
+            loadedData.value = resp.data;
         } catch (e) {
           isNotFound.value = true;
-          console.log('not found');
+          loadedData.value = {};
         }
       }
     }
@@ -112,7 +114,7 @@ export default defineComponent({
 
     return { vuecoonState, config,
       hasError, setVuecoon, openGithub,
-      showSupporters, isShowSupporters, isNotFound, showEditor }
+      showSupporters, isShowSupporters, isNotFound, showEditor, loadedData }
   }
 });
 

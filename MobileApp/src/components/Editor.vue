@@ -17,7 +17,7 @@
   </div>
 </template>
 <script>
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, watch } from 'vue';
 import CodeMirror from './CodeMirror.vue';
 import BrowserFrame from './BrowserFrame.vue';
 import BrowserOptions from './BrowserOptions.vue';
@@ -27,7 +27,8 @@ import axios from "axios";
 export default defineComponent({
   components: { CodeMirror, BrowserFrame, BrowserOptions, Settings },
   props: {
-    config: Object
+    config: Object,
+    loadedData: Object
   },
   emits: ['hasError', 'setVuecoon'],
   setup(props, context) {
@@ -41,20 +42,19 @@ export default defineComponent({
     const browserData = ref({ page_url: '', source_url: '' });
     let generatedId = '';
     
+    watch(() => [props.loadedData], () => {
+      if(window.location.pathname !== '/') {
+        loadSharedLink();
+      }
+    });
 
-    if(window.location.pathname !== '/') {
-      loadSharedLink(window.location.pathname);
-    }
-
-    async function loadSharedLink(path){      
-      try {
-        let resp = await axios.get(`api/share${path}`);
-        json.value = JSON.stringify(resp.data.json);
-        frontendMode.value = resp.data.frontendType;
-        editable.value = resp.data.editable;
-        selectedColor.value = '#'+resp.data.color;
-      } catch (e) {
-        console.log('Not found', e.response);
+    async function loadSharedLink(){
+      if(props.loadedData) {
+        json.value = JSON.stringify(props.loadedData.json);
+        frontendMode.value = props.loadedData.frontendType;
+        editable.value = props.loadedData.editable;
+        selectedColor.value = '#' + props.loadedData.color;
+        generate(json.value);
       }
     }
 
