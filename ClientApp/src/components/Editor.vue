@@ -12,7 +12,29 @@
     </div>
   </modal-panel>
   <div class="codemirror custom-card" :class="page">
-    <code-mirror v-model="json"  @hasSyntaxError="syntaxError" :class="{'h-90': alert.shown, 'h-100': !alert.shown}"></code-mirror>
+    <code-mirror v-model="json" @hasSyntaxError="syntaxError" class="codemirror-content" :class="{'h90': alert.shown, 'h100': !alert.shown}"></code-mirror>
+    <div class="d-flex codemirror-buttons" :class="[page, {'isalert': alert.shown}]">
+      <div class="fab-container mx-1">
+        <div class="fab fab-icon-holder">
+          <span class="bi bi-lightbulb" aria-hidden="true"></span>
+          <span class="ps-2">JSON Samples</span>
+        </div>
+        <ul class="fab-options">
+          <li>
+            <div class="fab-icon-holder" @click="loadTasksExample">
+              <span class="bi bi-card-checklist" aria-hidden="true"></span>
+              <span class="ps-2">Tasks</span>
+            </div>
+          </li>
+          <li>
+            <div class="fab-icon-holder" @click="loadOrdersExample">
+              <span class="bi bi-cart-check" aria-hidden="true"></span>
+              <span class="ps-2">Orders</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
     <div class="my-1 col-12 alert alert-dismissible fade" :class="[alert.class, (alert.shown ? 'show' : '')]" role="alert" v-if="alert.shown">
       <div class="text-center">
         {{ alert.message }}
@@ -33,26 +55,6 @@
         </browser-frame>
       </div>
       <div class="d-flex browser-buttons" :class="page">
-        <div class="fab-container mx-1">
-          <div class="fab fab-icon-holder">
-            <span class="bi bi-lightbulb" aria-hidden="true"></span>
-            <span class="ps-2">JSON Samples</span>
-          </div>
-          <ul class="fab-options">
-            <li>
-              <div class="fab-icon-holder" @click="loadTasksExample">
-                <span class="bi bi-card-checklist" aria-hidden="true"></span>
-                <span class="ps-2">Tasks</span>
-              </div>
-            </li>
-            <li>
-              <div class="fab-icon-holder" @click="loadOrdersExample">
-                <span class="bi bi-cart-check" aria-hidden="true"></span>
-                <span class="ps-2">Orders</span>
-              </div>
-            </li>
-          </ul>
-        </div>
         <div id="settings-btn" class="fab fab-icon-holder mx-1" @click="onSettingsClicked">
           <span class="bi bi-gear" aria-hidden="true"></span>
             <span class="ps-2">Settings</span>
@@ -449,9 +451,6 @@ body {
   height: 100%;
   overflow: hidden;
 }
-.h-90 {
-  height: calc(100% - 4rem);
-}
 
 .fab-container {
   z-index: 999;
@@ -538,6 +537,34 @@ body {
 .browser-buttons.content {
   opacity: 1;
 }
+.codemirror-buttons {
+  position: absolute;
+  bottom: -1rem;
+  left: 2rem;
+  font-size: 1rem!important;
+  z-index: 99;
+  transition: all 1s ease-in-out;
+  transition-delay: 150ms;
+}
+.codemirror-buttons.landing {
+  opacity: 0;
+}
+.codemirror-buttons.content {
+  opacity: 1;
+}
+.codemirror-buttons.content.isalert {
+  bottom: -2rem!important;
+}
+.codemirror-content {
+  transition: all 1s ease-in-out;
+  transition-delay: 150ms;
+}
+.codemirror-content.h90 {
+  height: calc(100% - 4rem);
+}
+.codemirror-content.h100 {
+  height: 100%;
+}
 
 .pulse-download-btn {
   z-index: 9;
@@ -554,7 +581,6 @@ body {
   margin: 1%;
   transition: all 1s ease-in-out;
   transition-delay: 150ms;
-  overflow: hidden;
 }
 .codemirror.content{
   opacity: 1;
@@ -656,12 +682,21 @@ a:hover {
   .browser-container.content{
     top: 95vh;
   }
-
+  .codemirror-buttons {
+    left: 3rem;
+    bottom: 6vh!important;
+  }
+  .codemirror-buttons.content.isalert {
+    bottom: 8vh!important;
+  }
 }
 @media (max-width: 768px) {
   body {
     height: unset;
     overflow: unset;
+  }
+  .codemirror-buttons.content.isalert {
+    bottom: 11vh!important;
   }
 }
 @media (max-width: 576px) {
@@ -678,6 +713,16 @@ a:hover {
   }
   .fab-options {
     bottom: 40px;
+  }
+  .browser-container.content {
+    top: 92vh;
+  }
+  .codemirror-buttons {
+    right: 3rem;
+    bottom: 12vh!important;
+  }
+  .codemirror-buttons.content.isalert {
+    bottom: 16vh!important;
   }
 }
 
