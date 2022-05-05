@@ -1,8 +1,8 @@
 <template>
-  <div class="container-fluid m-0">
+  <not-found :class="{'notfound': isNotFound, 'found': !isNotFound}" @showEditor="showEditor"></not-found>
+  <div class="container-fluid" :class="{'notfound': isNotFound, 'found': !isNotFound}">
     <landing :vuecoonState="vuecoonState"></landing>
-    <generate-options class="mt-3" :frontendMode="frontendMode" :editable="editable" @frontendChanged="changeFrontendMode" @editableChanged="chengeEditable"></generate-options>
-    <editor :config="config" :frontendMode="frontendMode" :editable="editable" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
+    <editor :config="config" :loadedData="loadedData" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
     <div class="d-flex flex-column align-items-center mt-5">
       <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github">
         <div class="d-flex align-items-center px-2">
@@ -29,11 +29,12 @@ import { defineComponent, ref } from 'vue';
 import Landing from './components/Landing.vue';
 import Editor from './components/Editor.vue';
 import Supporters from './components/Supporters.vue';
-import GenerateOptions from './components/GenerateOptions.vue';
+import NotFound from './components/NotFound.vue';
+import axios from "axios";
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { Landing, Editor, Supporters, GenerateOptions },
+  components: { Landing, Editor, Supporters, NotFound },
   setup() {
     const vuecoonStates = {
       Default: 'default',
@@ -41,10 +42,29 @@ export default defineComponent({
       Success: 'success'
     };
     const vuecoonState = ref(vuecoonStates.Default);
-    const frontendMode = ref('vanilla');
-    const editable = ref(false);
     const isShowSupporters = ref(false);
+    const isNotFound = ref(false);
+    const loadedData = ref({});
+    
 
+    async function setShowContentForUrl() {   
+      let path = window.location.pathname;
+      if(path === '/') {
+        isNotFound.value = false;   
+      } else {
+        try {
+          let resp = await axios.get(`api/share${path}`);
+          if (resp.data)
+            isNotFound.value = false;
+            loadedData.value = resp.data;
+        } catch (e) {
+          isNotFound.value = true;
+          loadedData.value = {};
+        }
+      }
+    }
+    window.addEventListener('popstate', setShowContentForUrl);
+    window.addEventListener('load', setShowContentForUrl);
     let idtoken = localStorage.getItem('idtoken');
     if (!idtoken) {
       idtoken = ''
@@ -72,12 +92,6 @@ export default defineComponent({
     function setVuecoon(state) {
       vuecoonState.value = state;
     }
-    function changeFrontendMode(mode) {
-      frontendMode.value = mode;
-    }
-    function chengeEditable(b) {
-      editable.value = b;
-    }
 
     function showSupporters (){
       isShowSupporters.value = !isShowSupporters.value;
@@ -93,10 +107,14 @@ export default defineComponent({
     function openGithub (){
       window.open("https://github.com/BootGen/VueStart");
     }
+    function showEditor(){
+      history.pushState({}, '', '/');
+      isNotFound.value = false;
+    }
 
     return { vuecoonState, config,
       hasError, setVuecoon, openGithub,
-      changeFrontendMode, frontendMode, editable, chengeEditable, showSupporters, isShowSupporters }
+      showSupporters, isShowSupporters, isNotFound, showEditor, loadedData }
   }
 });
 
@@ -144,5 +162,34 @@ export default defineComponent({
   .star-icon {
     color: rgb(222, 169, 64);
     font-size: min(6vw, 3.5rem);
+  }
+  .notfound-page {
+    transition: all 1s ease-in-out;
+    transition-delay: 300ms;
+    position: absolute;
+    width: 100%!important;
+    height: 100%!important;
+    z-index: 999;
+  }
+  .notfound-page.found {
+    top: -100%;
+  }
+  .notfound-page.notfound {
+    top: 0;
+    opacity: 1!important;
+  }
+  .container-fluid {
+    transition: all 1s ease-in-out;
+    transition-delay: 300ms;
+  }
+  .container-fluid.found {
+    opacity: 1;
+    height: 100%;
+    overflow: visible;
+  }
+  .container-fluid.notfound {
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
   }
 </style>

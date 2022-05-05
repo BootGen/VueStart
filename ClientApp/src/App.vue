@@ -36,7 +36,7 @@
     <transition name="fade">
       <not-found v-if="page === 'notfound'" @showEditor="showEditor()"></not-found>
     </transition>
-    <editor :config="config" :page="page" @download="onDownloadClicked" @hasError="hasError" @setVuecoon="setVuecoon"  @success="setSuccessVuecoon"></editor>
+    <editor :config="config" :page="page" :loadedData="loadedData" @download="onDownloadClicked" @hasError="hasError" @setVuecoon="setVuecoon"  @success="setSuccessVuecoon"></editor>
     <div class="col-12 d-flex align-items-center footer" :class="page">
       <p><a href="javascript:void(0)" @click="showSupporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a> | Send <a href="https://github.com/BootGen/VueStart/discussions/55" target="_blank">Feedback!</a></p>
     </div>
@@ -67,6 +67,7 @@ export default defineComponent({
     };
     const vuecoonState = ref(vuecoonStates.Default);
     let generatedId = '';
+    const loadedData = ref({});
 
     let idtoken = localStorage.getItem('idtoken');
     if (!idtoken) {
@@ -115,12 +116,13 @@ export default defineComponent({
       else {
         try {
           let resp = await axios.get(`api/share${pathname}`);
-          if (resp.data)
+          if(resp.data) {
             page.value = 'content';
-          console.log('found - cotent');
+            loadedData.value = resp.data;
+          }
         } catch (e) {
-          page.value = 'notfound'
-          console.log('not found');
+          page.value = 'notfound';
+          loadedData.value = {};
         }
       }
     }
@@ -167,7 +169,7 @@ export default defineComponent({
 
     return { page, showDownloadPanel, openGithub, showEditor, vuecoonState,
       config, download, onDownloadClicked,
-      hasError, setSuccessVuecoon, setVuecoon, showSupporters }
+      hasError, setSuccessVuecoon, setVuecoon, showSupporters, loadedData }
   }
 });
 

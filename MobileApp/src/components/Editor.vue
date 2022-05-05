@@ -1,40 +1,34 @@
 <template>
-    <div class="custom-card shadow mt-4">
-      <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData" @hasSyntaxError="$emit('hasError', $event)"></code-mirror>
-    </div>
-    <div class="container mt-4">
-      <div class="row flex-colum justify-content-center">
-        <div id="color-picker-btn" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" @click="triggerColorPicker">
-          <input type="color" class="form-control form-control-color position-absolute" id="colorInput" v-model="selectedColor" title="Choose your color">
-          <span class="bi bi-palette" aria-hidden="true"></span>
-          <span class="ps-2">Color</span>
-        </div>
-        <div id="generate-btn" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" @click="generate(json)">
-          <span class="bi bi-arrow-right" aria-hidden="true"></span>
-          <span class="ps-2">Generate</span>
-        </div>
+  <settings :frontendMode="frontendMode" :editable="editable" :color="selectedColor" :json="json" @save="saveSettings"></settings>
+  <div class="custom-card shadow mt-4">
+    <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData" @hasSyntaxError="$emit('hasError', $event)"></code-mirror>
+  </div>
+  <div class="container mt-4">
+    <div class="row flex-colum justify-content-center">
+      <div id="generate-btn" class="fab-icon-holder col-lg-3 col-md-3 col-sm-12" @click="generate(json)">
+        <span class="bi bi-arrow-right" aria-hidden="true"></span>
+        <span class="ps-2">Generate</span>
       </div>
     </div>
-    <browser-options :selected="selectedTab" :frontendMode="frontendMode" @select="selectTab"></browser-options>
-    <div class="browser custom-card shadow mt-2">
-      <browser-frame v-model="browserData"></browser-frame>
-    </div>
+  </div>
+  <browser-options :selected="selectedTab" :frontendMode="frontendMode" @select="selectTab"></browser-options>
+  <div class="browser custom-card shadow mt-2">
+    <browser-frame v-model="browserData"></browser-frame>
+  </div>
 </template>
 <script>
-import { defineComponent, ref, watchEffect } from 'vue';
+import { defineComponent, ref, watch } from 'vue';
 import CodeMirror from './CodeMirror.vue';
 import BrowserFrame from './BrowserFrame.vue';
 import BrowserOptions from './BrowserOptions.vue';
+import Settings from './Settings.vue';
 import axios from "axios";
-import { getSchema } from "@/utils/Schema";
-import {debounce} from "@/utils/Helper";
 
 export default defineComponent({
-  components: { CodeMirror, BrowserFrame, BrowserOptions },
+  components: { CodeMirror, BrowserFrame, BrowserOptions, Settings },
   props: {
     config: Object,
-    frontendMode: String,
-    editable: Boolean
+    loadedData: Object
   },
   emits: ['hasError', 'setVuecoon'],
   setup(props, context) {
@@ -42,20 +36,29 @@ export default defineComponent({
     const isFixable = ref(false);
     const json = ref('');
     const tempColor = ref('42b983');
+    const frontendMode = ref('vanilla');
+    const editable = ref(false);
     const selectedColor = ref('#42b983');
-    const frontendMode = ref(props.frontendMode);
-    const editable = ref(props.editable);
     const selectedTab = ref(0);
     const browserData = ref({ page_url: '', source_url: '' });
     let generatedId = '';
-
-    const views = {
-      View: 'view',
-      App: 'app.js',
-      Index: 'index.html'
-    }
-    const selectedView = ref(views.View);
     
+    watch(() => [props.loadedData], () => {
+      if(window.location.pathname !== '/') {
+        loadSharedLink();
+      }
+    });
+
+    async function loadSharedLink(){
+      if(props.loadedData) {
+        json.value = JSON.stringify(props.loadedData.json);
+        frontendMode.value = props.loadedData.frontendType;
+        editable.value = props.loadedData.editable;
+        selectedColor.value = '#' + props.loadedData.color;
+        generate(json.value);
+      }
+    }
+
     const keys = ['idtoken', 'tipIdx'];
     for (let [key, value] of Object.entries(localStorage)) {
       if(!keys.includes(key)) {
@@ -74,10 +77,10 @@ export default defineComponent({
     async function generate(data) {
       try {
         const resp = ref(null);
-        if(props.editable) {
-          resp.value = await axios.post(`api/generate/${frontendMode.value}/table-editable/${tempColor.value}`, JSON.parse(data), props.config);
+        if(editable.value) {
+          resp.value = await axios.post(`api/generate/${frontendMode.value}/table-editable/${selectedColor.value.slice(1, 7)}`, JSON.parse(data), props.config);
         } else {
-          resp.value = await axios.post(`api/generate/${frontendMode.value}/table/${tempColor.value}`, JSON.parse(data), props.config);
+          resp.value = await axios.post(`api/generate/${frontendMode.value}/table/${selectedColor.value.slice(1, 7)}`, JSON.parse(data), props.config);
         }
         localStorage.removeItem(generatedId);
         generatedId = resp.value.data.id;
@@ -124,43 +127,7 @@ export default defineComponent({
     getProjectContentFromServer('example_input').then( (content) => {
       json.value = content;
       generate(json.value);
-      watchEffect(() => {
-        if(props.frontendMode !== frontendMode.value) {
-          frontendMode.value = props.frontendMode;
-          generate(json.value);
-        }
-        if(props.editable !== editable.value) {
-          editable.value = props.editable;
-          generate(json.value);
-        }
-        if('#' + tempColor.value !== selectedColor.value) {
-          tempColor.value = selectedColor.value.slice(1, 7);
-          document.getElementById('color-picker-btn').style.backgroundColor = selectedColor.value;
-          setTextColor();
-          let debouncedGenerate = debounce(generate, 1000);
-          debouncedGenerate(json.value);
-        }
-      })
     });
-    function triggerColorPicker() {
-      document.getElementById("colorInput").click();
-    }
-
-    function setTextColor() {
-      let r = parseInt(tempColor.value.substr(0, 2), 16),
-          g = parseInt(tempColor.value.substr(2, 2), 16),
-          b = parseInt(tempColor.value.substr(4, 2), 16);
-      let brightness = Math.sqrt(
-        r * r * .241 + 
-        g * g * .691 + 
-        b * b * .068
-      );
-      if (brightness > 170) {
-        document.getElementById('color-picker-btn').style.color = '#2c3e50';
-      } else {
-        document.getElementById('color-picker-btn').style.color = '#ffffff';
-      }
-    }
 
     function selectTab(mode) {
       selectedTab.value = mode;
@@ -178,8 +145,16 @@ export default defineComponent({
       }
     }
 
-    return { json, inputError, selectedColor,
-      fixData, isFixable, triggerColorPicker, generate, views, selectedView, selectedTab, selectTab, browserData }
+    function saveSettings(f, e, c) {
+      frontendMode.value = f;
+      editable.value = e;
+      selectedColor.value = c;
+      generate(json.value);
+    }
+
+    return { json, inputError, frontendMode, editable, selectedColor,
+      fixData, isFixable, generate, selectedTab, selectTab, browserData,
+      saveSettings }
   },
 })
 </script>
@@ -206,11 +181,6 @@ export default defineComponent({
 }
 .fab-icon-holder:hover {
   background: #17a062;
-}
-input#colorInput {
-  width: 100px;
-  opacity: 0;
-  padding-top: 25px;
 }
 .shadow {
   box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;

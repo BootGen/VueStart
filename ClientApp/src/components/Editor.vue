@@ -88,7 +88,8 @@ export default defineComponent({
   components: { CodeMirror, BrowserFrame, Tab, ModalPanel, BrowserSettings },
   props: {
     page: String,
-    config: Object
+    config: Object,
+    loadedData: Object
   },
   emits: ['download', 'hasError', 'setVuecoon', 'success'],
   setup(props, context) {
@@ -152,12 +153,7 @@ export default defineComponent({
       }
     }
     watch(selectedTab, seturl);
-    const frontendModes = {
-      Vanilla: 'vanilla',
-      Bootstrap: 'bootstrap',
-      Tailwind: 'tailwind'
-    }
-    const frontendMode = ref(frontendModes.Vanilla);
+    const frontendMode = ref('vanilla');
     const selectedColor = ref('#42b983');
 
     window.addEventListener('storage', () => {
@@ -409,19 +405,17 @@ export default defineComponent({
       }, 800);
     }
 
-    if(!window.location.pathname.includes('editor') && window.location.pathname !== '/') {
-      loadSharedLink(window.location.pathname);
-    }
-
-    async function loadSharedLink(path){      
-      try {
-        let resp = await axios.get(`api/share${path}`);
-        json.value = JSON.stringify(resp.data.json);
-        frontendMode.value = resp.data.frontendType;
-        editable.value = resp.data.editable;
-        selectedColor.value = '#'+resp.data.color;
-      } catch (e) {
-        console.log('Not found', e.response);
+    watch(() => [props.loadedData], () => {      
+      if(!window.location.pathname.includes('editor') && window.location.pathname !== '/') {
+        loadSharedLink();
+      }
+    });
+    async function loadSharedLink(){
+      if(props.loadedData) {
+        frontendMode.value = props.loadedData.frontendType;
+        editable.value = props.loadedData.editable;
+        selectedColor.value = '#' + props.loadedData.color;
+        json.value = JSON.stringify(props.loadedData.json);
       }
     }
     function onSettingsClicked() {
@@ -437,7 +431,7 @@ export default defineComponent({
       showSettingsPanel.value = false;
     }
 
-    return { json, inputError, frontendMode, frontendModes, selectedColor,
+    return { json, inputError, frontendMode, selectedColor,
       onDownloadClicked, pageRefresh,
       selectedTab, browserData, loadTasksExample, loadOrdersExample, syntaxError,
       alert, showWarningPanel, warnings, editable, undo, redo, undoStackIdx, undoStack, share, shareLinkOnClipboard,
