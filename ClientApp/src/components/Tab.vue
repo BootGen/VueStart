@@ -2,9 +2,12 @@
   <button type="button" class="btn-site" @click="$emit('select')">
     <div class="d-flex">
       <span v-if="icon" :class="`bi bi-${icon}`" aria-hidden="true"></span>
-      <img v-else-if="img == 'tailwind'" alt="tailwind" src="../assets/tailwind_green.webp" height="25">
-      <img v-else-if="img == 'bootstrap'" alt="bootstrap" src="../assets/bootstrap_green.webp" height="25">
-      <img v-else alt="vanilla" src="../assets/css_green.webp" height="25">
+      <img v-else-if="img == 'tailwind_green'" alt="tailwind" src="../assets/tailwind_green.webp" height="25">
+      <img v-else-if="img == 'tailwind_white'" alt="tailwind" src="../assets/tailwind_white.webp" height="25">
+      <img v-else-if="img == 'bootstrap_green'" alt="bootstrap" src="../assets/bootstrap_green.webp" height="25">
+      <img v-else-if="img == 'bootstrap_white'" alt="bootstrap" src="../assets/bootstrap_white.webp" height="25">
+      <img v-else-if="img == 'vanilla_green'" alt="vanilla" src="../assets/css_green.webp" height="25">
+      <img v-else-if="img == 'vanilla_white'" alt="vanilla" src="../assets/css_white.webp" height="25">
       <span class="px-2">{{ title }}</span>
     </div>
   </button>
