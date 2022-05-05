@@ -540,7 +540,7 @@ body {
 .codemirror-buttons {
   position: absolute;
   bottom: -1rem;
-  right: 2rem;
+  left: 2rem;
   font-size: 1rem!important;
   z-index: 99;
   transition: all 1s ease-in-out;
@@ -553,7 +553,7 @@ body {
   opacity: 1;
 }
 .codemirror-buttons.content.isalert {
-  bottom: calc(10% - 3rem)!important;
+  bottom: -2rem!important;
 }
 .codemirror-content {
   transition: all 1s ease-in-out;
@@ -683,17 +683,20 @@ a:hover {
     top: 95vh;
   }
   .codemirror-buttons {
-    right: 3rem;
-    bottom: min(6vh, 25vw)!important;
+    left: 3rem;
+    bottom: 6vh!important;
   }
   .codemirror-buttons.content.isalert {
-    bottom: min(15vh, 25vw)!important;
+    bottom: 8vh!important;
   }
 }
 @media (max-width: 768px) {
   body {
     height: unset;
     overflow: unset;
+  }
+  .codemirror-buttons.content.isalert {
+    bottom: 11vh!important;
   }
 }
 @media (max-width: 576px) {
@@ -712,14 +715,14 @@ a:hover {
     bottom: 40px;
   }
   .browser-container.content {
-    top: 90vh;
+    top: 92vh;
   }
   .codemirror-buttons {
     right: 3rem;
-    bottom: min(12vh, 30vw)!important;
+    bottom: 12vh!important;
   }
   .codemirror-buttons.content.isalert {
-    bottom: min(15vh, 50vw)!important;
+    bottom: 16vh!important;
   }
 }
 
