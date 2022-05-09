@@ -59,11 +59,6 @@
         <span class="bi bi-backspace" aria-hidden="true"></span>
         <span class="ps-2">Cancel</span>
       </div>
-      <div id="share-btn" class="fab-icon-holder w-100 active" @click="share">
-        <span class="bi bi-share" aria-hidden="true"></span>
-        <span class="ps-2">Share</span>
-      </div>
-        <span :class="{'disable-share': shareLinkOnClipboard}" class="copied">Copied!</span>
     </div>
   </div>
   
@@ -71,7 +66,6 @@
 
 <script>
 import { defineComponent, ref, watch } from 'vue';
-import axios from "axios";
 
 export default defineComponent({
   name: "Settings",
@@ -86,9 +80,6 @@ export default defineComponent({
     const newFrontend = ref(props.frontendMode);
     const newEditable = ref(props.editable);
     const newColor = ref(props.color);
-    const shareLinkOnClipboard = ref(false);
-    let sharedJson = '';
-    let sharedLink = '';
 
     watch(() => [props.frontendMode, props.editable, props.color], () => {
       newFrontend.value = props.frontendMode;
@@ -103,20 +94,7 @@ export default defineComponent({
       newEditable.value = props.editable;
       newColor.value = props.color;
     }
-
-    async function share() {
-      let shareableJson = JSON.stringify(props.json);
-      if(shareableJson !== sharedJson) {
-        sharedLink = await axios.post(`api/share/${newFrontend.value}/${newEditable.value}/${newColor.value.slice(1, 7)}`, JSON.parse(props.json));
-        sharedJson = shareableJson;
-      }
-      navigator.clipboard.writeText(window.location.origin + '/' + sharedLink.data.hash);
-      shareLinkOnClipboard.value = true;
-      setTimeout(()=> {
-        shareLinkOnClipboard.value = false;
-      }, 800);
-    }
-    return { newFrontend, newEditable, newColor, shareLinkOnClipboard, triggerColorPicker, cancel, share }
+    return { newFrontend, newEditable, newColor, triggerColorPicker, cancel }
   }  
 })
 </script>
@@ -143,8 +121,5 @@ export default defineComponent({
   color: #42b983;
   display: flex;
   justify-content: center;
-}
-.disable-share {
-  opacity: 1!important;
 }
 </style>
