@@ -45,6 +45,20 @@ public class AdminController : ControllerBase
         return Ok(user);
     }
 
+    [HttpPost("change-password")]
+    public IActionResult Authenticate([FromBody]ChangePasswordModel model)
+    {
+        var user = userService.Authenticate(model.Username, model.Password);
+
+        if (user == null)
+            return BadRequest(new { message = "Username or password is incorrect" });
+        
+        userService.SetPassword(user, model.NewPassword);
+
+        return Ok(user);
+    }
+
+
 
     [HttpGet]
     public IActionResult GetDashboard()

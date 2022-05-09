@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,5 +33,12 @@ public class UserService
         }
 
         return user;
+    }
+
+    internal void SetPassword(User user, string newPassword)
+    {
+        var passwordHasher = new PasswordHasher<User>();
+        user.PasswordHash = passwordHasher.HashPassword(user, newPassword);
+        dbContext.SaveChanges();
     }
 }
