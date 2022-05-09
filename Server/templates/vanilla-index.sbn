@@ -109,6 +109,12 @@
         color: #{{ text_color }};
         border: 1px solid #{{ color }};
       }
+      .pagination a.disabled {
+        color: #333333;
+      }
+      .pagination a.disabled:hover {
+        background-color: unset!important;
+      }
       .pagination a:hover:not(.active) {
         background-color: #ddd;
       }

@@ -57,15 +57,16 @@ app.component('pagination', {
   <div class="d-flex flex-column align-items-center">
     <nav aria-label="pagination">
       <ul class="pagination">
-        <li class="page-item" :class="{disabled: pageIdx === 1}">
+        <li class="page-item" :class="{disabled: pageIdx === 1 || pageCount === 0}">
           <a class="page-link" href="javascript:void(0)" @click="toPage(pageIdx-1)">&laquo;</a>
         </li>
-        
-        <li class="page-item" :class="{active: n === pageIdx}" v-for="n in pageCount" @click="toPage(n)">
+        <li v-if="pageCount > 0" class="page-item" :class="{active: n === pageIdx}" v-for="n in pageCount" @click="toPage(n)">
           <a class="page-link" href="javascript:void(0)">{{'{{'}} n {{'}}'}} <span class="sr-only"></span></a>
         </li>
-
-        <li class="page-item" :class="{disabled: pageIdx === pageCount}" @click="toPage(pageIdx+1)">
+        <li v-else class="page-item disabled">
+          <a class="page-link" href="javascript:void(0)"> No results <span class="sr-only"></span></a>
+        </li>
+        <li class="page-item" :class="{disabled: pageIdx === pageCount || pageCount === 0}" @click="toPage(pageIdx+1)">
           <a class="page-link" href="javascript:void(0)">&raquo;</a>
         </li>
       </ul>
