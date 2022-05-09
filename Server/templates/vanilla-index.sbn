@@ -198,13 +198,6 @@
         transform-origin: left bottom;
         transform: translate(0, 1.125rem);
       }
-      ::-webkit-input-placeholder {
-        opacity: 0;
-        transition: inherit;
-      }
-      t:focus::-webkit-input-placeholder {
-        opacity: 1;
-      }
       input:focus + label {
         transform: translate(0, 0);
         cursor: pointer;
