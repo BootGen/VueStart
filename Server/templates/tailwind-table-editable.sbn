@@ -124,7 +124,7 @@ app.component('pagination', {
 app.component('search', {
   template: `
   <div class="flex justify-center">
-    <div class="mb-3 xl:w-96">
+    <div class="w-full mt-4">
       <input
         type="search"
         v-model="searchText" @input="$emit('update', searchText)"

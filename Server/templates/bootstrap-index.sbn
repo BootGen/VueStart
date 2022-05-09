@@ -20,7 +20,7 @@
         margin: 1rem;
       }
       h5 {
-        margin-bottom: 0;
+        margin-bottom: 1rem;
         color: #{{ color }};
       }
       .btn {
