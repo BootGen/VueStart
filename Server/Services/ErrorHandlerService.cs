@@ -23,7 +23,6 @@ namespace VueStart
         {
             ServerError error = e.InnerException == null ? ExceptionToError(e) : ExceptionToError(e.InnerException);
             error.Data = data;
-            dbContext.Database.EnsureCreated();
             dbContext.ServerErrors.Add(error);
             dbContext.SaveChanges();
         }

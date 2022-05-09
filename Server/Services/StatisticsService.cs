@@ -210,7 +210,6 @@ namespace VueStart.Services
             try {
                 var sw = new Stopwatch();
                 sw.Start();
-                dbContext.Database.EnsureCreated();
                 await SaveVisitors(data, dbContext);
                 SaveRecords(data, dbContext);
                 dbContext.SaveChanges();

@@ -20,8 +20,6 @@ namespace VueStart.Controllers
         [HttpPost]
         [Route("")]
         public IActionResult LogError([FromBody] JsonElement data) {
-            Console.WriteLine( data.ToString());
-            dbContext.Database.EnsureCreated();
             dbContext.ClientErrors.Add(new ClientError{
                 DateTime = DateTime.UtcNow,
                 UserAgent = Request.Headers["User-Agent"].FirstOrDefault(),

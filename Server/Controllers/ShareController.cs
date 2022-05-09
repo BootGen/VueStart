@@ -34,7 +34,6 @@ public class ShareController : ControllerBase
     public IActionResult Save([FromBody] JsonElement json, string type, bool editable, string color)
     {
         int hash = StringHash(JsonSerializer.Serialize(json)+type+editable.ToString()+color);
-        dbContext.Database.EnsureCreated();
         var link = dbContext.ShareableLinks.FirstOrDefault(r => r.Hash == hash);
         if(link != null) {
             return Ok(new { hash = hash });
