@@ -100,17 +100,13 @@ app.component('pagination', {
 
 app.component('search', {
   template: `
-  <input type="search" placeholder="Search..." v-model="searchText" @input="$emit('update', searchText)">
+  <input type="search" placeholder="Search..." v-model="modelValue" @input="$emit('update:modelValue', $event.target.value)">
   `,
   name: 'Search',
   props: {
-    value: String,
+    modelValue: String,
   },
-  emits:['update'],
-  setup(props, context) {
-    const searchText = ref(props.value);
-    return { searchText }
-  }
+  emits:['update:modelValue']
 });
 
 {{~ for class in classes
@@ -249,10 +245,10 @@ app.component('{{ kebab_case class.name.plural }}', {
   <h5 class="disabled" v-if="activeProperty === null">{{ class.name.plural }}</h5>
   <h5 class="clickable" @click="activeProperty = null" v-if="activeProperty !== null">{{ class.name.plural }}</h5>
   <h5 class="breadcrumb-separator" v-if="activeProperty !== null">/</h5>
-  <search v-if="activeProperty === null" :value="searchText" @update="updateSearchText"></search>
+  <search v-if="activeProperty === null" :modelValue="searchText" @update:modelValue="updateSearchText"></search>
   {{~ else ~}}
   <h5 class="disabled">{{ class.name.plural }}</h5>
-  <search :value="searchText" @update="updateSearchText"></search>
+  <search :modelValue="searchText" @update:modelValue="updateSearchText"></search>
   {{~ end ~}}
   <{{ kebab_case class.name }}-table :sortable="true" @sort="sort" {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
     <{{ kebab_case class.name }}-row v-for="item in items" :key="item.idx" :value="item.value" {{ if class.has_child }}@show="show(item.idx, $event)"{{ end }} v-if="value"></{{ kebab_case class.name }}-row>

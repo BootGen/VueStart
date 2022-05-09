@@ -121,18 +121,14 @@ app.component('pagination', {
 app.component('search', {
   template: `
   <div class="form-outline">
-    <input type="search" v-model="searchText" @input="$emit('update', searchText)" class="form-control" placeholder="Search..." aria-label="Search" />
+    <input type="search" v-model="modelValue" @input="$emit('update:modelValue', $event.target.value)" class="form-control" placeholder="Search..." aria-label="Search" />
   </div>
   `,
   name: 'Search',
   props: {
-    value: String,
+    modelValue: String,
   },
-  emits:['update'],
-  setup(props, context) {
-    const searchText = ref(props.value);
-    return { searchText }
-  }
+  emits:['update:modelValue']
 });
 
 {{~ for class in classes
@@ -378,10 +374,10 @@ app.component('{{ kebab_case class.name.plural }}', {
   <h5 class="d-inline-block disabled px-2 float-start" v-if="activeProperty === null">{{ class.name.plural }}</h5>
   <h5 class="d-inline-block clickable px-2 float-start" @click="activeProperty = null" v-if="activeProperty !== null">{{ class.name.plural }}</h5>
   <h5 class="d-inline-block float-start" v-if="activeProperty !== null">/</h5>
-  <search v-if="activeProperty === null" :value="searchText" @update="updateSearchText"></search>
+  <search v-if="activeProperty === null" :modelValue="searchText" @update:modelValue="updateSearchText"></search>
   {{~ else ~}}
   <h5 class="d-inline-block disabled px-2 float-start">{{ class.name.plural }}</h5>
-  <search :value="searchText" @update="updateSearchText"></search>
+  <search :modelValue="searchText" @update:modelValue="updateSearchText"></search>
   {{~ end ~}}
   <{{ kebab_case class.name }}-table :sortable="true" @sort="sort" {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
     <{{ kebab_case class.name }}-row v-for="item in items" :key="item.idx" :modelValue="item.value" @update:modelValue="updateItem(item.idx, $event)" @delete="deleteItem(item.idx)" :deletable="true"{{ if class.has_child }} @show="show(item.idx, $event)"{{ end }} v-if="modelValue"></{{ kebab_case class.name }}-row>
