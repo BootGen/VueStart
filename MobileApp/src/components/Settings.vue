@@ -1,11 +1,11 @@
 <template>
-  <div class="fab-icon-holder hamb active" @click="cancel" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
+  <div class="fab-icon-holder hamb active" @click="changeSettings">
     <span class="bi bi-list" aria-hidden="true"></span>
   </div>
-
-  <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+  <div class="modal-backdrop fade" :class="{'show': showSetting}" @click="changeSettings"></div>
+  <div class="offcanvas offcanvas-end" :class="{'show': showSetting}" data-bs-scroll="true">
     <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Settings</h5>
+      <h5 class="offcanvas-title">Settings</h5>
     </div>
     <div class="offcanvas-body">
       <h5>Frontend mode</h5>
@@ -51,14 +51,6 @@
         <input type="color" class="form-control form-control-color" id="colorInput" v-model="newColor" title="Choose your color"  @click="triggerColorPicker">
         <p class="m-0 px-2">{{ newColor }}</p>
       </div>
-      <div class="fab-icon-holder w-100 active" @click="$emit('save', newFrontend, newEditable, newColor)" data-bs-dismiss="offcanvas">
-        <span class="bi bi-save" aria-hidden="true"></span>
-        <span class="ps-2">Save</span>
-      </div>
-      <div class="fab-icon-holder w-100 inactive" @click="cancel" data-bs-dismiss="offcanvas">
-        <span class="bi bi-backspace" aria-hidden="true"></span>
-        <span class="ps-2">Cancel</span>
-      </div>
     </div>
   </div>
   
@@ -80,7 +72,8 @@ export default defineComponent({
     const newFrontend = ref(props.frontendMode);
     const newEditable = ref(props.editable);
     const newColor = ref(props.color);
-
+    const showSetting = ref(false);
+    
     watch(() => [props.frontendMode, props.editable, props.color], () => {
       newFrontend.value = props.frontendMode;
       newEditable.value = props.editable;
@@ -89,12 +82,11 @@ export default defineComponent({
     function triggerColorPicker() {
       document.getElementById("colorInput").click();
     }
-    function cancel() {
-      newFrontend.value = props.frontendMode;
-      newEditable.value = props.editable;
-      newColor.value = props.color;
+    function changeSettings(){
+      showSetting.value = !showSetting.value;
+      context.emit('save', newFrontend.value, newEditable.value, newColor.value);
     }
-    return { newFrontend, newEditable, newColor, triggerColorPicker, cancel }
+    return { newFrontend, newEditable, newColor, showSetting, triggerColorPicker, changeSettings }
   }  
 })
 </script>
@@ -121,5 +113,12 @@ export default defineComponent({
   color: #42b983;
   display: flex;
   justify-content: center;
+}
+.offcanvas {
+  transition: all .5s ease-in-out;
+  visibility: hidden;
+}
+.offcanvas.show {
+  visibility: visible;
 }
 </style>
