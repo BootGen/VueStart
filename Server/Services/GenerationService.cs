@@ -39,11 +39,10 @@ public class GenerationService
         var indexParameters = new Dictionary<string, object> {
                 {"title", $"{title}"}
             };
-        if (!forDownload) {
-            if (isAdmin)
-                indexParameters.Add("base_url", "/admin/");
-            else
-                indexParameters.Add("base_url", $"/api/files/{generator.Id}/");
+        if (isAdmin)
+            indexParameters.Add("base_url", "/admin/");
+        else if (!forDownload) {
+            indexParameters.Add("base_url", $"/api/files/{generator.Id}/");
         }
         indexParameters.Add("color", color);
         if (Brightness(ColorTranslator.FromHtml($"#{color}")) > 170)
