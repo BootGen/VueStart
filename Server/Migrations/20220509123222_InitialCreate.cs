@@ -92,7 +92,10 @@ namespace VueStart.Migrations
                     Json = table.Column<JsonElement>(type: "jsonb", nullable: false),
                     FrontendType = table.Column<string>(type: "text", nullable: true),
                     Editable = table.Column<bool>(type: "boolean", nullable: false),
-                    Color = table.Column<string>(type: "text", nullable: true)
+                    Color = table.Column<string>(type: "text", nullable: true),
+                    FirstUse = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastUse = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Count = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -171,8 +174,8 @@ namespace VueStart.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Day = table.Column<int>(type: "integer", nullable: false),
-                    Period = table.Column<int>(type: "integer", nullable: false),
+                    Start = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    End = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Count = table.Column<int>(type: "integer", nullable: false),
                     VisitorId = table.Column<int>(type: "integer", nullable: true)
                 },
@@ -189,7 +192,7 @@ namespace VueStart.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "PasswordHash", "Username" },
-                values: new object[] { 1, "AQAAAAEAACcQAAAAEB8NPZXlW5cwQuyEPPrqikkOUQHErDgxO1HkozrriZi5pUy0BquMLQCTq5Abr11Y1Q==", "admin" });
+                values: new object[] { 1, "AQAAAAEAACcQAAAAEP2ySbRDxPLVAzU13JfKBPpxhk2Vjh0LzEe29VP+MuGnKdzeD8BuGR5Dd1oo7gFzzA==", "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_StatisticRecords_InputDataId",

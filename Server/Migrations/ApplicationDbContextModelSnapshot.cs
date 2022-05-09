@@ -45,7 +45,7 @@ namespace VueStart.Migrations
                         new
                         {
                             Id = 1,
-                            PasswordHash = "AQAAAAEAACcQAAAAEB8NPZXlW5cwQuyEPPrqikkOUQHErDgxO1HkozrriZi5pUy0BquMLQCTq5Abr11Y1Q==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEP2ySbRDxPLVAzU13JfKBPpxhk2Vjh0LzEe29VP+MuGnKdzeD8BuGR5Dd1oo7gFzzA==",
                             Username = "admin"
                         });
                 });
@@ -182,8 +182,14 @@ namespace VueStart.Migrations
                     b.Property<string>("Color")
                         .HasColumnType("text");
 
+                    b.Property<int>("Count")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("Editable")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTime>("FirstUse")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FrontendType")
                         .HasColumnType("text");
@@ -193,6 +199,9 @@ namespace VueStart.Migrations
 
                     b.Property<JsonElement>("Json")
                         .HasColumnType("jsonb");
+
+                    b.Property<DateTime>("LastUse")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -243,11 +252,11 @@ namespace VueStart.Migrations
                     b.Property<int>("Count")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Day")
-                        .HasColumnType("integer");
+                    b.Property<DateTime>("End")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Period")
-                        .HasColumnType("integer");
+                    b.Property<DateTime>("Start")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("VisitorId")
                         .HasColumnType("integer");
