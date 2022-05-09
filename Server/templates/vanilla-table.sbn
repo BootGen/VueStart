@@ -257,7 +257,7 @@ app.component('{{ kebab_case class.name.plural }}', {
     <{{ kebab_case class.name }}-row v-for="item in items" :key="item.idx" :value="item.value" {{ if class.has_child }}@show="show(item.idx, $event)"{{ end }} v-if="value"></{{ kebab_case class.name }}-row>
   </{{ kebab_case class.name }}-table>
   <div {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
-    <pagination :count="value.length" @range="setRange"></pagination>
+    <pagination :count="pageCount" @range="setRange"></pagination>
   </div>
 {{~ for property in class.child_references ~}}
   {{~ if property.is_collection ~}}
@@ -277,6 +277,7 @@ app.component('{{ kebab_case class.name.plural }}', {
     const rangeStart = ref(0);
     const rangeEnd = ref(props.value.length);
     const searchText = ref('');
+    const pageCount = ref(0);
     const items = computed(function(){
       if (!props.value)
         return [];
@@ -317,6 +318,7 @@ app.component('{{ kebab_case class.name.plural }}', {
               return -1;
             return 0
           });
+      pageCount.value = newList.length;
       return newList.slice(rangeStart.value, rangeEnd.value);
     });
     {{~ if class.has_child ~}}
@@ -347,6 +349,7 @@ app.component('{{ kebab_case class.name.plural }}', {
       sort,
       setRange,
       items,
+      pageCount,
       searchText,
       updateSearchText{{ if class.has_child }},
       show,
