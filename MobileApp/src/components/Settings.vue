@@ -1,6 +1,6 @@
 <template>
   <div class="fab-icon-holder hamb active" @click="changeSettings">
-    <span class="bi bi-list" aria-hidden="true"></span>
+    <span :class="showSetting ? 'bi bi-x-lg' : 'bi bi-gear'" aria-hidden="true"></span>
   </div>
   <div class="modal-backdrop fade" :class="{'show': showSetting}" @click="changeSettings"></div>
   <div class="offcanvas offcanvas-end" :class="{'show': showSetting}" data-bs-scroll="true">
