@@ -120,6 +120,22 @@
         border-top-right-radius: 5px;
         border-bottom-right-radius: 5px;
       }
+      input[type="search"] {
+        background: transparent;
+        margin: 0;
+        padding: 7px 8px;
+        font-size: 14px;
+        border: 1px solid black;
+        border-radius: 5px;
+      }
+      input[type="search"]::placeholder {
+        color: #bbb;
+      }
+      input[type="search"]:focus {
+        box-shadow: 0 0 3px 0 #{{ color }};
+        border-color: #{{ color }};
+        outline: none;
+      }
       {{~ if title == 'Data Table-editable' ~}}
       td:last-child {
         text-align: right;

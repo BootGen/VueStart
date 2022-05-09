@@ -109,6 +109,21 @@ app.component('pagination', {
   }
 });
 
+app.component('search', {
+  template: `
+  <input type="search" placeholder="Search..." v-model="searchText" @input="$emit('update', searchText)">
+  `,
+  name: 'Search',
+  props: {
+    value: String,
+  },
+  emits:['update'],
+  setup(props, context) {
+    const searchText = ref(props.value);
+    return { searchText }
+  }
+});
+
 {{~ for class in classes
       if class.is_root
         continue
@@ -349,10 +364,10 @@ app.component('{{ kebab_case class.name.plural }}', {
   <h5 class="disabled" v-if="activeProperty === null">{{ class.name.plural }}</h5>
   <h5 class="clickable" @click="activeProperty = null" v-if="activeProperty !== null">{{ class.name.plural }}</h5>
   <h5 class="breadcrumb-separator" v-if="activeProperty !== null">/</h5>
-  <input v-if="activeProperty === null" type="text" placeholder="Search" v-model="searchText">
+  <search v-if="activeProperty === null" :value="searchText" @update="updateSearchText"></search>
   {{~ else ~}}
   <h5 class="disabled">{{ class.name.plural }}</h5>
-  <input type="text" placeholder="Search" v-model="searchText">
+  <search :value="searchText" @update="updateSearchText"></search>
   {{~ end ~}}
   <{{ kebab_case class.name }}-table :sortable="true" @sort="sort" {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
     <{{ kebab_case class.name }}-row v-for="item in items" :key="item.idx" :modelValue="item.value" @update:modelValue="updateItem(item.idx, $event)" @delete="deleteItem(item.idx)" :deletable="true"{{ if class.has_child }} @show="show(item.idx, $event)"{{ end }} v-if="modelValue"></{{ kebab_case class.name }}-row>
@@ -486,6 +501,9 @@ app.component('{{ kebab_case class.name.plural }}', {
     function cancelAdd() {
       newItem.value = null;
     }
+    function updateSearchText(text) {
+      searchText.value = text;
+    }
 
     return {
       sort,
@@ -493,6 +511,7 @@ app.component('{{ kebab_case class.name.plural }}', {
       items,
       newItem,
       searchText,
+      updateSearchText,
       deleteItem,
       updateItem,
       addNewItem,
