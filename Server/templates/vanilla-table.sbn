@@ -97,6 +97,21 @@ app.component('pagination', {
   }
 });
 
+app.component('search', {
+  template: `
+  <input type="search" placeholder="Search..." v-model="searchText" @input="$emit('update', searchText)">
+  `,
+  name: 'Search',
+  props: {
+    value: String,
+  },
+  emits:['update'],
+  setup(props, context) {
+    const searchText = ref(props.value);
+    return { searchText }
+  }
+});
+
 {{~ for class in classes
       if class.is_root
         continue
@@ -233,8 +248,10 @@ app.component('{{ kebab_case class.name.plural }}', {
   <h5 class="disabled" v-if="activeProperty === null">{{ class.name.plural }}</h5>
   <h5 class="clickable" @click="activeProperty = null" v-if="activeProperty !== null">{{ class.name.plural }}</h5>
   <h5 class="breadcrumb-separator" v-if="activeProperty !== null">/</h5>
+  <search v-if="activeProperty === null" :value="searchText" @update="updateSearchText"></search>
   {{~ else ~}}
   <h5 class="disabled">{{ class.name.plural }}</h5>
+  <search :value="searchText" @update="updateSearchText"></search>
   {{~ end ~}}
   <{{ kebab_case class.name }}-table :sortable="true" @sort="sort" {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
     <{{ kebab_case class.name }}-row v-for="item in items" :key="item.idx" :value="item.value" {{ if class.has_child }}@show="show(item.idx, $event)"{{ end }} v-if="value"></{{ kebab_case class.name }}-row>
@@ -259,10 +276,37 @@ app.component('{{ kebab_case class.name.plural }}', {
     const orderAsc = ref(true);
     const rangeStart = ref(0);
     const rangeEnd = ref(props.value.length);
+    const searchText = ref('');
     const items = computed(function(){
       if (!props.value)
         return [];
       const newList = props.value.map((value, idx) => { return {idx, value} });
+      if(searchText.value !== '') {
+        const indexs = [];
+        for (let i = 0; i < newList.length; i++) {
+          let removeElement = true;
+          for(const property in newList[i].value) {
+            if(typeof(newList[i].value[property]) == 'object') {
+              continue;
+            }
+            const element = newList[i].value[property].toString();
+            if(element.toUpperCase().includes(searchText.value.toUpperCase())) {
+              removeElement = false;
+              break;
+            }
+          }
+          if(removeElement) {
+            indexs.push(newList[i].idx);
+          }
+        }
+        for(let j = 0; j < indexs.length; j++) {
+          for(let k = 0; k < newList.length; k++) {
+            if(newList[k].idx == indexs[j]) {
+              newList.splice(k, 1);
+            }
+          }
+        }
+      }
       const ordBy = orderBy.value;
       const asc = orderAsc.value;
       if (ordBy !== '')
@@ -294,11 +338,17 @@ app.component('{{ kebab_case class.name.plural }}', {
       rangeStart.value = start;
       rangeEnd.value = end;
     }
+    
+    function updateSearchText(text) {
+      searchText.value = text;
+    }
 
     return {
       sort,
       setRange,
-      items{{ if class.has_child }},
+      items,
+      searchText,
+      updateSearchText{{ if class.has_child }},
       show,
       activeIdx,
       activeProperty
