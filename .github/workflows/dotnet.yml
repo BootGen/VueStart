@@ -14,10 +14,10 @@ jobs:
       with:
         dotnet-version: 6.0.x
         lfs: true
-    - name: Use Node.js 15.x
+    - name: Use Node.js 16.x
       uses: actions/setup-node@v2
       with:
-        node-version: 15.x
+        node-version: 16.x
     - name: Checkout LFS objects
       run: git lfs pull
     - name: Install dependencies (nuget)
