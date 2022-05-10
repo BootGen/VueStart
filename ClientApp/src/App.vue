@@ -113,7 +113,7 @@ export default defineComponent({
         page.value = 'landing';
       else if (pathname === '/editor')
         page.value = 'content';
-      else {
+      else if (pathname.match(/^-?\d+$/)){
         try {
           let resp = await axios.get(`api/share${pathname}`);
           if(resp.data) {
@@ -122,8 +122,10 @@ export default defineComponent({
           }
         } catch (e) {
           page.value = 'notfound';
-          loadedData.value = {};
+          loadedData.value = null;
         }
+      } else {
+        window.location.pathname = '/editor';
       }
     }
     window.addEventListener('popstate', setShowContentForUrl);

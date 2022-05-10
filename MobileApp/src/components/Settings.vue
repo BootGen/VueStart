@@ -1,11 +1,11 @@
 <template>
-  <div class="fab-icon-holder hamb active" @click="cancel" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
-    <span class="bi bi-list" aria-hidden="true"></span>
+  <div class="fab-icon-holder hamb active" @click="changeSettings">
+    <span :class="showSetting ? 'bi bi-x-lg' : 'bi bi-gear'" aria-hidden="true"></span>
   </div>
-
-  <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+  <div class="modal-backdrop fade" :class="{'show': showSetting}" @click="changeSettings"></div>
+  <div class="offcanvas offcanvas-end" :class="{'show': showSetting}" data-bs-scroll="true">
     <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Settings</h5>
+      <h5 class="offcanvas-title">Settings</h5>
     </div>
     <div class="offcanvas-body">
       <h5>Frontend mode</h5>
@@ -51,19 +51,6 @@
         <input type="color" class="form-control form-control-color" id="colorInput" v-model="newColor" title="Choose your color"  @click="triggerColorPicker">
         <p class="m-0 px-2">{{ newColor }}</p>
       </div>
-      <div class="fab-icon-holder w-100 active" @click="$emit('save', newFrontend, newEditable, newColor)" data-bs-dismiss="offcanvas">
-        <span class="bi bi-save" aria-hidden="true"></span>
-        <span class="ps-2">Save</span>
-      </div>
-      <div class="fab-icon-holder w-100 inactive" @click="cancel" data-bs-dismiss="offcanvas">
-        <span class="bi bi-backspace" aria-hidden="true"></span>
-        <span class="ps-2">Cancel</span>
-      </div>
-      <div id="share-btn" class="fab-icon-holder w-100 active" @click="share">
-        <span class="bi bi-share" aria-hidden="true"></span>
-        <span class="ps-2">Share</span>
-      </div>
-        <span :class="{'disable-share': shareLinkOnClipboard}" class="copied">Copied!</span>
     </div>
   </div>
   
@@ -71,7 +58,6 @@
 
 <script>
 import { defineComponent, ref, watch } from 'vue';
-import axios from "axios";
 
 export default defineComponent({
   name: "Settings",
@@ -86,10 +72,8 @@ export default defineComponent({
     const newFrontend = ref(props.frontendMode);
     const newEditable = ref(props.editable);
     const newColor = ref(props.color);
-    const shareLinkOnClipboard = ref(false);
-    let sharedJson = '';
-    let sharedLink = '';
-
+    const showSetting = ref(false);
+    
     watch(() => [props.frontendMode, props.editable, props.color], () => {
       newFrontend.value = props.frontendMode;
       newEditable.value = props.editable;
@@ -98,25 +82,11 @@ export default defineComponent({
     function triggerColorPicker() {
       document.getElementById("colorInput").click();
     }
-    function cancel() {
-      newFrontend.value = props.frontendMode;
-      newEditable.value = props.editable;
-      newColor.value = props.color;
+    function changeSettings(){
+      showSetting.value = !showSetting.value;
+      context.emit('save', newFrontend.value, newEditable.value, newColor.value);
     }
-
-    async function share() {
-      let shareableJson = JSON.stringify(props.json);
-      if(shareableJson !== sharedJson) {
-        sharedLink = await axios.post(`api/share/${newFrontend.value}/${newEditable.value}/${newColor.value.slice(1, 7)}`, JSON.parse(props.json));
-        sharedJson = shareableJson;
-      }
-      navigator.clipboard.writeText(window.location.origin + '/' + sharedLink.data.hash);
-      shareLinkOnClipboard.value = true;
-      setTimeout(()=> {
-        shareLinkOnClipboard.value = false;
-      }, 800);
-    }
-    return { newFrontend, newEditable, newColor, shareLinkOnClipboard, triggerColorPicker, cancel, share }
+    return { newFrontend, newEditable, newColor, showSetting, triggerColorPicker, changeSettings }
   }  
 })
 </script>
@@ -144,7 +114,11 @@ export default defineComponent({
   display: flex;
   justify-content: center;
 }
-.disable-share {
-  opacity: 1!important;
+.offcanvas {
+  transition: all .5s ease-in-out;
+  visibility: hidden;
+}
+.offcanvas.show {
+  visibility: visible;
 }
 </style>

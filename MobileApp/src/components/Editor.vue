@@ -146,10 +146,22 @@ export default defineComponent({
     }
 
     function saveSettings(f, e, c) {
-      frontendMode.value = f;
-      editable.value = e;
-      selectedColor.value = c;
-      generate(json.value);
+      let gen = false;
+      if(frontendMode.value !== f){
+        frontendMode.value = f;
+        gen = true;
+      }
+      if(editable.value !== e){
+        editable.value = e;
+        gen = true;
+      }
+      if(selectedColor.value !== c){
+        selectedColor.value = c;
+        gen = true;
+      }
+      if(gen) {
+        generate(json.value);
+      }
     }
 
     return { json, inputError, frontendMode, editable, selectedColor,

@@ -69,18 +69,21 @@ app.component('pagination', {
   <nav aria-label="Page navigation">
     <ul class="inline-flex items-center -space-x-px">
       <li>
-        <a href="javascript:void(0)" class="block py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700" @click="toPage(pageIdx-1)">
+        <a href="javascript:void(0)" class="block py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300" @click="toPage(pageIdx-1)" :class="{'hover:bg-gray-100 hover:text-gray-700': pageIdx !== 1 && pageCount !== 0 }">
           <span class="sr-only">Previous</span>
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
           </svg>
         </a>
       </li>
-      <li v-for="n in pageCount" @click="toPage(n)">
+      <li v-if="pageCount > 0" v-for="n in pageCount" @click="toPage(n)">
         <a href="javascript:void(0)" class="block py-2 px-3 leading-tight bg-white border border-gray-300 hover:bg-gray-100" :class="{'text-primary': n === pageIdx, 'text-gray-500 hover:text-gray-700': n !== pageIdx }">{{'{{'}} n {{'}}'}}</a>
       </li>
+      <li v-else">
+        <a href="javascript:void(0)" class="block py-2 px-3 leading-tight bg-white text-gray-500 border border-gray-300">No results</a>
+      </li>
       <li>
-        <a href="javascript:void(0)" class="block py-2 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700" @click="toPage(pageIdx+1)">
+        <a href="javascript:void(0)" class="block py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300" @click="toPage(pageIdx+1)" :class="{'hover:bg-gray-100 hover:text-gray-700': pageIdx !== pageCount && pageCount !== 0 }">
           <span class="sr-only">Next</span>
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
         </a>
@@ -119,6 +122,37 @@ app.component('pagination', {
     toPage(1);
     return { pageCount, pageIdx, pageSize, toPage }
   }
+});
+
+app.component('search', {
+  template: `
+  <div class="flex justify-center">
+    <div class="w-full mt-4">
+      <input
+        type="search"
+        v-model="modelValue" @input="$emit('update:modelValue', $event.target.value)"
+        class="
+          form-control
+          block
+          w-full
+          px-3
+          py-1.5
+          text-gray-700
+          border border-solid border-gray-300
+          rounded
+          m-0
+          focus:text-gray-700 focus:bg-white focus:border-primary focus:outline-none
+        "
+        placeholder="Search..."
+      />
+    </div>
+  </div>
+  `,
+  name: 'Search',
+  props: {
+    modelValue: String,
+  },
+  emits:['update:modelValue']
 });
 
 {{~ for class in classes
@@ -387,8 +421,10 @@ app.component('{{ kebab_case class.name.plural }}', {
   <h5 class="text-disabled table-cell font-bold" v-if="activeProperty === null">{{ class.name.plural }}</h5>
   <h5 class="text-primary hover:text-primaryHover cursor-pointer table-cell font-bold" @click="activeProperty = null" v-else>{{ class.name.plural }}</h5>
   <h5 class="text-primary px-2 table-cell font-bold" v-if="activeProperty !== null">/</h5>
+  <search v-if="activeProperty === null" :modelValue="searchText" @update:modelValue="updateSearchText"></search>
   {{~ else ~}}
   <h5 class="text-disabled table-cell font-bold">{{ class.name.plural }}</h5>
+  <search :modelValue="searchText" @update:modelValue="updateSearchText"></search>
   {{~ end ~}}
   <{{ kebab_case class.name }}-table :sortable="true" @sort="sort" {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
   <{{ kebab_case class.name }}-row v-for="item in items" :key="item.idx" :modelValue="item.value" @update:modelValue="updateItem(item.idx, $event)" @delete="deleteItem(item.idx)" :deletable="true"{{ if class.has_child }} @show="show(item.idx, $event)"{{ end }} v-if="modelValue"></{{ kebab_case class.name }}-row>
@@ -406,7 +442,7 @@ app.component('{{ kebab_case class.name.plural }}', {
     </tr>
   </{{ kebab_case class.name }}-table>
   <div {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
-    <pagination :count="modelValue.length" @range="setRange"></pagination>
+    <pagination :count="pageCount" @range="setRange"></pagination>
   </div>
   {{~ for property in class.child_references ~}}
       {{~ if property.is_collection ~}}
@@ -426,10 +462,38 @@ app.component('{{ kebab_case class.name.plural }}', {
     const orderAsc = ref(true);
     const rangeStart = ref(0);
     const rangeEnd = ref(props.modelValue.length);
+    const searchText = ref('');
+    const pageCount = ref(0);
     const items = computed(function(){
       if (!props.modelValue)
         return [];
       const newList = props.modelValue.map((value, idx) => { return {idx, value} });
+      if(searchText.value !== '') {
+        const indexs = [];
+        for (let i = 0; i < newList.length; i++) {
+          let removeElement = true;
+          for(const property in newList[i].value) {
+            if(typeof(newList[i].value[property]) == 'object') {
+              continue;
+            }
+            const element = newList[i].value[property].toString();
+            if(element.toUpperCase().includes(searchText.value.toUpperCase())) {
+              removeElement = false;
+              break;
+            }
+          }
+          if(removeElement) {
+            indexs.push(newList[i].idx);
+          }
+        }
+        for(let j = 0; j < indexs.length; j++) {
+          for(let k = 0; k < newList.length; k++) {
+            if(newList[k].idx == indexs[j]) {
+              newList.splice(k, 1);
+            }
+          }
+        }
+      }
       const ordBy = orderBy.value;
       const asc = orderAsc.value;
       if (ordBy !== '')
@@ -440,6 +504,7 @@ app.component('{{ kebab_case class.name.plural }}', {
               return -1;
             return 0
           });
+      pageCount.value = newList.length;
       return newList.slice(rangeStart.value, rangeEnd.value);
     });
     {{~ if class.has_child ~}}
@@ -499,12 +564,18 @@ app.component('{{ kebab_case class.name.plural }}', {
     function cancelAdd() {
         newItem.value = null;
     }
+    function updateSearchText(text) {
+      searchText.value = text;
+    }
 
     return {
       sort,
       setRange,
       items,
       newItem,
+      pageCount,
+      searchText,
+      updateSearchText,
       deleteItem,
       updateItem,
       addNewItem,

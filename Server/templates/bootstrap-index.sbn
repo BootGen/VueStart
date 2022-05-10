@@ -20,7 +20,7 @@
         margin: 1rem;
       }
       h5 {
-        margin-bottom: 0;
+        margin-bottom: 1rem;
         color: #{{ color }};
       }
       .btn {
@@ -60,6 +60,10 @@
       }
       .page-link {
         color: #{{ color }};
+      }
+      input[type="search"]:focus {
+        box-shadow: 0 0 3px 0 #{{ color }};
+        border-color: #{{ color }};
       }
       {{~ if title == 'Data Table-editable' ~}}
       .active-row {
