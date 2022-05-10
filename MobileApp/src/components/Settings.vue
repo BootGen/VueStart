@@ -1,8 +1,7 @@
 <template>
-  <div class="fab-icon-holder hamb active" @click="changeSettings">
+  <div class="fab-icon-holder hamb active" @click="toggleSettings">
     <span :class="showSetting ? 'bi bi-x-lg' : 'bi bi-gear'" aria-hidden="true"></span>
   </div>
-  <div class="modal-backdrop fade" :class="{'show': showSetting}" @click="changeSettings"></div>
   <div class="offcanvas offcanvas-end" :class="{'show': showSetting}" data-bs-scroll="true">
     <div class="offcanvas-header">
       <h5 class="offcanvas-title">Settings</h5>
@@ -11,19 +10,19 @@
       <h5>Frontend mode</h5>
       <div class="row px-3">
         <div class="col-4 form-check">
-          <input class="form-check-input" type="radio" name="vanilla" id="vanilla" :checked="newFrontend == 'vanilla'" @click="newFrontend = 'vanilla'">
+          <input class="form-check-input" type="radio" name="vanilla" id="vanilla" :checked="newFrontend === 'vanilla'" @click="newFrontend = 'vanilla'">
           <label class="form-check-label" for="vanilla">
             Vanilla
           </label>
         </div>
         <div class="col-4 form-check">
-          <input class="form-check-input" type="radio" name="bootstrap" id="bootstrap" :checked="newFrontend == 'bootstrap'" @click="newFrontend = 'bootstrap'">
+          <input class="form-check-input" type="radio" name="bootstrap" id="bootstrap" :checked="newFrontend === 'bootstrap'" @click="newFrontend = 'bootstrap'">
           <label class="form-check-label" for="bootstrap">
             Bootstrap
           </label>
         </div>
         <div class="col-4 form-check">
-          <input class="form-check-input" type="radio" name="tailwind" id="tailwind" :checked="newFrontend == 'tailwind'" @click="newFrontend = 'tailwind'">
+          <input class="form-check-input" type="radio" name="tailwind" id="tailwind" :checked="newFrontend === 'tailwind'" @click="newFrontend = 'tailwind'">
           <label class="form-check-label" for="tailwind">
             Tailwind
           </label>
@@ -64,8 +63,7 @@ export default defineComponent({
   props: {
     frontendMode: String,
     editable: Boolean,
-    color: String,
-    json: String
+    color: String
   },
   emits: ['save'],
   setup(props, context) {
@@ -82,11 +80,21 @@ export default defineComponent({
     function triggerColorPicker() {
       document.getElementById("colorInput").click();
     }
-    function changeSettings(){
-      showSetting.value = !showSetting.value;
+    function openSettings(){
+      showSetting.value = true;
       context.emit('save', newFrontend.value, newEditable.value, newColor.value);
     }
-    return { newFrontend, newEditable, newColor, showSetting, triggerColorPicker, changeSettings }
+    function closeSettings(){
+      showSetting.value = false;
+      context.emit('save', newFrontend.value, newEditable.value, newColor.value);
+    }
+    function toggleSettings() {
+      if (showSetting.value)
+        closeSettings();
+      else
+        openSettings();
+    }
+    return { newFrontend, newEditable, newColor, showSetting, triggerColorPicker, toggleSettings, closeSettings }
   }  
 })
 </script>

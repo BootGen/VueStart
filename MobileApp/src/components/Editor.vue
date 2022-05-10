@@ -1,5 +1,5 @@
 <template>
-  <settings :frontendMode="frontendMode" :editable="editable" :color="selectedColor" :json="json" @save="saveSettings"></settings>
+  <settings :frontendMode="frontendMode" :editable="editable" :color="selectedColor" @save="saveSettings"></settings>
   <div class="custom-card shadow mt-4">
     <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData" @hasSyntaxError="$emit('hasError', $event)"></code-mirror>
   </div>
@@ -35,7 +35,6 @@ export default defineComponent({
     const inputError = ref(null);
     const isFixable = ref(false);
     const json = ref('');
-    const tempColor = ref('42b983');
     const frontendMode = ref('vanilla');
     const editable = ref(false);
     const selectedColor = ref('#42b983');
