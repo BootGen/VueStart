@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -28,17 +27,7 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        var connectionString = Configuration.GetConnectionString("PostgreSQL");
-        if (!string.IsNullOrWhiteSpace(connectionString))
-        {
-            Console.WriteLine("Using PostgreSQL");
-            optionsBuilder.UseNpgsql(connectionString);
-        } else {
-            Console.WriteLine("Using Sqlite");
-            var connection = new SqliteConnection("DataSource=:memory:");
-            connection.Open();
-            optionsBuilder.UseSqlite(connection);
-        }
+        optionsBuilder.UseNpgsql(Configuration.GetConnectionString("PostgreSQL"));
     } 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
