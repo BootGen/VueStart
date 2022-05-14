@@ -29,8 +29,12 @@ namespace VueStart.Controllers
 
         [HttpPost]
         [Route("{type}/{layout}/{color}")]
-        public IActionResult DownloadEditor([FromBody] JsonElement json, string type, string layout, string color)
+        public IActionResult DownloadEditor([FromBody] GenerateRequest request)
         {
+            var layout = request.Settings.Layout;
+            var type = request.Settings.Type;
+            var color = request.Settings.Color;
+            var json = request.Data;
             try {
                 var artifactType = layout.ToArtifactType();
                 if (artifactType == ArtifactType.None)

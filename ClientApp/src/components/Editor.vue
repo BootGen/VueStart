@@ -220,11 +220,15 @@ export default defineComponent({
     async function generate(data) {
       try {
         const resp = ref(null);
-        if(editable.value) {
-          resp.value = await axios.post(`api/generate/${frontendMode.value}/table-editable/${selectedColor.value.slice(1, 7)}`, JSON.parse(data), props.config);
-        } else {
-          resp.value = await axios.post(`api/generate/${frontendMode.value}/table/${selectedColor.value.slice(1, 7)}`, JSON.parse(data), props.config);
+        const request = {
+          settings: {
+            type: frontendMode.value,
+            layout: editable.value ? 'table-editable': 'table',
+            color: selectedColor.value.slice(1, 7)
+          },
+          data: JSON.parse(data)
         }
+        resp.value = await axios.post(`api/generate`, request, props.config);
         localStorage.removeItem(generatedId);
         generatedId = resp.value.data.id;
         saveToLocalStorage(data);
