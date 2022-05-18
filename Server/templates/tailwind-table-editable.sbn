@@ -76,7 +76,7 @@ app.component('pagination', {
           </svg>
         </a>
       </li>
-      <li v-if="pageCount > 0" v-for="n in pageCount" @click="toPage(n)">
+      <li v-if="pageCount > 0" v-for="n in pageCount" :key="n" @click="toPage(n)">
         <a href="javascript:void(0)" class="block py-2 px-3 leading-tight bg-white border border-gray-300 hover:bg-gray-100" :class="{'text-primary': n === pageIdx, 'text-gray-500 hover:text-gray-700': n !== pageIdx }">{{'{{'}} n {{'}}'}}</a>
       </li>
       <li v-else">

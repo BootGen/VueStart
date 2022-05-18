@@ -58,7 +58,7 @@ app.component('pagination', {
     <a href="javascript:void(0)" :class="{disabled: pageIdx === 1 || pageCount === 0}" @click="toPage(pageIdx-1)">
       <i class="bi-chevron-left"></i>
     </a>
-    <a v-if="pageCount > 0" v-for="n in pageCount" href="javascript:void(0)" :class="{'active': n === pageIdx}" @click="toPage(n)">{{'{{'}} n {{'}}'}}</a>
+    <a v-if="pageCount > 0" v-for="n in pageCount" :key="n" href="javascript:void(0)" :class="{'active': n === pageIdx}" @click="toPage(n)">{{'{{'}} n {{'}}'}}</a>
     <a v-else class="disabled">No results</a>
     <a href="javascript:void(0)" :class="{disabled: pageIdx === pageCount || pageCount === 0}" @click="toPage(pageIdx+1)">
       <i class="bi-chevron-right"></i>
