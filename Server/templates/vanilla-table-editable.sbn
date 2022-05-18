@@ -20,7 +20,7 @@ const app = Vue.createApp({
   {{~ if property.is_collection ~}}
   <{{ kebab_case property.class.name.plural }} v-model="{{ camel_case root.name }}.{{ camel_case property.name }}" :pageSize="pageSize" @update:pageSize="updatePageSize"></{{ kebab_case property.class.name.plural }}>
   {{~ else ~}}
-  <{{ kebab_case property.class.name }} v-model="{{ camel_case root.name }}.{{ camel_case property.name }}"></{{ kebab_case property.class.name }}>
+  <{{ kebab_case property.class.name }} v-model="{{ camel_case root.name }}.{{ camel_case property.name }}" :pageSize="pageSize" @update:pageSize="updatePageSize"></{{ kebab_case property.class.name }}>
   {{~ end ~}}
   {{~ end ~}}
   `,
@@ -304,11 +304,11 @@ app.component('{{ kebab_case class.name }}-table', {
 app.component('{{ kebab_case class.name }}', {
   template: `
   {{~ if class.has_child ~}}
-  <h5 class="disabled" v-if="activeProperty === null">{{ class.name.plural }}</h5>
-  <h5 class="clickable" @click="activeProperty = null" v-if="activeProperty !== null">{{ class.name.plural }}</h5>
+  <h5 class="disabled" v-if="activeProperty === null">{{ class.name }}</h5>
+  <h5 class="clickable" @click="activeProperty = null" v-if="activeProperty !== null">{{ class.name }}</h5>
   <h5 class="breadcrumb-separator" v-if="activeProperty !== null">/</h5>
   {{~ else ~}}
-  <h5 class="disabled">{{ class.name.plural }}</h5>
+  <h5 class="disabled">{{ class.name }}</h5>
   {{~ end ~}}
   <{{ kebab_case class.name }}-table {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
     <{{ kebab_case class.name }}-row :modelValue="modelValue" @update:modelValue="update" :deletable="false"{{ if class.has_child }} @show="show"{{ end }} v-if="modelValue"></{{ kebab_case class.name }}-row>
@@ -320,16 +320,17 @@ app.component('{{ kebab_case class.name }}', {
   </{{ kebab_case class.name }}-table>
   {{~ for property in class.child_references ~}}
       {{~ if property.is_collection ~}}
-      <{{ kebab_case property.class.name.plural }} :modelValue="modelValue[activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
+      <{{ kebab_case property.class.name.plural }} :modelValue="modelValue[activeProperty]" @update:modelValue="updateChild" :pageSize="pageSize" @update:pageSize="updatePageSize" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
       {{~ else ~}}
-      <{{ kebab_case property.class.name }} :modelValue="modelValue[activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
+      <{{ kebab_case property.class.name }} :modelValue="modelValue[activeProperty]" @update:modelValue="updateChild" :pageSize="pageSize" @update:pageSize="updatePageSize" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
       {{~ end ~}}
   {{~ end ~}}`,
   name: '{{ class.name }}',
   props: {
-    modelValue: Object
+    modelValue: Object,
+    pageSize: Number
   },
-  emits: ['update:modelValue'{{ if class.has_child }}, 'show'{{ end }}],
+  emits: ['update:modelValue', 'update:pageSize'{{ if class.has_child }}, 'show'{{ end }}],
   setup(props, context) {
     {{~ if class.has_child ~}}
     const activeProperty = ref(null);
@@ -349,7 +350,10 @@ app.component('{{ kebab_case class.name }}', {
       context.emit('update:modelValue', newObj);
     }
     {{~ end ~}}
-    return { update{{ if class.has_child }}, show, activeProperty, updateChild{{ end }} }
+    function updatePageSize(size) {
+      context.emit('update:pageSize', size);
+    }
+    return { update, updatePageSize{{ if class.has_child }}, show, activeProperty, updateChild{{ end }} }
   }
 });
 {{~ end ~}}
@@ -384,7 +388,7 @@ app.component('{{ kebab_case class.name.plural }}', {
   {{~ if property.is_collection ~}}
   <{{ kebab_case property.class.name.plural }} :modelValue="modelValue[activeIdx][activeProperty]" @update:modelValue="updateChild" :pageSize="pageSize" @update:pageSize="updatePageSize" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
   {{~ else ~}}
-  <{{ kebab_case property.class.name }} :modelValue="modelValue[activeIdx][activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
+  <{{ kebab_case property.class.name }} :modelValue="modelValue[activeIdx][activeProperty]" @update:modelValue="updateChild" :pageSize="pageSize" @update:pageSize="updatePageSize" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
   {{~ end ~}}
 {{~ end ~}}`,
   name: '{{ class.name.plural }}',
