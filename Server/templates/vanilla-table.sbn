@@ -155,15 +155,12 @@ app.component('{{ kebab_case class.name }}-table', {
     <thead>
       <tr>
         {{~ for property in class.base_properties ~}}
-        <th class="clickable" scope="col" @click="sort('{{ camel_case property.name }}')" v-if="sortable">
+        <th class="clickable" scope="col" @click="sort('{{ camel_case property.name }}')">
         {{ to_words property.name }}
         <i class="bi-caret-up-fill hideOrderBy" v-if="orderBy !== '{{ camel_case property.name }}' && orderAsc"></i>
         <i class="bi-caret-down-fill hideOrderBy" v-if="orderBy !== '{{ camel_case property.name }}' && !orderAsc"></i>
         <i class="bi-caret-up-fill" v-if="orderBy === '{{ camel_case property.name }}' && orderAsc"></i>
         <i class="bi-caret-down-fill" v-if="orderBy === '{{ camel_case property.name }}' && !orderAsc"></i>
-        </th>
-        <th scope="col" v-else>
-          {{ to_words property.name }}
         </th>
         {{~ end ~}}
         {{~ for property in class.child_references
@@ -180,8 +177,7 @@ app.component('{{ kebab_case class.name }}-table', {
   </table>`,
   name: '{{ class.name }}Table',
   props: {
-    value: Array,
-    sortable: Boolean
+    value: Array
   },
   emits: ['sort'],
   setup(props, context) {
@@ -208,7 +204,7 @@ app.component('{{ kebab_case class.name }}', {
   {{~ else ~}}
   <h5 class="disabled">{{ class.name.plural }}</h5>
   {{~ end ~}}
-  <{{ kebab_case class.name }}-table :sortable="false" {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
+  <{{ kebab_case class.name }}-table {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
     <{{ kebab_case class.name }}-row :value="value" {{ if class.has_child }}@show="show"{{ end }} v-if="value"></{{ kebab_case class.name }}-row>
   </{{ kebab_case class.name }}-table>
   {{~ for property in class.child_references ~}}
@@ -250,7 +246,7 @@ app.component('{{ kebab_case class.name.plural }}', {
   <h5 class="disabled">{{ class.name.plural }}</h5>
   <search :modelValue="searchText" @update:modelValue="updateSearchText"></search>
   {{~ end ~}}
-  <{{ kebab_case class.name }}-table :sortable="true" @sort="sort" {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
+  <{{ kebab_case class.name }}-table @sort="sort" {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
     <{{ kebab_case class.name }}-row v-for="item in items" :key="item.idx" :value="item.value" {{ if class.has_child }}@show="show(item.idx, $event)"{{ end }} v-if="value"></{{ kebab_case class.name }}-row>
   </{{ kebab_case class.name }}-table>
   <div {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
