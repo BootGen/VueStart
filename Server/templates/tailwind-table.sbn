@@ -17,7 +17,7 @@ const app = Vue.createApp({
   template: `
   {{~ for property in root.child_references ~}}
   {{~ if property.is_collection ~}}
-  <{{ kebab_case property.class.name.plural }} :value="{{ camel_case root.name }}.{{ camel_case property.name }}"></{{ kebab_case property.class.name.plural }}>
+  <{{ kebab_case property.class.name.plural }} :value="{{ camel_case root.name }}.{{ camel_case property.name }}" :pageSize="pageSize" @update:pageSize="updatePageSize"></{{ kebab_case property.class.name.plural }}>
   {{~ else ~}}
   <{{ kebab_case property.class.name }} :value="{{ camel_case root.name }}.{{ camel_case property.name }}"></{{ kebab_case property.class.name }}>
   {{~ end ~}}
@@ -26,6 +26,7 @@ const app = Vue.createApp({
   name: 'App',
   setup: function () {
     const {{ camel_case root.name }} = ref(null);
+    const pageSize = ref(5);
     {{~ if input ~}}
     {{ camel_case root.name }}.value = {{input}};
     {{~ else ~}}
@@ -39,7 +40,10 @@ const app = Vue.createApp({
 
     window.addEventListener('storage', loadFromLocalStorage);
     {{~ end ~}}
-    return { {{ camel_case root.name }} }
+    function updatePageSize(size) {
+      pageSize.value = size;
+    }
+    return { {{ camel_case root.name }}, pageSize, updatePageSize }
   },
 });
 
@@ -80,7 +84,7 @@ app.component('pagination', {
   </nav>
   <p>
     rows per page:
-    <select v-model="pageSize">
+    <select v-model="pageSize" @input="$emit('update:pageSize', $event.target.value)">
       <option>5</option>
       <option>10</option>
       <option>20</option>
@@ -91,12 +95,12 @@ app.component('pagination', {
   name: 'Pagination',
   props: {
     count: Number,
+    pageSize: Number
   },
-  emits:['range'],
+  emits:['range', 'update:pageSize'],
   setup(props, context) {
     const pageIdx = ref(0);
-    const pageSize = ref(5);
-    const pageCount = computed(() => Math.ceil(props.count / pageSize.value));
+    const pageCount = computed(() => Math.ceil(props.count / props.pageSize));
     watch(pageCount, function() {
       toPage(1)
     });
@@ -105,10 +109,10 @@ app.component('pagination', {
         return
       }
       pageIdx.value = idx;
-      context.emit('range', (idx - 1) * pageSize.value, idx * pageSize.value)
+      context.emit('range', (idx - 1) * props.pageSize, idx * props.pageSize)
     }
     toPage(1);
-    return { pageCount, pageIdx, pageSize, toPage }
+    return { pageCount, pageIdx, toPage }
   }
 });
 
@@ -294,20 +298,21 @@ app.component('{{ kebab_case class.name.plural }}', {
   <{{ kebab_case class.name }}-row v-for="item in items" :key="item.idx" :value="item.value" {{ if class.has_child }}@show="show(item.idx, $event)"{{ end }} v-if="value"></{{ kebab_case class.name }}-row>
   </{{ kebab_case class.name }}-table>
   <div {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
-    <pagination :count="pageCount" @range="setRange"></pagination>
+    <pagination :count="pageCount" :pageSize="pageSize" @range="setRange" @update:pageSize="updatePageSize"></pagination>
   </div>
   {{~ for property in class.child_references ~}}
       {{~ if property.is_collection ~}}
-      <{{ kebab_case property.class.name.plural }} :value="value[activeIdx][activeProperty]" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
+      <{{ kebab_case property.class.name.plural }} :value="value[activeIdx][activeProperty]" @update:modelValue="updateChild" :pageSize="pageSize" @update:pageSize="updatePageSize" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
       {{~ else ~}}
       <{{ kebab_case property.class.name }} :value="value[activeIdx][activeProperty]" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
       {{~ end ~}}
   {{~ end ~}}`,
   name: '{{ class.name.plural }}',
   props: {
-    value: Array
+    value: Array,
+    pageSize: Number
   },
-  {{ if class.has_child }}emits: ['show'],{{ end }}
+  emits: ['update:pageSize'{{ if class.has_child }}, 'show'{{ end }}],
   setup(props, context) {
     const orderBy = ref('');
     const orderAsc = ref(true);
@@ -367,19 +372,19 @@ app.component('{{ kebab_case class.name.plural }}', {
       activeProperty.value = property;
     }
     {{~ end ~}}
-
     function sort(propName, asc) {
       orderBy.value = propName;
       orderAsc.value = asc;
     }
-    
     function setRange(start, end) {
       rangeStart.value = start;
       rangeEnd.value = end;
     }
-    
     function updateSearchText(text) {
       searchText.value = text;
+    }
+    function updatePageSize(size) {
+      context.emit('update:pageSize', size);
     }
 
     return {
@@ -387,6 +392,7 @@ app.component('{{ kebab_case class.name.plural }}', {
       setRange,
       items,
       pageCount,
+      updatePageSize,
       searchText,
       updateSearchText{{ if class.has_child }},
       show,
