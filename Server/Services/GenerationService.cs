@@ -190,10 +190,6 @@ class VueStartGenerator
             DateFormatString = "yyyy-MM-ddTHH:mm",
         });
         DataModel.LoadRootObject("App", jObject);
-        var collection = new ResourceCollection(DataModel);
-        var seedStore = new SeedDataStore(collection);
-        seedStore.Load(jObject);
-
         Id = Guid.NewGuid().ToString();
         generator = new TypeScriptGenerator(null);
         generator.Templates = Load("templates");
