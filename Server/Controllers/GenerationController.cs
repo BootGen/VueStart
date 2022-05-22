@@ -49,9 +49,9 @@ namespace VueStart.Controllers
             }
             try {
                 statisticsService.OnEvent(Request.HttpContext, json, ActionType.Generate, artifactType, cssType);
-                string artifactId = generationService.GenerateToCache(json, $"Data {ToUpperFirst(layout)}", $"{type}-{layout}.sbn", type, color, out var warnings);
+                var result = generationService.GenerateToCache(json, $"Data {ToUpperFirst(layout)}", $"{type}-{layout}.sbn", type, color);
                 statisticsService.OnGenerateEnd();
-                return Ok(new { Id = artifactId, Warnings = warnings });
+                return Ok(result);
             } catch (FormatException e) {
                 return BadRequest(new { error = e.Message, fixable = false });
             } catch (NamingException e) {
