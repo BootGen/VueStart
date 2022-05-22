@@ -7,7 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System.IO.Compression;
 using VueStart.Services;
 using VueStart.Data;
-using BootGen;
+using BootGen.Core;
 
 namespace VueStart.Controllers
 {
