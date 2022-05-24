@@ -147,7 +147,7 @@ public class GenerationService
             }
         }
         result.Id = generator.Id;
-        result.Settings = generator.DataModel.GetSettings();
+        result.Settings = generator.DataModel.GetSettings().Select(ClassSettings.FromBootGenClassSettings).ToList();
         return result;
     }
 
@@ -174,7 +174,7 @@ public class GenerationResult
 {
     public string Id { get; set; }
     public List<string> Warnings { get; set; }
-    public Dictionary<string, ClassSettings> Settings { get; set; }
+    public List<ClassSettings> Settings { get; set; }
 }
 
 struct TemplateCacheKey
