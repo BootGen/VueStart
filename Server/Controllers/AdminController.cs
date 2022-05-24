@@ -81,7 +81,12 @@ public class AdminController : ControllerBase
         var generator = new VueStartGenerator(json, memoryCache);
         string content = "";
         string contentType;
-        string artifactId = generateService.Generate(json, "Dashboard", "bootstrap-table.sbn", "bootstrap", "42b983", generator.Id, true, out string appjs, out string indexhtml, true);
+        var settings = new GenerateSettings {
+            Type = "bootstrap",
+            Layout = "table",
+            Color = "42b983"
+        };
+        string artifactId = generateService.Generate(json, "Dashboard", settings, generator.Id, true, out string appjs, out string indexhtml, true);
         
         if (string.IsNullOrWhiteSpace(fileName))
             fileName = "index.html";

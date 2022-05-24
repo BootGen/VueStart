@@ -29,7 +29,6 @@ namespace VueStart.Controllers
         {
             var layout = request.Settings.Layout;
             var type = request.Settings.Type;
-            var color = request.Settings.Color;
             var json = request.Data;
             var artifactType = layout.ToArtifactType();
             if (artifactType == ArtifactType.None)
@@ -49,7 +48,7 @@ namespace VueStart.Controllers
             }
             try {
                 statisticsService.OnEvent(Request.HttpContext, json, ActionType.Generate, artifactType, cssType);
-                var result = generationService.GenerateToCache(json, $"Data {ToUpperFirst(layout)}", $"{type}-{layout}.sbn", type, color);
+                var result = generationService.GenerateToCache(json, $"Data {ToUpperFirst(layout)}", request.Settings);
                 statisticsService.OnGenerateEnd();
                 return Ok(result);
             } catch (FormatException e) {

@@ -18,15 +18,16 @@ public class GenerationService
     {
         this.memoryCache = memoryCache;
     }
-    public string Generate(JsonElement json, string title, string templateFileName, string type, string color, string generatedId, bool forDownload, out string appjs, out string indexhtml, bool isAdmin = false)
+    public string Generate(JsonElement json, string title, GenerateSettings settings, string generatedId, bool forDownload, out string appjs, out string indexhtml, bool isAdmin = false)
     {
         var generator = new VueStartGenerator(json, memoryCache);
-        Generate(json, title, templateFileName, type, color, generatedId, forDownload, out appjs, out indexhtml, generator, isAdmin);
+        Generate(json, title, settings, generatedId, forDownload, out appjs, out indexhtml, generator, isAdmin);
         return generator.Id;
     }
 
-    private static void Generate(JsonElement json, string title, string templateFileName, string type, string color, string generatedId, bool forDownload, out string appjs, out string indexhtml, VueStartGenerator generator, bool isAdmin = false)
+    private static void Generate(JsonElement json, string title, GenerateSettings settings, string generatedId, bool forDownload, out string appjs, out string indexhtml, VueStartGenerator generator, bool isAdmin = false)
     {
+        string templateFileName = $"{settings.Type}-{settings.Layout}.sbn";
         var jsParameters = new Dictionary<string, object> {
                 {"classes", generator.DataModel.CommonClasses}
             };
@@ -44,8 +45,8 @@ public class GenerationService
         else if (!forDownload) {
             indexParameters.Add("base_url", $"/api/files/{generator.Id}/");
         }
-        indexParameters.Add("color", color);
-        if (Brightness(ColorTranslator.FromHtml($"#{color}")) > 170)
+        indexParameters.Add("color", settings.Color);
+        if (Brightness(ColorTranslator.FromHtml($"#{settings.Color}")) > 170)
         {
             indexParameters.Add("text_color", "2c3e50");
         }
@@ -53,7 +54,7 @@ public class GenerationService
         {
             indexParameters.Add("text_color", "ffffff");
         }
-        indexhtml = generator.Render($"{type}-index.sbn", indexParameters);
+        indexhtml = generator.Render($"{settings.Type}-index.sbn", indexParameters);
     }
 
     private static int Brightness(Color c)
@@ -93,13 +94,13 @@ public class GenerationService
         return json;
     }
 
-    public GenerationResult GenerateToCache(JsonElement json, string title, string templateFileName, string type, string color)
-    {
+    public GenerationResult GenerateToCache(JsonElement json, string title, GenerateSettings settings)
+    { 
         var generator = new VueStartGenerator(json, memoryCache);
-        Generate(json, title, templateFileName, type, color, generator.Id, false, out var appjs, out var indexhtml, generator);
+        Generate(json, title,settings, generator.Id, false, out var appjs, out var indexhtml, generator);
         memoryCache.Set($"{generator.Id}/app.js", Minify(appjs), TimeSpan.FromMinutes(30));
         memoryCache.Set($"{generator.Id}/index.html", Minify(indexhtml), TimeSpan.FromMinutes(30));
-        Generate(json, title, templateFileName, type, color, generator.Id, true, out var pAppjs, out var pIndexhtml, generator);
+        Generate(json, title, settings, generator.Id, true, out var pAppjs, out var pIndexhtml, generator);
         memoryCache.Set($"{generator.Id}/app.js_display", pAppjs, TimeSpan.FromMinutes(30));
         memoryCache.Set($"{generator.Id}/index.html_display", pIndexhtml, TimeSpan.FromMinutes(30));
         var result = new GenerationResult {
