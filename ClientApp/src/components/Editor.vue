@@ -1,6 +1,6 @@
 <template>
   <modal-panel v-model="showSettingsPanel">
-    <browser-settings :frontendMode="frontendMode" :editable="editable" :color="selectedColor" @cancel="showSettingsPanel = false" @save="saveBrowserSettings"></browser-settings>
+    <generate-settings :frontendMode="frontendMode" :editable="editable" :color="selectedColor" :generateSettings="generateSettings" @cancel="showSettingsPanel = false" @save="saveBrowserSettings"></generate-settings>
   </modal-panel>
   <modal-panel v-model="showWarningPanel">
     <div class="alert alert-warning show px-3 py-3 my-0" role="alert">
@@ -75,7 +75,7 @@
 import {defineComponent, ref, watch} from 'vue';
 import CodeMirror from './CodeMirror.vue';
 import BrowserFrame from './BrowserFrame.vue'
-import BrowserSettings from './BrowserSettings.vue'
+import GenerateSettings from './GenerateSettings.vue'
 import Tab from "@/components/Tab";
 import axios from "axios";
 import {getSchema} from "@/utils/Schema";
@@ -85,7 +85,7 @@ import Tip from '@/utils/Tip'
 import ModalPanel from "@/components/ModalPanel";
 
 export default defineComponent({
-  components: { CodeMirror, BrowserFrame, Tab, ModalPanel, BrowserSettings },
+  components: { CodeMirror, BrowserFrame, Tab, ModalPanel, GenerateSettings },
   props: {
     page: String,
     config: Object,
@@ -94,6 +94,7 @@ export default defineComponent({
   emits: ['download', 'hasError', 'setVuecoon', 'success'],
   setup(props, context) {
     const showSettingsPanel = ref(false);
+    const generateSettings = ref([]);
     const inputError = ref(null);
     const json = ref('');
     let sharedJson = '';
@@ -229,6 +230,7 @@ export default defineComponent({
           data: JSON.parse(data)
         }
         resp.value = await axios.post(`api/generate`, request, props.config);
+        generateSettings.value = resp.value.data.settings;
         localStorage.removeItem(generatedId);
         generatedId = resp.value.data.id;
         saveToLocalStorage(data);
@@ -439,7 +441,7 @@ export default defineComponent({
       onDownloadClicked, pageRefresh,
       selectedTab, browserData, loadTasksExample, loadOrdersExample, syntaxError,
       alert, showWarningPanel, warnings, editable, undo, redo, undoStackIdx, undoStack, share, shareLinkOnClipboard,
-      showSettingsPanel, onSettingsClicked, saveBrowserSettings }
+      showSettingsPanel, onSettingsClicked, saveBrowserSettings, generateSettings }
   },
 })
 </script>

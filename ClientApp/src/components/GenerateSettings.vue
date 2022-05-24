@@ -49,6 +49,54 @@
           <input type="color" class="form-control form-control-color" id="colorInput" v-model="newColor" title="Choose your color"  @click="triggerColorPicker">
           <p class="p-2">{{ newColor }}</p>
         </div>
+        <hr>
+        <h5>Table settings</h5>
+        <div class="row px-3">
+          <div class="col-4 form-check" v-for="myClass in generateSettings" :key="myClass.name">
+            <input class="form-check-input" type="radio" :name="myClass.name" :id="myClass.name" :checked="myClass.name == selectedClass.name" @click="selectClass(myClass)">
+            <label class="form-check-label" :for="myClass.name">
+              {{ myClass.name }}
+            </label>
+          </div>
+        </div>
+        <table class="table text-start mt-2 mb-4">
+          <thead>
+            <tr class="table-light">
+              <th scope="col"></th>
+              <th scope="col" v-for="myClass in selectedClass.propertySettings" :key="myClass.name">{{ myClass.name }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Visible Name</th>
+              <td class="align-middle" v-for="myClass in selectedClass.propertySettings" :key="myClass.name">
+                <div class="col-12 d-flex justify-content-start">
+                  <input type="text" class="form-control" placeholder="Visible Name" v-model="myClass.visibleName">
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Is Read Only</th>
+              <td class="align-middle" v-for="myClass in selectedClass.propertySettings" :key="myClass.name">
+                <div class="col-12 d-flex justify-content-start">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" v-model="myClass.isReadOnly" >
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Is Hidden</th>
+              <td class="align-middle" v-for="myClass in selectedClass.propertySettings" :key="myClass.name">
+                <div class="col-12 d-flex justify-content-start">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" v-model="myClass.isHidden">
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="cancel">Cancel</button>
@@ -67,19 +115,24 @@ export default defineComponent({
   props: {
     frontendMode: String,
     editable: Boolean,
-    color: String
+    color: String,
+    generateSettings: Array
   },
   setup(props, context) {
     const newFrontend = ref(props.frontendMode);
     const newEditable = ref(props.editable);
     const newColor = ref(props.color);
+    const selectedClass = ref({});
 
-    watch(() => [props.frontendMode, props.editable, props.color], () => {
+    watch(() => [props.frontendMode, props.editable, props.color, props.generateSettings], () => {
       newFrontend.value = props.frontendMode;
       newEditable.value = props.editable;
       newColor.value = props.color;
+      selectedClass.value = props.generateSettings[0];
     });
-
+    function selectClass(newClass) {
+      selectedClass.value = newClass;
+    }
     function triggerColorPicker() {
       document.getElementById("colorInput").click();
     }
@@ -89,7 +142,7 @@ export default defineComponent({
       newColor.value = props.color;
       context.emit('cancel');
     }
-    return { newFrontend, newEditable, newColor, triggerColorPicker, cancel }
+    return { newFrontend, newEditable, newColor, selectedClass, triggerColorPicker, selectClass, cancel }
   }
 });
 </script>
@@ -115,11 +168,11 @@ export default defineComponent({
   border-color: #42b983;
 }
 .modal-dialog {
-  width: 500px;
+  width: 80vw;
 }
-@media (max-width: 576px) {
+@media (min-width: 576px) {
   .modal-dialog {
-    width: auto;
+    max-width: unset;
   }
 }
 </style>
