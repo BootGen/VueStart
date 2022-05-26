@@ -9,19 +9,19 @@
         <h5>Frontend mode</h5>
         <div class="row px-3">
           <div class="col-4 form-check">
-            <input class="form-check-input" type="radio" name="vanilla" id="vanilla" :checked="newFrontend == 'vanilla'" @click="newFrontend = 'vanilla'">
+            <input class="form-check-input" type="radio" name="vanilla" id="vanilla" :checked="editedSettings.frontend === 'vanilla'" @click="editedSettings.frontend = 'vanilla'">
             <label class="form-check-label" for="vanilla">
               Vanilla
             </label>
           </div>
           <div class="col-4 form-check">
-            <input class="form-check-input" type="radio" name="bootstrap" id="bootstrap" :checked="newFrontend == 'bootstrap'" @click="newFrontend = 'bootstrap'">
+            <input class="form-check-input" type="radio" name="bootstrap" id="bootstrap" :checked="editedSettings.frontend === 'bootstrap'" @click="editedSettings.frontend = 'bootstrap'">
             <label class="form-check-label" for="bootstrap">
               Bootstrap
             </label>
           </div>
           <div class="col-4 form-check">
-            <input class="form-check-input" type="radio" name="tailwind" id="tailwind" :checked="newFrontend == 'tailwind'" @click="newFrontend = 'tailwind'">
+            <input class="form-check-input" type="radio" name="tailwind" id="tailwind" :checked="editedSettings.frontend === 'tailwind'" @click="editedSettings.frontend = 'tailwind'">
             <label class="form-check-label" for="tailwind">
               Tailwind
             </label>
@@ -31,13 +31,13 @@
         <h5>Editable</h5>
         <div class="row px-3">
           <div class="col-4 form-check">
-            <input class="form-check-input" type="radio" name="editable" id="editable" :checked="newEditable" @click="newEditable = true">
+            <input class="form-check-input" type="radio" name="editable" id="editable" :checked="!editedSettings.isReadonly" @click="editedSettings.isReadonly = false">
             <label class="form-check-label" for="editable">
               Editable
             </label>
           </div>
           <div class="col-4 form-check">
-            <input class="form-check-input" type="radio" name="read-only" id="read-only" :checked="!newEditable" @click="newEditable = false">
+            <input class="form-check-input" type="radio" name="read-only" id="read-only" :checked="editedSettings.isReadonly" @click="editedSettings.isReadonly = true">
             <label class="form-check-label" for="read-only">
               Read-only
             </label>
@@ -46,20 +46,20 @@
         <hr>
         <h5>Theme color</h5>
         <div class="d-flex align-center">
-          <input type="color" class="form-control form-control-color" id="colorInput" v-model="newColor" title="Choose your color"  @click="triggerColorPicker">
-          <p class="p-2">{{ newColor }}</p>
+          <input type="color" class="form-control form-control-color" id="colorInput" v-model="editedSettings.color" title="Choose your color"  @click="triggerColorPicker">
+          <p class="p-2">{{ editedSettings.color }}</p>
         </div>
         <hr>
         <h5>Table settings</h5>
         <div class="row px-3">
-          <div class="col-4 form-check" v-for="myClass in generateSettings" :key="myClass.name">
-            <input class="form-check-input" type="radio" :name="myClass.name" :id="myClass.name" :checked="myClass.name == selectedClass.name" @click="selectClass(myClass)">
+          <div class="col-4 form-check" v-for="myClass in editedSettings.classSettings" :key="myClass.name">
+            <input class="form-check-input" type="radio" :name="myClass.name" :id="myClass.name" :checked="myClass.name === selectedClass.name" @click="selectClass(myClass)">
             <label class="form-check-label" :for="myClass.name">
               {{ myClass.name }}
             </label>
           </div>
         </div>
-        <table class="table text-start mt-2 mb-4">
+        <table class="table text-start mt-2 mb-4" v-if="selectedClass">
           <thead>
             <tr class="table-light">
               <th scope="col"></th>
@@ -100,7 +100,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="cancel">Cancel</button>
-        <button type="button" class="btn btn-primary" @click="$emit('save', newFrontend, newEditable, newColor)">Save</button>
+        <button type="button" class="btn btn-primary" @click="save">Save</button>
       </div>
     </div>
   </div>
@@ -111,24 +111,23 @@ import { defineComponent, ref, watch } from 'vue';
 
 export default defineComponent({
   name: 'BrowserSettings',
-  emits: ['cancel', 'save'],
+  emits: ['close', 'update:modelValue'],
   props: {
-    frontendMode: String,
-    editable: Boolean,
-    color: String,
-    generateSettings: Array
+    modelValue: Object
   },
   setup(props, context) {
-    const newFrontend = ref(props.frontendMode);
-    const newEditable = ref(props.editable);
-    const newColor = ref(props.color);
-    const selectedClass = ref({});
+    const editedSettings = ref({  });
+    const selectedClass = ref(props.modelValue.classSettings[0]);
 
-    watch(() => [props.frontendMode, props.editable, props.color, props.generateSettings], () => {
-      newFrontend.value = props.frontendMode;
-      newEditable.value = props.editable;
-      newColor.value = props.color;
-      selectedClass.value = props.generateSettings[0];
+    function resetSettings() {
+      editedSettings.value = { ...props.modelValue };
+      editedSettings.value.color = '#' + editedSettings.value.color;
+      selectedClass.value = editedSettings.value.classSettings[0];
+    }
+    resetSettings();
+
+    watch(props, () => {
+      resetSettings();
     });
     function selectClass(newClass) {
       selectedClass.value = newClass;
@@ -137,12 +136,15 @@ export default defineComponent({
       document.getElementById("colorInput").click();
     }
     function cancel() {
-      newFrontend.value = props.frontendMode;
-      newEditable.value = props.editable;
-      newColor.value = props.color;
-      context.emit('cancel');
+      editedSettings.value = { ...props.modelValue };
+      context.emit('close');
     }
-    return { newFrontend, newEditable, newColor, selectedClass, triggerColorPicker, selectClass, cancel }
+    function save() {
+
+      context.emit('update:modelValue', { ...editedSettings.value, color: editedSettings.value.color.substr(1) });
+      context.emit('close');
+    }
+    return { editedSettings, selectedClass, triggerColorPicker, selectClass, save, cancel }
   }
 });
 </script>

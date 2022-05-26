@@ -63,17 +63,17 @@ namespace VueStart.Services
             }
         }
 
-        private void UpdateRecord(StatisticRecord record,  CssType cssType)
+        private void UpdateRecord(StatisticRecord record,  Frontend cssType)
         {
             switch (cssType)
             {
-                case CssType.Bootstrap:
+                case Frontend.Bootstrap:
                     record.BootstrapCount += 1;
                 break;
-                case CssType.Tailwind:
+                case Frontend.Tailwind:
                     record.TailwindCount += 1;
                 break;
-                case CssType.Vanilla:
+                case Frontend.Vanilla:
                     record.VanillaCount += 1;
                 break;
             }
@@ -90,12 +90,12 @@ namespace VueStart.Services
             Data.ProfilerRecord.Download += GenerateWatch.ElapsedMilliseconds;
         }
 
-        public void OnEvent(HttpContext context, JsonElement jsonData, ActionType actionType, ArtifactType artifactType, CssType cssType, bool error = false)
+        public void OnEvent(HttpContext context, GenerateRequest request, ActionType actionType, bool error = false)
         {
             CacheKey key = SetCurrentCacheEntry();
             Data.ProfilerRecord.Count += 1;
             SaveVisitToCahce(Data.Visitors, context, key);
-            SaveStatisticRecordToCache(Data, jsonData, actionType, artifactType, cssType, error);
+            SaveStatisticRecordToCache(Data, request, actionType, error);
             GenerateWatch = new Stopwatch();
             GenerateWatch.Start();
         }
@@ -143,19 +143,19 @@ namespace VueStart.Services
             return key;
         }
 
-        private void SaveStatisticRecordToCache(PeriodData periodData, JsonElement jsonData, ActionType actionType, ArtifactType artifactType, CssType cssType, bool error)
+        private void SaveStatisticRecordToCache(PeriodData periodData, GenerateRequest request, ActionType actionType, bool error)
         {
-            int hash = StringHash(jsonData.ToString());
+            int hash = StringHash(request.Data.ToString());
             var inputData = periodData.InputData.FirstOrDefault(r => r.Hash == hash);
             var record = new StatisticRecord {
                 Download = actionType == ActionType.Download,
-                Readonly = artifactType == ArtifactType.TableEditable
+                Readonly = request.Settings.IsReadonly
             };
             if (inputData == null)
             {
                 inputData = new InputData {
                     Hash = hash,
-                    Data = jsonData,
+                    Data = request.Data,
                     FirstUse = DateTime.UtcNow,
                     LastUse = DateTime.UtcNow,
                     Error = error,
@@ -171,7 +171,7 @@ namespace VueStart.Services
                     inputData.StatisticRecords.Add(record);
                 }
             }
-            UpdateRecord(record, cssType);
+            UpdateRecord(record, request.Settings.Frontend.ToFrontendType());
         }
 
         private void SaveVisitToCahce(Dictionary<string, VisitorData> visitors, HttpContext context, CacheKey key)

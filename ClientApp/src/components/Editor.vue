@@ -1,6 +1,6 @@
 <template>
   <modal-panel v-model="showSettingsPanel">
-    <generate-settings :frontendMode="frontendMode" :editable="editable" :color="selectedColor" :generateSettings="generateSettings" @cancel="showSettingsPanel = false" @save="saveBrowserSettings"></generate-settings>
+    <generate-settings v-model="generateSettings" @close="showSettingsPanel = false"></generate-settings>
   </modal-panel>
   <modal-panel v-model="showWarningPanel">
     <div class="alert alert-warning show px-3 py-3 my-0" role="alert">
@@ -47,7 +47,7 @@
       <div class="browser custom-card shadow">
         <browser-frame v-model="browserData" :config="config" :undoable="undoStackIdx > 0" :redoable="undoStackIdx < undoStack.length-1"  @refresh="pageRefresh" @undo="undo" @redo="redo" :borderRadius="selectedTab === 0">
           <div class="d-flex w-100 h-auto">
-            <tab :title="frontendMode" :img="selectedTab === 0 ? frontendMode + '_green' : frontendMode + '_white'" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
+            <tab :title="generateSettings.frontend" :img="selectedTab === 0 ? generateSettings.frontend + '_green' : generateSettings.frontend + '_white'" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
             <tab title="index.html" icon="code" :class="{'active': selectedTab === 1, 'inactive': selectedTab !== 1, 'border-bottom-left': selectedTab === 0, 'border-bottom-right': selectedTab === 2}" @select="selectedTab = 1"></tab>
             <tab title="app.js" icon="code" :class="{'active': selectedTab === 2, 'inactive': selectedTab !== 2, 'border-bottom-left': selectedTab === 1}" @select="selectedTab = 2"></tab>
             <tab class="inactive" :class="{'border-bottom-left': selectedTab === 2}"></tab>
@@ -72,7 +72,7 @@
     </div>
 </template>
 <script>
-import {defineComponent, ref, watch} from 'vue';
+import {defineComponent, reactive, ref, watch} from 'vue';
 import CodeMirror from './CodeMirror.vue';
 import BrowserFrame from './BrowserFrame.vue'
 import GenerateSettings from './GenerateSettings.vue'
@@ -94,14 +94,18 @@ export default defineComponent({
   emits: ['download', 'hasError', 'setVuecoon', 'success'],
   setup(props, context) {
     const showSettingsPanel = ref(false);
-    const generateSettings = ref([]);
+    const generateSettings = ref({
+      frontend: 'vanilla',
+      isReadonly: false,
+      color: '42b983',
+      classSettings: []
+    });
     const inputError = ref(null);
     const json = ref('');
-    let sharedJson = '';
-    let sharedLink = '';
+    /*let sharedJson = '';
+    let sharedLink = '';*/
     const jsonSchema = ref(getSchema({}));
     const selectedTab = ref(0);
-    const editable = ref(true);
     const browserData = ref({ page_url: '', source_url: '' });
     const syntaxErr = ref(false);
     const showWarningPanel = ref(false);
@@ -154,8 +158,6 @@ export default defineComponent({
       }
     }
     watch(selectedTab, seturl);
-    const frontendMode = ref('vanilla');
-    const selectedColor = ref('#42b983');
 
     window.addEventListener('storage', () => {
       const item = localStorage.getItem(generatedId);
@@ -222,15 +224,12 @@ export default defineComponent({
       try {
         const resp = ref(null);
         const request = {
-          settings: {
-            type: frontendMode.value,
-            layout: editable.value ? 'table-editable': 'table',
-            color: selectedColor.value.slice(1, 7)
-          },
+          settings: generateSettings.value,
           data: JSON.parse(data)
         }
+        console.log(generateSettings.value);
         resp.value = await axios.post(`api/generate`, request, props.config);
-        generateSettings.value = resp.value.data.settings;
+        generateSettings.value.classSettings = resp.value.data.settings;
         localStorage.removeItem(generatedId);
         generatedId = resp.value.data.id;
         saveToLocalStorage(data);
@@ -360,11 +359,7 @@ export default defineComponent({
         context.emit('success');
         showGitHubCTA();
       }
-      if(editable.value) {
-        context.emit('download', `api/download/${frontendMode.value}/table-editable/${selectedColor.value.slice(1, 7)}`, `${frontendMode.value}.zip`, generatedId);
-      } else {
-        context.emit('download', `api/download/${frontendMode.value}/table/${selectedColor.value.slice(1, 7)}`, `${frontendMode.value}.zip`, generatedId);
-      }
+      context.emit('download', `api/download`, `${generateSettings.value.frontend}.zip`, generatedId);
     }
     function refresh() {
       generate(json.value);
@@ -399,7 +394,7 @@ export default defineComponent({
       }
     }
     async function share() {
-      let shareableJson = JSON.stringify(json.value);
+      /*let shareableJson = JSON.stringify(json.value);
       if(shareableJson !== sharedJson) {
         sharedLink = await axios.post(`api/share/${frontendMode.value}/${editable.value}/${selectedColor.value.slice(1, 7)}`, JSON.parse(json.value));
         sharedJson = shareableJson;
@@ -408,7 +403,7 @@ export default defineComponent({
       shareLinkOnClipboard.value = true;
       setTimeout(()=> {
         shareLinkOnClipboard.value = false;
-      }, 800);
+      }, 800);*/
     }
 
     watch(() => [props.loadedData], () => {      
@@ -417,31 +412,22 @@ export default defineComponent({
       }
     });
     async function loadSharedLink(){
-      if(props.loadedData) {
+      /*if(props.loadedData) {
         frontendMode.value = props.loadedData.frontendType;
         editable.value = props.loadedData.editable;
         selectedColor.value = '#' + props.loadedData.color;
         json.value = JSON.stringify(props.loadedData.json);
-      }
+      }*/
     }
     function onSettingsClicked() {
       showSettingsPanel.value = true;
     }
-    function saveBrowserSettings(f, e, c) {
-      frontendMode.value = f;
-      selectedColor.value = c;
-      if(e.value !== editable) {
-        editable.value = e;
-        generate(json.value);
-      }
-      showSettingsPanel.value = false;
-    }
 
-    return { json, inputError, frontendMode, selectedColor,
+    return { json, inputError,
       onDownloadClicked, pageRefresh,
       selectedTab, browserData, loadTasksExample, loadOrdersExample, syntaxError,
-      alert, showWarningPanel, warnings, editable, undo, redo, undoStackIdx, undoStack, share, shareLinkOnClipboard,
-      showSettingsPanel, onSettingsClicked, saveBrowserSettings, generateSettings }
+      alert, showWarningPanel, warnings, undo, redo, undoStackIdx, undoStack, share, shareLinkOnClipboard,
+      showSettingsPanel, onSettingsClicked, generateSettings }
   },
 })
 </script>

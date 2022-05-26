@@ -27,28 +27,19 @@ namespace VueStart.Controllers
         [HttpPost]
         public IActionResult Generate([FromBody] GenerateRequest request)
         {
-            var layout = request.Settings.Layout;
-            var type = request.Settings.Type;
-            var json = request.Data;
-            var artifactType = layout.ToArtifactType();
-            if (artifactType == ArtifactType.None)
-                return NotFound();
-            var cssType = type.ToCssType();
-            if (cssType == CssType.None)
-                return NotFound();
-            if (json.ValueKind != JsonValueKind.Object) {
-                statisticsService.OnEvent(Request.HttpContext, json, ActionType.Generate, artifactType, cssType, true);
+            if (request.Data.ValueKind != JsonValueKind.Object) {
+                statisticsService.OnEvent(Request.HttpContext, request, ActionType.Generate, true);
                 return BadRequest(new { error = "The root element must be an object!", fixable = true });
             }
-            foreach (var property in json.EnumerateObject()) {
+            foreach (var property in request.Data.EnumerateObject()) {
                 if (property.Value.ValueKind != JsonValueKind.Object && property.Value.ValueKind != JsonValueKind.Array) {
-                    statisticsService.OnEvent(Request.HttpContext, json, ActionType.Generate, artifactType, cssType, true);
+                    statisticsService.OnEvent(Request.HttpContext, request, ActionType.Generate, true);
                     return BadRequest(new { error = "Properties of the root element must be an objects or arrays!", fixable = false });
                 }
             }
             try {
-                statisticsService.OnEvent(Request.HttpContext, json, ActionType.Generate, artifactType, cssType);
-                var result = generationService.GenerateToCache(json, $"Data {ToUpperFirst(layout)}", request.Settings);
+                statisticsService.OnEvent(Request.HttpContext, request, ActionType.Generate);
+                var result = generationService.GenerateToCache(request, "DataTable");
                 statisticsService.OnGenerateEnd();
                 return Ok(result);
             } catch (FormatException e) {

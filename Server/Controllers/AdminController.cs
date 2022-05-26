@@ -82,11 +82,15 @@ public class AdminController : ControllerBase
         string content = "";
         string contentType;
         var settings = new GenerateSettings {
-            Type = "bootstrap",
-            Layout = "table",
+            Frontend = "bootstrap",
+            IsReadonly = true,
             Color = "42b983"
         };
-        string artifactId = generateService.Generate(json, "Dashboard", settings, generator.Id, true, out string appjs, out string indexhtml, true);
+        var request = new GenerateRequest {
+            Settings = settings,
+            Data = json
+        };
+        string artifactId = generateService.Generate(request, "Dashboard", generator.Id, true, out string appjs, out string indexhtml, true);
         
         if (string.IsNullOrWhiteSpace(fileName))
             fileName = "index.html";
