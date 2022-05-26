@@ -28,7 +28,6 @@ namespace VueStart.Controllers
         }
 
         [HttpPost]
-        [Route("{type}/{layout}/{color}")]
         public IActionResult DownloadEditor([FromBody] GenerateRequest request)
         {
             var layout = request.Settings.IsReadonly;

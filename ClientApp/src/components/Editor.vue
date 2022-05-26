@@ -66,7 +66,7 @@
         </div>
         <div id="download-btn" class="fab fab-icon-holder pulse-download-btn mx-1" @click="onDownloadClicked">
           <span class="bi bi-download" aria-hidden="true"></span>
-            <span class="ps-2">Download</span>
+            <span class="ps-2">Download Code</span>
         </div>
       </div>
     </div>
@@ -359,7 +359,7 @@ export default defineComponent({
         context.emit('success');
         showGitHubCTA();
       }
-      context.emit('download', `api/download`, `${generateSettings.value.frontend}.zip`, generatedId);
+      context.emit('download', `${generateSettings.value.frontend}.zip`, generateSettings.value, json.value);
     }
     function refresh() {
       generate(json.value);
