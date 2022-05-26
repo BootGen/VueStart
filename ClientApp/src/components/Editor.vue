@@ -1,6 +1,6 @@
 <template>
   <modal-panel v-model="showSettingsPanel">
-    <generate-settings v-model="generateSettings" @close="showSettingsPanel = false"></generate-settings>
+    <generate-settings v-model="generateSettings" @cancel="showSettingsPanel = false" @save="saveSettings"></generate-settings>
   </modal-panel>
   <modal-panel v-model="showWarningPanel">
     <div class="alert alert-warning show px-3 py-3 my-0" role="alert">
@@ -423,11 +423,16 @@ export default defineComponent({
       showSettingsPanel.value = true;
     }
 
+    function saveSettings() {
+      showSettingsPanel.value = false;
+      generate(json.value);
+    }
+
     return { json, inputError,
       onDownloadClicked, pageRefresh,
       selectedTab, browserData, loadTasksExample, loadOrdersExample, syntaxError,
       alert, showWarningPanel, warnings, undo, redo, undoStackIdx, undoStack, share, shareLinkOnClipboard,
-      showSettingsPanel, onSettingsClicked, generateSettings }
+      showSettingsPanel, onSettingsClicked, generateSettings, saveSettings }
   },
 })
 </script>

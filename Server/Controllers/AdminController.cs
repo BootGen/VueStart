@@ -78,7 +78,6 @@ public class AdminController : ControllerBase
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         }) + "}");
         JsonElement json = doc.RootElement;
-        var generator = new VueStartGenerator(json, memoryCache);
         string content = "";
         string contentType;
         var settings = new GenerateSettings {
@@ -90,6 +89,7 @@ public class AdminController : ControllerBase
             Settings = settings,
             Data = json
         };
+        var generator = new VueStartGenerator(request, memoryCache);
         string artifactId = generateService.Generate(request, "Dashboard", generator.Id, true, out string appjs, out string indexhtml, true);
         
         if (string.IsNullOrWhiteSpace(fileName))

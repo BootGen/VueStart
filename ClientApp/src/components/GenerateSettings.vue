@@ -111,7 +111,7 @@ import { defineComponent, ref, watch } from 'vue';
 
 export default defineComponent({
   name: 'BrowserSettings',
-  emits: ['close', 'update:modelValue'],
+  emits: ['cancel', 'save', 'update:modelValue'],
   props: {
     modelValue: Object
   },
@@ -137,12 +137,12 @@ export default defineComponent({
     }
     function cancel() {
       editedSettings.value = { ...props.modelValue };
-      context.emit('close');
+      context.emit('cancel');
     }
     function save() {
 
       context.emit('update:modelValue', { ...editedSettings.value, color: editedSettings.value.color.substr(1) });
-      context.emit('close');
+      context.emit('save');
     }
     return { editedSettings, selectedClass, triggerColorPicker, selectClass, save, cancel }
   }

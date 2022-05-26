@@ -20,7 +20,7 @@ public class GenerationService
     }
     public string Generate(GenerateRequest request, string title, string generatedId, bool forDownload, out string appjs, out string indexhtml, bool isAdmin = false)
     {
-        var generator = new VueStartGenerator(request.Data, memoryCache);
+        var generator = new VueStartGenerator(request, memoryCache);
         Generate(request, title, generatedId, forDownload, out appjs, out indexhtml, generator, isAdmin);
         return generator.Id;
     }
@@ -97,7 +97,7 @@ public class GenerationService
 
     public GenerationResult GenerateToCache(GenerateRequest request, string title)
     { 
-        var generator = new VueStartGenerator(request.Data, memoryCache);
+        var generator = new VueStartGenerator(request, memoryCache);
         Generate(request, title, generator.Id, false, out var appjs, out var indexhtml, generator);
         memoryCache.Set($"{generator.Id}/app.js", Minify(appjs), TimeSpan.FromMinutes(30));
         memoryCache.Set($"{generator.Id}/index.html", Minify(indexhtml), TimeSpan.FromMinutes(30));
@@ -191,7 +191,7 @@ class VueStartGenerator
     private readonly TypeScriptGenerator generator;
 
     private IMemoryCache memoryCache;
-    public VueStartGenerator(JsonElement json, IMemoryCache memoryCache)
+    public VueStartGenerator(GenerateRequest request, IMemoryCache memoryCache)
     {
         this.memoryCache = memoryCache;
         DataModel = new DataModel
@@ -199,11 +199,11 @@ class VueStartGenerator
             TypeToString = TypeScriptGenerator.ToTypeScriptType,
             GenerateIds = false
         };
-        var jObject = JsonConvert.DeserializeObject<JObject>(json.ToString(), new JsonSerializerSettings
+        var jObject = JsonConvert.DeserializeObject<JObject>(request.Data.ToString(), new JsonSerializerSettings
         {
             DateFormatString = "yyyy-MM-ddTHH:mm",
         });
-        DataModel.LoadRootObject("App", jObject);
+        DataModel.LoadRootObject("App", jObject, request.Settings.ClassSettings.Select(s => s.ToBootGenClassSettings()).ToList());
         Id = Guid.NewGuid().ToString();
         generator = new TypeScriptGenerator(null);
         generator.Templates = Load("templates");
