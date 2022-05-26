@@ -104,7 +104,7 @@ export default defineComponent({
         page.value = 'landing';
       else if (pathname === '/editor')
         page.value = 'content';
-      else if (pathname.match(/^-?\d+$/)){
+      else if (pathname.match(/^\/-?\d+$/)){
         try {
           let resp = await axios.get(`api/share${pathname}`);
           if(resp.data) {

@@ -102,8 +102,8 @@ export default defineComponent({
     });
     const inputError = ref(null);
     const json = ref('');
-    /*let sharedJson = '';
-    let sharedLink = '';*/
+    let sharedJson = '';
+    let sharedLink = '';
     const jsonSchema = ref(getSchema({}));
     const selectedTab = ref(0);
     const browserData = ref({ page_url: '', source_url: '' });
@@ -221,13 +221,13 @@ export default defineComponent({
     }
 
     async function generate(data) {
+      console.log('generateSettings', generateSettings.value);
       try {
         const resp = ref(null);
         const request = {
           settings: generateSettings.value,
           data: JSON.parse(data)
         }
-        console.log(generateSettings.value);
         resp.value = await axios.post(`api/generate`, request, props.config);
         generateSettings.value.classSettings = resp.value.data.settings;
         localStorage.removeItem(generatedId);
@@ -394,30 +394,34 @@ export default defineComponent({
       }
     }
     async function share() {
-      /*let shareableJson = JSON.stringify(json.value);
+      let request = {
+        settings: generateSettings.value,
+        data: JSON.parse(json.value)
+      }
+      let shareableJson = JSON.stringify(json.value);
       if(shareableJson !== sharedJson) {
-        sharedLink = await axios.post(`api/share/${frontendMode.value}/${editable.value}/${selectedColor.value.slice(1, 7)}`, JSON.parse(json.value));
+        sharedLink = await axios.post(`api/share`, request);
         sharedJson = shareableJson;
       }
       navigator.clipboard.writeText(window.location.origin + '/' + sharedLink.data.hash);
       shareLinkOnClipboard.value = true;
       setTimeout(()=> {
         shareLinkOnClipboard.value = false;
-      }, 800);*/
+      }, 800);
     }
 
     watch(() => [props.loadedData], () => {      
-      if(!window.location.pathname.includes('editor') && window.location.pathname !== '/') {
+      if(window.location.pathname !== '/' && window.location.pathname !== '/supporters' && window.location.pathname !== '/editor') {
         loadSharedLink();
       }
     });
     async function loadSharedLink(){
-      /*if(props.loadedData) {
-        frontendMode.value = props.loadedData.frontendType;
-        editable.value = props.loadedData.editable;
-        selectedColor.value = '#' + props.loadedData.color;
+      if(props.loadedData) {
+        generateSettings.value.frontend = props.loadedData.frontendType;
+        generateSettings.value.isReadonly= props.loadedData.editable;
+        generateSettings.value.color = props.loadedData.color;
         json.value = JSON.stringify(props.loadedData.json);
-      }*/
+      }
     }
     function onSettingsClicked() {
       showSettingsPanel.value = true;
