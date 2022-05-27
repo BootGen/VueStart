@@ -31,16 +31,13 @@ public class ShareController : ControllerBase
     [HttpPost]
     public IActionResult Save([FromBody] GenerateRequest request)
     {
-        var json = request.Data;
-        var frontendType = request.Settings.Frontend;
-        var layout = request.Settings.IsReadonly;
-        var color = request.Settings.Color;
-        int hash = StringHash(JsonSerializer.Serialize(json)+frontendType+layout.ToString()+color);
+        string requestAsString = JsonSerializer.Serialize(request, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        int hash = StringHash(requestAsString);
         var link = dbContext.ShareableLinks.FirstOrDefault(r => r.Hash == hash);
         if(link != null) {
             return Ok(new { hash = hash });
         }
-        var generateRequest = JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize(request, new JsonSerializerOptions{PropertyNamingPolicy = JsonNamingPolicy.CamelCase}));
+        var generateRequest = JsonSerializer.Deserialize<JsonElement>(requestAsString);
         dbContext.ShareableLinks.Add(new ShareableLink { Hash = hash, GenerateRequest = generateRequest, FirstUse = DateTime.UtcNow, LastUse = DateTime.UtcNow, Count = 0});
         dbContext.SaveChanges();
         return Ok(new { hash = hash });
