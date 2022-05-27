@@ -170,7 +170,7 @@ app.component('{{ kebab_case class.name }}-table', {
       <tr class="table-light">
         {{~ for property in class.base_properties ~}}
         <th class="clickable" scope="col" @click="sort('{{ camel_case property.name }}')">
-          {{ to_words property.name }}
+          {{ property.visible_name }}
           <i class="bi-caret-up-fill hideOrderBy" v-if="orderBy !== '{{ camel_case property.name }}' && orderAsc"></i>
           <i class="bi-caret-down-fill hideOrderBy" v-if="orderBy !== '{{ camel_case property.name }}' && !orderAsc"></i>
           <i class="bi-caret-up-fill" v-if="orderBy === '{{ camel_case property.name }}' && orderAsc"></i>
@@ -180,7 +180,7 @@ app.component('{{ kebab_case class.name }}-table', {
         {{~ for property in class.child_references
           ~}}
           <th scope="col">
-          {{ to_words property.name }}
+          {{ property.visible_name }}
           </th>
         {{~ end ~}}
       </tr>
