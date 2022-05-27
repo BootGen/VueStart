@@ -45,7 +45,6 @@ export default defineComponent({
     const isShowSupporters = ref(false);
     const isNotFound = ref(false);
     const loadedData = ref({});
-    
 
     async function setShowContentForUrl() {   
       let path = window.location.pathname;
