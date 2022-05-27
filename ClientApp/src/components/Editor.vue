@@ -221,7 +221,6 @@ export default defineComponent({
     }
 
     async function generate(data) {
-      console.log('generateSettings', generateSettings.value);
       try {
         const resp = ref(null);
         const request = {

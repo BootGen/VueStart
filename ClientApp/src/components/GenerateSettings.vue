@@ -75,7 +75,7 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr v-if="!editedSettings.isReadonly">
               <th scope="row">Is Read Only</th>
               <td class="align-middle" v-for="myClass in selectedClass.propertySettings" :key="myClass.name">
                 <div class="col-12 d-flex justify-content-start">
@@ -136,11 +136,10 @@ export default defineComponent({
       document.getElementById("colorInput").click();
     }
     function cancel() {
-      editedSettings.value = { ...props.modelValue };
+      resetSettings();
       context.emit('cancel');
     }
     function save() {
-
       context.emit('update:modelValue', { ...editedSettings.value, color: editedSettings.value.color.substr(1) });
       context.emit('save');
     }
