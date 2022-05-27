@@ -167,7 +167,14 @@ app.component('{{ kebab_case class.name }}-data', {
 app.component('{{ kebab_case class.name }}-form', {
   template: `
   {{~ for property in class.base_properties ~}}
-  <td>
+  <td class="text-left">
+    {{~ if property.is_read_only ~}}
+    {{~ if (get_type property) == "Date" ~}}
+    {{'{{'}} $filters.formatDatetime(editedItem.{{ camel_case property.name }}) {{'}}'}}
+    {{~ else ~}}
+    {{'{{'}} editedItem.{{ camel_case property.name }} {{'}}'}}
+    {{~ end ~}}
+    {{~ else ~}}
     <div class="field">
       {{~ if property.built_in_type == "Bool" ~}}
       <input class="check-input" type="checkbox" 
@@ -189,6 +196,7 @@ app.component('{{ kebab_case class.name }}-form', {
       placeholder="{{ to_words property.name }}">
       {{~ end ~}}
     </div>
+    {{~ end ~}}
   </td>
   {{~ end ~}}
   {{~ for property in class.child_references ~}}
