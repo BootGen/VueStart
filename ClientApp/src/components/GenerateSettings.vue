@@ -120,7 +120,7 @@ export default defineComponent({
     const selectedClass = ref(props.modelValue.classSettings[0]);
 
     function resetSettings() {
-      editedSettings.value = { ...props.modelValue };
+      editedSettings.value = JSON.parse(JSON.stringify(props.modelValue));
       editedSettings.value.color = '#' + editedSettings.value.color;
       selectedClass.value = editedSettings.value.classSettings[0];
     }
