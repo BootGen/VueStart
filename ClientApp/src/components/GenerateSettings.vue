@@ -59,7 +59,7 @@
             </label>
           </div>
         </div>
-        <table class="table text-start mt-2 mb-4" v-if="selectedClass">
+        <table class="table text-start mt-2" v-if="selectedClass">
           <thead>
             <tr class="table-light">
               <th scope="col"></th>
@@ -98,6 +98,11 @@
           </tbody>
         </table>
       </div>
+      <div class="alert alert-warning error-alert-container mx-2" v-if="errorMessage">
+        <div class="text-center">
+          {{ errorMessage }} <br>
+        </div>
+      </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="cancel">Cancel</button>
         <button type="button" class="btn btn-primary" @click="save">Save</button>
@@ -118,6 +123,7 @@ export default defineComponent({
   setup(props, context) {
     const editedSettings = ref({  });
     const selectedClass = ref(props.modelValue.classSettings[0]);
+    const errorMessage = ref('');
 
     function resetSettings() {
       editedSettings.value = JSON.parse(JSON.stringify(props.modelValue));
@@ -140,10 +146,26 @@ export default defineComponent({
       context.emit('cancel');
     }
     function save() {
-      context.emit('update:modelValue', { ...editedSettings.value, color: editedSettings.value.color.substr(1) });
-      context.emit('save');
+      if(checkVisisbleNameIsEmpty()) {
+        context.emit('update:modelValue', { ...editedSettings.value, color: editedSettings.value.color.substr(1) });
+        context.emit('save');
+        errorMessage.value = '';
+      } else {
+        errorMessage.value = 'The visible name cannot be empty anywhere.';
+      }
     }
-    return { editedSettings, selectedClass, triggerColorPicker, selectClass, save, cancel }
+    function checkVisisbleNameIsEmpty() {
+      for(let i = 0; i < editedSettings.value.classSettings.length; i++) {
+        for(let j = 0; j < editedSettings.value.classSettings[i].propertySettings.length; j++) {
+            console.log(editedSettings.value.classSettings[i].propertySettings[j].visibleName);
+          if(editedSettings.value.classSettings[i].propertySettings[j].visibleName == ''){
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+    return { editedSettings, selectedClass, errorMessage, triggerColorPicker, selectClass, save, cancel }
   }
 });
 </script>
