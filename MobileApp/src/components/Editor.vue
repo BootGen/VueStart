@@ -53,10 +53,8 @@ export default defineComponent({
 
     async function loadSharedLink(){
       if(props.loadedData) {
-        json.value = JSON.stringify(props.loadedData.json);
-        generateSettings.value.frontend = props.loadedData.frontendType;
-        generateSettings.value.isReadonly = props.loadedData.editable;
-        generateSettings.value.color = props.loadedData.color;
+        generateSettings.value = {...props.loadedData.settings}
+        json.value = JSON.stringify(props.loadedData.data);
         generate(json.value);
       }
     }

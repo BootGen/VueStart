@@ -53,9 +53,10 @@ export default defineComponent({
       } else {
         try {
           let resp = await axios.get(`api/share${path}`);
-          if (resp.data)
+          if (resp.status == 200) {
             isNotFound.value = false;
-            loadedData.value = resp.data;
+            loadedData.value = resp.data.generateRequest;
+          }
         } catch (e) {
           isNotFound.value = true;
           loadedData.value = {};
