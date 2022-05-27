@@ -55,6 +55,7 @@ public class GenerationService
         {
             indexParameters.Add("text_color", "ffffff");
         }
+        indexParameters.Add("is_readonly", request.Settings.IsReadonly);
         indexhtml = generator.Render($"{request.Settings.Frontend}-index.sbn", indexParameters);
     }
 

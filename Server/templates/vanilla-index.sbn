@@ -144,7 +144,7 @@
         border-color: #{{ color }};
         outline: none;
       }
-      {{~ if title == 'Data Table-editable' ~}}
+      {{~ if !is_readonly ~}}
       td:last-child {
         text-align: right;
       }
@@ -212,6 +212,14 @@
       }
       .active-row input {
         background-color: #fffa;
+      }
+
+      ::-webkit-input-placeholder {
+        opacity: 0;
+        transition: inherit;
+      }
+      t:focus::-webkit-input-placeholder {
+        opacity: 1;
       }
       {{~ end ~}}
       </style>
