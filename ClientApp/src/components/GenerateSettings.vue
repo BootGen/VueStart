@@ -78,7 +78,7 @@
             <tr v-if="!editedSettings.isReadonly">
               <th scope="row">Is Read Only</th>
               <td class="align-middle" v-for="myClass in selectedClass.propertySettings" :key="myClass.name">
-                <div class="col-12 d-flex justify-content-start">
+                <div class="col-12 d-flex justify-content-start" v-if="myClass.isReadOnly != null">
                   <div class="form-check">
                     <input class="form-check-input" type="checkbox" v-model="myClass.isReadOnly" >
                   </div>
