@@ -157,7 +157,6 @@ export default defineComponent({
     function checkVisisbleNameIsEmpty() {
       for(let i = 0; i < editedSettings.value.classSettings.length; i++) {
         for(let j = 0; j < editedSettings.value.classSettings[i].propertySettings.length; j++) {
-            console.log(editedSettings.value.classSettings[i].propertySettings[j].visibleName);
           if(editedSettings.value.classSettings[i].propertySettings[j].visibleName == ''){
             return false;
           }

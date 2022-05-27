@@ -40,7 +40,8 @@ public class ShareController : ControllerBase
         if(link != null) {
             return Ok(new { hash = hash });
         }
-        dbContext.ShareableLinks.Add(new ShareableLink { Hash = hash, Json = json, FrontendType = frontendType, Editable = layout, Color = color, FirstUse = DateTime.UtcNow, LastUse = DateTime.UtcNow, Count = 0});
+        var generateRequest = JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize(request, new JsonSerializerOptions{PropertyNamingPolicy = JsonNamingPolicy.CamelCase}));
+        dbContext.ShareableLinks.Add(new ShareableLink { Hash = hash, GenerateRequest = generateRequest, FirstUse = DateTime.UtcNow, LastUse = DateTime.UtcNow, Count = 0});
         dbContext.SaveChanges();
         return Ok(new { hash = hash });
     }

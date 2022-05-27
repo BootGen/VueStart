@@ -45,7 +45,7 @@ namespace VueStart.Migrations
                         new
                         {
                             Id = 1,
-                            PasswordHash = "AQAAAAEAACcQAAAAEP2ySbRDxPLVAzU13JfKBPpxhk2Vjh0LzEe29VP+MuGnKdzeD8BuGR5Dd1oo7gFzzA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEM+13f0gQaxMPvPWvYfdcmxZ2iJJoNqcUPgGqK1vV2o8SrqCpD0iqNz9auY1+K+1bg==",
                             Username = "admin"
                         });
                 });
@@ -179,26 +179,17 @@ namespace VueStart.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Color")
-                        .HasColumnType("text");
-
                     b.Property<int>("Count")
                         .HasColumnType("integer");
-
-                    b.Property<bool>("Editable")
-                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("FirstUse")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("FrontendType")
-                        .HasColumnType("text");
+                    b.Property<JsonElement>("GenerateRequest")
+                        .HasColumnType("jsonb");
 
                     b.Property<int>("Hash")
                         .HasColumnType("integer");
-
-                    b.Property<JsonElement>("Json")
-                        .HasColumnType("jsonb");
 
                     b.Property<DateTime>("LastUse")
                         .HasColumnType("timestamp with time zone");

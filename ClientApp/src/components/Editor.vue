@@ -399,7 +399,7 @@ export default defineComponent({
       }
       let shareableJson = JSON.stringify(json.value);
       if(shareableJson !== sharedJson) {
-        sharedLink = await axios.post(`api/share`, request);
+        sharedLink = await axios.post('api/share', request);
         sharedJson = shareableJson;
       }
       navigator.clipboard.writeText(window.location.origin + '/' + sharedLink.data.hash);
@@ -416,10 +416,8 @@ export default defineComponent({
     });
     async function loadSharedLink(){
       if(props.loadedData) {
-        generateSettings.value.frontend = props.loadedData.frontendType;
-        generateSettings.value.isReadonly= props.loadedData.editable;
-        generateSettings.value.color = props.loadedData.color;
-        json.value = JSON.stringify(props.loadedData.json);
+        generateSettings.value = {...props.loadedData.settings}
+        json.value = JSON.stringify(props.loadedData.data);
       }
     }
     function onSettingsClicked() {
