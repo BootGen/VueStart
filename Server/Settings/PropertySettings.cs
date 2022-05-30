@@ -7,6 +7,7 @@ public struct PropertySettings
     public string VisibleName { get; set; }
     public bool? IsReadOnly { get; set; }
     public bool IsHidden { get; set; }
+    public bool? ShowAsImage { get; set; }
 
     public static PropertySettings FromBootGenPropertySettings(BootGen.Core.PropertySettings propertySettings)
     {
@@ -15,7 +16,8 @@ public struct PropertySettings
             Name = propertySettings.Name,
             VisibleName = propertySettings.VisibleName,
             IsReadOnly = propertySettings.IsReadOnly,
-            IsHidden = propertySettings.IsHidden
+            IsHidden = propertySettings.IsHidden,
+            ShowAsImage = propertySettings.ShowAsImage
         };
     }
 
@@ -26,7 +28,8 @@ public struct PropertySettings
             Name = Name,
             VisibleName = VisibleName,
             IsReadOnly = IsReadOnly,
-            IsHidden = IsHidden
+            IsHidden = IsHidden,
+            ShowAsImage = ShowAsImage
         };
     }
 }
