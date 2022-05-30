@@ -132,7 +132,11 @@ app.component('{{ kebab_case class.name }}-row', {
   <tr>
     {{~ for property in class.base_properties ~}}
     <td class="align-middle">
-    {{~ if (get_type property) == "Date" ~}}
+    {{~ if property.show_as_image == false ~}}
+      <a href="{{'{{'}} value.{{ camel_case property.name }} {{'}}'}}" target="_blank">{{'{{'}} value.{{ camel_case property.name }} {{'}}'}}</a>
+    {{~ else if property.show_as_image == true ~}}
+      <img :src="value.{{ camel_case property.name }}" alt="img" width="50" height="50">
+    {{~ else if (get_type property) == "Date" ~}}
       {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
     {{~ else ~}}
       {{'{{'}} value.{{ camel_case property.name }} {{'}}'}}

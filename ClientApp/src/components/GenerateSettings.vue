@@ -95,6 +95,16 @@
                 </div>
               </td>
             </tr>
+            <tr>
+              <th scope="row">Show As Image</th>
+              <td class="align-middle" v-for="myClass in selectedClass.propertySettings" :key="myClass.name">
+                <div class="col-12 d-flex justify-content-start" v-if="myClass.showAsImage != null">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" v-model="myClass.showAsImage">
+                  </div>
+                </div>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
