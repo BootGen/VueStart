@@ -151,7 +151,7 @@ export default defineComponent({
         context.emit('save');
         errorMessage.value = '';
       } else {
-        errorMessage.value = 'The visible name cannot be empty anywhere.';
+        errorMessage.value = 'The visible name cannot be empty.';
       }
     }
     function checkVisisbleNameIsEmpty() {
