@@ -335,34 +335,44 @@ export default defineComponent({
       json.value = content;
       jsonSchema.value = getSchema(JSON.parse(json.value));
       generate(json.value);
-      function generateAndEmit(data) {
-        generate(data);
-        if (tip.generated())
-          context.emit('success');
-        showTip();
-        isGenerating = false
-      }
-      let debouncedGenerate = debounce(generateAndEmit, 1000);
       watch(json, () => {
         try {
-          if (validateJson(json.value).error)
-            return;
-          if(JSON.stringify(getSchema(JSON.parse(json.value))) !== JSON.stringify(jsonSchema.value)) {
-            isGenerating = true;
-            debouncedGenerate(json.value);
-          } else if(!isGenerating && generatedId !== '') {
-            saveToLocalStorage(json.value);
-            inputError.value = null;
-          }
+          trySaveJson();
         } catch (e) {
-          if (e.schemaError) {
-            inputError.value = e.schemaError;
-          } else {
-            console.log(e)
-          }
+          catchSaveJson(e);
         }
       })
     });
+
+    function trySaveJson() {
+      let debouncedGenerate = debounce(generateAndEmit, 1000);
+      if (validateJson(json.value).error)
+        return;
+      if(JSON.stringify(getSchema(JSON.parse(json.value))) !== JSON.stringify(jsonSchema.value)) {
+        isGenerating = true;
+        debouncedGenerate(json.value);
+      } else if(!isGenerating && generatedId !== '') {
+        saveToLocalStorage(json.value);
+        inputError.value = null;
+      }
+    }
+
+    function generateAndEmit(data) {
+      generate(data);
+      if (tip.generated())
+        context.emit('success');
+      showTip();
+      isGenerating = false
+    }
+    
+    function catchSaveJson(e) {
+      if (e.schemaError) {
+        inputError.value = e.schemaError;
+      } else {
+        console.log(e)
+      }
+    }
+
     function onDownloadClicked() {
       if (tip.downloaded()) {
         context.emit('success');
