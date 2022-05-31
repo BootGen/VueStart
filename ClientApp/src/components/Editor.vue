@@ -222,62 +222,72 @@ export default defineComponent({
 
     async function generate(data) {
       try {
-        const resp = ref(null);
-        const request = {
-          settings: generateSettings.value,
-          data: JSON.parse(data)
-        }
-        resp.value = await axios.post(`api/generate`, request, props.config);
-        generateSettings.value.classSettings = resp.value.data.settings;
-        localStorage.removeItem(generatedId);
-        generatedId = resp.value.data.id;
-        saveToLocalStorage(data);
-        seturl();
-        jsonSchema.value = getSchema(JSON.parse(data));
-        inputError.value = null;
-        if (resp.value.data.warnings && resp.value.data.warnings.length > 0) {
-          warnings.value = resp.value.data.warnings;
-          alert.value = {
-            shown: true,
-            class: 'alert-warning',
-            message: 'Generation succeeded with ',
-            action: {
-              target: '_self',
-              active: true,
-              href: 'javascript:void(0)',
-              message: 'warnings.',
-              callback() {
-                showWarningPanel.value = true;
-              }
-            }
-          }
-        } else {
-          warnings.value = [];
-          if (!showTip()) {
-            alert.value = noAlert;
-          }
-        }
-        context.emit('hasError', false);
+        tryGenerate(data);
       } catch (e) {
-        const response = e.response;
-        if (response) {
-          alert.value = {
-            shown: true,
-            class: 'alert-danger',
-            message: response.data.error,
-            action: {
-              target: '_self',
-              active: !!response.data.fixable,
-              href: 'javascript:void(0)',
-              message: 'Fix it!',
-              callback: fixData
-            }
+        catchGenerate(e.response);
+      }
+    }
+
+    async function tryGenerate(data) {
+      let resp = await axios.post(`api/generate`, { settings: generateSettings.value, data: JSON.parse(data) }, props.config);
+      generateSettings.value.classSettings = resp.data.settings;
+      localStorage.removeItem(generatedId);
+      generatedId = resp.data.id;
+      saveToLocalStorage(data);
+      seturl();
+      jsonSchema.value = getSchema(JSON.parse(data));
+      inputError.value = null;
+      if (resp.data.warnings && resp.data.warnings.length > 0) {
+        setWarnings(resp.data.warnings);
+      } else {
+        resetWarnings();
+      }
+      context.emit('hasError', false);
+    }
+
+    function catchGenerate(response) {
+      if (response) {
+        alert.value = {
+          shown: true,
+          class: 'alert-danger',
+          message: response.data.error,
+          action: {
+            target: '_self',
+            active: !!response.data.fixable,
+            href: 'javascript:void(0)',
+            message: 'Fix it!',
+            callback: fixData
           }
-          inputError.value = response.data.error;
-        } else {
-          console.error(e);
         }
-        context.emit('hasError', true);
+        inputError.value = response.data.error;
+      } else {
+        console.error(e);
+      }
+      context.emit('hasError', true);
+    }
+
+    function setWarnings(warnings) {
+      warnings.value = warnings;
+      alert.value = {
+        shown: true,
+        class: 'alert-warning',
+        message: 'Generation succeeded with ',
+        action: {
+          target: '_self',
+          active: true,
+          href: 'javascript:void(0)',
+          message: 'warnings.',
+          callback() {
+            showWarningPanel.value = true;
+          }
+        }
+      }
+    }
+
+    function resetWarnings() {
+      warnings.value = [];
+      if (!showTip()) {
+        alert.value = noAlert;
       }
     }
 
