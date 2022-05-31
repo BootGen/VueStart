@@ -12,7 +12,7 @@
     </div>
   </modal-panel>
   <div class="codemirror custom-card" :class="page">
-    <code-mirror v-model="json" @hasSyntaxError="syntaxError" class="codemirror-content" :class="{'h90': alert.shown, 'h100': !alert.shown}"></code-mirror>
+    <code-mirror v-model="json" @setSyntaxError="setSyntaxError" @resetSyntaxError="resetSyntaxError" class="codemirror-content" :class="{'h90': alert.shown, 'h100': !alert.shown}"></code-mirror>
     <div class="d-flex codemirror-buttons" :class="[page, {'isalert': alert.shown}]">
       <div class="fab-container mx-1">
         <div class="fab fab-icon-holder">
@@ -91,7 +91,7 @@ export default defineComponent({
     config: Object,
     loadedData: Object
   },
-  emits: ['download', 'hasError', 'setVuecoon', 'success'],
+  emits: ['download', 'setError', 'resetError', 'setVuecoon', 'success'],
   setup(props, context) {
     const showSettingsPanel = ref(false);
     const generateSettings = ref({
@@ -107,7 +107,6 @@ export default defineComponent({
     const jsonSchema = ref(getSchema({}));
     const selectedTab = ref(0);
     const browserData = ref({ page_url: '', source_url: '' });
-    const syntaxErr = ref(false);
     const showWarningPanel = ref(false);
     const warnings = ref([]);
     const undoStack = ref([]);
@@ -242,7 +241,7 @@ export default defineComponent({
       } else {
         resetWarnings();
       }
-      context.emit('hasError', false);
+      context.emit('resetError');
     }
 
     function catchGenerate(response) {
@@ -263,7 +262,7 @@ export default defineComponent({
       } else {
         console.error(e);
       }
-      context.emit('hasError', true);
+      context.emit('setError');
     }
 
     function setWarnings(warnings) {
@@ -364,7 +363,7 @@ export default defineComponent({
       showTip();
       isGenerating = false
     }
-    
+
     function catchSaveJson(e) {
       if (e.schemaError) {
         inputError.value = e.schemaError;
@@ -389,16 +388,15 @@ export default defineComponent({
       context.emit('setVuecoon', 'loading');
       debouncedRefresh();
     }
-    function syntaxError (hasError, message) {
-      syntaxErr.value = hasError;
-      if (hasError) {
-        showAlert(message, 'alert-danger');
-      } else {
-        if (!showTip()) {
-          alert.value = noAlert;
-        }
+    function setSyntaxError (message) {
+      showAlert(message, 'alert-danger');
+      context.emit('setError');
+    }
+    function resetSyntaxError() {
+      context.emit('resetError');
+      if (!showTip()) {
+        alert.value = noAlert;
       }
-      context.emit('hasError', hasError);
     }
     function undo() {
       if(undoStackIdx.value > 0) {
@@ -429,7 +427,7 @@ export default defineComponent({
       }, 800);
     }
 
-    watch(() => [props.loadedData], () => {      
+    watch(() => [props.loadedData], () => { 
       if(window.location.pathname !== '/' && window.location.pathname !== '/supporters' && window.location.pathname !== '/editor') {
         loadSharedLink();
       }
@@ -451,7 +449,7 @@ export default defineComponent({
 
     return { json, inputError,
       onDownloadClicked, pageRefresh,
-      selectedTab, browserData, loadTasksExample, loadOrdersExample, syntaxError,
+      selectedTab, browserData, loadTasksExample, loadOrdersExample, setSyntaxError, resetSyntaxError,
       alert, showWarningPanel, warnings, undo, redo, undoStackIdx, undoStack, share, shareLinkOnClipboard,
       showSettingsPanel, onSettingsClicked, generateSettings, saveSettings }
   },
