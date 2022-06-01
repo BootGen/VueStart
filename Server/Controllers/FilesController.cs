@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using BootGen;
+using BootGen.Core;
 using System.IO;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text;

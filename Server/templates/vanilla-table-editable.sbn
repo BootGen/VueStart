@@ -18,15 +18,16 @@ const app = Vue.createApp({
   template: `
   {{~ for property in root.child_references ~}}
   {{~ if property.is_collection ~}}
-  <{{ kebab_case property.class.name.plural }} v-model="{{ camel_case root.name }}.{{ camel_case property.name }}"></{{ kebab_case property.class.name.plural }}>
+  <{{ kebab_case property.class.name.plural }} v-model="{{ camel_case root.name }}.{{ camel_case property.name }}" :pageSize="pageSize" @update:pageSize="updatePageSize"></{{ kebab_case property.class.name.plural }}>
   {{~ else ~}}
-  <{{ kebab_case property.class.name }} v-model="{{ camel_case root.name }}.{{ camel_case property.name }}"></{{ kebab_case property.class.name }}>
+  <{{ kebab_case property.class.name }} v-model="{{ camel_case root.name }}.{{ camel_case property.name }}" :pageSize="pageSize" @update:pageSize="updatePageSize"></{{ kebab_case property.class.name }}>
   {{~ end ~}}
   {{~ end ~}}
   `,
   name: 'App',
   setup: function () {
     const {{ camel_case root.name }} = ref(null);
+    const pageSize = ref(5);
     {{~ if input ~}}
     {{ camel_case root.name }}.value = {{input}};
     {{~ else ~}}
@@ -51,7 +52,10 @@ const app = Vue.createApp({
 
     window.addEventListener('storage', loadFromLocalStorage);
     {{~ end ~}}
-    return { {{ camel_case root.name }} }
+    function updatePageSize(size) {
+      pageSize.value = size;
+    }
+    return { {{ camel_case root.name }}, pageSize, updatePageSize }
   },
 });
 
@@ -70,7 +74,7 @@ app.component('pagination', {
     <a href="javascript:void(0)" :class="{disabled: pageIdx === 1 || pageCount === 0}" @click="toPage(pageIdx-1)">
       <i class="bi-chevron-left"></i>
     </a>
-    <a v-if="pageCount > 0" v-for="n in pageCount" href="javascript:void(0)" :class="{'active': n === pageIdx}" @click="toPage(n)">{{'{{'}} n {{'}}'}}</a>
+    <a v-if="pageCount > 0" v-for="n in pageCount" :key="n" href="javascript:void(0)" :class="{'active': n === pageIdx}" @click="toPage(n)">{{'{{'}} n {{'}}'}}</a>
     <a v-else class="disabled">No results</a>
     <a href="javascript:void(0)" :class="{disabled: pageIdx === pageCount || pageCount === 0}" @click="toPage(pageIdx+1)">
       <i class="bi-chevron-right"></i>
@@ -78,7 +82,7 @@ app.component('pagination', {
   </div>
   <p>
     rows per page:
-    <select v-model="pageSize">
+    <select v-model="pageSize" @input="$emit('update:pageSize', $event.target.value)">
       <option>5</option>
       <option>10</option>
       <option>20</option>
@@ -89,12 +93,12 @@ app.component('pagination', {
   name: 'Pagination',
   props: {
     count: Number,
+    pageSize: Number
   },
-  emits:['range'],
+  emits:['range', 'update:pageSize'],
   setup(props, context) {
     const pageIdx = ref(0);
-    const pageSize = ref(5);
-    const pageCount = computed(() => Math.ceil(props.count / pageSize.value));
+    const pageCount = computed(() => Math.ceil(props.count / props.pageSize));
     watch(pageCount, function() {
       toPage(1)
     });
@@ -103,10 +107,10 @@ app.component('pagination', {
         return
       }
       pageIdx.value = idx;
-      context.emit('range', (idx - 1) * pageSize.value, idx * pageSize.value)
+      context.emit('range', (idx - 1) * props.pageSize, idx * props.pageSize)
     }
     toPage(1);
-    return { pageCount, pageIdx, pageSize, toPage }
+    return { pageCount, pageIdx, toPage }
   }
 });
 
@@ -129,7 +133,11 @@ app.component('{{ kebab_case class.name }}-data', {
   template: `
   {{~ for property in class.base_properties ~}}
   <td class="text-left">
-  {{~ if (get_type property) == "Date" ~}}
+  {{~ if property.built_in_type == "Uri" ~}}
+    <a href="{{'{{'}} value.{{ camel_case property.name }} {{'}}'}}" target="_blank">{{'{{'}} value.{{ camel_case property.name }} {{'}}'}}</a>
+  {{~ else if property.built_in_type == "Image" ~}}
+    <img :src="value.{{ camel_case property.name }}" alt="img" width="50" height="50">
+  {{~ else if property.built_in_type == "Date" ~}}
     {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
   {{~ else ~}}
     {{'{{'}} value.{{ camel_case property.name }} {{'}}'}}
@@ -163,7 +171,14 @@ app.component('{{ kebab_case class.name }}-data', {
 app.component('{{ kebab_case class.name }}-form', {
   template: `
   {{~ for property in class.base_properties ~}}
-  <td>
+  <td class="text-left">
+    {{~ if property.is_read_only ~}}
+    {{~ if (get_type property) == "Date" ~}}
+    {{'{{'}} $filters.formatDatetime(editedItem.{{ camel_case property.name }}) {{'}}'}}
+    {{~ else ~}}
+    {{'{{'}} editedItem.{{ camel_case property.name }} {{'}}'}}
+    {{~ end ~}}
+    {{~ else ~}}
     <div class="field">
       {{~ if property.built_in_type == "Bool" ~}}
       <input class="check-input" type="checkbox" 
@@ -185,6 +200,7 @@ app.component('{{ kebab_case class.name }}-form', {
       placeholder="{{ to_words property.name }}">
       {{~ end ~}}
     </div>
+    {{~ end ~}}
   </td>
   {{~ end ~}}
   {{~ for property in class.child_references ~}}
@@ -256,21 +272,18 @@ app.component('{{ kebab_case class.name }}-table', {
     <thead>
       <tr>
         {{~ for property in class.base_properties ~}}
-        <th class="clickable" scope="col" @click="sort('{{ camel_case property.name }}')" v-if="sortable">
-        {{ to_words property.name }}
+        <th class="clickable" scope="col" @click="sort('{{ camel_case property.name }}')">
+        {{ property.visible_name }}
         <i class="bi-caret-up-fill hideOrderBy" v-if="orderBy !== '{{ camel_case property.name }}' && orderAsc"></i>
         <i class="bi-caret-down-fill hideOrderBy" v-if="orderBy !== '{{ camel_case property.name }}' && !orderAsc"></i>
         <i class="bi-caret-up-fill" v-if="orderBy === '{{ camel_case property.name }}' && orderAsc"></i>
         <i class="bi-caret-down-fill" v-if="orderBy === '{{ camel_case property.name }}' && !orderAsc"></i>
         </th>
-        <th scope="col" v-else>
-          {{ to_words property.name }}
-        </th>
         {{~ end ~}}
         {{~ for property in class.child_references
           ~}}
           <th scope="col">
-          {{ to_words property.name }}
+          {{ property.visible_name }}
           </th>
         {{~ end ~}}
         <th scope="col"></th>
@@ -282,8 +295,7 @@ app.component('{{ kebab_case class.name }}-table', {
   </table>`,
   name: '{{ class.name }}Table',
   props: {
-    modelValue: Array,
-    sortable: Boolean
+    modelValue: Array
   },
   emits: ['sort'],
   setup(props, context) {
@@ -304,13 +316,13 @@ app.component('{{ kebab_case class.name }}-table', {
 app.component('{{ kebab_case class.name }}', {
   template: `
   {{~ if class.has_child ~}}
-  <h5 class="disabled" v-if="activeProperty === null">{{ class.name.plural }}</h5>
-  <h5 class="clickable" @click="activeProperty = null" v-if="activeProperty !== null">{{ class.name.plural }}</h5>
+  <h5 class="disabled" v-if="activeProperty === null">{{ class.name }}</h5>
+  <h5 class="clickable" @click="activeProperty = null" v-if="activeProperty !== null">{{ class.name }}</h5>
   <h5 class="breadcrumb-separator" v-if="activeProperty !== null">/</h5>
   {{~ else ~}}
-  <h5 class="disabled">{{ class.name.plural }}</h5>
+  <h5 class="disabled">{{ class.name }}</h5>
   {{~ end ~}}
-  <{{ kebab_case class.name }}-table :sortable="false" {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
+  <{{ kebab_case class.name }}-table {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
     <{{ kebab_case class.name }}-row :modelValue="modelValue" @update:modelValue="update" :deletable="false"{{ if class.has_child }} @show="show"{{ end }} v-if="modelValue"></{{ kebab_case class.name }}-row>
     <tr v-else>
       <button type="button" class="btn" @click="$emit('update:modelValue', {})">
@@ -320,16 +332,17 @@ app.component('{{ kebab_case class.name }}', {
   </{{ kebab_case class.name }}-table>
   {{~ for property in class.child_references ~}}
       {{~ if property.is_collection ~}}
-      <{{ kebab_case property.class.name.plural }} :modelValue="modelValue[activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
+      <{{ kebab_case property.class.name.plural }} :modelValue="modelValue[activeProperty]" @update:modelValue="updateChild" :pageSize="pageSize" @update:pageSize="updatePageSize" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
       {{~ else ~}}
-      <{{ kebab_case property.class.name }} :modelValue="modelValue[activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
+      <{{ kebab_case property.class.name }} :modelValue="modelValue[activeProperty]" @update:modelValue="updateChild" :pageSize="pageSize" @update:pageSize="updatePageSize" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
       {{~ end ~}}
   {{~ end ~}}`,
   name: '{{ class.name }}',
   props: {
-    modelValue: Object
+    modelValue: Object,
+    pageSize: Number
   },
-  emits: ['update:modelValue'{{ if class.has_child }}, 'show'{{ end }}],
+  emits: ['update:modelValue', 'update:pageSize'{{ if class.has_child }}, 'show'{{ end }}],
   setup(props, context) {
     {{~ if class.has_child ~}}
     const activeProperty = ref(null);
@@ -349,7 +362,10 @@ app.component('{{ kebab_case class.name }}', {
       context.emit('update:modelValue', newObj);
     }
     {{~ end ~}}
-    return { update{{ if class.has_child }}, show, activeProperty, updateChild{{ end }} }
+    function updatePageSize(size) {
+      context.emit('update:pageSize', size);
+    }
+    return { update, updatePageSize{{ if class.has_child }}, show, activeProperty, updateChild{{ end }} }
   }
 });
 {{~ end ~}}
@@ -366,7 +382,7 @@ app.component('{{ kebab_case class.name.plural }}', {
   <h5 class="disabled">{{ class.name.plural }}</h5>
   <search :modelValue="searchText" @update:modelValue="updateSearchText"></search>
   {{~ end ~}}
-  <{{ kebab_case class.name }}-table :sortable="true" @sort="sort" {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
+  <{{ kebab_case class.name }}-table @sort="sort" {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
     <{{ kebab_case class.name }}-row v-for="item in items" :key="item.idx" :modelValue="item.value" @update:modelValue="updateItem(item.idx, $event)" @delete="deleteItem(item.idx)" :deletable="true"{{ if class.has_child }} @show="show(item.idx, $event)"{{ end }} v-if="modelValue"></{{ kebab_case class.name }}-row>
     <tr v-if="newItem" class="active-row">
       <{{ kebab_case class.name }}-form :modelValue="newItem" @update:modelValue="saveNewItem" @canceled="cancelAdd"></{{ kebab_case class.name }}-form>
@@ -378,20 +394,21 @@ app.component('{{ kebab_case class.name.plural }}', {
     </div>
   </{{ kebab_case class.name }}-table>
   <div {{ if class.has_child }} v-if="activeProperty === null"{{ end }}>
-    <pagination :count="pageCount" @range="setRange"></pagination>
+    <pagination :count="pageCount" :pageSize="pageSize" @range="setRange" @update:pageSize="updatePageSize"></pagination>
   </div>
 {{~ for property in class.child_references ~}}
   {{~ if property.is_collection ~}}
-  <{{ kebab_case property.class.name.plural }} :modelValue="modelValue[activeIdx][activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
+  <{{ kebab_case property.class.name.plural }} :modelValue="modelValue[activeIdx][activeProperty]" @update:modelValue="updateChild" :pageSize="pageSize" @update:pageSize="updatePageSize" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name.plural }}>
   {{~ else ~}}
-  <{{ kebab_case property.class.name }} :modelValue="modelValue[activeIdx][activeProperty]" @update:modelValue="updateChild" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
+  <{{ kebab_case property.class.name }} :modelValue="modelValue[activeIdx][activeProperty]" @update:modelValue="updateChild" :pageSize="pageSize" @update:pageSize="updatePageSize" v-if="activeProperty === '{{ camel_case property.name }}'"></{{ kebab_case property.class.name }}>
   {{~ end ~}}
 {{~ end ~}}`,
   name: '{{ class.name.plural }}',
   props: {
-    modelValue: Array
+    modelValue: Array,
+    pageSize: Number
   },
-  emits: ['update:modelValue'{{ if class.has_child }}, 'show'{{ end }}],
+  emits: ['update:modelValue', 'update:pageSize'{{ if class.has_child }}, 'show'{{ end }}],
   setup(props, context) {
     const newItem = ref(null);
     const orderBy = ref('');
@@ -503,13 +520,17 @@ app.component('{{ kebab_case class.name.plural }}', {
     function updateSearchText(text) {
       searchText.value = text;
     }
-
+    function updatePageSize(size) {
+      context.emit('update:pageSize', size);
+    }
+    
     return {
       sort,
       setRange,
       items,
       newItem,
       pageCount,
+      updatePageSize,
       searchText,
       updateSearchText,
       deleteItem,

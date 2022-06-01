@@ -78,10 +78,19 @@ public class AdminController : ControllerBase
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         }) + "}");
         JsonElement json = doc.RootElement;
-        var generator = new VueStartGenerator(json, memoryCache);
         string content = "";
         string contentType;
-        string artifactId = generateService.Generate(json, "Dashboard", "bootstrap-table.sbn", "bootstrap", "42b983", generator.Id, true, out string appjs, out string indexhtml, true);
+        var settings = new GenerateSettings {
+            Frontend = "bootstrap",
+            IsReadonly = true,
+            Color = "42b983"
+        };
+        var request = new GenerateRequest {
+            Settings = settings,
+            Data = json
+        };
+        var generator = new VueStartGenerator(request, memoryCache);
+        string artifactId = generateService.Generate(request, "Dashboard", generator.Id, true, out string appjs, out string indexhtml, true);
         
         if (string.IsNullOrWhiteSpace(fileName))
             fileName = "index.html";

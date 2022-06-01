@@ -80,9 +80,12 @@ function getType(val) {
   }
 
   if (typeof val === 'string') {
-    const regexExp = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?)$/gi;
+    let regexExp = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?)$/gi;
     if (regexExp.test(val))
       return 'datetime'
+    regexExp = /^(http|https):\/\/.*/gi;
+    if (regexExp.test(val))
+      return 'link'
   }
   
   return typeof val;
@@ -90,7 +93,7 @@ function getType(val) {
 
 export function getSchema(val) {
   let type = getType(val);
-
+  
   if (type === 'array') {
     return {type: [type], items: getArraySchema(val)};
   }

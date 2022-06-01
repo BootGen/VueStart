@@ -11,7 +11,6 @@ import { indentWithTab } from "@codemirror/commands"
 import { json } from "@codemirror/lang-json"
 import {StateField, StateEffect} from "@codemirror/state"
 
-
 import {defineComponent, onMounted, watchEffect, ref, watch} from 'vue';
 import { debounce } from '@/utils/Helper';
 import { prettyPrint } from '@/utils/PrettyPrint';
@@ -22,7 +21,7 @@ export default defineComponent({
   props: {
     modelValue: String
   },
-  emits: ['update:modelValue', 'hasSyntaxError'],
+  emits: ['update:modelValue', 'setSyntaxError', 'resetSyntaxError'],
   setup(props, context) {
     let editor = null;
     let syntaxError = ref(null);
@@ -141,10 +140,10 @@ export default defineComponent({
         if (validationResult.from > 0 && validationResult.to > 0 && validationResult.to > validationResult.from)
           editor.dispatch({effects: [addUnderline.of({ from: validationResult.from, to: validationResult.to })]});
         syntaxError.value = validationResult.message;
-        context.emit('hasSyntaxError', true, validationResult.message);
+        context.emit('setSyntaxError', validationResult.message);
       } else {
         syntaxError.value = null;
-        context.emit('hasSyntaxError', false);
+        context.emit('resetSyntaxError');
         const cursorPosition = editor.state.selection.main.head;
         editor.dispatch({ selection: {anchor: cursorPosition} })
       }

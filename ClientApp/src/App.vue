@@ -1,8 +1,5 @@
 <template>
   <div class="col-12">
-    <modal-panel v-model="showDownloadPanel">
-      <download-panel @close="showDownloadPanel = false" @download="download"></download-panel>
-    </modal-panel>
     <div class="d-flex justify-content-center align-items-center jumbotron" :class="page">
       <div class="vuecoon" :class="page">
         <img v-if="page === 'supporters' || page === 'notfound'" @click="showEditor()" class="img-fluid clickable" alt="Vuecoon" :src="require(`./assets/vuecoon_${vuecoonState}.webp`)">
@@ -36,7 +33,7 @@
     <transition name="fade">
       <not-found v-if="page === 'notfound'" @showEditor="showEditor()"></not-found>
     </transition>
-    <editor :config="config" :page="page" :loadedData="loadedData" @download="onDownloadClicked" @hasError="hasError" @setVuecoon="setVuecoon"  @success="setSuccessVuecoon"></editor>
+    <editor :config="config" :page="page" :loadedData="loadedData" @download="download" @generationFailed="setVuecoonErrorState" @generationSuccess="resetVuecoonState" @setVuecoon="setVuecoon"  @success="setSuccessVuecoon"></editor>
     <div class="col-12 d-flex align-items-center footer" :class="page">
       <p><a href="javascript:void(0)" @click="showSupporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a> | Send <a href="https://github.com/BootGen/VueStart/discussions/55" target="_blank">Feedback!</a></p>
     </div>
@@ -45,20 +42,17 @@
 
 <script>
 import { defineComponent, ref } from 'vue';
-import DownloadPanel from './components/DownloadPanel.vue'
-import Editor from './components/Editor.vue'
-import Supporters from './components/Supporters.vue'
-import NotFound from './components/NotFound.vue'
+import Editor from './components/Editor.vue';
+import Supporters from './components/Supporters.vue';
+import NotFound from './components/NotFound.vue';
 import axios from "axios";
 import {debounce} from "@/utils/Helper";
-import ModalPanel from "@/components/ModalPanel"
+import ModalPanel from "@/components/ModalPanel";
 
 export default defineComponent({
   name: 'LandingPage',
-  components: {ModalPanel, DownloadPanel, Editor, Supporters, NotFound },
+  components: { ModalPanel, Editor, Supporters, NotFound },
   setup() {
-    const showDownloadPanel = ref(false);
-    const downloaded = ref(false);
     const vuecoonStates = {
       Default: 'default',
       Error: 'error',
@@ -66,9 +60,14 @@ export default defineComponent({
       Success: 'success'
     };
     const vuecoonState = ref(vuecoonStates.Default);
-    let generatedId = '';
     const loadedData = ref({});
-
+    const page = ref('landing');
+    let config = {
+      headers: {
+        'idtoken': idtoken,
+        'citation': document.referrer
+      }
+    }
     let idtoken = localStorage.getItem('idtoken');
     if (!idtoken) {
       idtoken = ''
@@ -78,34 +77,30 @@ export default defineComponent({
       localStorage.setItem('idtoken', idtoken)
     }
 
-    let config = {
-      headers: {
-        'idtoken': idtoken,
-        'citation': document.referrer
-      }
+    window.addEventListener('popstate', setShowContentForUrl);
+    window.addEventListener('load', setShowContentForUrl);
+
+    function setVuecoonErrorState() {
+      vuecoonState.value = vuecoonStates.Error;
     }
 
-    let downloadUrl = "";
-    let downloadedFileName = "";
-    function hasError(value) {
-      if(value) {
-        vuecoonState.value = vuecoonStates.Error;
-      } else {
-        if (vuecoonState.value !== vuecoonStates.Success)
-          vuecoonState.value = vuecoonStates.Default;
-      }
+    function resetVuecoonState() {
+      if (vuecoonState.value !== vuecoonStates.Success)
+        setDefaultVuecoonState();
     }
 
-    let debounceResetVuecoon = debounce(resetVuecoon, 2000);
     function setSuccessVuecoon(){
+      let debounceResetVuecoon = debounce(setDefaultVuecoonState, 2000);
       vuecoonState.value = vuecoonStates.Success;
       debounceResetVuecoon();
     }
-    function resetVuecoon (){
+
+    function setDefaultVuecoonState (){
       vuecoonState.value = vuecoonStates.Default;
     }
 
     async function setShowContentForUrl(){
+      console.log('setShowContentForUrl')
       let pathname = window.location.pathname;
       if (pathname === '/supporters')
         page.value = 'supporters';
@@ -113,65 +108,64 @@ export default defineComponent({
         page.value = 'landing';
       else if (pathname === '/editor')
         page.value = 'content';
-      else if (pathname.match(/^-?\d+$/)){
+      else if (pathname.match(/^\/-?\d+$/)){
         try {
-          let resp = await axios.get(`api/share${pathname}`);
-          if(resp.data) {
-            page.value = 'content';
-            loadedData.value = resp.data;
-          }
-        } catch (e) {
-          page.value = 'notfound';
-          loadedData.value = null;
+          tryLoadData(pathname);
+        } catch {
+          catchLoadData();
         }
       } else {
         window.location.pathname = '/editor';
       }
     }
-    window.addEventListener('popstate', setShowContentForUrl);
-    window.addEventListener('load', setShowContentForUrl);
-    const page = ref('landing');
+
+    async function tryLoadData(pathname){
+      let resp = await axios.get(`api/share${pathname}`);
+      if(resp.status == 200) {
+        page.value = 'content';
+        loadedData.value = resp.data.generateRequest;
+      }
+    }
+
+    function catchLoadData() {
+      page.value = 'notfound';
+      loadedData.value = null;
+    }
+
     function openGithub (){
       window.open("https://github.com/BootGen/VueStart");
     }
+
     function showSupporters (){
       window.scrollTo(0, 0);
       page.value = 'supporters';
       history.pushState({}, '', 'supporters');
     }
+
     function showEditor(){
       window.scrollTo(0, 0);
       page.value = 'content';
       history.pushState({}, '', 'editor');
     }
 
-    async function download() {
-      const response = await axios.post(downloadUrl, JSON.parse(localStorage.getItem(generatedId)), {responseType: 'blob', ...config});
+    async function download(fileName, generateSettings, json) {
+      const response = await axios.post('api/download', { settings: generateSettings, data: JSON.parse(json) }, {responseType: 'blob', ...config});
       const fileURL = window.URL.createObjectURL(new Blob([response.data]));
       const fileLink = document.createElement('a');
       fileLink.href = fileURL;
       fileLink.target = '_blank';
-      fileLink.setAttribute('download', downloadedFileName);
+      fileLink.setAttribute('download', fileName);
       document.body.appendChild(fileLink);
       fileLink.click();
-      showDownloadPanel.value = false;
-    }
-
-    function onDownloadClicked(url, fileName, id) {
-      downloadUrl = url;
-      downloadedFileName = fileName;
-      showDownloadPanel.value = true;
-      downloaded.value = true;
-      generatedId = id;
     }
 
     function setVuecoon(state) {
       vuecoonState.value = state;
     }
 
-    return { page, showDownloadPanel, openGithub, showEditor, vuecoonState,
-      config, download, onDownloadClicked,
-      hasError, setSuccessVuecoon, setVuecoon, showSupporters, loadedData }
+    return { page, openGithub, showEditor, vuecoonState,
+      config, download,
+      setVuecoonErrorState, resetVuecoonState, setSuccessVuecoon, setVuecoon, showSupporters, loadedData }
   }
 });
 

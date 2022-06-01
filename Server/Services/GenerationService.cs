@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
-using BootGen;
+using BootGen.Core;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -18,20 +18,22 @@ public class GenerationService
     {
         this.memoryCache = memoryCache;
     }
-    public string Generate(JsonElement json, string title, string templateFileName, string type, string color, string generatedId, bool forDownload, out string appjs, out string indexhtml, bool isAdmin = false)
+    public string Generate(GenerateRequest request, string title, string generatedId, bool forDownload, out string appjs, out string indexhtml, bool isAdmin = false)
     {
-        var generator = new VueStartGenerator(json, memoryCache);
-        Generate(json, title, templateFileName, type, color, generatedId, forDownload, out appjs, out indexhtml, generator, isAdmin);
+        var generator = new VueStartGenerator(request, memoryCache);
+        Generate(request, title, generatedId, forDownload, out appjs, out indexhtml, generator, isAdmin);
         return generator.Id;
     }
 
-    private static void Generate(JsonElement json, string title, string templateFileName, string type, string color, string generatedId, bool forDownload, out string appjs, out string indexhtml, VueStartGenerator generator, bool isAdmin = false)
+    private static void Generate(GenerateRequest request, string title, string generatedId, bool forDownload, out string appjs, out string indexhtml, VueStartGenerator generator, bool isAdmin = false)
     {
+        string layout = request.Settings.IsReadonly ? "table" : "table-editable";
+        string templateFileName = $"{request.Settings.Frontend}-{layout}.sbn";
         var jsParameters = new Dictionary<string, object> {
                 {"classes", generator.DataModel.CommonClasses}
             };
         if (forDownload)
-            jsParameters.Add("input", json.ToString());
+            jsParameters.Add("input", request.Data.ToString());
         else
             jsParameters.Add("generated_id", $"{generatedId}");
 
@@ -44,8 +46,8 @@ public class GenerationService
         else if (!forDownload) {
             indexParameters.Add("base_url", $"/api/files/{generator.Id}/");
         }
-        indexParameters.Add("color", color);
-        if (Brightness(ColorTranslator.FromHtml($"#{color}")) > 170)
+        indexParameters.Add("color", request.Settings.Color);
+        if (Brightness(ColorTranslator.FromHtml($"#{request.Settings.Color}")) > 170)
         {
             indexParameters.Add("text_color", "2c3e50");
         }
@@ -53,7 +55,8 @@ public class GenerationService
         {
             indexParameters.Add("text_color", "ffffff");
         }
-        indexhtml = generator.Render($"{type}-index.sbn", indexParameters);
+        indexParameters.Add("is_readonly", request.Settings.IsReadonly);
+        indexhtml = generator.Render($"{request.Settings.Frontend}-index.sbn", indexParameters);
     }
 
     private static int Brightness(Color c)
@@ -93,16 +96,18 @@ public class GenerationService
         return json;
     }
 
-    public string GenerateToCache(JsonElement json, string title, string templateFileName, string type, string color, out List<string> warnings)
-    {
-        var generator = new VueStartGenerator(json, memoryCache);
-        Generate(json, title, templateFileName, type, color, generator.Id, false, out var appjs, out var indexhtml, generator);
+    public GenerationResult GenerateToCache(GenerateRequest request, string title)
+    { 
+        var generator = new VueStartGenerator(request, memoryCache);
+        Generate(request, title, generator.Id, false, out var appjs, out var indexhtml, generator);
         memoryCache.Set($"{generator.Id}/app.js", Minify(appjs), TimeSpan.FromMinutes(30));
         memoryCache.Set($"{generator.Id}/index.html", Minify(indexhtml), TimeSpan.FromMinutes(30));
-        Generate(json, title, templateFileName, type, color, generator.Id, true, out var pAppjs, out var pIndexhtml, generator);
+        Generate(request, title, generator.Id, true, out var pAppjs, out var pIndexhtml, generator);
         memoryCache.Set($"{generator.Id}/app.js_display", pAppjs, TimeSpan.FromMinutes(30));
         memoryCache.Set($"{generator.Id}/index.html_display", pIndexhtml, TimeSpan.FromMinutes(30));
-        warnings = new List<string>();
+        var result = new GenerationResult {
+            Warnings = new List<string>()
+        };
         var warningData = generator.DataModel.Warnings;
         foreach (var key in warningData.Keys) {
             switch (key) {
@@ -110,41 +115,43 @@ public class GenerationService
                 {
                     HashSet<string> names = warningData[WarningType.EmptyType];
                     if (names.Count == 1)
-                        warnings.Add($"Empty types are not supported, and are omitted. The type \"{names.First()}\" has no properties.");
+                        result.Warnings.Add($"Empty types are not supported, and are omitted. The type \"{names.First()}\" has no properties.");
                     else
-                        warnings.Add("Empty types are not supported, and are omitted. The following types have no properties: " + names.Aggregate((a, b) => $"{a}, {b}"));
+                        result.Warnings.Add("Empty types are not supported, and are omitted. The following types have no properties: " + names.Aggregate((a, b) => $"{a}, {b}"));
                 }
                 break;
                 case WarningType.NestedArray:
                 {
                     HashSet<string> names = warningData[WarningType.NestedArray];
                     if (names.Count == 1)
-                        warnings.Add($"Nested arrays are not supported. The property \"{names.First()}\" is omitted.");
+                        result.Warnings.Add($"Nested arrays are not supported. The property \"{names.First()}\" is omitted.");
                     else
-                        warnings.Add("Nested arrays are not supported. The following properties are omitted: " + names.Aggregate((a, b) => $"{a}, {b}"));
+                        result.Warnings.Add("Nested arrays are not supported. The following properties are omitted: " + names.Aggregate((a, b) => $"{a}, {b}"));
                 }
                 break;
                 case WarningType.PrimitiveArrayElement:
                 {
                     HashSet<string> names = warningData[WarningType.PrimitiveArrayElement];
                     if (names.Count == 1)
-                        warnings.Add($"Arrays with primitive elements are not supported. The property \"{names.First()}\" is omitted.");
+                        result.Warnings.Add($"Arrays with primitive elements are not supported. The property \"{names.First()}\" is omitted.");
                     else
-                        warnings.Add("Arrays with primitive elements are not supported. The following properties are omitted: " + names.Aggregate((a, b) => $"{a}, {b}"));
+                        result.Warnings.Add("Arrays with primitive elements are not supported. The following properties are omitted: " + names.Aggregate((a, b) => $"{a}, {b}"));
                 }
                 break;
                 case WarningType.PrimitiveRoot:
                 {
                     HashSet<string> names = warningData[WarningType.PrimitiveRoot];
                     if (names.Count == 1)
-                        warnings.Add($"Root elements must be arrays or objects. The property \"{names.First()}\" is omitted.");
+                        result.Warnings.Add($"Root elements must be arrays or objects. The property \"{names.First()}\" is omitted.");
                     else
-                        warnings.Add("Root elements must be arrays or objects. The following properties are omitted: " + names.Aggregate((a, b) => $"{a}, {b}"));
+                        result.Warnings.Add("Root elements must be arrays or objects. The following properties are omitted: " + names.Aggregate((a, b) => $"{a}, {b}"));
                 }
                 break;
             }
         }
-        return generator.Id;
+        result.Id = generator.Id;
+        result.Settings = generator.DataModel.GetSettings().Select(ClassSettings.FromBootGenClassSettings).ToList();
+        return result;
     }
 
     private string Minify(string value)
@@ -165,6 +172,14 @@ public class GenerationService
 #endif
     }
 }
+
+public class GenerationResult 
+{
+    public string Id { get; set; }
+    public List<string> Warnings { get; set; }
+    public List<ClassSettings> Settings { get; set; }
+}
+
 struct TemplateCacheKey
 {
     public string Path { get; init; }
@@ -177,23 +192,19 @@ class VueStartGenerator
     private readonly TypeScriptGenerator generator;
 
     private IMemoryCache memoryCache;
-    public VueStartGenerator(JsonElement json, IMemoryCache memoryCache)
+    public VueStartGenerator(GenerateRequest request, IMemoryCache memoryCache)
     {
-        ClassModel.IdName = "$ID$";
         this.memoryCache = memoryCache;
         DataModel = new DataModel
         {
-            TypeToString = TypeScriptGenerator.ToTypeScriptType
+            TypeToString = TypeScriptGenerator.ToTypeScriptType,
+            GenerateIds = false
         };
-        var jObject = JsonConvert.DeserializeObject<JObject>(json.ToString(), new JsonSerializerSettings
+        var jObject = JsonConvert.DeserializeObject<JObject>(request.Data.ToString(), new JsonSerializerSettings
         {
             DateFormatString = "yyyy-MM-ddTHH:mm",
         });
-        DataModel.LoadRootObject("App", jObject);
-        var collection = new ResourceCollection(DataModel);
-        var seedStore = new SeedDataStore(collection);
-        seedStore.Load(jObject);
-
+        DataModel.LoadRootObject("App", jObject, request.Settings.ClassSettings.Select(s => s.ToBootGenClassSettings()).ToList());
         Id = Guid.NewGuid().ToString();
         generator = new TypeScriptGenerator(null);
         generator.Templates = Load("templates");

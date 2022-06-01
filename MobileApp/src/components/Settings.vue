@@ -10,19 +10,19 @@
       <h5>Frontend mode</h5>
       <div class="row px-3">
         <div class="col-4 form-check">
-          <input class="form-check-input" type="radio" name="vanilla" id="vanilla" :checked="newFrontend === 'vanilla'" @click="newFrontend = 'vanilla'">
+          <input class="form-check-input" type="radio" name="vanilla" id="vanilla" :checked="editedSettings.frontend === 'vanilla'" @click="editedSettings.frontend = 'vanilla'">
           <label class="form-check-label" for="vanilla">
             Vanilla
           </label>
         </div>
         <div class="col-4 form-check">
-          <input class="form-check-input" type="radio" name="bootstrap" id="bootstrap" :checked="newFrontend === 'bootstrap'" @click="newFrontend = 'bootstrap'">
+          <input class="form-check-input" type="radio" name="bootstrap" id="bootstrap" :checked="editedSettings.frontend === 'bootstrap'" @click="editedSettings.frontend = 'bootstrap'">
           <label class="form-check-label" for="bootstrap">
             Bootstrap
           </label>
         </div>
         <div class="col-4 form-check">
-          <input class="form-check-input" type="radio" name="tailwind" id="tailwind" :checked="newFrontend === 'tailwind'" @click="newFrontend = 'tailwind'">
+          <input class="form-check-input" type="radio" name="tailwind" id="tailwind" :checked="editedSettings.frontend === 'tailwind'" @click="editedSettings.frontend = 'tailwind'">
           <label class="form-check-label" for="tailwind">
             Tailwind
           </label>
@@ -32,13 +32,13 @@
       <h5>Editable</h5>
       <div class="row px-3">
         <div class="col-4 form-check">
-          <input class="form-check-input" type="radio" name="editable" id="editable" :checked="newEditable" @click="newEditable = true">
+          <input class="form-check-input" type="radio" name="editable" id="editable" :checked="!editedSettings.isReadonly" @click="editedSettings.isReadonly = fale">
           <label class="form-check-label" for="editable">
             Editable
           </label>
         </div>
         <div class="col-4 form-check">
-          <input class="form-check-input" type="radio" name="read-only" id="read-only" :checked="!newEditable" @click="newEditable = false">
+          <input class="form-check-input" type="radio" name="read-only" id="read-only" :checked="editedSettings.isReadonly" @click="editedSettings.isReadonly = true">
           <label class="form-check-label" for="read-only">
             Read-only
           </label>
@@ -47,8 +47,8 @@
       <hr>
       <h5>Theme color</h5>
       <div class="d-flex align-items-center pb-4">
-        <input type="color" class="form-control form-control-color" id="colorInput" v-model="newColor" title="Choose your color"  @click="triggerColorPicker">
-        <p class="m-0 px-2">{{ newColor }}</p>
+        <input type="color" class="form-control form-control-color" id="colorInput" v-model="color" title="Choose your color"  @click="triggerColorPicker">
+        <p class="m-0 px-2">{{ color }}</p>
       </div>
     </div>
   </div>
@@ -61,32 +61,27 @@ import { defineComponent, ref, watch } from 'vue';
 export default defineComponent({
   name: "Settings",
   props: {
-    frontendMode: String,
-    editable: Boolean,
-    color: String
+    generateSettings: Object
   },
   emits: ['save'],
   setup(props, context) {
-    const newFrontend = ref(props.frontendMode);
-    const newEditable = ref(props.editable);
-    const newColor = ref(props.color);
+    const editedSettings = ref(props.generateSettings);
     const showSetting = ref(false);
+    const color = ref('#' + editedSettings.value.color);
     
-    watch(() => [props.frontendMode, props.editable, props.color], () => {
-      newFrontend.value = props.frontendMode;
-      newEditable.value = props.editable;
-      newColor.value = props.color;
+    watch(() => [props.generateSettings.frontend, props.generateSettings.isReadonly, props.generateSettings.color], () => {
+      editedSettings.value = props.generateSettings;
+      color.value = '#' + editedSettings.value.color;
     });
     function triggerColorPicker() {
       document.getElementById("colorInput").click();
     }
     function openSettings(){
       showSetting.value = true;
-      context.emit('save', newFrontend.value, newEditable.value, newColor.value);
     }
     function closeSettings(){
       showSetting.value = false;
-      context.emit('save', newFrontend.value, newEditable.value, newColor.value);
+      context.emit('save', { ...editedSettings.value, color: color.value.substr(1) });
     }
     function toggleSettings() {
       if (showSetting.value)
@@ -94,7 +89,7 @@ export default defineComponent({
       else
         openSettings();
     }
-    return { newFrontend, newEditable, newColor, showSetting, triggerColorPicker, toggleSettings, closeSettings }
+    return { editedSettings, color, showSetting, triggerColorPicker, toggleSettings, closeSettings }
   }  
 })
 </script>

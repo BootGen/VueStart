@@ -65,7 +65,7 @@
         box-shadow: 0 0 3px 0 #{{ color }};
         border-color: #{{ color }};
       }
-      {{~ if title == 'Data Table-editable' ~}}
+      {{~ if !is_readonly ~}}
       .active-row {
         background-color:#{{ color }}33;
       }

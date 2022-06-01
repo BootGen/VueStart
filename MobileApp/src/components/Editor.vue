@@ -1,5 +1,5 @@
 <template>
-  <settings :frontendMode="frontendMode" :editable="editable" :color="selectedColor" @save="saveSettings"></settings>
+  <settings :generateSettings="generateSettings" @save="saveSettings"></settings>
   <div class="custom-card shadow mt-4">
     <code-mirror v-model="json" :error="inputError" :isFixable="isFixable" @fixData="fixData" @hasSyntaxError="$emit('hasError', $event)"></code-mirror>
   </div>
@@ -11,7 +11,7 @@
       </div>
     </div>
   </div>
-  <browser-options :selected="selectedTab" :frontendMode="frontendMode" @select="selectTab"></browser-options>
+  <browser-options :selected="selectedTab" :frontendMode="generateSettings.frontend" @select="selectTab"></browser-options>
   <div class="browser custom-card shadow mt-2">
     <browser-frame v-model="browserData"></browser-frame>
   </div>
@@ -35,12 +35,15 @@ export default defineComponent({
     const inputError = ref(null);
     const isFixable = ref(false);
     const json = ref('');
-    const frontendMode = ref('vanilla');
-    const editable = ref(false);
-    const selectedColor = ref('#42b983');
     const selectedTab = ref(0);
     const browserData = ref({ page_url: '', source_url: '' });
     let generatedId = '';
+    const generateSettings = ref({
+      frontend: 'vanilla',
+      isReadonly: true,
+      color: '42b983',
+      classSettings: []
+    });
     
     watch(() => [props.loadedData], () => {
       if(window.location.pathname !== '/') {
@@ -50,10 +53,8 @@ export default defineComponent({
 
     async function loadSharedLink(){
       if(props.loadedData) {
-        json.value = JSON.stringify(props.loadedData.json);
-        frontendMode.value = props.loadedData.frontendType;
-        editable.value = props.loadedData.editable;
-        selectedColor.value = '#' + props.loadedData.color;
+        generateSettings.value = {...props.loadedData.settings}
+        json.value = JSON.stringify(props.loadedData.data);
         generate(json.value);
       }
     }
@@ -75,22 +76,21 @@ export default defineComponent({
     }
     async function generate(data) {
       try {
-        const resp = ref(null);
-        if(editable.value) {
-          resp.value = await axios.post(`api/generate/${frontendMode.value}/table-editable/${selectedColor.value.slice(1, 7)}`, JSON.parse(data), props.config);
-        } else {
-          resp.value = await axios.post(`api/generate/${frontendMode.value}/table/${selectedColor.value.slice(1, 7)}`, JSON.parse(data), props.config);
+        const request = {
+          settings: generateSettings.value,
+          data: JSON.parse(data)
         }
+        let resp = await axios.post('api/generate', request, props.config);
         localStorage.removeItem(generatedId);
-        generatedId = resp.value.data.id;
+        generatedId = resp.data.id;
         saveToLocalStorage(data);
         if (selectedTab.value === 0) {
           browserData.value = {
-            page_url: `api/files/${resp.value.data.id}/index.html`
+            page_url: `api/files/${resp.data.id}/index.html`
           };
         } else {
           browserData.value = {
-            source_url: `api/files/${resp.value.data.id}/app.js?display=true`
+            source_url: `api/files/${resp.data.id}/app.js?display=true`
           };
         }
         inputError.value = null;
@@ -144,26 +144,14 @@ export default defineComponent({
       }
     }
 
-    function saveSettings(f, e, c) {
-      let gen = false;
-      if(frontendMode.value !== f){
-        frontendMode.value = f;
-        gen = true;
-      }
-      if(editable.value !== e){
-        editable.value = e;
-        gen = true;
-      }
-      if(selectedColor.value !== c){
-        selectedColor.value = c;
-        gen = true;
-      }
-      if(gen) {
+    function saveSettings(settings) {
+      if(generateSettings.value !== settings){
+        generateSettings.value = settings;
         generate(json.value);
       }
     }
 
-    return { json, inputError, frontendMode, editable, selectedColor,
+    return { json, inputError, generateSettings,
       fixData, isFixable, generate, selectedTab, selectTab, browserData,
       saveSettings }
   },

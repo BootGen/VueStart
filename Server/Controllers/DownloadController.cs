@@ -28,18 +28,16 @@ namespace VueStart.Controllers
         }
 
         [HttpPost]
-        [Route("{type}/{layout}/{color}")]
-        public IActionResult DownloadEditor([FromBody] JsonElement json, string type, string layout, string color)
+        public IActionResult DownloadEditor([FromBody] GenerateRequest request)
         {
+            var layout = request.Settings.IsReadonly;
+            var json = request.Data;
             try {
-                var artifactType = layout.ToArtifactType();
-                if (artifactType == ArtifactType.None)
+                var frontend = request.Settings.Frontend.ToFrontendType();
+                if (frontend == Frontend.None)
                     return NotFound();
-                var cssType = type.ToCssType();
-                if (cssType == CssType.None)
-                    return NotFound();
-                statisticsService.OnEvent(Request.HttpContext, json, ActionType.Download, artifactType, cssType);
-                var memoryStream = CreateZipStream(json, $"Data {ToUpperFirst(layout)}", $"{type}-{layout}.sbn", type, color);
+                statisticsService.OnEvent(Request.HttpContext, request, ActionType.Download);
+                var memoryStream = CreateZipStream(request, "DataTable");
                 statisticsService.OnDownloadEnd();
                 return File(memoryStream, "application/zip", $"{layout}.zip");
             } catch (FormatException e) {
@@ -47,10 +45,10 @@ namespace VueStart.Controllers
             }
         }
 
-        private MemoryStream CreateZipStream(JsonElement json, string title, string templateFileName, string type, string color)
+        private MemoryStream CreateZipStream(GenerateRequest request, string title)
         {
             var memoryStream = new MemoryStream();
-            generateService.Generate(json, title, templateFileName, type, color, "", true, out string appjs, out string indexhtml);
+            generateService.Generate(request, title, "", true, out string appjs, out string indexhtml);
             using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
             {
                 AddEntry(archive, appjs, "app.js");

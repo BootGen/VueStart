@@ -7,7 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System.IO.Compression;
 using VueStart.Services;
 using VueStart.Data;
-using BootGen;
+using BootGen.Core;
 
 namespace VueStart.Controllers
 {
@@ -25,30 +25,23 @@ namespace VueStart.Controllers
         }
 
         [HttpPost]
-        [Route("{type}/{layout}/{color}")]
-        public IActionResult Generate([FromBody] JsonElement json, string type, string layout, string color)
+        public IActionResult Generate([FromBody] GenerateRequest request)
         {
-            var artifactType = layout.ToArtifactType();
-            if (artifactType == ArtifactType.None)
-                return NotFound();
-            var cssType = type.ToCssType();
-            if (cssType == CssType.None)
-                return NotFound();
-            if (json.ValueKind != JsonValueKind.Object) {
-                statisticsService.OnEvent(Request.HttpContext, json, ActionType.Generate, artifactType, cssType, true);
+            if (request.Data.ValueKind != JsonValueKind.Object) {
+                statisticsService.OnEvent(Request.HttpContext, request, ActionType.Generate, true);
                 return BadRequest(new { error = "The root element must be an object!", fixable = true });
             }
-            foreach (var property in json.EnumerateObject()) {
+            foreach (var property in request.Data.EnumerateObject()) {
                 if (property.Value.ValueKind != JsonValueKind.Object && property.Value.ValueKind != JsonValueKind.Array) {
-                    statisticsService.OnEvent(Request.HttpContext, json, ActionType.Generate, artifactType, cssType, true);
+                    statisticsService.OnEvent(Request.HttpContext, request, ActionType.Generate, true);
                     return BadRequest(new { error = "Properties of the root element must be an objects or arrays!", fixable = false });
                 }
             }
             try {
-                statisticsService.OnEvent(Request.HttpContext, json, ActionType.Generate, artifactType, cssType);
-                string artifactId = generationService.GenerateToCache(json, $"Data {ToUpperFirst(layout)}", $"{type}-{layout}.sbn", type, color, out var warnings);
+                statisticsService.OnEvent(Request.HttpContext, request, ActionType.Generate);
+                var result = generationService.GenerateToCache(request, "DataTable");
                 statisticsService.OnGenerateEnd();
-                return Ok(new { Id = artifactId, Warnings = warnings });
+                return Ok(result);
             } catch (FormatException e) {
                 return BadRequest(new { error = e.Message, fixable = false });
             } catch (NamingException e) {

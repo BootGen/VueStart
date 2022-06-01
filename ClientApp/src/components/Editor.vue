@@ -1,6 +1,6 @@
 <template>
   <modal-panel v-model="showSettingsPanel">
-    <browser-settings :frontendMode="frontendMode" :editable="editable" :color="selectedColor" @cancel="showSettingsPanel = false" @save="saveBrowserSettings"></browser-settings>
+    <generate-settings v-model="generateSettings" @cancel="showSettingsPanel = false" @save="saveSettings"></generate-settings>
   </modal-panel>
   <modal-panel v-model="showWarningPanel">
     <div class="alert alert-warning show px-3 py-3 my-0" role="alert">
@@ -12,7 +12,7 @@
     </div>
   </modal-panel>
   <div class="codemirror custom-card" :class="page">
-    <code-mirror v-model="json" @hasSyntaxError="syntaxError" class="codemirror-content" :class="{'h90': alert.shown, 'h100': !alert.shown}"></code-mirror>
+    <code-mirror v-model="json" @setSyntaxError="setSyntaxError" @resetSyntaxError="resetSyntaxError" class="codemirror-content" :class="{'h90': alert.shown, 'h100': !alert.shown}"></code-mirror>
     <div class="d-flex codemirror-buttons" :class="[page, {'isalert': alert.shown}]">
       <div class="fab-container mx-1">
         <div class="fab fab-icon-holder">
@@ -47,7 +47,7 @@
       <div class="browser custom-card shadow">
         <browser-frame v-model="browserData" :config="config" :undoable="undoStackIdx > 0" :redoable="undoStackIdx < undoStack.length-1"  @refresh="pageRefresh" @undo="undo" @redo="redo" :borderRadius="selectedTab === 0">
           <div class="d-flex w-100 h-auto">
-            <tab :title="frontendMode" :img="selectedTab === 0 ? frontendMode + '_green' : frontendMode + '_white'" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
+            <tab :title="generateSettings.frontend" :img="selectedTab === 0 ? generateSettings.frontend + '_green' : generateSettings.frontend + '_white'" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
             <tab title="index.html" icon="code" :class="{'active': selectedTab === 1, 'inactive': selectedTab !== 1, 'border-bottom-left': selectedTab === 0, 'border-bottom-right': selectedTab === 2}" @select="selectedTab = 1"></tab>
             <tab title="app.js" icon="code" :class="{'active': selectedTab === 2, 'inactive': selectedTab !== 2, 'border-bottom-left': selectedTab === 1}" @select="selectedTab = 2"></tab>
             <tab class="inactive" :class="{'border-bottom-left': selectedTab === 2}"></tab>
@@ -66,16 +66,16 @@
         </div>
         <div id="download-btn" class="fab fab-icon-holder pulse-download-btn mx-1" @click="onDownloadClicked">
           <span class="bi bi-download" aria-hidden="true"></span>
-            <span class="ps-2">Download</span>
+            <span class="ps-2">Download Code</span>
         </div>
       </div>
     </div>
 </template>
 <script>
-import {defineComponent, ref, watch} from 'vue';
+import {defineComponent, reactive, ref, watch} from 'vue';
 import CodeMirror from './CodeMirror.vue';
 import BrowserFrame from './BrowserFrame.vue'
-import BrowserSettings from './BrowserSettings.vue'
+import GenerateSettings from './GenerateSettings.vue'
 import Tab from "@/components/Tab";
 import axios from "axios";
 import {getSchema} from "@/utils/Schema";
@@ -85,24 +85,28 @@ import Tip from '@/utils/Tip'
 import ModalPanel from "@/components/ModalPanel";
 
 export default defineComponent({
-  components: { CodeMirror, BrowserFrame, Tab, ModalPanel, BrowserSettings },
+  components: { CodeMirror, BrowserFrame, Tab, ModalPanel, GenerateSettings },
   props: {
     page: String,
     config: Object,
     loadedData: Object
   },
-  emits: ['download', 'hasError', 'setVuecoon', 'success'],
+  emits: ['download', 'generationFailed', 'generationSuccess', 'setVuecoon', 'success'],
   setup(props, context) {
     const showSettingsPanel = ref(false);
+    const generateSettings = ref({
+      frontend: 'vanilla',
+      isReadonly: false,
+      color: '42b983',
+      classSettings: []
+    });
     const inputError = ref(null);
     const json = ref('');
     let sharedJson = '';
     let sharedLink = '';
     const jsonSchema = ref(getSchema({}));
     const selectedTab = ref(0);
-    const editable = ref(true);
     const browserData = ref({ page_url: '', source_url: '' });
-    const syntaxErr = ref(false);
     const showWarningPanel = ref(false);
     const warnings = ref([]);
     const undoStack = ref([]);
@@ -153,8 +157,6 @@ export default defineComponent({
       }
     }
     watch(selectedTab, seturl);
-    const frontendMode = ref('vanilla');
-    const selectedColor = ref('#42b983');
 
     window.addEventListener('storage', () => {
       const item = localStorage.getItem(generatedId);
@@ -219,61 +221,72 @@ export default defineComponent({
 
     async function generate(data) {
       try {
-        const resp = ref(null);
-        if(editable.value) {
-          resp.value = await axios.post(`api/generate/${frontendMode.value}/table-editable/${selectedColor.value.slice(1, 7)}`, JSON.parse(data), props.config);
-        } else {
-          resp.value = await axios.post(`api/generate/${frontendMode.value}/table/${selectedColor.value.slice(1, 7)}`, JSON.parse(data), props.config);
-        }
-        localStorage.removeItem(generatedId);
-        generatedId = resp.value.data.id;
-        saveToLocalStorage(data);
-        seturl();
-        jsonSchema.value = getSchema(JSON.parse(data));
-        inputError.value = null;
-        if (resp.value.data.warnings && resp.value.data.warnings.length > 0) {
-          warnings.value = resp.value.data.warnings;
-          alert.value = {
-            shown: true,
-            class: 'alert-warning',
-            message: 'Generation succeeded with ',
-            action: {
-              target: '_self',
-              active: true,
-              href: 'javascript:void(0)',
-              message: 'warnings.',
-              callback() {
-                showWarningPanel.value = true;
-              }
-            }
-          }
-        } else {
-          warnings.value = [];
-          if (!showTip()) {
-            alert.value = noAlert;
-          }
-        }
-        context.emit('hasError', false);
+        tryGenerate(data);
       } catch (e) {
-        const response = e.response;
-        if (response) {
-          alert.value = {
-            shown: true,
-            class: 'alert-danger',
-            message: response.data.error,
-            action: {
-              target: '_self',
-              active: !!response.data.fixable,
-              href: 'javascript:void(0)',
-              message: 'Fix it!',
-              callback: fixData
-            }
+        handleGenerationError(e.response);
+      }
+    }
+
+    async function tryGenerate(data) {
+      let resp = await axios.post(`api/generate`, { settings: generateSettings.value, data: JSON.parse(data) }, props.config);
+      generateSettings.value.classSettings = resp.data.settings;
+      localStorage.removeItem(generatedId);
+      generatedId = resp.data.id;
+      saveToLocalStorage(data);
+      seturl();
+      jsonSchema.value = getSchema(JSON.parse(data));
+      inputError.value = null;
+      if (resp.data.warnings && resp.data.warnings.length > 0) {
+        setWarnings(resp.data.warnings);
+      } else {
+        resetWarnings();
+      }
+      context.emit('generationSuccess');
+    }
+
+    function handleGenerationError(response) {
+      if (response) {
+        alert.value = {
+          shown: true,
+          class: 'alert-danger',
+          message: response.data.error,
+          action: {
+            target: '_self',
+            active: !!response.data.fixable,
+            href: 'javascript:void(0)',
+            message: 'Fix it!',
+            callback: fixData
           }
-          inputError.value = response.data.error;
-        } else {
-          console.error(e);
         }
-        context.emit('hasError', true);
+        inputError.value = response.data.error;
+      } else {
+        console.error(e);
+      }
+      context.emit('generationFailed');
+    }
+
+    function setWarnings(warnings) {
+      warnings.value = warnings;
+      alert.value = {
+        shown: true,
+        class: 'alert-warning',
+        message: 'Generation succeeded with ',
+        action: {
+          target: '_self',
+          active: true,
+          href: 'javascript:void(0)',
+          message: 'warnings.',
+          callback() {
+            showWarningPanel.value = true;
+          }
+        }
+      }
+    }
+
+    function resetWarnings() {
+      warnings.value = [];
+      if (!showTip()) {
+        alert.value = noAlert;
       }
     }
 
@@ -321,44 +334,50 @@ export default defineComponent({
       json.value = content;
       jsonSchema.value = getSchema(JSON.parse(json.value));
       generate(json.value);
-      function generateAndEmit(data) {
-        generate(data);
-        if (tip.generated())
-          context.emit('success');
-        showTip();
-        isGenerating = false
-      }
-      let debouncedGenerate = debounce(generateAndEmit, 1000);
       watch(json, () => {
         try {
-          if (validateJson(json.value).error)
-            return;
-          if(JSON.stringify(getSchema(JSON.parse(json.value))) !== JSON.stringify(jsonSchema.value)) {
-            isGenerating = true;
-            debouncedGenerate(json.value);
-          } else if(!isGenerating && generatedId !== '') {
-            saveToLocalStorage(json.value);
-            inputError.value = null;
-          }
+          trySaveJson();
         } catch (e) {
-          if (e.schemaError) {
-            inputError.value = e.schemaError;
-          } else {
-            console.log(e)
-          }
+          handleJsonSaveError(e);
         }
       })
     });
+
+    function trySaveJson() {
+      let debouncedGenerate = debounce(generateAndEmit, 1000);
+      if (validateJson(json.value).error)
+        return;
+      if(JSON.stringify(getSchema(JSON.parse(json.value))) !== JSON.stringify(jsonSchema.value)) {
+        isGenerating = true;
+        debouncedGenerate(json.value);
+      } else if(!isGenerating && generatedId !== '') {
+        saveToLocalStorage(json.value);
+        inputError.value = null;
+      }
+    }
+
+    function generateAndEmit(data) {
+      generate(data);
+      if (tip.generated())
+        context.emit('success');
+      showTip();
+      isGenerating = false
+    }
+
+    function handleJsonSaveError(e) {
+      if (e.schemaError) {
+        inputError.value = e.schemaError;
+      } else {
+        console.log(e)
+      }
+    }
+
     function onDownloadClicked() {
       if (tip.downloaded()) {
         context.emit('success');
         showGitHubCTA();
       }
-      if(editable.value) {
-        context.emit('download', `api/download/${frontendMode.value}/table-editable/${selectedColor.value.slice(1, 7)}`, `${frontendMode.value}.zip`, generatedId);
-      } else {
-        context.emit('download', `api/download/${frontendMode.value}/table/${selectedColor.value.slice(1, 7)}`, `${frontendMode.value}.zip`, generatedId);
-      }
+      context.emit('download', `${generateSettings.value.frontend}.zip`, generateSettings.value, json.value);
     }
     function refresh() {
       generate(json.value);
@@ -369,16 +388,15 @@ export default defineComponent({
       context.emit('setVuecoon', 'loading');
       debouncedRefresh();
     }
-    function syntaxError (hasError, message) {
-      syntaxErr.value = hasError;
-      if (hasError) {
-        showAlert(message, 'alert-danger');
-      } else {
-        if (!showTip()) {
-          alert.value = noAlert;
-        }
+    function setSyntaxError (message) {
+      showAlert(message, 'alert-danger');
+      context.emit('generationFailed');
+    }
+    function resetSyntaxError() {
+      context.emit('generationSuccess');
+      if (!showTip()) {
+        alert.value = noAlert;
       }
-      context.emit('hasError', hasError);
     }
     function undo() {
       if(undoStackIdx.value > 0) {
@@ -393,9 +411,13 @@ export default defineComponent({
       }
     }
     async function share() {
+      let request = {
+        settings: generateSettings.value,
+        data: JSON.parse(json.value)
+      }
       let shareableJson = JSON.stringify(json.value);
       if(shareableJson !== sharedJson) {
-        sharedLink = await axios.post(`api/share/${frontendMode.value}/${editable.value}/${selectedColor.value.slice(1, 7)}`, JSON.parse(json.value));
+        sharedLink = await axios.post('api/share', request);
         sharedJson = shareableJson;
       }
       navigator.clipboard.writeText(window.location.origin + '/' + sharedLink.data.hash);
@@ -405,37 +427,31 @@ export default defineComponent({
       }, 800);
     }
 
-    watch(() => [props.loadedData], () => {      
-      if(!window.location.pathname.includes('editor') && window.location.pathname !== '/') {
+    watch(() => [props.loadedData], () => { 
+      if(window.location.pathname !== '/' && window.location.pathname !== '/supporters' && window.location.pathname !== '/editor') {
         loadSharedLink();
       }
     });
     async function loadSharedLink(){
       if(props.loadedData) {
-        frontendMode.value = props.loadedData.frontendType;
-        editable.value = props.loadedData.editable;
-        selectedColor.value = '#' + props.loadedData.color;
-        json.value = JSON.stringify(props.loadedData.json);
+        generateSettings.value = {...props.loadedData.settings}
+        json.value = JSON.stringify(props.loadedData.data);
       }
     }
     function onSettingsClicked() {
       showSettingsPanel.value = true;
     }
-    function saveBrowserSettings(f, e, c) {
-      frontendMode.value = f;
-      selectedColor.value = c;
-      if(e.value !== editable) {
-        editable.value = e;
-        generate(json.value);
-      }
+
+    function saveSettings() {
       showSettingsPanel.value = false;
+      generate(json.value);
     }
 
-    return { json, inputError, frontendMode, selectedColor,
+    return { json, inputError,
       onDownloadClicked, pageRefresh,
-      selectedTab, browserData, loadTasksExample, loadOrdersExample, syntaxError,
-      alert, showWarningPanel, warnings, editable, undo, redo, undoStackIdx, undoStack, share, shareLinkOnClipboard,
-      showSettingsPanel, onSettingsClicked, saveBrowserSettings }
+      selectedTab, browserData, loadTasksExample, loadOrdersExample, setSyntaxError, resetSyntaxError,
+      alert, showWarningPanel, warnings, undo, redo, undoStackIdx, undoStack, share, shareLinkOnClipboard,
+      showSettingsPanel, onSettingsClicked, generateSettings, saveSettings }
   },
 })
 </script>
