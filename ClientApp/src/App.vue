@@ -33,7 +33,7 @@
     <transition name="fade">
       <not-found v-if="page === 'notfound'" @showEditor="showEditor()"></not-found>
     </transition>
-    <editor :config="config" :page="page" :loadedData="loadedData" @download="download" @setError="setError" @resetError="resetError" @setVuecoon="setVuecoon"  @success="setSuccessVuecoon"></editor>
+    <editor :config="config" :page="page" :loadedData="loadedData" @download="download" @generationFailed="setVuecoonErrorState" @generationSuccess="resetVuecoonState" @setVuecoon="setVuecoon"  @success="setSuccessVuecoon"></editor>
     <div class="col-12 d-flex align-items-center footer" :class="page">
       <p><a href="javascript:void(0)" @click="showSupporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a> | Send <a href="https://github.com/BootGen/VueStart/discussions/55" target="_blank">Feedback!</a></p>
     </div>
@@ -80,22 +80,22 @@ export default defineComponent({
     window.addEventListener('popstate', setShowContentForUrl);
     window.addEventListener('load', setShowContentForUrl);
 
-    function setError() {
+    function setVuecoonErrorState() {
       vuecoonState.value = vuecoonStates.Error;
     }
 
-    function resetError() {
+    function resetVuecoonState() {
       if (vuecoonState.value !== vuecoonStates.Success)
-        resetVuecoon();
+        setDefaultVuecoonState();
     }
 
     function setSuccessVuecoon(){
-      let debounceResetVuecoon = debounce(resetVuecoon, 2000);
+      let debounceResetVuecoon = debounce(setDefaultVuecoonState, 2000);
       vuecoonState.value = vuecoonStates.Success;
       debounceResetVuecoon();
     }
 
-    function resetVuecoon (){
+    function setDefaultVuecoonState (){
       vuecoonState.value = vuecoonStates.Default;
     }
 
@@ -165,7 +165,7 @@ export default defineComponent({
 
     return { page, openGithub, showEditor, vuecoonState,
       config, download,
-      setError, resetError, setSuccessVuecoon, setVuecoon, showSupporters, loadedData }
+      setVuecoonErrorState, resetVuecoonState, setSuccessVuecoon, setVuecoon, showSupporters, loadedData }
   }
 });
 

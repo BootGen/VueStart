@@ -91,7 +91,7 @@ export default defineComponent({
     config: Object,
     loadedData: Object
   },
-  emits: ['download', 'setError', 'resetError', 'setVuecoon', 'success'],
+  emits: ['download', 'generationFailed', 'generationSuccess', 'setVuecoon', 'success'],
   setup(props, context) {
     const showSettingsPanel = ref(false);
     const generateSettings = ref({
@@ -223,7 +223,7 @@ export default defineComponent({
       try {
         tryGenerate(data);
       } catch (e) {
-        catchGenerate(e.response);
+        handleGenerationError(e.response);
       }
     }
 
@@ -241,10 +241,10 @@ export default defineComponent({
       } else {
         resetWarnings();
       }
-      context.emit('resetError');
+      context.emit('generationSuccess');
     }
 
-    function catchGenerate(response) {
+    function handleGenerationError(response) {
       if (response) {
         alert.value = {
           shown: true,
@@ -262,7 +262,7 @@ export default defineComponent({
       } else {
         console.error(e);
       }
-      context.emit('setError');
+      context.emit('generationFailed');
     }
 
     function setWarnings(warnings) {
@@ -338,7 +338,7 @@ export default defineComponent({
         try {
           trySaveJson();
         } catch (e) {
-          catchSaveJson(e);
+          handleJsonSaveError(e);
         }
       })
     });
@@ -364,7 +364,7 @@ export default defineComponent({
       isGenerating = false
     }
 
-    function catchSaveJson(e) {
+    function handleJsonSaveError(e) {
       if (e.schemaError) {
         inputError.value = e.schemaError;
       } else {
@@ -390,10 +390,10 @@ export default defineComponent({
     }
     function setSyntaxError (message) {
       showAlert(message, 'alert-danger');
-      context.emit('setError');
+      context.emit('generationFailed');
     }
     function resetSyntaxError() {
-      context.emit('resetError');
+      context.emit('generationSuccess');
       if (!showTip()) {
         alert.value = noAlert;
       }
