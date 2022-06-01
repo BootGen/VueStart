@@ -12,7 +12,7 @@
     </div>
   </modal-panel>
   <div class="codemirror custom-card" :class="page">
-    <code-mirror v-model="json" @hasSyntaxError="syntaxError" class="codemirror-content" :class="{'h90': alert.shown, 'h100': !alert.shown}"></code-mirror>
+    <code-mirror v-model="json" @setSyntaxError="setSyntaxError" @resetSyntaxError="resetSyntaxError" class="codemirror-content" :class="{'h90': alert.shown, 'h100': !alert.shown}"></code-mirror>
     <div class="d-flex codemirror-buttons" :class="[page, {'isalert': alert.shown}]">
       <div class="fab-container mx-1">
         <div class="fab fab-icon-holder">
@@ -91,7 +91,7 @@ export default defineComponent({
     config: Object,
     loadedData: Object
   },
-  emits: ['download', 'hasError', 'setVuecoon', 'success'],
+  emits: ['download', 'generationFailed', 'generationSuccess', 'setVuecoon', 'success'],
   setup(props, context) {
     const showSettingsPanel = ref(false);
     const generateSettings = ref({
@@ -107,7 +107,6 @@ export default defineComponent({
     const jsonSchema = ref(getSchema({}));
     const selectedTab = ref(0);
     const browserData = ref({ page_url: '', source_url: '' });
-    const syntaxErr = ref(false);
     const showWarningPanel = ref(false);
     const warnings = ref([]);
     const undoStack = ref([]);
@@ -222,62 +221,72 @@ export default defineComponent({
 
     async function generate(data) {
       try {
-        const resp = ref(null);
-        const request = {
-          settings: generateSettings.value,
-          data: JSON.parse(data)
-        }
-        resp.value = await axios.post(`api/generate`, request, props.config);
-        generateSettings.value.classSettings = resp.value.data.settings;
-        localStorage.removeItem(generatedId);
-        generatedId = resp.value.data.id;
-        saveToLocalStorage(data);
-        seturl();
-        jsonSchema.value = getSchema(JSON.parse(data));
-        inputError.value = null;
-        if (resp.value.data.warnings && resp.value.data.warnings.length > 0) {
-          warnings.value = resp.value.data.warnings;
-          alert.value = {
-            shown: true,
-            class: 'alert-warning',
-            message: 'Generation succeeded with ',
-            action: {
-              target: '_self',
-              active: true,
-              href: 'javascript:void(0)',
-              message: 'warnings.',
-              callback() {
-                showWarningPanel.value = true;
-              }
-            }
-          }
-        } else {
-          warnings.value = [];
-          if (!showTip()) {
-            alert.value = noAlert;
-          }
-        }
-        context.emit('hasError', false);
+        tryGenerate(data);
       } catch (e) {
-        const response = e.response;
-        if (response) {
-          alert.value = {
-            shown: true,
-            class: 'alert-danger',
-            message: response.data.error,
-            action: {
-              target: '_self',
-              active: !!response.data.fixable,
-              href: 'javascript:void(0)',
-              message: 'Fix it!',
-              callback: fixData
-            }
+        handleGenerationError(e.response);
+      }
+    }
+
+    async function tryGenerate(data) {
+      let resp = await axios.post(`api/generate`, { settings: generateSettings.value, data: JSON.parse(data) }, props.config);
+      generateSettings.value.classSettings = resp.data.settings;
+      localStorage.removeItem(generatedId);
+      generatedId = resp.data.id;
+      saveToLocalStorage(data);
+      seturl();
+      jsonSchema.value = getSchema(JSON.parse(data));
+      inputError.value = null;
+      if (resp.data.warnings && resp.data.warnings.length > 0) {
+        setWarnings(resp.data.warnings);
+      } else {
+        resetWarnings();
+      }
+      context.emit('generationSuccess');
+    }
+
+    function handleGenerationError(response) {
+      if (response) {
+        alert.value = {
+          shown: true,
+          class: 'alert-danger',
+          message: response.data.error,
+          action: {
+            target: '_self',
+            active: !!response.data.fixable,
+            href: 'javascript:void(0)',
+            message: 'Fix it!',
+            callback: fixData
           }
-          inputError.value = response.data.error;
-        } else {
-          console.error(e);
         }
-        context.emit('hasError', true);
+        inputError.value = response.data.error;
+      } else {
+        console.error(e);
+      }
+      context.emit('generationFailed');
+    }
+
+    function setWarnings(warnings) {
+      warnings.value = warnings;
+      alert.value = {
+        shown: true,
+        class: 'alert-warning',
+        message: 'Generation succeeded with ',
+        action: {
+          target: '_self',
+          active: true,
+          href: 'javascript:void(0)',
+          message: 'warnings.',
+          callback() {
+            showWarningPanel.value = true;
+          }
+        }
+      }
+    }
+
+    function resetWarnings() {
+      warnings.value = [];
+      if (!showTip()) {
+        alert.value = noAlert;
       }
     }
 
@@ -325,34 +334,44 @@ export default defineComponent({
       json.value = content;
       jsonSchema.value = getSchema(JSON.parse(json.value));
       generate(json.value);
-      function generateAndEmit(data) {
-        generate(data);
-        if (tip.generated())
-          context.emit('success');
-        showTip();
-        isGenerating = false
-      }
-      let debouncedGenerate = debounce(generateAndEmit, 1000);
       watch(json, () => {
         try {
-          if (validateJson(json.value).error)
-            return;
-          if(JSON.stringify(getSchema(JSON.parse(json.value))) !== JSON.stringify(jsonSchema.value)) {
-            isGenerating = true;
-            debouncedGenerate(json.value);
-          } else if(!isGenerating && generatedId !== '') {
-            saveToLocalStorage(json.value);
-            inputError.value = null;
-          }
+          trySaveJson();
         } catch (e) {
-          if (e.schemaError) {
-            inputError.value = e.schemaError;
-          } else {
-            console.log(e)
-          }
+          handleJsonSaveError(e);
         }
       })
     });
+
+    function trySaveJson() {
+      let debouncedGenerate = debounce(generateAndEmit, 1000);
+      if (validateJson(json.value).error)
+        return;
+      if(JSON.stringify(getSchema(JSON.parse(json.value))) !== JSON.stringify(jsonSchema.value)) {
+        isGenerating = true;
+        debouncedGenerate(json.value);
+      } else if(!isGenerating && generatedId !== '') {
+        saveToLocalStorage(json.value);
+        inputError.value = null;
+      }
+    }
+
+    function generateAndEmit(data) {
+      generate(data);
+      if (tip.generated())
+        context.emit('success');
+      showTip();
+      isGenerating = false
+    }
+
+    function handleJsonSaveError(e) {
+      if (e.schemaError) {
+        inputError.value = e.schemaError;
+      } else {
+        console.log(e)
+      }
+    }
+
     function onDownloadClicked() {
       if (tip.downloaded()) {
         context.emit('success');
@@ -369,16 +388,15 @@ export default defineComponent({
       context.emit('setVuecoon', 'loading');
       debouncedRefresh();
     }
-    function syntaxError (hasError, message) {
-      syntaxErr.value = hasError;
-      if (hasError) {
-        showAlert(message, 'alert-danger');
-      } else {
-        if (!showTip()) {
-          alert.value = noAlert;
-        }
+    function setSyntaxError (message) {
+      showAlert(message, 'alert-danger');
+      context.emit('generationFailed');
+    }
+    function resetSyntaxError() {
+      context.emit('generationSuccess');
+      if (!showTip()) {
+        alert.value = noAlert;
       }
-      context.emit('hasError', hasError);
     }
     function undo() {
       if(undoStackIdx.value > 0) {
@@ -409,7 +427,7 @@ export default defineComponent({
       }, 800);
     }
 
-    watch(() => [props.loadedData], () => {      
+    watch(() => [props.loadedData], () => { 
       if(window.location.pathname !== '/' && window.location.pathname !== '/supporters' && window.location.pathname !== '/editor') {
         loadSharedLink();
       }
@@ -431,7 +449,7 @@ export default defineComponent({
 
     return { json, inputError,
       onDownloadClicked, pageRefresh,
-      selectedTab, browserData, loadTasksExample, loadOrdersExample, syntaxError,
+      selectedTab, browserData, loadTasksExample, loadOrdersExample, setSyntaxError, resetSyntaxError,
       alert, showWarningPanel, warnings, undo, redo, undoStackIdx, undoStack, share, shareLinkOnClipboard,
       showSettingsPanel, onSettingsClicked, generateSettings, saveSettings }
   },

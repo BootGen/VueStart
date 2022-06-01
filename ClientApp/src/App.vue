@@ -33,7 +33,7 @@
     <transition name="fade">
       <not-found v-if="page === 'notfound'" @showEditor="showEditor()"></not-found>
     </transition>
-    <editor :config="config" :page="page" :loadedData="loadedData" @download="download" @hasError="hasError" @setVuecoon="setVuecoon"  @success="setSuccessVuecoon"></editor>
+    <editor :config="config" :page="page" :loadedData="loadedData" @download="download" @generationFailed="setVuecoonErrorState" @generationSuccess="resetVuecoonState" @setVuecoon="setVuecoon"  @success="setSuccessVuecoon"></editor>
     <div class="col-12 d-flex align-items-center footer" :class="page">
       <p><a href="javascript:void(0)" @click="showSupporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a> | Send <a href="https://github.com/BootGen/VueStart/discussions/55" target="_blank">Feedback!</a></p>
     </div>
@@ -51,7 +51,7 @@ import ModalPanel from "@/components/ModalPanel";
 
 export default defineComponent({
   name: 'LandingPage',
-  components: {ModalPanel, Editor, Supporters, NotFound },
+  components: { ModalPanel, Editor, Supporters, NotFound },
   setup() {
     const vuecoonStates = {
       Default: 'default',
@@ -61,7 +61,13 @@ export default defineComponent({
     };
     const vuecoonState = ref(vuecoonStates.Default);
     const loadedData = ref({});
-
+    const page = ref('landing');
+    let config = {
+      headers: {
+        'idtoken': idtoken,
+        'citation': document.referrer
+      }
+    }
     let idtoken = localStorage.getItem('idtoken');
     if (!idtoken) {
       idtoken = ''
@@ -71,32 +77,30 @@ export default defineComponent({
       localStorage.setItem('idtoken', idtoken)
     }
 
-    let config = {
-      headers: {
-        'idtoken': idtoken,
-        'citation': document.referrer
-      }
+    window.addEventListener('popstate', setShowContentForUrl);
+    window.addEventListener('load', setShowContentForUrl);
+
+    function setVuecoonErrorState() {
+      vuecoonState.value = vuecoonStates.Error;
     }
 
-    function hasError(value) {
-      if(value) {
-        vuecoonState.value = vuecoonStates.Error;
-      } else {
-        if (vuecoonState.value !== vuecoonStates.Success)
-          vuecoonState.value = vuecoonStates.Default;
-      }
+    function resetVuecoonState() {
+      if (vuecoonState.value !== vuecoonStates.Success)
+        setDefaultVuecoonState();
     }
 
-    let debounceResetVuecoon = debounce(resetVuecoon, 2000);
     function setSuccessVuecoon(){
+      let debounceResetVuecoon = debounce(setDefaultVuecoonState, 2000);
       vuecoonState.value = vuecoonStates.Success;
       debounceResetVuecoon();
     }
-    function resetVuecoon (){
+
+    function setDefaultVuecoonState (){
       vuecoonState.value = vuecoonStates.Default;
     }
 
     async function setShowContentForUrl(){
+      console.log('setShowContentForUrl')
       let pathname = window.location.pathname;
       if (pathname === '/supporters')
         page.value = 'supporters';
@@ -106,31 +110,38 @@ export default defineComponent({
         page.value = 'content';
       else if (pathname.match(/^\/-?\d+$/)){
         try {
-          let resp = await axios.get(`api/share${pathname}`);
-          if(resp.status == 200) {
-            page.value = 'content';
-            loadedData.value = resp.data.generateRequest;
-          }
+          tryLoadData(pathname);
         } catch {
-          page.value = 'notfound';
-          loadedData.value = null;
+          catchLoadData();
         }
       } else {
         window.location.pathname = '/editor';
       }
     }
 
-    window.addEventListener('popstate', setShowContentForUrl);
-    window.addEventListener('load', setShowContentForUrl);
-    const page = ref('landing');
+    async function tryLoadData(pathname){
+      let resp = await axios.get(`api/share${pathname}`);
+      if(resp.status == 200) {
+        page.value = 'content';
+        loadedData.value = resp.data.generateRequest;
+      }
+    }
+
+    function catchLoadData() {
+      page.value = 'notfound';
+      loadedData.value = null;
+    }
+
     function openGithub (){
       window.open("https://github.com/BootGen/VueStart");
     }
+
     function showSupporters (){
       window.scrollTo(0, 0);
       page.value = 'supporters';
       history.pushState({}, '', 'supporters');
     }
+
     function showEditor(){
       window.scrollTo(0, 0);
       page.value = 'content';
@@ -138,11 +149,7 @@ export default defineComponent({
     }
 
     async function download(fileName, generateSettings, json) {
-      let request = {
-        settings: generateSettings,
-        data: JSON.parse(json)
-      }
-      const response = await axios.post('api/download', request, {responseType: 'blob', ...config});
+      const response = await axios.post('api/download', { settings: generateSettings, data: JSON.parse(json) }, {responseType: 'blob', ...config});
       const fileURL = window.URL.createObjectURL(new Blob([response.data]));
       const fileLink = document.createElement('a');
       fileLink.href = fileURL;
@@ -158,7 +165,7 @@ export default defineComponent({
 
     return { page, openGithub, showEditor, vuecoonState,
       config, download,
-      hasError, setSuccessVuecoon, setVuecoon, showSupporters, loadedData }
+      setVuecoonErrorState, resetVuecoonState, setSuccessVuecoon, setVuecoon, showSupporters, loadedData }
   }
 });
 
