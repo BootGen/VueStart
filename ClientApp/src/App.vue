@@ -47,11 +47,10 @@ import Supporters from './components/Supporters.vue';
 import NotFound from './components/NotFound.vue';
 import axios from "axios";
 import {debounce} from "@/utils/Helper";
-import ModalPanel from "@/components/ModalPanel";
 
 export default defineComponent({
   name: 'LandingPage',
-  components: { ModalPanel, Editor, Supporters, NotFound },
+  components: { Editor, Supporters, NotFound },
   setup() {
     const vuecoonStates = {
       Default: 'default',
@@ -62,13 +61,13 @@ export default defineComponent({
     const vuecoonState = ref(vuecoonStates.Default);
     const loadedData = ref({});
     const page = ref('landing');
+    let idtoken = localStorage.getItem('idtoken');
     let config = {
       headers: {
         'idtoken': idtoken,
         'citation': document.referrer
       }
     }
-    let idtoken = localStorage.getItem('idtoken');
     if (!idtoken) {
       idtoken = ''
       while (idtoken.length < 16)
@@ -121,7 +120,7 @@ export default defineComponent({
 
     async function tryLoadData(pathname){
       let resp = await axios.get(`api/share${pathname}`);
-      if(resp.status == 200) {
+      if(resp.status === 200) {
         page.value = 'content';
         loadedData.value = resp.data.generateRequest;
       }
