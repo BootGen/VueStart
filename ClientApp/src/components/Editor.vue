@@ -89,9 +89,8 @@ export default defineComponent({
   props: {
     page: String,
     config: Object,
-    loadedData: Object
   },
-  emits: ['download', 'generationFailed', 'generationSuccess', 'setVuecoon', 'success'],
+  emits: ['download', 'generationFailed', 'generationSuccess', 'setVuecoon', 'success', 'showNotFound'],
   setup(props, context) {
     const showSettingsPanel = ref(false);
     const generateSettings = ref({
@@ -163,6 +162,7 @@ export default defineComponent({
       if (item)
         json.value = item;
     });
+
     async function fixData() {
       alert.value = noAlert;
       const fixedJson = await axios.post('api/generate/fix', JSON.parse(json.value));
@@ -330,18 +330,43 @@ export default defineComponent({
       json.value = await getProjectContentFromServer('orders_example_input');
       await generate(json.value);
     }
-    getProjectContentFromServer('orders_example_input').then( (content) => {
-      json.value = content;
-      jsonSchema.value = getSchema(JSON.parse(json.value));
-      generate(json.value);
-      watch(json, () => {
-        try {
-          trySaveJson();
-        } catch (e) {
-          handleJsonSaveError(e);
-        }
-      })
-    });
+    
+    setDefaultData();
+
+    async function setDefaultData() {
+      if(window.location.pathname.match(/^\/-?\d+$/)) {
+        tryLoadData(window.location.pathname);
+      } else {
+        getProjectContentFromServer('orders_example_input').then( (content) => {
+          json.value = content;
+          jsonSchema.value = getSchema(JSON.parse(json.value));
+          generate(json.value);
+          watch(json, () => {
+            try {
+              trySaveJson();
+            } catch (e) {
+              handleJsonSaveError(e);
+            }
+          })
+        });
+      }
+    }
+
+    async function tryLoadData(pathname) {
+      try {
+        let resp = await axios.get(`api/share${pathname}`);
+        generateSettings.value = {...resp.data.generateRequest.settings}
+        json.value = JSON.stringify(resp.data.generateRequest.data);
+        generate(json.value);
+      } catch {
+        handleLoadData();
+      }
+    }
+
+    function handleLoadData() {
+      context.emit('showNotFound');
+      loadOrdersExample();
+    }
 
     function trySaveJson() {
       let debouncedGenerate = debounce(generateAndEmit, 1000);
@@ -427,17 +452,6 @@ export default defineComponent({
       }, 800);
     }
 
-    watch(() => [props.loadedData], () => { 
-      if(window.location.pathname !== '/' && window.location.pathname !== '/supporters' && window.location.pathname !== '/editor') {
-        loadSharedLink();
-      }
-    });
-    async function loadSharedLink(){
-      if(props.loadedData) {
-        generateSettings.value = {...props.loadedData.settings}
-        json.value = JSON.stringify(props.loadedData.data);
-      }
-    }
     function onSettingsClicked() {
       showSettingsPanel.value = true;
     }

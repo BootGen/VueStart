@@ -33,7 +33,7 @@
     <transition name="fade">
       <not-found v-if="page === 'notfound'" @showEditor="showEditor()"></not-found>
     </transition>
-    <editor :config="config" :page="page" :loadedData="loadedData" @download="download" @generationFailed="setVuecoonErrorState" @generationSuccess="resetVuecoonState" @setVuecoon="setVuecoon"  @success="setSuccessVuecoon"></editor>
+    <editor :config="config" :page="page" @showNotFound="showNotFound" @download="download" @generationFailed="setVuecoonErrorState" @generationSuccess="resetVuecoonState" @setVuecoon="setVuecoon"  @success="setSuccessVuecoon"></editor>
     <div class="col-12 d-flex align-items-center footer" :class="page">
       <p><a href="javascript:void(0)" @click="showSupporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a> | Send <a href="https://github.com/BootGen/VueStart/discussions/55" target="_blank">Feedback!</a></p>
     </div>
@@ -59,7 +59,6 @@ export default defineComponent({
       Success: 'success'
     };
     const vuecoonState = ref(vuecoonStates.Default);
-    const loadedData = ref({});
     const page = ref('landing');
     let idtoken = localStorage.getItem('idtoken');
     let config = {
@@ -99,7 +98,6 @@ export default defineComponent({
     }
 
     async function setShowContentForUrl(){
-      console.log('setShowContentForUrl')
       let pathname = window.location.pathname;
       if (pathname === '/supporters')
         page.value = 'supporters';
@@ -108,43 +106,32 @@ export default defineComponent({
       else if (pathname === '/editor')
         page.value = 'content';
       else if (pathname.match(/^\/-?\d+$/)){
-        try {
-          tryLoadData(pathname);
-        } catch {
-          catchLoadData();
-        }
-      } else {
-        window.location.pathname = '/editor';
-      }
-    }
-
-    async function tryLoadData(pathname){
-      let resp = await axios.get(`api/share${pathname}`);
-      if(resp.status === 200) {
         page.value = 'content';
-        loadedData.value = resp.data.generateRequest;
+      } else {
+        page.value = 'notfound';
       }
     }
 
-    function catchLoadData() {
-      page.value = 'notfound';
-      loadedData.value = null;
-    }
-
-    function openGithub (){
+    function openGithub () {
       window.open("https://github.com/BootGen/VueStart");
     }
 
-    function showSupporters (){
+    function showSupporters () {
       window.scrollTo(0, 0);
       page.value = 'supporters';
       history.pushState({}, '', 'supporters');
     }
 
-    function showEditor(){
+    function showEditor() {
       window.scrollTo(0, 0);
       page.value = 'content';
       history.pushState({}, '', 'editor');
+    }
+
+    function showNotFound() {
+      window.scrollTo(0, 0);
+      page.value = 'notfound';
+      history.pushState({}, '', 'notfound');
     }
 
     async function download(fileName, generateSettings, json) {
@@ -162,9 +149,9 @@ export default defineComponent({
       vuecoonState.value = state;
     }
 
-    return { page, openGithub, showEditor, vuecoonState,
+    return { page, openGithub, showEditor, showNotFound, vuecoonState,
       config, download,
-      setVuecoonErrorState, resetVuecoonState, setSuccessVuecoon, setVuecoon, showSupporters, loadedData }
+      setVuecoonErrorState, resetVuecoonState, setSuccessVuecoon, setVuecoon, showSupporters }
   }
 });
 
