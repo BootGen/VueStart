@@ -44,35 +44,39 @@
     </div>
   </div>
   <div class="browser-container" :class="page">
-      <div class="browser custom-card shadow">
-        <browser-frame v-model="browserData" :config="config" :undoable="undoStackIdx > 0" :redoable="undoStackIdx < undoStack.length-1"  @refresh="pageRefresh" @undo="undo" @redo="redo" :borderRadius="selectedTab === 0">
-          <div class="d-flex w-100 h-auto">
-            <tab :title="generateSettings.frontend" :img="selectedTab === 0 ? generateSettings.frontend + '_green' : generateSettings.frontend + '_white'" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
-            <tab title="index.html" icon="code" :class="{'active': selectedTab === 1, 'inactive': selectedTab !== 1, 'border-bottom-left': selectedTab === 0, 'border-bottom-right': selectedTab === 2}" @select="selectedTab = 1"></tab>
-            <tab title="app.js" icon="code" :class="{'active': selectedTab === 2, 'inactive': selectedTab !== 2, 'border-bottom-left': selectedTab === 1}" @select="selectedTab = 2"></tab>
-            <tab class="inactive" :class="{'border-bottom-left': selectedTab === 2}"></tab>
-          </div>
-        </browser-frame>
+    <browser-frame v-model="browserData" :config="config" :undoable="undoStackIdx > 0" :redoable="undoStackIdx < undoStack.length-1"  @refresh="pageRefresh" @undo="undo" @redo="redo" :borderRadius="selectedTab === 0">
+      <div class="d-flex w-100 h-auto">
+        <tab :title="generateSettings.frontend" :img="selectedTab === 0 ? generateSettings.frontend + '_green' : generateSettings.frontend + '_white'" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
+        <tab title="index.html" icon="code" :class="{'active': selectedTab === 1, 'inactive': selectedTab !== 1, 'border-bottom-left': selectedTab === 0, 'border-bottom-right': selectedTab === 2}" @select="selectedTab = 1"></tab>
+        <tab title="app.js" icon="code" :class="{'active': selectedTab === 2, 'inactive': selectedTab !== 2, 'border-bottom-left': selectedTab === 1}" @select="selectedTab = 2"></tab>
+        <tab class="inactive" :class="{'border-bottom-left': selectedTab === 2}"></tab>
       </div>
-      <div class="d-flex browser-buttons" :class="page">
-        <div id="settings-btn" class="fab fab-icon-holder mx-1" @click="onSettingsClicked">
-          <span class="bi bi-gear" aria-hidden="true"></span>
-            <span class="ps-2">Settings</span>
+    </browser-frame>
+    <div class="d-flex browser-buttons" :class="page">
+      <button id="settings-btn" class="fab fab-icon-holder mx-1" @click="onSettingsClicked">
+        <span class="bi bi-gear" aria-hidden="true"></span>
+          <span class="ps-2">Settings</span>
+      </button>
+      <button id="share-btn" class="fab fab-icon-holder mx-1" :class="{'disabled': shareSpinner}" @click="share" v-if="!shareLinkOnClipboard" :disabled="shareSpinner">
+        <div class="spinner-border spinner-border-md" role="status" v-if="shareSpinner">
+          <span class="visually-hidden">Loading...</span>
         </div>
-        <div id="share-btn" class="fab fab-icon-holder mx-1" :class="{'disable-share': shareLinkOnClipboard}" @click="share">
-          <span class="bi bi-share" aria-hidden="true"></span>
-          <span class="ps-2">Share</span>
-          <span class="copied">Copied!</span>
-        </div>
-        <div id="download-btn" class="fab fab-icon-holder pulse-download-btn mx-1" @click="onDownloadClicked">
-          <span class="bi bi-download" aria-hidden="true"></span>
-            <span class="ps-2">Download Code</span>
-        </div>
-      </div>
+        <span class="bi bi-share" aria-hidden="true" v-else></span>
+        <span class="ps-2">Share</span>
+      </button>
+      <button id="share-btn" class="fab fab-icon-holder mx-1" v-else>
+        <span class="bi bi-share" aria-hidden="true"></span>
+        <span class="ps-2">Link copied</span>
+      </button>
+      <button id="download-btn" class="fab fab-icon-holder pulse-download-btn mx-1" @click="onDownloadClicked">
+        <span class="bi bi-download" aria-hidden="true"></span>
+        <span class="ps-2">Download Code</span>
+      </button>
     </div>
+  </div>
 </template>
 <script>
-import {defineComponent, reactive, ref, watch} from 'vue';
+import {defineComponent, ref, watch} from 'vue';
 import CodeMirror from './CodeMirror.vue';
 import BrowserFrame from './BrowserFrame.vue'
 import GenerateSettings from './GenerateSettings.vue'
@@ -113,6 +117,7 @@ export default defineComponent({
     let generatedId = '';
     let isGenerating = false;
     const shareLinkOnClipboard = ref(false);
+    const shareSpinner = ref(false);
     let noAction = {
       active: false,
       href: 'javascript:void(0)',
@@ -436,6 +441,8 @@ export default defineComponent({
       }
     }
     async function share() {
+      console.log('asd');
+      shareSpinner.value = true;
       let request = {
         settings: generateSettings.value,
         data: JSON.parse(json.value)
@@ -446,10 +453,13 @@ export default defineComponent({
         sharedJson = shareableJson;
       }
       navigator.clipboard.writeText(window.location.origin + '/' + sharedLink.data.hash);
-      shareLinkOnClipboard.value = true;
+      setTimeout(()=> {
+        shareSpinner.value = false;
+        shareLinkOnClipboard.value = true;
+      }, 500);
       setTimeout(()=> {
         shareLinkOnClipboard.value = false;
-      }, 800);
+      }, 5000);
     }
 
     function onSettingsClicked() {
@@ -464,7 +474,7 @@ export default defineComponent({
     return { json, inputError,
       onDownloadClicked, pageRefresh,
       selectedTab, browserData, loadTasksExample, loadOrdersExample, setSyntaxError, resetSyntaxError,
-      alert, showWarningPanel, warnings, undo, redo, undoStackIdx, undoStack, share, shareLinkOnClipboard,
+      alert, showWarningPanel, warnings, undo, redo, undoStackIdx, undoStack, share, shareLinkOnClipboard, shareSpinner,
       showSettingsPanel, onSettingsClicked, generateSettings, saveSettings }
   },
 })
@@ -490,20 +500,6 @@ body {
   color: #ffffff;
   padding: 1rem;
   box-shadow: 0 .5rem 1rem rgba(0,0,0,.10)!important;
-}
-.copied {
-  transition: all 1s ease-in-out;
-  transition-delay: 10ms;
-  position: absolute;
-  opacity: 0;
-  color: #42b983;
-  bottom: 1rem;
-  display: flex;
-  justify-content: center;
-}
-.disable-share .copied {
-  opacity: 1;
-  bottom: 4rem;
 }
 .fab-icon-holder .bi {
   font-size: 1.5rem;
@@ -544,6 +540,13 @@ body {
   display: flex;
   justify-content: flex-end;
   padding: 5px;
+}
+
+button {
+  border: 1px solid transparent;
+}
+button.disabled {
+  opacity: 0.8;
 }
 
 .browser-buttons {

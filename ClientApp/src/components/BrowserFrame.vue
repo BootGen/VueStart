@@ -1,31 +1,33 @@
 <template>
-  <div class="col-12 browser-frame">
-    <div class="d-flex browser-nav py-1">
-      <button type="button" class="btn-site inactive w-auto" :class="{ 'border-bottom-right' : borderRadius }">
-        <div class="d-flex align-items-center">
-          <span class="dot" style="background:#ED594A;"></span>
-          <span class="dot" style="background:#FDD800;"></span>
-          <span class="dot" style="background:#5AFF5A;"></span>
+  <div class="browser custom-card shadow">
+    <div class="col-12 browser-frame">
+      <div class="d-flex browser-nav py-1">
+        <button type="button" class="btn-site inactive w-auto" :class="{ 'border-bottom-right' : borderRadius }">
+          <div class="d-flex align-items-center">
+            <span class="dot" style="background:#ED594A;"></span>
+            <span class="dot" style="background:#FDD800;"></span>
+            <span class="dot" style="background:#5AFF5A;"></span>
+          </div>
+        </button>
+        <slot></slot>
+      </div>
+      <div class="d-flex justify-content-around align-items-center menu">
+        <div class="d-flex">
+          <span class="bi bi-arrow-left icon" :class="{'clickable': undoable}" aria-hidden="true" @click="$emit('undo')"></span>
+          <span class="bi bi-arrow-right icon" :class="{'clickable': redoable}" aria-hidden="true" @click="$emit('redo')"></span>
+          <span class="bi bi-arrow-clockwise icon clickable" aria-hidden="true" @click="$emit('refresh')"></span>
         </div>
-      </button>
-      <slot></slot>
-    </div>
-    <div class="d-flex justify-content-around align-items-center menu">
-      <div class="d-flex">
-        <span class="bi bi-arrow-left icon" :class="{'clickable': undoable}" aria-hidden="true" @click="$emit('undo')"></span>
-        <span class="bi bi-arrow-right icon" :class="{'clickable': redoable}" aria-hidden="true" @click="$emit('redo')"></span>
-        <span class="bi bi-arrow-clockwise icon clickable" aria-hidden="true" @click="$emit('refresh')"></span>
+        <div class="middle mx-2">
+          <input type="text" :value="displayUrl" disabled>
+        </div>
+        <span class="bi bi-three-dots-vertical icon" aria-hidden="true"></span>
       </div>
-      <div class="middle mx-2">
-        <input type="text" :value="displayUrl" disabled>
+      <div class="col-12 content bg-white">
+        <iframe id="frameA" class="h-95 w-100" :class="{hidden: !frameA || !modelValue.page_url}" :src="urlA" title="CodeSharp"></iframe>
+        <iframe id="frameB" class="h-95 w-100" :class="{hidden: frameA || !modelValue.page_url}" :src="urlB" title="CodeSharp"></iframe>
+        <div class="col-12 h-100" id="js_source" :class="{hidden: !js || !modelValue.source_url}"></div>
+        <div class="col-12 h-100" id="html_source" :class="{hidden: js || !modelValue.source_url}"></div>
       </div>
-      <span class="bi bi-three-dots-vertical icon" aria-hidden="true"></span>
-    </div>
-    <div class="col-12 content bg-white">
-      <iframe id="frameA" class="h-95 w-100" :class="{hidden: !frameA || !modelValue.page_url}" :src="urlA" title="CodeSharp"></iframe>
-      <iframe id="frameB" class="h-95 w-100" :class="{hidden: frameA || !modelValue.page_url}" :src="urlB" title="CodeSharp"></iframe>
-      <div class="col-12 h-100" id="js_source" :class="{hidden: !js || !modelValue.source_url}"></div>
-      <div class="col-12 h-100" id="html_source" :class="{hidden: js || !modelValue.source_url}"></div>
     </div>
   </div>
 </template>
