@@ -362,7 +362,13 @@ export default defineComponent({
         let resp = await axios.get(`api/share${pathname}`);
         generateSettings.value = {...resp.data.generateRequest.settings}
         json.value = JSON.stringify(resp.data.generateRequest.data);
-        generate(json.value);
+        watch(json, () => {
+          try {
+            trySaveJson();
+          } catch (e) {
+            handleJsonSaveError(e);
+          }
+        })
       } catch {
         handleLoadData();
       }
@@ -441,7 +447,6 @@ export default defineComponent({
       }
     }
     async function share() {
-      console.log('asd');
       shareSpinner.value = true;
       let request = {
         settings: generateSettings.value,
