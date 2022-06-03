@@ -226,7 +226,7 @@ export default defineComponent({
 
     async function generate(data) {
       try {
-        tryGenerate(data);
+        await tryGenerate(data);
       } catch (e) {
         handleGenerationError(e.response);
       }
