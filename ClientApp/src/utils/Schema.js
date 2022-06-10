@@ -52,7 +52,7 @@ function getArraySchema(val) {
 
 function getProperties(j) {
   if (!j) {
-    throw { schemaError: "Null values are not supported."}
+    return null;
   }
   let r = {};
   let k = Object.keys(j);
