@@ -75,14 +75,17 @@ export default defineComponent({
                 color: "#42b983",
                 backgroundColor: "#34495E"
               },
-              ".ͼd": {
-                color: "rgba(255, 255, 255, 0.9)"
+              ".ͼa": {
+                color: "#ede0ad"
+              },
+              ".ͼb": {
+                color: "#66b6d0"
               },
               ".ͼc": {
                   color: "#8cd6b5"
               },
-              ".ͼb": {
-                color: "#66b6d0"
+              ".ͼd": {
+                color: "rgba(255, 255, 255, 0.9)"
               },
               ".cm-content": {
                 caretColor: "#42b983"
