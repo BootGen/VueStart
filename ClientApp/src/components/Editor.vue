@@ -270,8 +270,8 @@ export default defineComponent({
       context.emit('generationFailed');
     }
 
-    function setWarnings(warnings) {
-      warnings.value = warnings;
+    function setWarnings(warningList) {
+      warnings.value = warningList;
       alert.value = {
         shown: true,
         class: 'alert-warning',
