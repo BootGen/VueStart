@@ -30,7 +30,7 @@ export default defineComponent({
     config: Object,
     loadedData: Object
   },
-  emits: ['hasError', 'setVuecoon'],
+  emits: ['hasError'],
   setup(props, context) {
     const inputError = ref(null);
     const isFixable = ref(false);

@@ -2,7 +2,7 @@
   <not-found :class="{'notfound': isNotFound, 'found': !isNotFound}" @showEditor="showEditor"></not-found>
   <div class="container-fluid" :class="{'notfound': isNotFound, 'found': !isNotFound}">
     <landing :vuecoonState="vuecoonState"></landing>
-    <editor :config="config" :loadedData="loadedData" @hasError="hasError" @setVuecoon="setVuecoon"></editor>
+    <editor :config="config" :loadedData="loadedData" @hasError="hasError"></editor>
     <div class="d-flex flex-column align-items-center mt-5">
       <div @click="openGithub()" class="d-flex flex-column align-items-center justify-content-center px-2 github">
         <div class="d-flex align-items-center px-2">
@@ -89,9 +89,6 @@ export default defineComponent({
           vuecoonState.value = vuecoonStates.Default;
       }
     }
-    function setVuecoon(state) {
-      vuecoonState.value = state;
-    }
 
     function showSupporters (){
       isShowSupporters.value = !isShowSupporters.value;
@@ -113,7 +110,7 @@ export default defineComponent({
     }
 
     return { vuecoonState, config,
-      hasError, setVuecoon, openGithub,
+      hasError, openGithub,
       showSupporters, isShowSupporters, isNotFound, showEditor, loadedData }
   }
 });

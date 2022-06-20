@@ -8,7 +8,7 @@
     <span class="lead text-center">
       Turn any JSON into Vue 3 tables! Create well coded Vue 3 tables with Bootstrap, Tailwind CSS or vanilla CSS.
     </span>
-    <p class="text-center small-text"><em>For the full feature set please visit this page from a desktop browser.</em></p>
+    <p class="text-center small-text red-text"><em>For the full feature set please visit this page from a desktop browser.</em></p>
   </div>
 </template>
 
@@ -39,5 +39,8 @@ export default defineComponent({
   }
   .logos > img {
     height: 4rem;
+  }
+  .red-text {
+    color: red;
   }
 </style>
