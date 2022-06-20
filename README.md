@@ -23,6 +23,43 @@
 
 Create well coded Vue 3 tables with Bootstrap, Tailwind CSS or vanilla CSS. Try it online at [vuestart.com](https://vuestart.com)!
 
+**Turn this:**
+```js
+{
+  "customers": [
+    {
+      "name": "Microsoft Corporation",
+      "registrationTime": "2010-05-23T12:00",
+      "orders": [
+        {
+          "date": "2010-05-23T12:00",
+          "product": "printer paper",
+          "quantity": 13
+        },
+        {
+          "date": "2010-06-23T12:00",
+          "product": "printer paper",
+          "quantity": 24
+        }
+      ]
+    },
+    {
+      "name": "Google LLC",
+      "registrationTime": "2010-07-29T12:00",
+      "orders": [
+        {
+          "date": "2010-07-29T12:00",
+          "product": "ink cartridge",
+          "quantity": 3
+        }
+      ]
+    }
+  ]
+}
+```
+**Into this:**
+
+<img src="vs_demo.webp" width="800px" height="301px"  align="center" >
 
 ### Features
 

@@ -33,7 +33,7 @@
     <transition name="fade">
       <not-found v-if="page === 'notfound'" @showEditor="showEditor()"></not-found>
     </transition>
-    <editor :config="config" :page="page" @showNotFound="showNotFound" @download="download" @generationFailed="setVuecoonErrorState" @generationSuccess="resetVuecoonState" @setVuecoon="setVuecoon"  @success="setSuccessVuecoon"></editor>
+    <editor :config="config" :page="page" @showNotFound="showNotFound" @download="download" @generationFailed="setVuecoonErrorState" @generationStarted="setLoadingVuecoon" @generationSuccess="resetVuecoonState" @success="setSuccessVuecoon"></editor>
     <div class="col-12 d-flex align-items-center footer" :class="page">
       <p><a href="javascript:void(0)" @click="showSupporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a> | Send <a href="https://github.com/BootGen/VueStart/discussions/55" target="_blank">Feedback!</a></p>
     </div>
@@ -78,23 +78,41 @@ export default defineComponent({
     window.addEventListener('popstate', setShowContentForUrl);
     window.addEventListener('load', setShowContentForUrl);
 
+    let resetState = false;
+    let keepingState = false;
+
+    function keepVuecoonStateFor1Sec() {
+      keepingState = true;
+      debounce(() => {
+        keepingState = false;
+        if (resetState) {
+          vuecoonState.value = vuecoonStates.Default;
+        }
+      }, 1000)();
+    }
+
     function setVuecoonErrorState() {
+      resetState = false;
       vuecoonState.value = vuecoonStates.Error;
+      keepVuecoonStateFor1Sec()
     }
 
     function resetVuecoonState() {
-      if (vuecoonState.value !== vuecoonStates.Success)
-        setDefaultVuecoonState();
+      resetState = true;
+      if (!keepingState)
+        vuecoonState.value = vuecoonStates.Default;
     }
 
     function setSuccessVuecoon(){
-      let debounceResetVuecoon = debounce(setDefaultVuecoonState, 2000);
+      resetState = false;
       vuecoonState.value = vuecoonStates.Success;
-      debounceResetVuecoon();
+      keepVuecoonStateFor1Sec()
     }
 
-    function setDefaultVuecoonState (){
-      vuecoonState.value = vuecoonStates.Default;
+    function setLoadingVuecoon(){
+      resetState = false;
+      vuecoonState.value = vuecoonStates.Loading;
+      keepVuecoonStateFor1Sec()
     }
 
     async function setShowContentForUrl(){
@@ -145,13 +163,9 @@ export default defineComponent({
       fileLink.click();
     }
 
-    function setVuecoon(state) {
-      vuecoonState.value = state;
-    }
-
     return { page, openGithub, showEditor, showNotFound, vuecoonState,
       config, download,
-      setVuecoonErrorState, resetVuecoonState, setSuccessVuecoon, setVuecoon, showSupporters }
+      setVuecoonErrorState, resetVuecoonState, setSuccessVuecoon, setLoadingVuecoon, showSupporters }
   }
 });
 

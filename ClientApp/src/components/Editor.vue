@@ -94,7 +94,7 @@ export default defineComponent({
     page: String,
     config: Object,
   },
-  emits: ['download', 'generationFailed', 'generationSuccess', 'setVuecoon', 'success', 'showNotFound'],
+  emits: ['download', 'generationFailed', 'generationSuccess', 'generationStarted', 'success', 'showNotFound'],
   setup(props, context) {
     const showSettingsPanel = ref(false);
     const generateSettings = ref({
@@ -233,6 +233,7 @@ export default defineComponent({
     }
 
     async function tryGenerate(data) {
+      context.emit('generationStarted');
       let resp = await axios.post(`api/generate`, { settings: generateSettings.value, data: JSON.parse(data) }, props.config);
       generateSettings.value.classSettings = resp.data.settings;
       localStorage.removeItem(generatedId);
@@ -326,12 +327,12 @@ export default defineComponent({
     }
 
     async function loadTasksExample() {
-      context.emit('setVuecoon', 'loading');
+      context.emit('generationStarted');
       json.value = await getProjectContentFromServer('tasks_example_input');
       await generate(json.value);
     }
     async function loadOrdersExample() {
-      context.emit('setVuecoon', 'loading');
+      context.emit('generationStarted');
       json.value = await getProjectContentFromServer('orders_example_input');
       await generate(json.value);
     }
@@ -415,14 +416,8 @@ export default defineComponent({
       }
       context.emit('download', `${generateSettings.value.frontend}.zip`, generateSettings.value, json.value);
     }
-    function refresh() {
-      generate(json.value);
-      context.emit('setVuecoon', 'default');
-    }
     function pageRefresh() {
-      let debouncedRefresh = debounce(refresh, 1000);
-      context.emit('setVuecoon', 'loading');
-      debouncedRefresh();
+      generate(json.value);
     }
     function setSyntaxError (message) {
       showAlert(message, 'alert-danger');
@@ -471,9 +466,10 @@ export default defineComponent({
       showSettingsPanel.value = true;
     }
 
-    function saveSettings() {
+    async function saveSettings() {
       showSettingsPanel.value = false;
-      generate(json.value);
+
+      await generate(json.value);
     }
 
     return { json, inputError,
