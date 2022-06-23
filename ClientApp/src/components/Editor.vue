@@ -4,7 +4,7 @@
   </modal-panel>
   <modal-panel v-model="showWarningPanel">
     <div class="alert alert-warning show px-3 py-3 my-0" role="alert">
-      <button type="button" class="btn-close" style="float: right" @click="showWarningPanel=false"></button>
+      <button type="button" class="btn-close" style="float: right" @click="showWarningPanel=false" aria-label="Close warnings"></button>
       <h3>Warnings</h3>
       <ul>
         <li v-for="(warning, idx) in warnings" :key="idx">{{warning}}</li>
@@ -40,7 +40,7 @@
         {{ alert.message }}
         <a :href="alert.action.href" :target="alert.action.target" class="alert-link" @click="alert.action.callback" v-if="alert.action.active">{{ alert.action.message }}</a>
       </div>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="alert.shown=false"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" @click="alert.shown=false" aria-label="Close alert"></button>
     </div>
   </div>
   <div class="browser-container" :class="page">
@@ -49,13 +49,13 @@
         <tab :title="generateSettings.frontend" :img="selectedTab === 0 ? generateSettings.frontend + '_green' : generateSettings.frontend + '_white'" :class="{'active': selectedTab === 0, 'inactive': selectedTab !== 0, 'border-bottom-right': selectedTab === 1}" @select="selectedTab = 0"></tab>
         <tab title="index.html" icon="code" :class="{'active': selectedTab === 1, 'inactive': selectedTab !== 1, 'border-bottom-left': selectedTab === 0, 'border-bottom-right': selectedTab === 2}" @select="selectedTab = 1"></tab>
         <tab title="app.js" icon="code" :class="{'active': selectedTab === 2, 'inactive': selectedTab !== 2, 'border-bottom-left': selectedTab === 1}" @select="selectedTab = 2"></tab>
-        <tab class="inactive" :class="{'border-bottom-left': selectedTab === 2}"></tab>
+        <tab title="&nbsp;" class="inactive" :class="{'border-bottom-left': selectedTab === 2}"></tab>
       </div>
     </browser-frame>
     <div class="d-flex browser-buttons" :class="page">
       <button id="settings-btn" class="fab fab-icon-holder mx-1" @click="onSettingsClicked">
         <span class="bi bi-gear" aria-hidden="true"></span>
-          <span class="ps-2">Settings</span>
+        <span class="ps-2">Settings</span>
       </button>
       <button id="share-btn" class="fab fab-icon-holder mx-1" :class="{'disabled': shareSpinner}" @click="share" v-if="!shareLinkOnClipboard" :disabled="shareSpinner">
         <div class="spinner-border spinner-border-md" role="status" v-if="shareSpinner">
