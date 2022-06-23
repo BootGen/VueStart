@@ -2,7 +2,7 @@
   <div class="browser custom-card shadow">
     <div class="col-12 browser-frame">
       <div class="d-flex browser-nav py-1">
-        <button type="button" class="btn-site inactive w-auto" :class="{ 'border-bottom-right' : borderRadius }">
+        <button type="button" class="btn-site inactive w-auto" :class="{ 'border-bottom-right' : borderRadius }" aria-label="Browser dots">
           <div class="d-flex align-items-center">
             <span class="dot" style="background:#ED594A;"></span>
             <span class="dot" style="background:#FDD800;"></span>
@@ -18,7 +18,7 @@
           <span class="bi bi-arrow-clockwise icon clickable" aria-hidden="true" @click="$emit('refresh')"></span>
         </div>
         <div class="middle mx-2">
-          <input type="text" :value="displayUrl" disabled>
+          <input type="text" :value="displayUrl" disabled aria-label="Generated table url">
         </div>
         <span class="bi bi-three-dots-vertical icon" aria-hidden="true"></span>
       </div>

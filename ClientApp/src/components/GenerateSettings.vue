@@ -41,8 +41,8 @@
         </div>
         <h5 class="mt-4">Theme color</h5>
         <div class="d-flex align-center">
-          <input type="color" class="form-control form-control-color" id="colorInput" v-model="editedSettings.color" title="Choose your color"  @click="triggerColorPicker">
-          <p class="p-2">{{ editedSettings.color }}</p>
+          <input type="color" class="form-control form-control-color" id="colorInput" v-model="editedSettings.color" title="Choose your color" @click="triggerColorPicker">
+          <label for="colorInput" class="p-2">{{ editedSettings.color }}</label>
         </div>
         <h5 class="mt-4">Table settings</h5>
         <ul class="nav nav-tabs">
@@ -53,7 +53,7 @@
         <table class="table text-start" v-if="selectedClass">
           <thead>
             <tr class="table-light">
-              <th scope="col"></th>
+              <td scope="col">&nbsp;</td>
               <th scope="col" v-for="myClass in selectedClass.propertySettings" :key="myClass.name">{{ myClass.name }}</th>
             </tr>
           </thead>
@@ -62,7 +62,7 @@
               <th scope="row">Visible Name</th>
               <td class="align-middle" v-for="myClass in selectedClass.propertySettings" :key="myClass.name">
                 <div class="col-12 d-flex justify-content-start">
-                  <input type="text" class="form-control" placeholder="Visible Name" v-model="myClass.visibleName">
+                  <input type="text" class="form-control" placeholder="Visible Name" v-model="myClass.visibleName" :aria-label="myClass.name">
                 </div>
               </td>
             </tr>
@@ -71,7 +71,7 @@
               <td class="align-middle" v-for="myClass in selectedClass.propertySettings" :key="myClass.name">
                 <div class="col-12 d-flex justify-content-start" v-if="myClass.isReadOnly != null">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" v-model="myClass.isReadOnly" >
+                    <input class="form-check-input" type="checkbox" v-model="myClass.isReadOnly" :aria-label="myClass.name">
                   </div>
                 </div>
               </td>
@@ -81,7 +81,7 @@
               <td class="align-middle" v-for="myClass in selectedClass.propertySettings" :key="myClass.name">
                 <div class="col-12 d-flex justify-content-start">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" v-model="myClass.isHidden">
+                    <input class="form-check-input" type="checkbox" v-model="myClass.isHidden" :aria-label="myClass.name">
                   </div>
                 </div>
               </td>
@@ -91,7 +91,7 @@
               <td class="align-middle" v-for="myClass in selectedClass.propertySettings" :key="myClass.name">
                 <div class="col-12 d-flex justify-content-start" v-if="myClass.showAsImage != null">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" v-model="myClass.showAsImage">
+                    <input class="form-check-input" type="checkbox" v-model="myClass.showAsImage" :aria-label="myClass.name">
                   </div>
                 </div>
               </td>
