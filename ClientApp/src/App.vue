@@ -18,7 +18,7 @@
       </div>
     </div>
     <header>
-    <h1 class="title">Vue Start!</h1>
+      <h1 class="title">Vue Start!</h1>
       <div class="github" :class="page">
         <div class="d-flex clickable flex-column align-items-center" @click="openGithub()">
           <div class="d-flex align-items-center px-2">
@@ -36,9 +36,9 @@
       <not-found v-if="page === 'notfound'" @showEditor="showEditor()"></not-found>
     </transition>
     <editor :config="config" :page="page" @showNotFound="showNotFound" @download="download" @generationFailed="setVuecoonErrorState" @generationStarted="setLoadingVuecoon" @generationSuccess="resetVuecoonState" @success="setSuccessVuecoon"></editor>
-    <div class="col-12 d-flex align-items-center footer" :class="page">
+    <footer class="col-12 d-flex align-items-center footer" :class="page">
       <p><a href="javascript:void(0)" @click="showSupporters" aria-label="Supporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank" aria-label="BootGen">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank" aria-label="Code Sharp">Code Sharp</a> | Send <a href="https://github.com/BootGen/VueStart/discussions/55" target="_blank" aria-label="Feedback">Feedback!</a></p>
-    </div>
+    </footer>
   </div>
 </template>
 

@@ -1,8 +1,8 @@
 <template>
-  <a :href="`https://github.com/${username}`" target="_blank">
+  <a class="d-flex align-items-center" :href="`https://github.com/${username}`" target="_blank">
     <img class="avatar avatar-user" :src="image" width="48" height="48" :alt="username">
-  </a>&nbsp;
-  <a :href="`https://github.com/${username}`" target="_blank">{{name}}</a>
+    <p class="ps-2 m-0">{{name}}</p>
+  </a>
 </template>
 
 <script>
