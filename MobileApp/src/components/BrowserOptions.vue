@@ -3,14 +3,14 @@
     <div class="row flex-colum justify-content-center mt-4">
       <div class="btn-group col-lg-5 col-md-5 col-12 p-0" role="group" aria-label="Basic example">
         <button type="button" class="btn toggle_left p-2" :class="selected === 0 ? 'active' : 'inactive'" @click="$emit('select', 0)">
-          <img v-if="frontendMode == 'tailwind' && selected === 0" alt="tailwind" src="../assets/tailwind_white.webp" height="25">
-          <img v-else-if="frontendMode == 'tailwind' && selected !== 0" alt="tailwind" src="../assets/tailwind_green.webp" height="25">
+          <img v-if="frontendMode == 'tailwind' && selected === 0" alt="tailwind white" src="../assets/tailwind_white.webp" height="25">
+          <img v-else-if="frontendMode == 'tailwind' && selected !== 0" alt="tailwind green" src="../assets/tailwind_green.webp" height="25">
 
-          <img v-if="frontendMode == 'bootstrap' && selected === 0" alt="bootstrap" src="../assets/bootstrap_white.webp" height="25">
-          <img v-else-if="frontendMode == 'bootstrap' && selected !== 0" alt="bootstrap" src="../assets/bootstrap_green.webp" height="25">
+          <img v-if="frontendMode == 'bootstrap' && selected === 0" alt="bootstrap white" src="../assets/bootstrap_white.webp" height="25">
+          <img v-else-if="frontendMode == 'bootstrap' && selected !== 0" alt="bootstrap green" src="../assets/bootstrap_green.webp" height="25">
 
-          <img v-if="frontendMode == 'vanilla' && selected === 0" alt="vanilla" src="../assets/css_white.webp" height="25">
-          <img v-else-if="frontendMode == 'vanilla' && selected !== 0" alt="vanilla" src="../assets/css_green.webp" height="25">
+          <img v-if="frontendMode == 'vanilla' && selected === 0" alt="vanilla white" src="../assets/css_white.webp" height="25">
+          <img v-else-if="frontendMode == 'vanilla' && selected !== 0" alt="vanilla green" src="../assets/css_green.webp" height="25">
 
           <span class="ps-2">{{ frontendMode.charAt(0).toUpperCase() + frontendMode.slice(1) }}</span>
         </button>

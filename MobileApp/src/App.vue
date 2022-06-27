@@ -17,9 +17,9 @@
     </div>
     <supporters :show="isShowSupporters"></supporters>
     <div class="row">
-      <div class="col-12 d-flex align-items-center footer mt-3">
-        <p><a href="javascript:void(0)" @click="showSupporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a></p>
-      </div>
+      <footer class="col-12 d-flex align-items-center footer mt-3">
+        <p><a href="javascript:void(0)" @click="showSupporters" aria-label="Supporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank" aria-label="BootGen">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank" aria-label="Code Sharp">Code Sharp</a> | Send <a href="https://github.com/BootGen/VueStart/discussions/55" target="_blank" aria-label="Feedback">Feedback!</a></p>
+      </footer>
     </div>
   </div>
 </template>
