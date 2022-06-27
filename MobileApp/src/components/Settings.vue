@@ -48,7 +48,7 @@
       <h5>Theme color</h5>
       <div class="d-flex align-items-center pb-4">
         <input type="color" class="form-control form-control-color" id="colorInput" v-model="color" title="Choose your color"  @click="triggerColorPicker">
-        <p class="m-0 px-2">{{ color }}</p>
+        <label for="colorInput" class="p-2">{{ color }}</label>
       </div>
     </div>
   </div>

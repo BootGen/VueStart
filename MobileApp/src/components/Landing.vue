@@ -1,9 +1,9 @@
 <template>
   <div class="d-flex flex-column align-items-center mt-3">
-    <p class="title">Vue Start!</p>
+    <h1 class="title">Vue Start!</h1>
     <img class="vuecoon img-fluid px-3" alt="Vuecoon" :src="require(`../assets/vuecoon_${vuecoonState}.webp`)">
     <p class="logos mt-4">
-      <img src="../assets/vue_logo.webp"> <img src="../assets/bootstrap.webp"> <img src="../assets/tailwind.webp"> <img src="../assets/css.webp">
+      <img src="../assets/vue_logo.webp" alt="VueJs logo"> <img src="../assets/bootstrap.webp" alt="Bootstrap logo"> <img src="../assets/tailwind.webp" alt="Tailwind logo"> <img src="../assets/css.webp" alt="Css logo">
     </p>
     <span class="lead text-center">
       Turn any JSON into Vue 3 tables! Create well coded Vue 3 tables with Bootstrap, Tailwind CSS or vanilla CSS.
