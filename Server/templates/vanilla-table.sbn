@@ -50,7 +50,14 @@ const app = Vue.createApp({
 app.config.globalProperties.$filters = {
   formatDatetime(date) {
     if (date) {
-      return new Date(date).toLocaleString()
+      const dt = new Date(date)
+      let hrs = dt.getHours();
+      let m = dt.getMinutes();
+      let min = m < 10 ? `0${m}` : m;
+      const currTime = hrs >= 12 ? `${hrs}:${min} PM` : `${hrs}:${min} AM`;
+      const date = dt.getMonth( ) + 1 +'/'+ dt.getDate( ) + '/' +dt.getFullYear( ) + ', ' + currTime;
+      
+      return date;
     }
     return '';
   }
