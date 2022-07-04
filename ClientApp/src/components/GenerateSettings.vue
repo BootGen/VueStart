@@ -48,15 +48,12 @@
           <p class="p-2">{{ editedSettings.color }}</p>
         </div>
         <h5 class="mt-4">Table settings</h5>
-        <div class="row px-3">
-          <div class="col-4 form-check" v-for="myClass in editedSettings.classSettings" :key="myClass.name">
-            <input class="form-check-input" type="radio" :name="myClass.name" :id="myClass.name" :checked="myClass.name === selectedClass.name" @click="selectClass(myClass)">
-            <label class="form-check-label" :for="myClass.name">
-              {{ myClass.name }}
-            </label>
-          </div>
-        </div>
-        <table class="table text-start mt-2" v-if="selectedClass">
+        <ul class="nav nav-tabs">
+          <li class="nav-item" v-for="myClass in editedSettings.classSettings" :key="myClass.name">
+            <a class="nav-link" :class="{'active': myClass.name === selectedClass.name}" @click="selectClass(myClass)">{{ myClass.name }}</a>
+          </li>
+        </ul>
+        <table class="table text-start" v-if="selectedClass">
           <thead>
             <tr class="table-light">
               <th scope="col"></th>
@@ -177,6 +174,19 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.nav-item {
+  cursor: pointer;
+}
+.nav-tabs {
+    border-bottom: 1px solid #42b983;
+}
+.nav-link.active {
+  color: #42b983;
+  border-color: #42b983 #42b983 transparent;
+}
+.nav-link {
+  color: unset;
+}
 .btn-primary {
   background-color: #42b983;
   border-color: #42b983;
