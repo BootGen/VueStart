@@ -8,23 +8,20 @@
       <div class="modal-body">
         <h5>Frontend mode</h5>
         <div class="row px-3">
-          <div class="col-4 form-check">
-            <input class="form-check-input" type="radio" name="vanilla" id="vanilla" :checked="editedSettings.frontend === 'vanilla'" @click="editedSettings.frontend = 'vanilla'">
-            <label class="form-check-label" for="vanilla">
-              Vanilla
-            </label>
+          <div class="col-4 form-check cursor-pointer" @click="editedSettings.frontend = 'vanilla'">
+            <img v-if="editedSettings.frontend == 'vanilla'" alt="vanilla" src="../assets/css.webp" height="50">
+            <img v-else alt="vanilla" src="../assets/css_disabled.webp" height="50">
+            <span class="ms-2">Vanilla</span>
           </div>
-          <div class="col-4 form-check">
-            <input class="form-check-input" type="radio" name="bootstrap" id="bootstrap" :checked="editedSettings.frontend === 'bootstrap'" @click="editedSettings.frontend = 'bootstrap'">
-            <label class="form-check-label" for="bootstrap">
-              Bootstrap
-            </label>
+          <div class="col-4 form-check cursor-pointer" @click="editedSettings.frontend = 'bootstrap'">
+            <img v-if="editedSettings.frontend == 'bootstrap'" alt="bootstrap" src="../assets/bootstrap.webp" height="50">
+            <img v-else alt="bootstrap" src="../assets/bootstrap_disabled.webp" height="50">
+            <span class="ms-2">Bootstrap</span>
           </div>
-          <div class="col-4 form-check">
-            <input class="form-check-input" type="radio" name="tailwind" id="tailwind" :checked="editedSettings.frontend === 'tailwind'" @click="editedSettings.frontend = 'tailwind'">
-            <label class="form-check-label" for="tailwind">
-              Tailwind
-            </label>
+          <div class="col-4 form-check cursor-pointer" @click="editedSettings.frontend = 'tailwind'">
+            <img v-if="editedSettings.frontend == 'tailwind'" alt="tailwind" src="../assets/tailwind.webp" height="50">
+            <img v-else alt="tailwind" src="../assets/tailwind_disabled.webp" height="50">
+            <span class="ms-2">Tailwind</span>
           </div>
         </div>
         <h5 class="mt-4">Editable</h5>
@@ -178,7 +175,7 @@ export default defineComponent({
   cursor: pointer;
 }
 .nav-tabs {
-    border-bottom: 1px solid #42b983;
+  border-bottom: 1px solid #42b983;
 }
 .nav-link.active {
   color: #42b983;
