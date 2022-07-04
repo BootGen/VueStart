@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="staticBackdropLabel">Settings</h5>
+        <h3 class="modal-title" id="staticBackdropLabel">Settings</h3>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="cancel"></button>
       </div>
       <div class="modal-body">
@@ -27,8 +27,7 @@
             </label>
           </div>
         </div>
-        <hr>
-        <h5>Editable</h5>
+        <h5 class="mt-4">Editable</h5>
         <div class="row px-3">
           <div class="col-4 form-check">
             <input class="form-check-input" type="radio" name="editable" id="editable" :checked="!editedSettings.isReadonly" @click="editedSettings.isReadonly = false">
@@ -43,14 +42,12 @@
             </label>
           </div>
         </div>
-        <hr>
-        <h5>Theme color</h5>
+        <h5 class="mt-4">Theme color</h5>
         <div class="d-flex align-center">
           <input type="color" class="form-control form-control-color" id="colorInput" v-model="editedSettings.color" title="Choose your color"  @click="triggerColorPicker">
           <p class="p-2">{{ editedSettings.color }}</p>
         </div>
-        <hr>
-        <h5>Table settings</h5>
+        <h5 class="mt-4">Table settings</h5>
         <div class="row px-3">
           <div class="col-4 form-check" v-for="myClass in editedSettings.classSettings" :key="myClass.name">
             <input class="form-check-input" type="radio" :name="myClass.name" :id="myClass.name" :checked="myClass.name === selectedClass.name" @click="selectClass(myClass)">
@@ -201,6 +198,15 @@ export default defineComponent({
 }
 .modal-dialog {
   width: 80vw;
+}
+.modal-header {
+  border-bottom: unset;
+}
+.modal-footer {
+  border-top: unset;
+}
+.table>:not(caption)>*>* {
+  border-bottom-width: 0;
 }
 @media (min-width: 576px) {
   .modal-dialog {
