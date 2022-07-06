@@ -137,7 +137,7 @@ app.component('{{ kebab_case class.name }}-data', {
     <a href="{{'{{'}} value.{{ camel_case property.name }} {{'}}'}}" target="_blank">{{'{{'}} value.{{ camel_case property.name }} {{'}}'}}</a>
   {{~ else if property.built_in_type == "Image" ~}}
     <img :src="value.{{ camel_case property.name }}" alt="img" width="50" height="50">
-  {{~ else if property.built_in_type == "Date" ~}}
+  {{~ else if property.built_in_type == "DateTime" ~}}
     {{'{{'}} $filters.formatDatetime(value.{{ camel_case property.name }}) {{'}}'}}
   {{~ else ~}}
     {{'{{'}} value.{{ camel_case property.name }} {{'}}'}}
