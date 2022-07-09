@@ -17,13 +17,17 @@ public class StatisticsService : BackgroundService
     private readonly ILogger<StatisticsService> logger;
     private int currentDay = -1;
     private int currentPeriod = -1;
-    public StatisticsService(VisitorStatisticService visitorStatisticService, InputStatisticService inputStatisticService, IServiceProvider serviceProvider, Channel<EventData> eventChannel, ILogger<StatisticsService> logger)
+    public StatisticsService(VisitorStatisticService visitorStatisticService, InputStatisticService inputStatisticService, IServiceProvider serviceProvider, Channel<EventData> eventChannel, ILogger<StatisticsService> logger, IHostApplicationLifetime applicationLifetime)
     {
         this.visitorStatisticService = visitorStatisticService;
         this.inputStatisticService = inputStatisticService;
         this.serviceProvider = serviceProvider;
         this.eventChannel = eventChannel;
         this.logger = logger;
+        applicationLifetime.ApplicationStopping.Register(() => {
+            logger.Log(LogLevel.Information, "Application stopping detected.");
+            SaveData().Wait();
+        });
     }
 
     private async Task OnEvent(EventData eventData)
@@ -76,6 +80,7 @@ public class StatisticsService : BackgroundService
             logger.Log(LogLevel.Information, "Event data read.");
             await OnEvent(e);
         }
+        logger.Log(LogLevel.Information, "Event log finished.");
         await SaveData();
     }
 }
