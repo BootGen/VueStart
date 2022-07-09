@@ -40,7 +40,6 @@ namespace VueStart.Controllers
             try {
                 statisticsService.OnEvent(Request.HttpContext, request, ActionType.Generate);
                 var result = generationService.GenerateToCache(request, "DataTable");
-                statisticsService.OnGenerateEnd();
                 return Ok(result);
             } catch (FormatException e) {
                 return BadRequest(new { error = e.Message, fixable = false });

@@ -10,7 +10,6 @@ public class ApplicationDbContext : DbContext
 {
     public DbSet<InputData> InputData { get; set; }
     public DbSet<StatisticRecord> StatisticRecords { get; set; }
-    public DbSet<ProfilerRecord> ProfilerRecords { get; set; }
     public DbSet<ServerError> ServerErrors { get; set; }
     public DbSet<ClientError> ClientErrors { get; set; }
     public DbSet<Visitor> Visitors { get; set; }

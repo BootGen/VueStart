@@ -38,7 +38,6 @@ namespace VueStart.Controllers
                     return NotFound();
                 statisticsService.OnEvent(Request.HttpContext, request, ActionType.Download);
                 var memoryStream = CreateZipStream(request, "DataTable");
-                statisticsService.OnDownloadEnd();
                 return File(memoryStream, "application/zip", $"{layout}.zip");
             } catch (FormatException e) {
                 return BadRequest(new { error = e.Message });

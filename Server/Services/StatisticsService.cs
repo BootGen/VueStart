@@ -35,13 +35,10 @@ namespace VueStart.Services
         {
             public Dictionary<string, VisitorData> Visitors { get; init; }
             public List<InputData> InputData { get; init; }
-            public ProfilerRecord ProfilerRecord { get; init; }
         }
 
         private readonly IConfiguration configuration;
         private readonly IMemoryCache memoryCache;
-
-        private Stopwatch GenerateWatch;
         private PeriodData Data;
 
         public StatisticsService(IConfiguration configuration, IMemoryCache memoryCache)
@@ -79,25 +76,11 @@ namespace VueStart.Services
             }
         }
 
-        public void OnGenerateEnd()
-        {
-            GenerateWatch.Stop();
-            Data.ProfilerRecord.Generate += GenerateWatch.ElapsedMilliseconds;
-        }
-        public void OnDownloadEnd()
-        {
-            GenerateWatch.Stop();
-            Data.ProfilerRecord.Download += GenerateWatch.ElapsedMilliseconds;
-        }
-
         public void OnEvent(HttpContext context, GenerateRequest request, ActionType actionType, bool error = false)
         {
             CacheKey key = SetCurrentCacheEntry();
-            Data.ProfilerRecord.Count += 1;
             SaveVisitToCahce(Data.Visitors, context, key);
             SaveStatisticRecordToCache(Data, request, actionType, error);
-            GenerateWatch = new Stopwatch();
-            GenerateWatch.Start();
         }
 
         public List<Visitor> GetCachedVisitors()
@@ -132,12 +115,7 @@ namespace VueStart.Services
                 return new PeriodData
                 {
                     Visitors = new Dictionary<string, VisitorData>(),
-                    InputData = new List<InputData>(),
-                    ProfilerRecord = new ProfilerRecord
-                    {
-                        Day = key.Day,
-                        Period = key.Period
-                    }
+                    InputData = new List<InputData>()
                 };
             });
             return key;
@@ -208,18 +186,9 @@ namespace VueStart.Services
         {
             using var dbContext = new ApplicationDbContext(configuration);
             try {
-                var sw = new Stopwatch();
-                sw.Start();
                 await SaveVisitors(data, dbContext);
                 SaveRecords(data, dbContext);
                 dbContext.SaveChanges();
-                sw.Stop();
-                data.ProfilerRecord.Database = sw.ElapsedMilliseconds - data.ProfilerRecord.GeoLocation;
-                sw.Restart();
-                dbContext.ProfilerRecords.Add(data.ProfilerRecord);
-                dbContext.SaveChanges();
-                sw.Stop();
-                Console.WriteLine($"\n\nSaving profiler record: {sw.ElapsedMilliseconds}");
             } catch (Exception e) {
                 using var errorHandlingService = new ErrorHandlerService(dbContext);
                 errorHandlingService.OnException(e, null);
@@ -271,11 +240,7 @@ namespace VueStart.Services
                 }
             }
             if (toLocate.Any()) {
-                var sw = new Stopwatch();
-                sw.Start();
                 await SetGeoLocation(toLocate);
-                sw.Stop();
-                data.ProfilerRecord.GeoLocation = sw.ElapsedMilliseconds;
                 foreach (var item in toLocate) {
                     dbContext.Visitors.Add(item.Visitor);
                 }
