@@ -28,12 +28,7 @@ namespace VueStart.Controllers
         [HttpPost]
         public IActionResult Generate([FromBody] GenerateRequest request)
         {
-                var eventData = new EventData
-                {
-                    Context = Request.HttpContext,
-                    Request = request,
-                    ActionType = ActionType.Generate
-                };
+            var eventData = new EventData(Request.HttpContext, request, ActionType.Generate);
             if (request.Data.ValueKind != JsonValueKind.Object) {
                 eventData.Error = true;
                 eventChannel.Writer.WriteAsync(eventData);

@@ -1,325 +1,81 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
-using UAParser;
-using VueStart.Data;
 
 namespace VueStart.Services;
 
 public class StatisticsService : BackgroundService
 {
-    private struct CacheKey
-    {
-        public int Day { get; init; }
-        public int Period { get; init; }
-    }
-
-    private struct VisitorData
-    {
-        public Visitor Visitor { get; init; }
-        public string Ip { get; init; }
-    }
-
-    private struct PeriodData
-    {
-        public Dictionary<string, VisitorData> Visitors { get; init; }
-        public List<InputData> InputData { get; init; }
-    }
-
-    private readonly IConfiguration configuration;
-    private readonly IMemoryCache memoryCache;
+    private readonly VisitorStatisticService visitorStatisticService;
+    private readonly InputStatisticService inputStatisticService;
+    private readonly IServiceProvider serviceProvider;
     private readonly Channel<EventData> eventChannel;
     private readonly ILogger<StatisticsService> logger;
-    private PeriodData Data;
-
-    public StatisticsService(IConfiguration configuration, IMemoryCache memoryCache, Channel<EventData> eventChannel, ILogger<StatisticsService> logger)
+    private int currentDay = -1;
+    private int currentPeriod = -1;
+    public StatisticsService(VisitorStatisticService visitorStatisticService, InputStatisticService inputStatisticService, IServiceProvider serviceProvider, Channel<EventData> eventChannel, ILogger<StatisticsService> logger)
     {
-        this.configuration = configuration;
-        this.memoryCache = memoryCache;
+        this.visitorStatisticService = visitorStatisticService;
+        this.inputStatisticService = inputStatisticService;
+        this.serviceProvider = serviceProvider;
         this.eventChannel = eventChannel;
         this.logger = logger;
     }
 
-    private static int StringHash(string text)
+    private async Task OnEvent(EventData eventData)
     {
-        unchecked
-        {
-            int hash = 23;
-            foreach (char c in text)
-            {
-                hash = hash * 31 + c;
-            }
-            return hash;
-        }
-    }
-
-    private void UpdateRecord(StatisticRecord record,  Frontend cssType)
-    {
-        switch (cssType)
-        {
-            case Frontend.Bootstrap:
-                record.BootstrapCount += 1;
-            break;
-            case Frontend.Tailwind:
-                record.TailwindCount += 1;
-            break;
-            case Frontend.Vanilla:
-                record.VanillaCount += 1;
-            break;
-        }
-    }
-
-    private void OnEvent(EventData eventData)
-    {
-        CacheKey key = SetCurrentCacheEntry();
-        SaveVisitToCahce(Data.Visitors, eventData.Context, key);
-        SaveStatisticRecordToCache(Data, eventData.Request, eventData.ActionType, eventData.Error);
-    }
-
-    public List<Visitor> GetCachedVisitors()
-    {
-        SetCurrentCacheEntry();
-        return Data.Visitors.Select(kvp => kvp.Value.Visitor).ToList();
-    }
-
-    private CacheKey SetCurrentCacheEntry()
-    {
-        var now = DateTime.UtcNow;
-        #if DEBUG
-        var periodLengthInMinutes = 1;
-        #else
-        var periodLengthInMinutes = 15;
-        #endif
-        var key = new CacheKey
-        {
-            Day = (now - new DateTime(2021, 1, 1)).Days,
-            Period = (int)now.TimeOfDay.TotalMinutes / periodLengthInMinutes
-        };
-        Data = memoryCache.GetOrCreate(key, entry =>
-        {
-            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(periodLengthInMinutes + 0.5));
-            entry.RegisterPostEvictionCallback((object key, object value, EvictionReason reason, object state) =>
-            {
-                Task.Run(async () =>
-                {
-                    await SaveData((PeriodData)value);
-                });
-            });
-            return new PeriodData
-            {
-                Visitors = new Dictionary<string, VisitorData>(),
-                InputData = new List<InputData>()
-            };
-        });
-        return key;
-    }
-
-    private void SaveStatisticRecordToCache(PeriodData periodData, GenerateRequest request, ActionType actionType, bool error)
-    {
-        int hash = StringHash(request.Data.ToString());
-        var inputData = periodData.InputData.FirstOrDefault(r => r.Hash == hash);
-        var record = new StatisticRecord {
-            Download = actionType == ActionType.Download,
-            Readonly = request.Settings.IsReadonly
-        };
-        if (inputData == null)
-        {
-            inputData = new InputData {
-                Hash = hash,
-                Data = request.Data,
-                FirstUse = DateTime.UtcNow,
-                LastUse = DateTime.UtcNow,
-                Error = error,
-                StatisticRecords = new List<StatisticRecord>() { record }
-            };
-            periodData.InputData.Add(inputData);
-        } else {
-            var existingRecord = inputData.StatisticRecords.FirstOrDefault(r => r.IsSameKind(record));
-            if (existingRecord != null)
-            {
-                record = existingRecord;
-            } else {
-                inputData.StatisticRecords.Add(record);
-            }
-        }
-        UpdateRecord(record, request.Settings.Frontend.ToFrontendType());
-    }
-
-    private void SaveVisitToCahce(Dictionary<string, VisitorData> visitors, HttpContext context, CacheKey key)
-    {
-        string uaString = context.Request.Headers["User-Agent"].FirstOrDefault();
-        string token = context.Request.Headers["idtoken"].FirstOrDefault();
-        string citation = context.Request.Headers["citation"].FirstOrDefault();
-        string remoteIpAddress = context.Connection.RemoteIpAddress.ToString();
-        if (visitors.TryGetValue(token, out var data))
-        {
-            var visit = data.Visitor.Visits.First();
-            visit.Count += 1;
-            visit.End = DateTime.UtcNow;
-        }
-        else
-        {
-            var visitor = CreateVisitor(uaString, token, citation);
-            visitors.Add(token, new VisitorData {
-                Visitor = visitor,
-                Ip = remoteIpAddress
-            });
-
-            visitor.Visits = new List<Visit> {
-                new Visit {
-                    Start = DateTime.UtcNow,
-                    End = DateTime.UtcNow,
-                    Count = 1
-                }
-            };
-        }
-    }
-
-    private async Task SaveData(PeriodData data)
-    {
-        using var dbContext = new ApplicationDbContext(configuration);
         try {
-            await SaveVisitors(data, dbContext);
-            SaveRecords(data, dbContext);
-            dbContext.SaveChanges();
+            var now = DateTime.UtcNow;
+            #if DEBUG
+            var periodLengthInMinutes = 1;
+            #else
+            var periodLengthInMinutes = 15;
+            #endif
+            int day = (now - new DateTime(2021, 1, 1)).Days;
+            int period = (int)now.TimeOfDay.TotalMinutes / periodLengthInMinutes;
+            if (currentDay != -1 && (day != currentDay || period != currentPeriod))
+            {
+                await SaveData();
+            }
+            currentDay = day;
+            currentPeriod = period;
+            visitorStatisticService.StoreVisit(eventData);
+            inputStatisticService.StoreStatisticRecord(eventData.Request, eventData.ActionType, eventData.Error);
         } catch (Exception e) {
-            using var errorHandlingService = new ErrorHandlerService(dbContext);
+            using IServiceScope scope = serviceProvider.CreateScope();
+            var errorHandlingService = scope.ServiceProvider.GetRequiredService<ErrorHandlerService>();
             errorHandlingService.OnException(e, null);
             logger.Log(LogLevel.Error, e, e.Message);
         }
     }
 
-    private void SaveRecords(PeriodData data, ApplicationDbContext dbContext)
+    private async Task SaveData()
     {
-        foreach (var inputData in Data.InputData)
-        {
-            var existingInputData = dbContext.InputData.FirstOrDefault(r => r.Hash == inputData.Hash);
-            if (existingInputData != null)
-            {
-                existingInputData.LastUse = DateTime.UtcNow;
-                foreach(var record in inputData.StatisticRecords) {
-                    var existingRecord = existingInputData.StatisticRecords.FirstOrDefault(r => r.IsSameKind(record));
-                    if (existingRecord != null) {
-                        existingRecord.BootstrapCount += record.BootstrapCount;
-                        existingRecord.TailwindCount += record.TailwindCount;
-                        existingRecord.VanillaCount += record.VanillaCount;
-                    } else {
-                        existingInputData.StatisticRecords.Add(record);
-                    }
-                }
-            }
-            else
-            {
-                dbContext.InputData.Add(inputData);
-            }
+        using IServiceScope scope = serviceProvider.CreateScope();
+
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        try {
+            await visitorStatisticService.SaveVisitors(dbContext);
+            inputStatisticService.SaveRecords(dbContext);
+            dbContext.SaveChanges();
+        } catch (Exception e) {
+            var errorHandlingService = scope.ServiceProvider.GetRequiredService<ErrorHandlerService>();
+            errorHandlingService.OnException(e, null);
+            logger.Log(LogLevel.Error, e, e.Message);
         }
     }
 
-    private async Task SaveVisitors(PeriodData data, ApplicationDbContext dbContext)
-    {
-        var toLocate = new List<VisitorData>();
-        foreach (var item in data.Visitors)
-        {
-            var visitor = item.Value.Visitor;
-            var earlierVisitor = dbContext.Visitors.FirstOrDefault(v => v.Token == visitor.Token);
-            if (earlierVisitor != null)
-            {
-                dbContext.Entry(earlierVisitor).Collection(v => v.Visits).Load();
-                earlierVisitor.Visits.AddRange(visitor.Visits);
-            }
-            else
-            {
-                toLocate.Add(item.Value);
-            }
-        }
-        if (toLocate.Any()) {
-            await SetGeoLocation(toLocate);
-            foreach (var item in toLocate) {
-                dbContext.Visitors.Add(item.Visitor);
-            }
-        }
-    }
-
-    private async Task SetGeoLocation(List<VisitorData> data)
-    {
-        var ipInfotoken = configuration.GetValue<string>("IpInfoToken");
-        if (string.IsNullOrWhiteSpace(ipInfotoken))
-            return;
-
-        using var client = new HttpClient();
-        string ipListString = data.Select(d => $"\"{d.Ip}\"").Aggregate((a, b) => $"{a}, {b}");
-        string stringData = $"[{ipListString}]";
-        var content = new StringContent(stringData, Encoding.UTF8, "application/json");
-            
-        using var response = await client.PostAsync($"https://ipinfo.io/batch?token={ipInfotoken}", content);
-        using var reader = new StreamReader(response.Content.ReadAsStream());
-
-        var jsonString = reader.ReadToEnd();
-        var jObject = JObject.Parse(jsonString);
-        foreach (var item in data) {
-            var obj = jObject.GetValue(item.Ip) as JObject;
-            if (obj != null) {
-                SetLocation(item.Visitor, obj);
-            }
-        }
-    }
-
-    private static void SetLocation(Visitor visitor, JObject jObject)
-    {
-        visitor.Country = jObject.GetValue("country")?.ToString();
-        visitor.Region = jObject.GetValue("region")?.ToString();
-        visitor.City = jObject.GetValue("city")?.ToString();
-    }
-
-    private Visitor CreateVisitor(string uaString, string token, string citation)
-    {
-        var uaParser = Parser.GetDefault();
-        ClientInfo c = uaParser.Parse(uaString);
-        var visitor = new Visitor
-        {
-            Token = token,
-            Citation = citation,
-            FirstVisit = DateTime.UtcNow,
-            UserAgent = uaString,
-            OSFamily = c.OS.Family,
-            OSMajor = c.OS.Major,
-            OSMinor = c.OS.Minor,
-            DeviceBrand = c.Device.Brand,
-            DeviceFamily = c.Device.Family,
-            DeviceModel = c.Device.Model,
-            BrowserFamily = c.UA.Family,
-            BrowserMajor = c.UA.Major,
-            BrowserMinor = c.UA.Minor
-        };
-        logger.Log(LogLevel.Information, "New visitor");
-        return visitor;
-    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await foreach(var e in eventChannel.Reader.ReadAllAsync(stoppingToken)) {
             logger.Log(LogLevel.Information, "Event data read.");
-            OnEvent(e);
+            await OnEvent(e);
         }
+        await SaveData();
     }
-}
-
-public struct EventData
-{
-    public HttpContext Context { get; set; }
-    public GenerateRequest Request { get; set; }
-    public ActionType ActionType { get; set; }
-    public bool Error { get; set; }
 }

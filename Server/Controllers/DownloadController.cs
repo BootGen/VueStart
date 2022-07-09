@@ -37,11 +37,7 @@ namespace VueStart.Controllers
                 var frontend = request.Settings.Frontend.ToFrontendType();
                 if (frontend == Frontend.None)
                     return NotFound();
-                eventChannel.Writer.WriteAsync(new EventData {
-                    Context = Request.HttpContext,
-                    Request = request,
-                    ActionType = ActionType.Download
-                });
+                eventChannel.Writer.WriteAsync(new EventData(Request.HttpContext, request, ActionType.Download));
                 var memoryStream = CreateZipStream(request, "DataTable");
                 return File(memoryStream, "application/zip", $"{layout}.zip");
             } catch (FormatException e) {

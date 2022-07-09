@@ -16,18 +16,10 @@ public class ApplicationDbContext : DbContext
     public DbSet<Visit> Visits { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<ShareableLink> ShareableLinks { get; set; }
-    public IConfiguration Configuration { get; }
 
-    
-    public ApplicationDbContext(IConfiguration configuration)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
-        Configuration = configuration;
     }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseNpgsql(Configuration.GetConnectionString("PostgreSQL"));
-    } 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

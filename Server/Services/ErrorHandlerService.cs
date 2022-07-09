@@ -1,18 +1,11 @@
 using System;
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace VueStart
 {
-    class ErrorHandlerService : IDisposable
+    class ErrorHandlerService
     {
         private readonly ApplicationDbContext dbContext;
-
-        public ErrorHandlerService(IConfiguration configuration)
-        {
-            dbContext = new ApplicationDbContext(configuration);
-        }
 
         public ErrorHandlerService(ApplicationDbContext dbContext)
         {
@@ -40,11 +33,6 @@ namespace VueStart
                 Source = e.Source,
                 HResult = e.HResult
             };
-        }
-
-        public void Dispose()
-        {
-            dbContext.Dispose();
         }
     }
 }
