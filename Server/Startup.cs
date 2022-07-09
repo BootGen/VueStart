@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using VueStart.Services;
 using Microsoft.AspNetCore.Http;
 using VueStart.Authorization;
+using System.Threading.Channels;
 
 namespace VueStart
 {
@@ -26,7 +27,8 @@ namespace VueStart
         {
             services.AddControllers();
             services.AddMemoryCache();
-            services.AddScoped<StatisticsService>();
+            services.AddHostedService<StatisticsService>();
+            services.AddSingleton(Channel.CreateUnbounded<EventData>());
             services.AddScoped<GenerationService>();
             services.AddScoped<UserService>();
             services.AddDbContext<ApplicationDbContext>();

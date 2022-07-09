@@ -8,6 +8,7 @@ using System.IO.Compression;
 using VueStart.Services;
 using VueStart.Data;
 using BootGen.Core;
+using System.Threading.Channels;
 
 namespace VueStart.Controllers
 {
@@ -16,29 +17,37 @@ namespace VueStart.Controllers
     public class GenerationController : ControllerBase
     {
         private readonly GenerationService generationService;
-        private readonly StatisticsService statisticsService;
+        private readonly Channel<EventData> eventChannel;
 
-        public GenerationController(GenerationService generateService, StatisticsService statisticsService)
+        public GenerationController(GenerationService generateService, Channel<EventData> eventChannel)
         {
             this.generationService = generateService;
-            this.statisticsService = statisticsService;
+            this.eventChannel = eventChannel;
         }
 
         [HttpPost]
         public IActionResult Generate([FromBody] GenerateRequest request)
         {
+                var eventData = new EventData
+                {
+                    Context = Request.HttpContext,
+                    Request = request,
+                    ActionType = ActionType.Generate
+                };
             if (request.Data.ValueKind != JsonValueKind.Object) {
-                statisticsService.OnEvent(Request.HttpContext, request, ActionType.Generate, true);
+                eventData.Error = true;
+                eventChannel.Writer.WriteAsync(eventData);
                 return BadRequest(new { error = "The root element must be an object!", fixable = true });
             }
             foreach (var property in request.Data.EnumerateObject()) {
                 if (property.Value.ValueKind != JsonValueKind.Object && property.Value.ValueKind != JsonValueKind.Array) {
-                    statisticsService.OnEvent(Request.HttpContext, request, ActionType.Generate, true);
+                    eventData.Error = true;
+                    eventChannel.Writer.WriteAsync(eventData);
                     return BadRequest(new { error = "Properties of the root element must be an objects or arrays!", fixable = false });
                 }
             }
             try {
-                statisticsService.OnEvent(Request.HttpContext, request, ActionType.Generate);
+                eventChannel.Writer.WriteAsync(eventData);
                 var result = generationService.GenerateToCache(request, "DataTable");
                 return Ok(result);
             } catch (FormatException e) {

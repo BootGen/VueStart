@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.IO.Compression;
 using VueStart.Services;
 using VueStart.Data;
+using System.Threading.Channels;
 
 namespace VueStart.Controllers
 {
@@ -14,12 +15,12 @@ namespace VueStart.Controllers
     public class DownloadController : ControllerBase
     {
         private readonly GenerationService generateService;
-        private readonly StatisticsService statisticsService;
+        private readonly Channel<EventData> eventChannel;
 
-        public DownloadController(GenerationService generateService, StatisticsService statisticsService)
+        public DownloadController(GenerationService generateService, Channel<EventData> eventChannel)
         {
             this.generateService = generateService;
-            this.statisticsService = statisticsService;
+            this.eventChannel = eventChannel;
         }
 
         private static string ToUpperFirst(string type)
@@ -36,7 +37,11 @@ namespace VueStart.Controllers
                 var frontend = request.Settings.Frontend.ToFrontendType();
                 if (frontend == Frontend.None)
                     return NotFound();
-                statisticsService.OnEvent(Request.HttpContext, request, ActionType.Download);
+                eventChannel.Writer.WriteAsync(new EventData {
+                    Context = Request.HttpContext,
+                    Request = request,
+                    ActionType = ActionType.Download
+                });
                 var memoryStream = CreateZipStream(request, "DataTable");
                 return File(memoryStream, "application/zip", $"{layout}.zip");
             } catch (FormatException e) {
