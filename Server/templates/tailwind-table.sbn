@@ -1,9 +1,3 @@
-{{~ func default_value(property)
-   if ((get_type property) == "Date")
-     ret "new Date().toISOString().split('.')[0]"
-    end
-   ret get_default_value property
-end ~}}
 const ref = Vue.ref;
 const watch = Vue.watch;
 const computed = Vue.computed;

@@ -10,25 +10,16 @@ public class ApplicationDbContext : DbContext
 {
     public DbSet<InputData> InputData { get; set; }
     public DbSet<StatisticRecord> StatisticRecords { get; set; }
-    public DbSet<ProfilerRecord> ProfilerRecords { get; set; }
     public DbSet<ServerError> ServerErrors { get; set; }
     public DbSet<ClientError> ClientErrors { get; set; }
     public DbSet<Visitor> Visitors { get; set; }
     public DbSet<Visit> Visits { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<ShareableLink> ShareableLinks { get; set; }
-    public IConfiguration Configuration { get; }
 
-    
-    public ApplicationDbContext(IConfiguration configuration)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
-        Configuration = configuration;
     }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseNpgsql(Configuration.GetConnectionString("PostgreSQL"));
-    } 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

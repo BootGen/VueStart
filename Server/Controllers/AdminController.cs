@@ -20,16 +20,16 @@ public class AdminController : ControllerBase
     private readonly IMemoryCache memoryCache;
     private readonly GenerationService generationService;
     private readonly GenerationService generateService;
-    private readonly StatisticsService statisticsService;
+    private readonly VisitorStatisticService visitorStatisticService;
     private readonly UserService userService;
 
-    public AdminController(ApplicationDbContext dbContext, IMemoryCache memoryCache, GenerationService generationService, GenerationService generateService, StatisticsService statisticsService, UserService userService)
+    public AdminController(ApplicationDbContext dbContext, IMemoryCache memoryCache, GenerationService generationService, GenerationService generateService, VisitorStatisticService visitorStatisticService, UserService userService)
     {
         this.dbContext = dbContext;
         this.memoryCache = memoryCache;
         this.generationService = generationService;
         this.generateService = generateService;
-        this.statisticsService = statisticsService;
+        this.visitorStatisticService = visitorStatisticService;
         this.userService = userService;
     }
 
@@ -71,7 +71,7 @@ public class AdminController : ControllerBase
     public IActionResult GetFile(string fileName)
     {
         List<Visitor> visitors = dbContext.Visitors.Include(visitor => visitor.Visits).ToList();
-        visitors.AddRange(statisticsService.GetCachedVisitors());
+        visitors.AddRange(visitorStatisticService.GetCachedVisitors());
         if (!visitors.Any())
             return NotFound();
         JsonDocument doc = JsonDocument.Parse("{\"visitors\":" + JsonSerializer.Serialize(visitors, new JsonSerializerOptions{ 
