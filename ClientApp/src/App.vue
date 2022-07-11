@@ -7,26 +7,28 @@
       </div>
       <div class="d-flex align-items-center jumbo-text" :class="page">
         <div class="d-flex flex-column align-items-center">
-          <p class="jumbo-logos lead text-justify m-0">
-            <img src="./assets/vue_logo.webp"> <img src="./assets/bootstrap.webp"> <img src="./assets/tailwind.webp"> <img src="./assets/css.webp">
+          <p class="jumbo-logos lead m-0">
+            <img src="./assets/vue_logo.webp" alt="VueJs logo"> <img src="./assets/bootstrap.webp" alt="Bootstrap logo"> <img src="./assets/tailwind.webp" alt="Tailwind logo"> <img src="./assets/css.webp" alt="Css logo">
           </p>
-          <p class="lead text-justify m-0">
+          <p class="lead m-0">
             Turn any JSON into Vue 3 tables! Create well coded Vue 3 tables with Bootstrap, Tailwind CSS or vanilla CSS.
           </p>
           <button class="btn fill-btn rounded-pill m-1 btn-lg" @click="showEditor">Start!</button>
         </div>
       </div>
     </div>
-    <p class="title">Vue Start!</p>
-    <div class="github" :class="page">
-      <div class="d-flex clickable flex-column align-items-center" @click="openGithub()">
-        <div class="d-flex align-items-center px-2">
-          <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
-          <span class="bi bi-star-fill star-icon px-2" aria-hidden="true"></span>
+    <header>
+      <h1 class="title">Vue Start!</h1>
+      <div class="github" :class="page">
+        <div class="d-flex clickable flex-column align-items-center" @click="openGithub()">
+          <div class="d-flex align-items-center px-2">
+            <span class="bi bi-github px-2 github-icon" aria-hidden="true"></span>
+            <span class="bi bi-star-fill star-icon px-2" aria-hidden="true"></span>
+          </div>
+          <p class="small-text">Star this project on GitHub!</p>
         </div>
-        <p class="small-text">Star this project on GitHub!</p>
       </div>
-    </div>
+    </header>
     <transition name="fade">
       <supporters v-if="page === 'supporters'"></supporters>
     </transition>
@@ -34,9 +36,9 @@
       <not-found v-if="page === 'notfound'" @showEditor="showEditor()"></not-found>
     </transition>
     <editor :config="config" :page="page" @showNotFound="showNotFound" @download="download" @generationFailed="setVuecoonErrorState" @generationStarted="setLoadingVuecoon" @generationSuccess="resetVuecoonState" @success="setSuccessVuecoon"></editor>
-    <div class="col-12 d-flex align-items-center footer" :class="page">
-      <p><a href="javascript:void(0)" @click="showSupporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank">Code Sharp</a> | Send <a href="https://github.com/BootGen/VueStart/discussions/55" target="_blank">Feedback!</a></p>
-    </div>
+    <footer class="col-12 d-flex align-items-center footer" :class="page">
+      <p><a href="javascript:void(0)" @click="showSupporters" aria-label="Supporters">Supporters</a> | Powered by <a href="https://bootgen.com" target="_blank" aria-label="BootGen">BootGen</a> | Created by <a href="https://codesharp.hu" target="_blank" aria-label="Code Sharp">Code Sharp</a> | Send <a href="https://github.com/BootGen/VueStart/discussions/55" target="_blank" aria-label="Feedback">Feedback!</a></p>
+    </footer>
   </div>
 </template>
 

@@ -9,6 +9,8 @@ using Microsoft.Extensions.Hosting;
 using VueStart.Services;
 using Microsoft.AspNetCore.Http;
 using VueStart.Authorization;
+using System.Threading.Channels;
+using Microsoft.EntityFrameworkCore;
 
 namespace VueStart
 {
@@ -26,10 +28,15 @@ namespace VueStart
         {
             services.AddControllers();
             services.AddMemoryCache();
-            services.AddScoped<StatisticsService>();
+            services.AddHostedService<StatisticsService>();
+            services.AddSingleton(Channel.CreateUnbounded<EventData>());
+            services.AddSingleton<GeoLocationService>();
+            services.AddSingleton<VisitorStatisticService>();
+            services.AddSingleton<InputStatisticService>();
             services.AddScoped<GenerationService>();
             services.AddScoped<UserService>();
-            services.AddDbContext<ApplicationDbContext>();
+            services.AddScoped<ErrorHandlerService>();
+            services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreSQL")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,7 +58,8 @@ namespace VueStart
             });
             app.UseExceptionHandler(builder => {
                 builder.Run(async context => {
-                        using var service = new ErrorHandlerService(Configuration);
+                        using var scope = app.ApplicationServices.CreateScope();
+                        var service = scope.ServiceProvider.GetRequiredService<ErrorHandlerService>();
                         var handler = context.Features.Get<IExceptionHandlerFeature>();
                         var exception = handler?.Error;
                         context.Request.Body.Seek(0, SeekOrigin.Begin);

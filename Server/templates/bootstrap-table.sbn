@@ -56,7 +56,7 @@ app.component('pagination', {
     <nav aria-label="pagination">
       <ul class="pagination">
         <li class="page-item" :class="{disabled: pageIdx === 1 || pageCount === 0}">
-          <a class="page-link" href="javascript:void(0)" @click="toPage(pageIdx-1)">&laquo;</a>
+          <a class="page-link" href="javascript:void(0)" @click="toPage(pageIdx-1)" aria-label="Previous">&laquo;</a>
         </li>
         <li v-if="pageCount > 0" class="page-item" :class="{active: n === pageIdx}" v-for="n in pageCount" :key="n" @click="toPage(n)">
           <a class="page-link" href="javascript:void(0)">{{'{{'}} n {{'}}'}} <span class="sr-only"></span></a>
@@ -64,14 +64,14 @@ app.component('pagination', {
         <li v-else class="page-item disabled">
           <a class="page-link" href="javascript:void(0)"> No results <span class="sr-only"></span></a>
         </li>
-        <li class="page-item" :class="{disabled: pageIdx === pageCount || pageCount === 0}" @click="toPage(pageIdx+1)">
+        <li class="page-item" :class="{disabled: pageIdx === pageCount || pageCount === 0}" @click="toPage(pageIdx+1)" aria-label="Next">
           <a class="page-link" href="javascript:void(0)">&raquo;</a>
         </li>
       </ul>
     </nav>
     <p>
     rows per page:
-    <select v-model="pageSize" @input="$emit('update:pageSize', $event.target.value)">
+    <select v-model="pageSize" @input="$emit('update:pageSize', $event.target.value)" aria-label="Rows per page size">
       <option>5</option>
       <option>10</option>
       <option>20</option>
@@ -107,7 +107,7 @@ app.component('pagination', {
 app.component('search', {
   template: `
   <div class="form-outline">
-    <input type="search" v-model="modelValue" @input="$emit('update:modelValue', $event.target.value)" class="form-control" placeholder="Search..." aria-label="Search" />
+    <input type="search" v-model="modelValue" @input="$emit('update:modelValue', $event.target.value)" class="form-control" placeholder="Search..."  aria-label="Search in table data" />
   </div>
   `,
   name: 'Search',
@@ -139,7 +139,7 @@ app.component('{{ kebab_case class.name }}-row', {
     {{~ end ~}}
     {{~ for property in class.child_references ~}}
     <td class="align-middle">
-      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ camel_case property.name }}')">
+      <button type="button" class="btn btn-sm rounded-pill" @click="$emit('show', '{{ camel_case property.name }}')" aria-label="View">
         <span class="bi bi-eye" aria-hidden="true"></span>
       </button>
     </td>

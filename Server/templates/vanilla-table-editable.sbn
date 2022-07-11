@@ -71,18 +71,18 @@ app.config.globalProperties.$filters = {
 app.component('pagination', {
   template: `
   <div class="pagination">
-    <a href="javascript:void(0)" :class="{disabled: pageIdx === 1 || pageCount === 0}" @click="toPage(pageIdx-1)">
+    <a href="javascript:void(0)" :class="{disabled: pageIdx === 1 || pageCount === 0}" @click="toPage(pageIdx-1)" aria-label="Previous">
       <i class="bi-chevron-left"></i>
     </a>
     <a v-if="pageCount > 0" v-for="n in pageCount" :key="n" href="javascript:void(0)" :class="{'active': n === pageIdx}" @click="toPage(n)">{{'{{'}} n {{'}}'}}</a>
     <a v-else class="disabled">No results</a>
-    <a href="javascript:void(0)" :class="{disabled: pageIdx === pageCount || pageCount === 0}" @click="toPage(pageIdx+1)">
+    <a href="javascript:void(0)" :class="{disabled: pageIdx === pageCount || pageCount === 0}" @click="toPage(pageIdx+1)" aria-label="Next">
       <i class="bi-chevron-right"></i>
     </a>
   </div>
   <p>
     rows per page:
-    <select v-model="pageSize" @input="$emit('update:pageSize', $event.target.value)">
+    <select v-model="pageSize" @input="$emit('update:pageSize', $event.target.value)" aria-label="Rows per page size">
       <option>5</option>
       <option>10</option>
       <option>20</option>
@@ -116,7 +116,7 @@ app.component('pagination', {
 
 app.component('search', {
   template: `
-  <input type="search" placeholder="Search..." v-model="modelValue" @input="$emit('update:modelValue', $event.target.value)">
+  <input type="search" placeholder="Search..." v-model="modelValue" @input="$emit('update:modelValue', $event.target.value)" aria-label="Search in table data">
   `,
   name: 'Search',
   props: {
@@ -146,16 +146,16 @@ app.component('{{ kebab_case class.name }}-data', {
   {{~ end ~}}
   {{~ for property in class.child_references ~}}
   <td>
-    <button type="button" class="btn" @click="$emit('show', '{{ camel_case property.name }}')">
+    <button type="button" class="btn" @click="$emit('show', '{{ camel_case property.name }}')" aria-label="View">
       <i class="bi-eye"></i>
     </button>
   </td>
   {{~ end ~}}
   <td>
-    <button type="button" class="btn" @click="$emit('edit')">
+    <button type="button" class="btn" @click="$emit('edit')" aria-label="Edit">
       <i class="bi-pencil"></i>
     </button>
-    <button type="button" class="btn" @click="$emit('delete')" v-if="deletable">
+    <button type="button" class="btn" @click="$emit('delete')" v-if="deletable" aria-label="Delete">
       <i class="bi-trash"></i>
     </button>
   </td>
@@ -286,7 +286,7 @@ app.component('{{ kebab_case class.name }}-table-template', {
           {{ property.visible_name }}
           </th>
         {{~ end ~}}
-        <th scope="col"></th>
+        <td scope="col">&nbsp;</td>
       </tr>
     </thead>
     <tbody>

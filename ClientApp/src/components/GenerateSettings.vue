@@ -2,33 +2,29 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="staticBackdropLabel">Settings</h5>
+        <h3 class="modal-title" id="staticBackdropLabel">Settings</h3>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="cancel"></button>
       </div>
       <div class="modal-body">
         <h5>Frontend mode</h5>
         <div class="row px-3">
-          <div class="col-4 form-check">
-            <input class="form-check-input" type="radio" name="vanilla" id="vanilla" :checked="editedSettings.frontend === 'vanilla'" @click="editedSettings.frontend = 'vanilla'">
-            <label class="form-check-label" for="vanilla">
-              Vanilla
-            </label>
+          <div class="col-4 form-check cursor-pointer" @click="editedSettings.frontend = 'vanilla'">
+            <img v-if="editedSettings.frontend == 'vanilla'" alt="vanilla" src="../assets/css.webp" height="50">
+            <img v-else alt="vanilla" src="../assets/css_disabled.webp" height="50">
+            <span class="ms-2">Vanilla</span>
           </div>
-          <div class="col-4 form-check">
-            <input class="form-check-input" type="radio" name="bootstrap" id="bootstrap" :checked="editedSettings.frontend === 'bootstrap'" @click="editedSettings.frontend = 'bootstrap'">
-            <label class="form-check-label" for="bootstrap">
-              Bootstrap
-            </label>
+          <div class="col-4 form-check cursor-pointer" @click="editedSettings.frontend = 'bootstrap'">
+            <img v-if="editedSettings.frontend == 'bootstrap'" alt="bootstrap" src="../assets/bootstrap.webp" height="50">
+            <img v-else alt="bootstrap" src="../assets/bootstrap_disabled.webp" height="50">
+            <span class="ms-2">Bootstrap</span>
           </div>
-          <div class="col-4 form-check">
-            <input class="form-check-input" type="radio" name="tailwind" id="tailwind" :checked="editedSettings.frontend === 'tailwind'" @click="editedSettings.frontend = 'tailwind'">
-            <label class="form-check-label" for="tailwind">
-              Tailwind
-            </label>
+          <div class="col-4 form-check cursor-pointer" @click="editedSettings.frontend = 'tailwind'">
+            <img v-if="editedSettings.frontend == 'tailwind'" alt="tailwind" src="../assets/tailwind.webp" height="50">
+            <img v-else alt="tailwind" src="../assets/tailwind_disabled.webp" height="50">
+            <span class="ms-2">Tailwind</span>
           </div>
         </div>
-        <hr>
-        <h5>Editable</h5>
+        <h5 class="mt-4">Editable</h5>
         <div class="row px-3">
           <div class="col-4 form-check">
             <input class="form-check-input" type="radio" name="editable" id="editable" :checked="!editedSettings.isReadonly" @click="editedSettings.isReadonly = false">
@@ -43,26 +39,21 @@
             </label>
           </div>
         </div>
-        <hr>
-        <h5>Theme color</h5>
+        <h5 class="mt-4">Theme color</h5>
         <div class="d-flex align-center">
-          <input type="color" class="form-control form-control-color" id="colorInput" v-model="editedSettings.color" title="Choose your color"  @click="triggerColorPicker">
-          <p class="p-2">{{ editedSettings.color }}</p>
+          <input type="color" class="form-control form-control-color" id="colorInput" v-model="editedSettings.color" title="Choose your color" @click="triggerColorPicker">
+          <label for="colorInput" class="p-2">{{ editedSettings.color }}</label>
         </div>
-        <hr>
-        <h5>Table settings</h5>
-        <div class="row px-3">
-          <div class="col-4 form-check" v-for="myClass in editedSettings.classSettings" :key="myClass.name">
-            <input class="form-check-input" type="radio" :name="myClass.name" :id="myClass.name" :checked="myClass.name === selectedClass.name" @click="selectClass(myClass)">
-            <label class="form-check-label" :for="myClass.name">
-              {{ myClass.name }}
-            </label>
-          </div>
-        </div>
-        <table class="table text-start mt-2" v-if="selectedClass">
+        <h5 class="mt-4">Table settings</h5>
+        <ul class="nav nav-tabs">
+          <li class="nav-item" v-for="myClass in editedSettings.classSettings" :key="myClass.name">
+            <a class="nav-link" :class="{'active': myClass.name === selectedClass.name}" @click="selectClass(myClass)">{{ myClass.name }}</a>
+          </li>
+        </ul>
+        <table class="table text-start" v-if="selectedClass">
           <thead>
             <tr class="table-light">
-              <th scope="col"></th>
+              <td scope="col">&nbsp;</td>
               <th scope="col" v-for="myClass in selectedClass.propertySettings" :key="myClass.name">{{ myClass.name }}</th>
             </tr>
           </thead>
@@ -71,7 +62,7 @@
               <th scope="row">Visible Name</th>
               <td class="align-middle" v-for="myClass in selectedClass.propertySettings" :key="myClass.name">
                 <div class="col-12 d-flex justify-content-start">
-                  <input type="text" class="form-control" placeholder="Visible Name" v-model="myClass.visibleName">
+                  <input type="text" class="form-control" placeholder="Visible Name" v-model="myClass.visibleName" :aria-label="myClass.name">
                 </div>
               </td>
             </tr>
@@ -80,7 +71,7 @@
               <td class="align-middle" v-for="myClass in selectedClass.propertySettings" :key="myClass.name">
                 <div class="col-12 d-flex justify-content-start" v-if="myClass.isReadOnly != null">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" v-model="myClass.isReadOnly" >
+                    <input class="form-check-input" type="checkbox" v-model="myClass.isReadOnly" :aria-label="myClass.name">
                   </div>
                 </div>
               </td>
@@ -90,7 +81,7 @@
               <td class="align-middle" v-for="myClass in selectedClass.propertySettings" :key="myClass.name">
                 <div class="col-12 d-flex justify-content-start">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" v-model="myClass.isHidden">
+                    <input class="form-check-input" type="checkbox" v-model="myClass.isHidden" :aria-label="myClass.name">
                   </div>
                 </div>
               </td>
@@ -100,7 +91,7 @@
               <td class="align-middle" v-for="myClass in selectedClass.propertySettings" :key="myClass.name">
                 <div class="col-12 d-flex justify-content-start" v-if="myClass.showAsImage != null">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" v-model="myClass.showAsImage">
+                    <input class="form-check-input" type="checkbox" v-model="myClass.showAsImage" :aria-label="myClass.name">
                   </div>
                 </div>
               </td>
@@ -180,6 +171,19 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.nav-item {
+  cursor: pointer;
+}
+.nav-tabs {
+  border-bottom: 1px solid #42b983;
+}
+.nav-link.active {
+  color: #42b983;
+  border-color: #42b983 #42b983 transparent;
+}
+.nav-link {
+  color: unset;
+}
 .btn-primary {
   background-color: #42b983;
   border-color: #42b983;
@@ -201,6 +205,15 @@ export default defineComponent({
 }
 .modal-dialog {
   width: 80vw;
+}
+.modal-header {
+  border-bottom: unset;
+}
+.modal-footer {
+  border-top: unset;
+}
+.table>:not(caption)>*>* {
+  border-bottom-width: 0;
 }
 @media (min-width: 576px) {
   .modal-dialog {

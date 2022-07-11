@@ -73,7 +73,7 @@ app.component('pagination', {
   <nav aria-label="Page navigation">
     <ul class="inline-flex items-center -space-x-px">
       <li>
-        <a href="javascript:void(0)" class="block py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300" @click="toPage(pageIdx-1)" :class="{'hover:bg-gray-100 hover:text-gray-700': pageIdx !== 1 && pageCount !== 0 }">
+        <a href="javascript:void(0)" class="block py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300" @click="toPage(pageIdx-1)" :class="{'hover:bg-gray-100 hover:text-gray-700': pageIdx !== 1 && pageCount !== 0 }" aria-label="Previous">
           <span class="sr-only">Previous</span>
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
@@ -87,7 +87,7 @@ app.component('pagination', {
         <a href="javascript:void(0)" class="block py-2 px-3 leading-tight bg-white text-gray-500 border border-gray-300">No results</a>
       </li>
       <li>
-        <a href="javascript:void(0)" class="block py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300" @click="toPage(pageIdx+1)" :class="{'hover:bg-gray-100 hover:text-gray-700': pageIdx !== pageCount && pageCount !== 0 }">
+        <a href="javascript:void(0)" class="block py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300" @click="toPage(pageIdx+1)" :class="{'hover:bg-gray-100 hover:text-gray-700': pageIdx !== pageCount && pageCount !== 0 }" aria-label="Next">>
           <span class="sr-only">Next</span>
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
         </a>
@@ -96,7 +96,7 @@ app.component('pagination', {
   </nav>
   <p>
     rows per page:
-    <select v-model="pageSize" @input="$emit('update:pageSize', $event.target.value)">
+    <select v-model="pageSize" @input="$emit('update:pageSize', $event.target.value)" aria-label="Rows per page size">
       <option>5</option>
       <option>10</option>
       <option>20</option>
@@ -148,6 +148,7 @@ app.component('search', {
           focus:text-gray-700 focus:bg-white focus:border-primary focus:outline-none
         "
         placeholder="Search..."
+        aria-label="Search in table data"
       />
     </div>
   </div>
@@ -180,7 +181,7 @@ app.component('{{ kebab_case class.name }}-data', {
   {{~ end ~}}
   {{~ for property in class.child_references ~}}
   <td class="border-b border-slate-100 p-4 text-slate-500 text-left">
-    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="$emit('show', '{{ camel_case property.name }}')">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="$emit('show', '{{ camel_case property.name }}')" aria-label="View">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
       <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
       <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -189,12 +190,12 @@ app.component('{{ kebab_case class.name }}-data', {
   </td>
   {{~ end ~}}
   <td class="border-b border-slate-100 p-4 text-slate-500 text-right">
-    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 mr-1 rounded-full" @click="$emit('edit')">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 mr-1 rounded-full" @click="$emit('edit')" aria-label="Edit">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
       </svg>
     </button>
-    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="$emit('delete')" v-if="deletable">
+    <button class="bg-primary hover:bg-primaryHover text-white text-sm font-bold py-1 px-4 rounded-full" @click="$emit('delete')" v-if="deletable" aria-label="Delete">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
         <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
       </svg>
@@ -344,7 +345,7 @@ app.component('{{ kebab_case class.name }}-table-template', {
         {{ property.visible_name }}
         </th>
         {{~ end ~}}
-        <th class="border-b font-medium p-4 pt-0 pb-3 text-left"></th>
+        <td class="border-b font-medium p-4 pt-0 pb-3 text-left">&nbsp;</td>
       </tr>
     </thead>
     <tbody>
